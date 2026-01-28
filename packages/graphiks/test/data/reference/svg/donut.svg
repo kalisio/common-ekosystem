@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 100 100" preserveAspectRatio="none" overflow="visible"><style>
+  .graphiks-donut-slice { cursor: pointer;  transition: opacity 0.2s, transform 0.2s; }
+  .graphiks-donut-slice:hover { opacity: 0.8; transform-origin: center; transform: scale(1.05); }
+</style><g ><path d="M 50 0
+          A 50 50 0 0 1 96.33448037159167 31.2086208942881
+          L 68.53379214863668 42.48344835771524
+          A 20 20 0 0 0 50 30
+          Z" fill="red" class="graphiks-donut-slice"><title>slice a</title></path><path d="M 96.33448037159167 31.2086208942881
+          A 50 50 0 0 1 7.720199824908704 76.69116889823954
+          L 33.088079929963484 60.676467559295816
+          A 20 20 0 0 0 68.53379214863668 42.48344835771524
+          Z" fill="green" class="graphiks-donut-slice"><title>slice b</title></path><path d="M 7.720199824908704 76.69116889823954
+          A 50 50 0 0 1 49.99999999999999 0
+          L 49.99999999999999 30
+          A 20 20 0 0 0 33.088079929963484 60.676467559295816
+          Z" fill="blue" class="graphiks-donut-slice"><title>slice c</title></path></g></svg>

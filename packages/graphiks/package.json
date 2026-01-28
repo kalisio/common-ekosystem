@@ -1,0 +1,62 @@
+{
+  "name": "@kalisio/graphiks",
+  "version": "0.1.0",
+  "description": "A minimal parametric shape factory for SVG graphics",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "standard": {
+    "globals": [
+      "Vue",
+      "Quasar",
+      "Image"
+    ]
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "standard --fix",
+    "test": "vitest run --coverage",
+    "check": "pnpm lint && pnpm test"
+  },
+  "keywords": [
+    "graphics",
+    "SVG",
+    "shape",
+    "basik"
+  ],
+  "author": {
+    "name": "Kalisio contributors",
+    "url": "https://github.com/kalisio"
+  },
+  "contributors": [],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kalisio/graphiks.git",
+    "directory": "packages/graphiks"
+  },
+  "bugs": {
+    "url": "https://github.com/kalisio/graphiks/issues"
+  },
+  "homepage": "https://github.com/kalisio/basik/tree/main/packages/graphiks#readme",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@kalisio/check": "workspace:*"
+  },
+  "devDependencies": {
+    "@napi-rs/canvas": "^0.1.88",
+    "happy-dom": "^20.3.1"
+  }
+}
