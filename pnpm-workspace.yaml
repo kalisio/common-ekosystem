@@ -1,2 +1,5 @@
 packages:
   - "packages/*"
+
+catalog:
+  '@logtape/logtape': ^0.7.0

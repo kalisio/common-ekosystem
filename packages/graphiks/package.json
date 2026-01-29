@@ -55,7 +55,7 @@
   },
   "dependencies": {
     "@kalisio/check": "workspace:*",
-    "@logtape/logtape": "^0.7.0"
+    "@logtape/logtape": "catalog:"
   },
   "devDependencies": {
     "@napi-rs/canvas": "^0.1.88",

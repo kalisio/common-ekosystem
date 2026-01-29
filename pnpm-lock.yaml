@@ -4,6 +4,12 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    '@logtape/logtape':
+      specifier: ^0.7.0
+      version: 0.7.2
+
 importers:
 
   .:
@@ -35,7 +41,7 @@ importers:
         specifier: workspace:*
         version: link:../check
       '@logtape/logtape':
-        specifier: ^0.7.0
+        specifier: 'catalog:'
         version: 0.7.2
 
   packages/graphiks:
@@ -44,7 +50,7 @@ importers:
         specifier: workspace:*
         version: link:../check
       '@logtape/logtape':
-        specifier: ^0.7.0
+        specifier: 'catalog:'
         version: 0.7.2
     devDependencies:
       '@napi-rs/canvas':
