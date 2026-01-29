@@ -1,5 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { logger } from '../src/utils/logger'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { Cache } from '../src/utils/cache'
 import {
   toSVG,
@@ -23,7 +22,6 @@ describe('SVG', () => {
       margin: 10,
       shape: '<circle cx="50" cy="50" r="40"/>'
     }
-    vi.spyOn(logger, 'debug').mockImplementation(() => {})
   })
 
   describe('toSVG', () => {
@@ -50,7 +48,6 @@ describe('SVG', () => {
       mockParams.key = 'circle-shape'
       toSVG(mockParams, { svgCache })
       expect(svgCache.has('circle-shape')).toBe(true)
-      expect(logger.debug).toHaveBeenCalledWith("SVG 'circle-shape' cached")
     })
 
     it('should retrieve from cache when key exists', () => {
@@ -58,7 +55,6 @@ describe('SVG', () => {
       const firstSvg = toSVG(mockParams, { svgCache })
       const secondSvg = toSVG(mockParams, { svgCache })
       expect(firstSvg).toBe(secondSvg)
-      expect(logger.debug).toHaveBeenCalledWith("SVG 'circle-shape' retrieved from cache")
     })
 
     it('should include style element when provided', () => {

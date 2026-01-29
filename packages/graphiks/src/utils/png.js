@@ -1,5 +1,7 @@
-import { logger } from './logger.js'
+import { getLogger } from '@logtape/logtape'
 import { toSVG } from './svg.js'
+
+const logger = getLogger(['graphiks', 'png'])
 
 export async function toPNG (params, context) {
   const { pngCache } = context
@@ -7,7 +9,7 @@ export async function toPNG (params, context) {
   if (params.key) {
     const png = pngCache.get(params.key)
     if (png) {
-      logger.debug(`PNG '${params.key}' retrieved from cache`)
+      logger.debug('PNG {key} retrieved from cache', { key: params.key })
       return png
     }
   }
@@ -29,7 +31,7 @@ export async function toPNG (params, context) {
   URL.revokeObjectURL(url)
   if (params.key) {
     pngCache.set(params.key, png)
-    logger.debug(`PNG '${params.key}' cached`)
+    logger.debug('PNG {key} cached', { key: params.key })
   }
   return png
 }

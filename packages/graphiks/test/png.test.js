@@ -3,7 +3,6 @@ import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { createCanvas, Image } from '@napi-rs/canvas'
-import { logger } from '../src/utils/logger'
 import { Cache } from '../src/utils/cache'
 import { toPNG } from '../src/utils/png'
 
@@ -99,7 +98,6 @@ describe('toPNG', () => {
       height: 100,
       margin: 0
     }
-    vi.spyOn(logger, 'debug').mockImplementation(() => {})
     if (!existsSync(pngDir)) {
       mkdirSync(pngDir, { recursive: true })
     }
@@ -171,7 +169,6 @@ describe('toPNG', () => {
     const firstPng = await toPNG(mockParams, { pngCache, svgCache })
     const secondPng = await toPNG(mockParams, { pngCache, svgCache })
     expect(firstPng).toBe(secondPng)
-    expect(logger.debug).toHaveBeenCalledWith("PNG 'circle-png' retrieved from cache")
   })
 
   it('should not cache when no key provided', async () => {

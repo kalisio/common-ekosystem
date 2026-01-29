@@ -1,4 +1,5 @@
-import { logger } from './utils/logger.js'
+import { getLogger } from '@logtape/logtape'
+import { is } from '@kalisio/check'
 import { registry } from './utils/registry.js'
 import { Cache } from './utils/cache.js'
 import { toSVG } from './utils/svg.js'
@@ -13,6 +14,8 @@ import { pentagon, hexagon, polygon } from './shapes/polygon.js'
 import { rect, roundedRect } from './shapes/rect.js'
 import { star4, star5, star6 } from './shapes/star.js'
 import { triangle, triangleDown, triangleRight, triangleLeft } from './shapes/triangle.js'
+
+const logger = getLogger(['graphiks', 'Graphiks'])
 
 // Register builtin shapes
 registry.register('circle', circle)
@@ -61,7 +64,7 @@ export class Graphiks {
       logger.error('Invalid argument: \'params.shape\' must be defined')
     }
     const zoom = params.zoom || 1
-    if (!Number.isFinite(zoom) || zoom <= 0) {
+    if (!is.number(zoom) || !is.positive(zoom)) {
       logger.error('Invalid argument: \'params.zoom\' must be positive number')
     }
     // generate the shape
@@ -70,14 +73,14 @@ export class Graphiks {
       logger.error(`Invalid shape: '${params.shape}' is unknown`)
     }
     params = { ...params, ...generatorFn(params) }
-    if (!Number.isFinite(params.width) || params.width <= 0) {
-      logger.error('Invalid argument: \'params.width\' must be a positive number')
+    if (!is.number(params.width) || !is.positive(params.width)) {
+      logger.error('Invalid computed property: \'params.width\' must be a positive number')
     }
-    if (!Number.isFinite(params.height) || params.height <= 0) {
-      logger.error('Invalid argument: \'params.height\' must be a positive number')
+    if (!is.number(params.height) || !is.positive(params.height)) {
+      logger.error('Invalid computed property: \'params.height\' must be a positive number')
     }
-    if (!Number.isFinite(params.margin) || params.margin < 0) {
-      logger.error('Invalid argument: \'params.margin\' must be a non-negative number')
+    if (!is.number(params.margin) || is.negative(params.margin)) {
+      logger.error('Invalid computed property: \'params.margin\' must be a non-negative number')
     }
     return {
       ...params,

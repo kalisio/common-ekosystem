@@ -1,11 +1,14 @@
-import { logger } from './logger.js'
+import { getLogger } from '@logtape/logtape'
+import { is } from '@kalisio/check'
+
+const logger = getLogger(['graphiks', 'svg'])
 
 export function toSVG (params, context) {
-  if (!params) {
+  if (!is.defined(params)) {
     logger.error('Invalid argument: \'params\' must be defined')
     return
   }
-  if (!context) {
+  if (!is.defined(context)) {
     logger.error('Invalid argument: \'params\' must be defined')
     return
   }

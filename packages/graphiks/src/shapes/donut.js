@@ -1,5 +1,8 @@
-import { logger } from '../utils/logger.js'
+import { getLogger } from '@logtape/logtape'
+import { is } from '@kalisio/check'
 import { toSVGStyleAttributes, toSVGTitleElement, toSVGTransformAttribute } from '../utils/svg.js'
+
+const logger = getLogger(['graphiks', 'donut'])
 
 function getSize (params) {
   if (params.size) return { width: params.size[0], height: params.size[1] }
@@ -14,7 +17,11 @@ const DEFAULT_STYLE = `
 
 export function donut (params) {
   // check arguments
-  if (!params.slices) {
+  if (!is.defined(params)) {
+    logger.error('Invalid arguments: \'params\' must be defined')
+    return
+  }
+  if (!is.defined(params.slices)) {
     logger.error('Invalid arguments: \'params.slices\' must be defined')
     return
   }
@@ -27,7 +34,7 @@ export function donut (params) {
     return sum + value
   }, 0)
   if (sum === 0) {
-    logger.error('Invalid arguments: \'params.slice\' sum must be non null')
+    logger.error('Invalid arguments: slices sum value must be non null')
     return
   }
   // render slices data
