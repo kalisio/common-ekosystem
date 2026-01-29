@@ -34,12 +34,18 @@ importers:
       '@kalisio/check':
         specifier: workspace:*
         version: link:../check
+      '@logtape/logtape':
+        specifier: ^0.7.0
+        version: 0.7.2
 
   packages/graphiks:
     dependencies:
       '@kalisio/check':
         specifier: workspace:*
         version: link:../check
+      '@logtape/logtape':
+        specifier: ^0.7.0
+        version: 0.7.2
     devDependencies:
       '@napi-rs/canvas':
         specifier: ^0.1.88
@@ -270,6 +276,9 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@logtape/logtape@0.7.2':
+    resolution: {integrity: sha512-3iL71YEiJ8GM6HzeW4eCG2pS8/F9EX6tYfVVCp/oWhzYjQ5FY/QMesSPMtAYdAGG4Evac23ugOSXZJp592zg0A==}
 
   '@napi-rs/canvas-android-arm64@0.1.88':
     resolution: {integrity: sha512-KEaClPnZuVxJ8smUWjV1wWFkByBO/D+vy4lN+Dm5DFH514oqwukxKGeck9xcKJhaWJGjfruGmYGiwRe//+/zQQ==}
@@ -1920,6 +1929,8 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@logtape/logtape@0.7.2': {}
 
   '@napi-rs/canvas-android-arm64@0.1.88':
     optional: true

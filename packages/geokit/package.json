@@ -41,7 +41,7 @@
   },
   "homepage": "https://github.com/kalisio/basik/tree/main/packages/geokit#readme",
   "dependencies": {
-    "@kalisio/check": "workspace:*"
-  },
-  "devDependencies": {}
+    "@kalisio/check": "workspace:*",
+    "@logtape/logtape": "^0.7.0"
+  }
 }

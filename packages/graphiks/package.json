@@ -54,7 +54,8 @@
     "access": "public"
   },
   "dependencies": {
-    "@kalisio/check": "workspace:*"
+    "@kalisio/check": "workspace:*",
+    "@logtape/logtape": "^0.7.0"
   },
   "devDependencies": {
     "@napi-rs/canvas": "^0.1.88",
