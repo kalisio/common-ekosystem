@@ -8,8 +8,7 @@
 
 > A minimal parametric shape factory for SVG graphics — built in pure JavaScript.
 
-**Graphiks** is a lightweight and extensible library for creating, composing, and rendering parametric shapes using **SVG**.
-It provides a simple factory pattern that lets you register your own shape generators and render them as SVG elements.
+**Graphiks** is a lightweight and extensible library for creating, composing, and rendering parametric shapes using **SVG**. It provides a simple factory pattern that lets you register your own shape generators and render them as SVG elements.
 
 ---
 

@@ -7,6 +7,7 @@
   "module": "./dist/index.js",
   "exports": {
     ".": {
+      "development": "./src/index.js",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     }
@@ -25,8 +26,8 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "standard --fix",
-    "test": "vitest run --coverage",
-    "check": "pnpm lint && pnpm test"
+    "test": "vitest run",
+    "check": "pnpm lint && pnpm test --coverage"
   },
   "keywords": [
     "graphics",

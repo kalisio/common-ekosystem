@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## What is inside ?
+## What's inside ?
 
 This monorepo contains the following packages:
 
@@ -44,25 +44,29 @@ pnpm --filter @kalisio/check lint
 
 ### Testing
 
-This monorepo uses [Vitest](https://vitest.dev/) for testing with the following configuration:
-
-- **check**: Tests run in **Node.js** environment
-- **graphiks**: Tests run in **happy-dom (browser-like)** environment
-
-> [!NOTE]  
-> Coverage reports are generated using [v8](https://v8.dev/blog/javascript-code-coverage) provider
-
 ```bash
 # Run all tests
 pnpm test
 
 # Run tests for a specific package
 pnpm --filter @kalisio/check test
+pnpm --filter @kalisio/geokit test
 pnpm --filter @kalisio/graphiks test
+
+# Run a single test file
+pnpm --filter @kalisio/geokit test truncate.test.js
 
 # Run tests with coverage
 pnpm --filter @kalisio/check test --coverage
 ```
+
+> [!NOTE] 
+> This monorepo uses [Vitest](https://vitest.dev/) for testing with the following configuration:
+> - **check**: Tests run in **Node.js** environment
+> - **graphiks**: Tests run in **happy-dom (browser-like)** environment
+ 
+> [!NOTE] 
+> Coverage reports are generated using [v8](https://v8.dev/blog/javascript-code-coverage) provider
 
 ### Building
 
