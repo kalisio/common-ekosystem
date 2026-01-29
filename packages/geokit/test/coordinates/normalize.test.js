@@ -346,7 +346,7 @@ describe('normalizeCoordinates', () => {
     it('should handle coordinates at exactly 90/-90', () => {
       const result1 = normalizeCoordinates(10, 90, 5)
       const result2 = normalizeCoordinates(10, -90, 5)
-      
+
       expect(result1).toEqual({
         longitude: 10,
         latitude: 90
@@ -360,7 +360,7 @@ describe('normalizeCoordinates', () => {
     it('should handle coordinates at exactly 180/-180', () => {
       const result1 = normalizeCoordinates(180, 45, 5)
       const result2 = normalizeCoordinates(-180, 45, 5)
-      
+
       expect(result1).toEqual({
         longitude: 180,
         latitude: 45

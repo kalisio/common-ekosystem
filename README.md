@@ -1,4 +1,4 @@
-# Common Ekosystem
+# common-ekosystem
 
 > A common base of small, reusable utility libraries for the **Kalisio** ecosystem
 
@@ -38,9 +38,18 @@ pnpm install
 # Lint all packages
 pnpm lint
 
+# Lint all packages and fix style isues
+pnpm lint --fix
+
 # Lint a specific package
 pnpm --filter @kalisio/check lint
+
+# Lint a specific package and fix style issues
+pnpm --filter @kalisio/check lint --fix
 ```
+
+> [!NOTE]
+> **common-ekosystem** follows the [standardJS](https://standardjs.com/) style guide for linting and code consistency.
 
 ### Testing
 
@@ -48,25 +57,28 @@ pnpm --filter @kalisio/check lint
 # Run all tests
 pnpm test
 
+# Run all tests with coverage
+pnpm test --coverage
+
 # Run tests for a specific package
 pnpm --filter @kalisio/check test
 pnpm --filter @kalisio/geokit test
 pnpm --filter @kalisio/graphiks test
 
+# Run tests for a specific package with coverage
+pnpm --filter @kalisio/check test --coverage
+
 # Run a single test file
 pnpm --filter @kalisio/geokit test truncate.test.js
-
-# Run tests with coverage
-pnpm --filter @kalisio/check test --coverage
 ```
 
-> [!NOTE] 
-> This monorepo uses [Vitest](https://vitest.dev/) for testing with the following configuration:
+> [!NOTE]
+> **common-ekosystem** uses [Vitest](https://vitest.dev/) for testing with the following configuration:
 > - **check**: Tests run in **Node.js** environment
 > - **graphiks**: Tests run in **happy-dom (browser-like)** environment
- 
-> [!NOTE] 
-> Coverage reports are generated using [v8](https://v8.dev/blog/javascript-code-coverage) provider
+
+> [!NOTE]
+> Coverage reports are generated using [v8](https://v8.dev/blog/javascript-code-coverage) provider.
 
 ### Building
 

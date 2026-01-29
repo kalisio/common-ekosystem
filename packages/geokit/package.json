@@ -16,9 +16,9 @@
   ],
   "scripts": {
     "build": "vite build",
-    "lint": "standard --fix",
+    "lint": "standard",
     "test": "vitest run",
-    "check": "pnpm lint && pnpm test --coverage"
+    "check": "pnpm lint --fix && pnpm test --coverage"
   },
   "keywords": [
     "geokit",
