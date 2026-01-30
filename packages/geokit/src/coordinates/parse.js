@@ -94,7 +94,7 @@ function isDDWithCardinalDirectionFormat (pattern) {
 // Simple DD format with negative values: -48.8566, 2.3522 or 48.8566, -2.3522
 // Standard GeoJSON order: longitude, latitude (but often written as lat, lon)
 // Try both interpretations based on value ranges
-function isSimpleDDFormat (pattern) {
+function isDDFormat (pattern) {
   const simpleRegexp = /^(-?\d+(?:\.\d+)?)\s*[,;\s]+\s*(-?\d+(?:\.\d+)?)$/
   const match = pattern.match(simpleRegexp)
   if (!match) return null
@@ -123,7 +123,7 @@ const VALIDATORS = [
   isDDMFormat,
   isDDWithCardinalDirectionAndDegreeSymbolFormat,
   isDDWithCardinalDirectionFormat,
-  isSimpleDDFormat
+  isDDFormat
 ]
 
 export function parseCoordinates (pattern) {
@@ -136,4 +136,5 @@ export function parseCoordinates (pattern) {
     const result = validator(pattern)
     if (result) return result
   }
+  return null
 }
