@@ -69,8 +69,9 @@ pnpm vitest run --project geokit parse.test.js
 > - **graphiks**: Tests run in **happy-dom (browser-like)** environment
 
 > [!NOTE]
+> By default, **vitest** is called with the `--coverage` option to automatically compute the coverage.
 > Coverage reports are generated using [v8](https://v8.dev/blog/javascript-code-coverage) provider.
-> By default, **vitest** is called with the `--coverage` option to automatically compute the coverage
+
 
 ### Building
 
