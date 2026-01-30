@@ -29,9 +29,6 @@ export function normalizeCoordinates (longitude, latitude, precision = 7) {
     }
   }
   // Normalize longitude ONCE, at the end
-  /* if (longitude < -180 || longitude > 180) {
-    longitude = ((longitude + 180) % 360 + 360) % 360 - 180
-  } */
   longitude = normalizeLongitude(longitude)
   return truncateCoordinates(longitude, latitude, precision)
 }
