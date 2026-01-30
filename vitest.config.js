@@ -4,28 +4,45 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    include: ['test/**/*.js'],
-    exclude: ['node_modules/**', 'dist/**'],
+    include: ['packages/*/test/**/*.js'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
       reportsDirectory: './coverage',
       all: true,
-      include: ['src/**/*.js'],
+      clean: true,
+      include: ['packages/*/src/**/*.js'],
       exclude: [
         '**/node_modules/**',
         '**/test/**',
+        '**/dist/**',
         '**/*.test.js'
       ]
     },
     silent: false,
-    testTimeout: 30000
-  },
-  projects: ['packages/*'].map(pkg => ({
-    name: pkg.split('/').pop(),
-    root: pkg,
-    test: {
-      environment: pkg.includes('graphiks') ? 'happy-dom' : 'node'
-    }
-  }))
+    testTimeout: 30000,
+    projects: [
+      {
+        test: {
+          name: 'check',
+          root: 'packages/check',
+          include: ['test/**/*.js']
+        }
+      },
+      {
+        test: {
+          name: 'geokit',
+          root: 'packages/geokit',
+          include: ['test/**/*.js']
+        }
+      },
+      {
+        test: {
+          name: 'graphiks',
+          root: 'packages/graphiks',
+          include: ['test/**/*.js']
+        }
+      }
+    ]
+  }
 })

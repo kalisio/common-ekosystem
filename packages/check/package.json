@@ -16,9 +16,6 @@
     "dist"
   ],
   "scripts": {
-    "build": "vite build",
-    "lint": "standard --fix",
-    "test": "vitest run --coverage"
   },
   "keywords": [
     "check",

@@ -38,18 +38,15 @@ pnpm install
 # Lint all packages
 pnpm lint
 
-# Lint all packages and fix style isues
-pnpm lint --fix
-
 # Lint a specific package
-pnpm --filter @kalisio/check lint
-
-# Lint a specific package and fix style issues
-pnpm --filter @kalisio/check lint --fix
+pnpm lint:check
+pnpm lint:geokit
+pnpm lint:graphiks
 ```
 
 > [!NOTE]
 > **common-ekosystem** follows the [standardJS](https://standardjs.com/) style guide for linting and code consistency.
+> By default, **standard** is called with the `--fix` option to automatically fix style issues before committing.
 
 ### Testing
 
@@ -57,19 +54,13 @@ pnpm --filter @kalisio/check lint --fix
 # Run all tests
 pnpm test
 
-# Run all tests with coverage
-pnpm test --coverage
-
 # Run tests for a specific package
-pnpm --filter @kalisio/check test
-pnpm --filter @kalisio/geokit test
-pnpm --filter @kalisio/graphiks test
-
-# Run tests for a specific package with coverage
-pnpm --filter @kalisio/check test --coverage
+pnpm test:check
+pnpm test:geokit
+pnpm test:graphiks
 
 # Run a single test file
-pnpm --filter @kalisio/geokit test truncate.test.js
+pnpm vitest run --project geokit parse.test.js
 ```
 
 > [!NOTE]
@@ -79,6 +70,7 @@ pnpm --filter @kalisio/geokit test truncate.test.js
 
 > [!NOTE]
 > Coverage reports are generated using [v8](https://v8.dev/blog/javascript-code-coverage) provider.
+> By default, **vitest** is called with the `--coverage` option to automatically compute the coverage
 
 ### Building
 

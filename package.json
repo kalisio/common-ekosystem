@@ -7,7 +7,8 @@
       "it",
       "expect",
       "beforeEach",
-      "afterEach"
+      "afterEach",
+      "Image"
     ],
     "ignore": [
       "dist/**"
@@ -15,14 +16,20 @@
   },
   "lint-staged": {
     "*.{js,cjs,mjs}": [
-      "pnpm lint --fix"
+      "pnpm lint"
     ]
   },
   "scripts": {
-    "build": "pnpm -r --if-present build",
-    "lint": "pnpm -r --if-present lint",
-    "test": "pnpm -r --if-present test",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "lint": "standard 'packages/**/*.js' --fix",
+    "lint:check": "pnpm run lint -- 'packages/check/**/*.js'",
+    "lint:geokit": "pnpm run lint -- 'packages/geokit/**/*.js'",
+    "lint:graphiks": "pnpm run lint -- 'packages/graphiks/**/*.js'",
+    "test": "vitest run --coverage",
+    "test:check": "pnpm run test --project check",
+    "test:geokit": "pnpm run test --project geokit",
+    "test:graphiks": "pnpm run test --project graphiks",
+    "build": "pnpm -r --if-present build"
   },
   "keywords": [
     "check",

@@ -15,18 +15,8 @@
   "files": [
     "dist"
   ],
-  "standard": {
-    "globals": [
-      "Vue",
-      "Quasar",
-      "Image"
-    ]
-  },
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "standard --fix",
-    "test": "vitest run --coverage"
+    "dev": "vite"
   },
   "keywords": [
     "graphics",
