@@ -13,11 +13,17 @@
       "dist/**"
     ]
   },
+  "lint-staged": {
+    "*.{js,cjs,mjs}": [
+      "pnpm lint --fix"
+    ]
+  },
   "scripts": {
     "build": "pnpm -r --if-present build",
     "lint": "pnpm -r --if-present lint",
     "test": "pnpm -r --if-present test",
-    "check": "pnpm -r --if-present check"
+    "check": "pnpm -r --if-present check",
+    "prepare": "husky install"
   },
   "keywords": [
     "check",
@@ -42,6 +48,7 @@
     "@vitest/coverage-v8": "^4.0.17",
     "cross-env": "^10.1.0",
     "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "standard": "^17.1.2",
     "vite": "^7.1.9",
     "vitest": "^4.0.17"
