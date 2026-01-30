@@ -25,9 +25,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "standard",
-    "test": "vitest run",
-    "check": "pnpm lint --fix && pnpm test --coverage"
+    "lint": "standard --fix",
+    "test": "vitest run --coverage"
   },
   "keywords": [
     "graphics",

@@ -22,7 +22,6 @@
     "build": "pnpm -r --if-present build",
     "lint": "pnpm -r --if-present lint",
     "test": "pnpm -r --if-present test",
-    "check": "pnpm -r --if-present check",
     "prepare": "husky install"
   },
   "keywords": [

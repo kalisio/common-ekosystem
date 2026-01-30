@@ -1,7 +1,7 @@
 import { defineConfig, mergeConfig } from 'vite'
-import { baseConfig } from '../../vite.config'
+import { defaultConfig } from '../../vite.config'
 
-export default mergeConfig(baseConfig, defineConfig({
+export default mergeConfig(defaultConfig, defineConfig({
   root: __dirname,
   server: {
     port: 5173,
