@@ -29,7 +29,7 @@
     "test:check": "pnpm run test --project check",
     "test:geokit": "pnpm run test --project geokit",
     "test:graphiks": "pnpm run test --project graphiks",
-    "build": "pnpm -r --if-present build"
+    "build": "pnpm vite build"
   },
   "keywords": [
     "check",
