@@ -118,25 +118,22 @@ function isSimpleDDFormat (pattern) {
   return normalizeCoordinates(longitude, latitude)
 }
 
+const VALIDATORS = [
+  isDMSFormat,
+  isDDMFormat,
+  isDDWithCardinalDirectionAndDegreeSymbolFormat,
+  isDDWithCardinalDirectionFormat,
+  isSimpleDDFormat
+]
+
 export function parseCoordinates (pattern) {
   if (!is.string(pattern)) {
     return null
   }
   // Remove optional parentheses, brackets and extra whitespace
   pattern = pattern.trim().replace(/^[([]|[)\]]$/g, '').trim()
-  // 1. DMS format (Degrees Minutes Seconds): 48°51'24"N 2°21'07"E
-  let result = isDMSFormat(pattern)
-  if (result) return result
-  // 2. DDM format (Degrees Decimal Minutes): 48°51.4'N 2°21.12'E
-  result = isDDMFormat(pattern)
-  if (result) return result
-  // 3. DD with degree symbol and cardinal directions: 48.8566° N, 2.3522° E
-  result = isDDWithCardinalDirectionAndDegreeSymbolFormat(pattern)
-  if (result) return result
-  // 4. DD with cardinal directions but no degree symbol: 48.8566 N, 2.3522 E
-  result = isDDWithCardinalDirectionFormat(pattern)
-  if (result) return result
-  // 5. Simple DD format with negative values: -48.8566, 2.3522 or 48.8566, -2.3522
-  result = isSimpleDDFormat(pattern)
-  return result
+  for (const validator of VALIDATORS) {
+    const result = validator(pattern)
+    if (result) return result
+  }
 }
