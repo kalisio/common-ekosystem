@@ -37,7 +37,9 @@
   "keywords": [
     "check",
     "graphiks",
-    "geokit"
+    "geokit",
+    "ekosystem",
+    "kalisio"
   ],
   "author": {
     "name": "KALISIO <contact@kalisio.com>",
@@ -47,12 +49,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/kalisio/basik.git"
+    "url": "git://github.com/kalisio/common-ekosystem.git"
   },
   "bugs": {
-    "url": "https://github.com/kalisio/basik/issues"
+    "url": "https://github.com/kalisio/common-ekosystem/issues"
   },
-  "homepage": "git://github.com/kalisio/basik#readme",
+  "homepage": "git://github.com/kalisio/common-ekosystem#readme",
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.17",
     "cross-env": "^10.1.0",
