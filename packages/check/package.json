@@ -16,6 +16,7 @@
     "dist"
   ],
   "scripts": {
+    "build": "vite build"
   },
   "keywords": [
     "check",

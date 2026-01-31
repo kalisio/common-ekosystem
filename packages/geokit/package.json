@@ -15,6 +15,7 @@
     "dist"
   ],
   "scripts": {
+    "build": "vite build"
   },
   "keywords": [
     "geokit",

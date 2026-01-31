@@ -16,7 +16,8 @@
     "dist"
   ],
   "scripts": {
-    "dev": "vite"
+    "dev": "vite",
+    "build": "vite build"
   },
   "keywords": [
     "graphics",

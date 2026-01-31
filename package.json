@@ -20,7 +20,7 @@
     ]
   },
   "scripts": {
-    "prepare": "husky install",
+    "prepare": "husky",
     "lint": "standard 'packages/**/*.js' --fix",
     "lint:check": "pnpm run lint -- 'packages/check/**/*.js'",
     "lint:geokit": "pnpm run lint -- 'packages/geokit/**/*.js'",
@@ -29,7 +29,10 @@
     "test:check": "pnpm run test --project check",
     "test:geokit": "pnpm run test --project geokit",
     "test:graphiks": "pnpm run test --project graphiks",
-    "build": "pnpm vite build"
+    "build": "pnpm run build:check && pnpm run build:geokit && pnpm run build:graphiks",
+    "build:check": "pnpm --filter @kalisio/check build",
+    "build:geokit": "pnpm --filter @kalisio/geokit build",
+    "build:graphiks": "pnpm --filter @kalisio/graphiks build"
   },
   "keywords": [
     "check",

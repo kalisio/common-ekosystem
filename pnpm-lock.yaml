@@ -4,12 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-catalogs:
-  default:
-    '@logtape/logtape':
-      specifier: ^0.7.0
-      version: 0.7.2
-
 importers:
 
   .:
