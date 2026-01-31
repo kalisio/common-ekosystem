@@ -3,8 +3,9 @@ import { normalizeCoordinates } from './normalize.js'
 
 // DMS format (Degrees Minutes Seconds): 48°51'24"N 2°21'07"E
 function isDMSFormat (pattern) {
-  const DMSRegexp = /^(\d+)°\s*(\d+)'\s*(\d+(?:\.\d+)?)"\s*([NSEW])\s*[,\s]+\s*(\d+)°\s*(\d+)'\s*(\d+(?:\.\d+)?)"\s*([NSEW])$/i
-  const match = pattern.match(DMSRegexp)
+  // const DMSRegexp = /^(\d+)°\s*(\d+)'\s*(\d+(?:\.\d+)?)"\s*([NSEW])\s*[,\s]+\s*(\d+)°\s*(\d+)'\s*(\d+(?:\.\d+)?)"\s*([NSEW])$/i
+  const regexp = /^(\d+)°\s*(\d+)'\s*(\d+(?:\.\d+)?)"\s*([NSEW])\s*[,\s]+(\d+)°\s*(\d+)'\s*(\d+(?:\.\d+)?)"\s*([NSEW])$/i
+  const match = pattern.match(regexp)
   if (!match) return null
   const [, deg1, min1, sec1, dir1, deg2, min2, sec2, dir2] = match
   // Convert DMS to DD
@@ -25,8 +26,9 @@ function isDMSFormat (pattern) {
 
 // DDM format (Degrees Decimal Minutes): 48°51.4'N 2°21.12'E
 function isDDMFormat (pattern) {
-  const DDMRegexp = /^(\d+)°\s*(\d+(?:\.\d+)?)'\s*([NSEW])\s*[,\s]+\s*(\d+)°\s*(\d+(?:\.\d+)?)'\s*([NSEW])$/i
-  const match = pattern.match(DDMRegexp)
+  // const DDMRegexp = /^(\d+)°\s*(\d+(?:\.\d+)?)'\s*([NSEW])\s*[,\s]+\s*(\d+)°\s*(\d+(?:\.\d+)?)'\s*([NSEW])$/i
+  const regexp = /^(\d+)°\s*(\d+(?:\.\d+)?)'\s*([NSEW])\s*[,\s]+(\d+)°\s*(\d+(?:\.\d+)?)'\s*([NSEW])$/i
+  const match = pattern.match(regexp)
   if (!match) return null
   const [, deg1, min1, dir1, deg2, min2, dir2] = match
   // Convert DDM to DD
@@ -47,8 +49,9 @@ function isDDMFormat (pattern) {
 
 // DD with degree symbol and cardinal directions: 48.8566° N, 2.3522° E
 function isDDWithCardinalDirectionAndDegreeSymbolFormat (pattern) {
-  const DDWithSymbolRegexp = /^(\d+(?:\.\d+)?)°\s*([NSEW])\s*[,\s]+\s*(\d+(?:\.\d+)?)°\s*([NSEW])$/i
-  const match = pattern.match(DDWithSymbolRegexp)
+  // const DDWithSymbolRegexp = /^(\d+(?:\.\d+)?)°\s*([NSEW])\s*[,\s]+\s*(\d+(?:\.\d+)?)°\s*([NSEW])$/i
+  const regexp = /^(-?\d+(?:\.\d+)?)°\s*([NSEW])\s*,?\s*(-?\d+(?:\.\d+)?)°\s*([NSEW])$/i
+  const match = pattern.match(regexp)
   if (!match) return null
   const [, value1, direction1, value2, direction2] = match
   const dir1Upper = direction1.toUpperCase()
@@ -70,8 +73,8 @@ function isDDWithCardinalDirectionAndDegreeSymbolFormat (pattern) {
 
 // DD with cardinal directions but no degree symbol: 48.8566 N, 2.3522 E
 function isDDWithCardinalDirectionFormat (pattern) {
-  const DDWithoutSymbolRegexp = /^(\d+(?:\.\d+)?)\s*([NSEW])\s*[,\s]+\s*(\d+(?:\.\d+)?)\s*([NSEW])$/i
-  const match = pattern.match(DDWithoutSymbolRegexp)
+  const regexp = /^(\d+(?:\.\d+)?)\s*([NSEW])\s*[,\s]+\s*(\d+(?:\.\d+)?)\s*([NSEW])$/i
+  const match = pattern.match(regexp)
   if (!match) return null
   const [, value1, direction1, value2, direction2] = match
   const dir1Upper = direction1.toUpperCase()
@@ -95,8 +98,8 @@ function isDDWithCardinalDirectionFormat (pattern) {
 // Standard GeoJSON order: longitude, latitude (but often written as lat, lon)
 // Try both interpretations based on value ranges
 function isDDFormat (pattern) {
-  const simpleRegexp = /^(-?\d+(?:\.\d+)?)\s*[,;\s]+\s*(-?\d+(?:\.\d+)?)$/
-  const match = pattern.match(simpleRegexp)
+  const regexp = /^(-?\d+(?:\.\d+)?)\s*[,;\s]+\s*(-?\d+(?:\.\d+)?)$/
+  const match = pattern.match(regexp)
   if (!match) return null
   const value1 = parseFloat(match[1])
   const value2 = parseFloat(match[2])
