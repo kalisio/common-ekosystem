@@ -27,8 +27,7 @@ export function star4 (params) {
       },
       ...params.text
     },
-    style: params.style,
-    zoom: params.zoom
+    style: params.style
   }
 }
 
@@ -53,8 +52,7 @@ export function star5 (params) {
       },
       ...params.text
     },
-    style: params.style,
-    zoom: params.zoom
+    style: params.style
   }
 }
 

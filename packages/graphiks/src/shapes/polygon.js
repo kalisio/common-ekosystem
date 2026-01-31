@@ -27,8 +27,7 @@ export function pentagon (params) {
       },
       ...params.text
     },
-    style: params.style,
-    zoom: params.zoom
+    style: params.style
   }
 }
 
@@ -53,8 +52,7 @@ export function hexagon (params) {
       },
       ...params.text
     },
-    style: params.style,
-    zoom: params.zoom
+    style: params.style
   }
 }
 
@@ -79,7 +77,6 @@ export function polygon (params) {
       },
       ...params.text
     },
-    style: params.style,
-    zoom: params.zoom
+    style: params.style
   }
 }

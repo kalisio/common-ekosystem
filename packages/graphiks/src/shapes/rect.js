@@ -27,8 +27,7 @@ export function rect (params) {
       },
       ...params.text
     },
-    style: params.style,
-    zoom: params.zoom
+    style: params.style
   }
 }
 
@@ -53,7 +52,6 @@ export function roundedRect (params) {
       },
       ...params.text
     },
-    style: params.style,
-    zoom: params.zoom
+    style: params.style
   }
 }
