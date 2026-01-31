@@ -11,7 +11,7 @@ const logger = getLogger('geokit', 'convert')
  * @param {'N'|'S'|'E'|'W'} [dir] - optional direction
  * @returns {number} decimal degrees, positive for N/E, negative for S/W
  */
-export function convertFromSexagesimal (deg, min = 0, sec = 0, dir) {
+export function convertFromSexagesimal (deg, min = 0, sec = 0, dir = undefined) {
   if (!is.number(deg)) {
     logger.error('Invalid argument: \'deg\', must be a number')
     return null
