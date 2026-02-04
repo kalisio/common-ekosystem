@@ -1,0 +1,51 @@
+{{#orphans}}
+
+{{#functions}}
+## {{name}}
+
+### Signature
+```javascript
+{{name}}({{#each params}}{{name}}{{#unless @last}}, {{/unless}}{{/each}})
+```
+
+{{#if description}}
+### Description
+
+{{{description}}}
+{{/if}}
+
+{{#if params}}
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+{{#each params}}
+| {{name}} | {{type.names.[0]}} | {{#if optional}}no{{else}}yes{{/if}} | {{description}} |
+{{/each}}
+{{/if}}
+
+{{#if returns}}
+### Returns
+
+| Type | Description |
+|------|-------------|
+{{#each returns}}
+| {{type.names.[0]}} | {{description}} |
+{{/each}}
+{{/if}}
+
+{{#if examples}}
+### Examples
+
+{{#each examples}}
+```javascript
+{{{this}}}
+```
+
+{{/each}}
+{{/if}}
+
+---
+
+{{/functions}}
+{{/orphans}}
