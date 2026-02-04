@@ -17,7 +17,7 @@ function normalizeLongitude (longitude) {
  * @param {number} longitude - Longitude value to normalize
  * @param {number} latitude - Latitude value to normalize
  * @param {number} [precision=7] - Number of decimal places (0-8). Default: 7
-* - Precision levels correspond to approximate distances:
+ * - Precision levels correspond to approximate distances:
  *   - 0: ~111 km (country/region)
  *   - 1: ~11 km (large city)
  *   - 2: ~1.1 km (neighborhood)
