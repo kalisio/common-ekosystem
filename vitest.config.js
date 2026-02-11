@@ -40,6 +40,7 @@ export default defineConfig({
         test: {
           name: 'graphiks',
           root: 'packages/graphiks',
+          environment: 'happy-dom',
           include: ['test/**/*.js']
         }
       }
