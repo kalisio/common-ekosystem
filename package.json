@@ -1,6 +1,7 @@
 {
   "name": "common-ekosystem",
   "packageManager": "pnpm@10.1.0",
+  "type": "module",
   "standard": {
     "globals": [
       "describe",
@@ -36,7 +37,10 @@
     "changeset": "changeset",
     "changeset:status": "changeset status",
     "changeset:version": "changeset version",
-    "changeset:release": "pnpm build && changeset publish"
+    "changeset:release": "pnpm build && changeset publish",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "keywords": [
     "check",
@@ -60,16 +64,26 @@
   },
   "homepage": "git://github.com/kalisio/common-ekosystem#readme",
   "devDependencies": {
-    "@changesets/changelog-github": "^0.5.2",
-    "@changesets/cli": "^2.29.8",
-    "@vitest/coverage-v8": "^4.0.17",
-    "cross-env": "^10.1.0",
-    "glob": "^13.0.0",
-    "husky": "^9.1.7",
-    "jsdoc-to-markdown": "^9.1.3",
-    "lint-staged": "^16.2.7",
-    "standard": "^17.1.2",
-    "vite": "^7.1.9",
-    "vitest": "^4.0.17"
+    "@changesets/changelog-github": "catalog:",
+    "@changesets/cli": "catalog:",
+    "@kalisio/meta-ekosystem": "github:kalisio/meta-ekosystem",
+    "@vitest/coverage-v8": "catalog:",
+    "cross-env": "catalog:",
+    "husky": "catalog:",
+    "keycloak-js": "catalog:",
+    "lint-staged": "catalog:",
+    "lodash": "catalog:",
+    "mermaid": "catalog:",
+    "moment": "catalog:",
+    "quasar": "catalog:",
+    "standard": "catalog:",
+    "vite": "catalog:",
+    "vitepress": "catalog:",
+    "vitepress-plugin-mermaid": "catalog:",
+    "vitepress-theme-kalisio": "catalog:",
+    "vitest": "catalog:"
+  },
+  "pnpm": {
+    "overrides": {}
   }
 }
