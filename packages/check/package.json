@@ -32,13 +32,13 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/kalisio/basik.git",
+    "url": "git://github.com/kalisio/common-ekosystem.git",
     "directory": "packages/check"
   },
   "bugs": {
-    "url": "https://github.com/kalisio/basik/issues"
+    "url": "https://github.com/kalisio/common-ekosystem/issues"
   },
-  "homepage": "https://github.com/kalisio/basik/tree/main/packages/check#readme",
+  "homepage": "https://github.com/kalisio/common-ekosystem/tree/main/packages/check#readme",
   "dependencies": {},
   "devDependencies": {}
 }

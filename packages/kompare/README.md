@@ -1,6 +1,6 @@
 # kompare
 
-> 
+> Object and file comparison utilities
 
 ---
 

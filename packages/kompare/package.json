@@ -1,16 +1,47 @@
 {
   "name": "@kalisio/kompare",
-  "version": "1.0.0",
-  "description": "JSON comparison utility",
-  "main": "src/json.js",
+  "version": "0.0.0",
+  "description": "Object and file comparison utilities",
   "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": {
+      "development": "./src/index.js",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "test": "vitest run"
+    "build": "vite build"
   },
-  "devDependencies": {
-    "vitest": "catalog:"
+  "keywords": [
+    "kompare",
+    "file",
+    "object",
+    "comparison",
+    "kalisio"
+  ],
+  "author": {
+    "name": "KALISIO <contact@kalisio.com>",
+    "url": "https://github.com/kalisio"
   },
+  "contributors": [],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kalisio/common-ekosystem.git",
+    "directory": "packages/kompare"
+  },
+  "bugs": {
+    "url": "https://github.com/kalisio/common-ekosystem/issues"
+  },
+  "homepage": "https://github.com/kalisio/common-ekosystem/tree/main/packages/check#readme",
   "dependencies": {
     "lodash": "catalog:"
-  }
+  },
+  "devDependencies": {}
 }
