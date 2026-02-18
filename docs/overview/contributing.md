@@ -123,7 +123,7 @@ but it may simply be that you do not have the same context or information regard
 members have. We value the time you take to put together any contributions so we pledge to always be respectful of
 that time and will try to be as open as possible so that you don't waste it.
 
-## Contributor Code of Conduct
+## Code of Conduct
 
 As contributors and maintainers of this project, we pledge to respect all people who contribute through reporting issues,
 posting feature requests, updating documentation, submitting pull requests or patches, and other activities.
