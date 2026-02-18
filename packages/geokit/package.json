@@ -1,7 +1,7 @@
 {
   "name": "@kalisio/geokit",
-  "version": "0.1.1",
-  "description": "Minimalist conditional and assertion utilities for JavaScript",
+  "version": "0.0.0",
+  "description": "Lightweight geospatial utility library",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -19,8 +19,12 @@
   },
   "keywords": [
     "geokit",
-    "data",
-    "processing"
+    "coordinates",
+    "geometry",
+    "feature",
+    "geojson",
+    "processing",
+    "kalisio"
   ],
   "author": {
     "name": "KALISIO <contact@kalisio.com>",
