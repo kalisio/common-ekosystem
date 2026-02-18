@@ -43,6 +43,13 @@ export default defineConfig({
           environment: 'happy-dom',
           include: ['test/**/*.js']
         }
+      },
+      {
+        test: {
+          name: 'kompare',
+          root: 'packages/kompare',
+          include: ['test/**/*.js']
+        }
       }
     ]
   }

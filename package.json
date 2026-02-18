@@ -66,7 +66,7 @@
   "devDependencies": {
     "@changesets/changelog-github": "catalog:",
     "@changesets/cli": "catalog:",
-    "@kalisio/meta-ekosystem": "^0.2.0",
+    "@kalisio/meta-ekosystem": "^0.2.1",
     "@vitest/coverage-v8": "catalog:",
     "cross-env": "catalog:",
     "husky": "catalog:",
@@ -84,6 +84,12 @@
     "vitest": "catalog:"
   },
   "pnpm": {
-    "overrides": {}
+    "overrides": {},
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  },
+  "dependencies": {
+    "plop": "^4.0.5"
   }
 }
