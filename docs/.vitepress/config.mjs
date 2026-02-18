@@ -7,7 +7,7 @@ export default withMermaid(
   defineConfig({
     base: '/common-ekosystem/',
     title: 'common-ekosystem',
-    description: '',
+    description: 'A common base of small, reusable utility libraries for the Kalisio ecosystem',
     ignoreDeadLinks: true,
     head: [
       ['link', { href: 'https://cdnjs.cloudflare.com/ajax/libs/line-awesome/1.3.0/line-awesome/css/line-awesome.min.css', rel: 'stylesheet' }],
@@ -17,28 +17,30 @@ export default withMermaid(
       logo: 'https://kalisio.github.io/kalisioscope/kalisio/kalisio-icon-2048x2048.png',
       socialLinks: [{ icon: 'github', link: 'https://github.com/kalisio/common-ekosystem' }],
       nav: [
-        { text: 'About', link: '/about/introduction' }
+        { text: 'Overview', link: '/overview/about' }
         ,
         {
           text: 'Packages',
           items: [
             { text: 'check', link: '/packages/check/' },
             { text: 'geokit', link: '/packages/geokit/' },
-            { text: 'graphiks', link: '/packages/graphiks/' }
+            { text: 'graphiks', link: '/packages/graphiks/' },
+            { text: 'kompare', link: '/packages/kompare/' }
           ]
         }
       ],
       sidebar: {
-        '/about/': [
-          { text: 'About', link: '/about/introduction' },
-          { text: 'Contributing', link: '/about/contributing' },
-          { text: 'License', link: '/about/license' },
-          { text: 'Contact', link: '/about/contact' }
+        '/overview/': [
+          { text: 'About', link: '/overview/about' },
+          { text: 'Contributing', link: '/overview/contributing' },
+          { text: 'License', link: '/overview/license' },
+          { text: 'Contact', link: '/overview/contact' }
         ]
         ,
         '/check/': getSideBar('check'),
         '/geokit/': getSideBar('geokit'),
-        '/graphiks/': getSideBar('graphiks')
+        '/graphiks/': getSideBar('graphiks'),
+        '/kompare/': getSideBar('kompare')
       },
       footer: {
         copyright: 'MIT Licensed | Copyright © 2026 Kalisio'

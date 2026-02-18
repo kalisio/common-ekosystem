@@ -1,5 +1,6 @@
 {
   "name": "common-ekosystem",
+  "description": "A common base of small, reusable utility libraries for the Kalisio ecosystem",
   "packageManager": "pnpm@10.1.0",
   "type": "module",
   "standard": {
