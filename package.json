@@ -82,11 +82,5 @@
     "vitepress-plugin-mermaid": "catalog:",
     "vitepress-theme-kalisio": "catalog:",
     "vitest": "catalog:"
-  },
-  "pnpm": {
-    "overrides": {},
-    "onlyBuiltDependencies": [
-      "esbuild"
-    ]
   }
 }
