@@ -29,11 +29,9 @@ while getopts "pr:" OPT; do
     esac
 done
 
-whereis yarn
-whereis pnpm
-
 ## Build docs
 ##
 
+use_node 20
 build_docs "$ROOT_DIR" "kalisio/common-ekosystem" "$PUBLISH"
 

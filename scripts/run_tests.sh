@@ -39,9 +39,6 @@ done
 
 . "$WORKSPACE_DIR/development/workspaces/libs/libs.sh" common-ekosystem
 
-whereis yarn
-whereis pnpm
-
 ## Run tests
 ##
 
