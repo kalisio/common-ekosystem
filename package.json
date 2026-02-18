@@ -88,8 +88,5 @@
     "onlyBuiltDependencies": [
       "esbuild"
     ]
-  },
-  "dependencies": {
-    "plop": "^4.0.5"
   }
 }
