@@ -12,6 +12,9 @@ catalogs:
     '@changesets/cli':
       specifier: ^2.29.8
       version: 2.29.8
+    '@logtape/logtape':
+      specifier: ^0.7.0
+      version: 0.7.2
     '@vitest/coverage-v8':
       specifier: ^4.0.17
       version: 4.0.18
@@ -149,10 +152,6 @@ importers:
       lodash:
         specifier: 'catalog:'
         version: 4.17.23
-    devDependencies:
-      vitest:
-        specifier: 'catalog:'
-        version: 4.0.18(@types/node@25.2.2)(happy-dom@20.6.0)(yaml@2.8.2)
 
 packages:
 
