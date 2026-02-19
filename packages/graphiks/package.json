@@ -1,7 +1,7 @@
 {
   "name": "@kalisio/graphiks",
-  "version": "0.1.1",
   "description": "A minimal parametric shape factory for SVG graphics",
+  "version": "0.0.0",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
