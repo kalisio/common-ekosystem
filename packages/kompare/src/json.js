@@ -1,7 +1,7 @@
 import _ from 'lodash'
 
 // Helper function to normalize a content in order to be compared with _.isEqual
-export function normalizeObject (object, ignoredKeys = []) {
+function normalizeObject (object, ignoredKeys = []) {
   if (_.isArray(object)) {
     return _.chain(object)
       .map(v => normalizeObject(v, ignoredKeys))
@@ -42,10 +42,22 @@ function showObjectsDifferences (object1, object2, path = '') {
   })
 }
 
-// Helper function to compare json objects
-export function compareJsonObjects (object1, object2, ignoredKeys = []) {
-  object1 = normalizeObject(object1, ignoredKeys)
-  object2 = normalizeObject(object2, ignoredKeys)
-  showObjectsDifferences(object1, object2)
-  return _.isEqual(object1, object2)
+export const json = {
+  /**
+   *
+   *
+   * @param {Object} object1 - The first object to compare.
+   * @param {Object} object2 - The second object to compare.
+   * @param {Object} [options={}] - Comparison options.
+   * @param {Array} [options.ignoredKeys=[]] - Keys to ignore during comparison.
+   *
+   * @returns {boolean}
+   */
+  isEqual (object1, object2, options = {}) {
+    const { ignoredKeys = [] } = options
+    const norm1 = normalizeObject(object1, ignoredKeys)
+    const norm2 = normalizeObject(object2, ignoredKeys)
+    showObjectsDifferences(norm1, norm2)
+    return _.isEqual(norm1, norm2)
+  }
 }
