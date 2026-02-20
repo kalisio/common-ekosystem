@@ -1,7 +1,12 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, afterAll } from 'vitest'
 import { json } from '../src/index.js'
+import fs from 'fs'
+import path from 'path'
 
 describe('json.isEqual', () => {
+  const tempFile1 = path.join(__dirname, 'test1.json')
+  const tempFile2 = path.join(__dirname, 'test2.json')
+
   it('should validate all features', () => {
     const obj1 = {
       id: 'A-1',
@@ -31,6 +36,16 @@ describe('json.isEqual', () => {
     expect(json.isEqual({}, { b: 2 })).toBe(false)
   })
 
+  it('should validate file comparison methods', () => {
+    const data = { a: 1, b: 2 }
+    fs.writeFileSync(tempFile1, JSON.stringify(data))
+    fs.writeFileSync(tempFile2, JSON.stringify({ b: 2, a: 1 }))
+
+    expect(json.isEqualFile(data, tempFile1)).toBe(true)
+    expect(json.isEqualFiles(tempFile1, tempFile2)).toBe(true)
+    expect(json.compare(data, data)).toBe(true)
+  })
+
   it('should display summary table of test results', () => {
     const results = [
       { Feature: 'Normalization (Sorting)', Passed: json.isEqual({ z: 1, a: 2 }, { a: 2, z: 1 }) },
@@ -39,5 +54,9 @@ describe('json.isEqual', () => {
       { Feature: 'Deep Diff Detection', Passed: !json.isEqual({ a: { b: 1 } }, { a: { b: 2 } }) }
     ]
     console.table(results)
+  })
+  afterAll(() => {
+    if (fs.existsSync(tempFile1)) fs.unlinkSync(tempFile1)
+    if (fs.existsSync(tempFile2)) fs.unlinkSync(tempFile2)
   })
 })

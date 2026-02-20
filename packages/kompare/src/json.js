@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import fs from 'fs'
 
 // Helper function to normalize a content in order to be compared with _.isEqual
 function normalizeObject (object, ignoredKeys = []) {
@@ -62,6 +63,7 @@ export const json = {
    * })
    * // → true
    */
+
   isEqual (object1, object2, options = {}) {
     const {
       ignoredKeys = []
@@ -70,5 +72,21 @@ export const json = {
     const obj2 = normalizeObject(object2, ignoredKeys)
     showObjectsDifferences(obj1, obj2)
     return _.isEqual(obj1, obj2)
+  },
+
+  isEqualFile (object, filePath, options = {}) {
+    const fileContent = fs.readFileSync(filePath, 'utf-8')
+    const fileObject = JSON.parse(fileContent)
+    return this.isEqual(object, fileObject, options)
+  },
+
+  isEqualFiles (path1, path2, options = {}) {
+    const fileContent1 = fs.readFileSync(path1, 'utf-8')
+    const fileContent2 = fs.readFileSync(path2, 'utf-8')
+    return this.isEqual(JSON.parse(fileContent1), JSON.parse(fileContent2), options)
+  },
+
+  compare (a, b, options = {}) {
+    return this.isEqual(a, b, options)
   }
 }
