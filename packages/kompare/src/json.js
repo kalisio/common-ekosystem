@@ -37,27 +37,38 @@ function showObjectsDifferences (object1, object2, path = '') {
   _.forEach(object2, (value, key) => {
     const newPath = path ? `${path}.${key}` : key
     if (!_.has(object1, key)) {
-      console.log(`✚ Extra ${newPath}`)
+      console.log(`Extra ${newPath}`)
     }
   })
 }
 
 export const json = {
+
   /**
+   * Compares two JSON objects after normalization.
    *
+   * The comparison can ignore specific keys provided in the options.
    *
-   * @param {Object} object1 - The first object to compare.
-   * @param {Object} object2 - The second object to compare.
+   * @param {Object|Array} object1 - The first object to compare.
+   * @param {Object|Array} object2 - The second object to compare.
    * @param {Object} [options={}] - Comparison options.
-   * @param {Array} [options.ignoredKeys=[]] - Keys to ignore during comparison.
+   * @param {string[]} [options.ignoredKeys=[]] - Keys to ignore during comparison.
    *
-   * @returns {boolean}
+   * @returns {boolean} Returns `true` if the normalized objects are equal, otherwise `false`.
+   *
+   * @example
+   * isEqual({ a: 1, id: '1' }, { a: 1, id: '2' }, {
+   * ignoredKeys: ['id']
+   * })
+   * // → true
    */
   isEqual (object1, object2, options = {}) {
-    const { ignoredKeys = [] } = options
-    const norm1 = normalizeObject(object1, ignoredKeys)
-    const norm2 = normalizeObject(object2, ignoredKeys)
-    showObjectsDifferences(norm1, norm2)
-    return _.isEqual(norm1, norm2)
+    const {
+      ignoredKeys = []
+    } = options
+    const obj1 = normalizeObject(object1, ignoredKeys)
+    const obj2 = normalizeObject(object2, ignoredKeys)
+    showObjectsDifferences(obj1, obj2)
+    return _.isEqual(obj1, obj2)
   }
 }
