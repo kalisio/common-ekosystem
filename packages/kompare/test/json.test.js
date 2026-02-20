@@ -31,11 +31,16 @@ describe('json.isEqual', () => {
     expect(json.isEqual({ a: { b: 1 } }, { a: { b: 2 } })).toBe(false)
   })
 
-  it('should detect missing or extra keys', () => {
-    expect(json.isEqual({ a: 1 }, {})).toBe(false)
-    expect(json.isEqual({}, { b: 2 })).toBe(false)
-  })
+  it('should detect missing and extra keys', () => {
+    const obj1 = { a: 1, b: 2 }
+    const obj2 = { a: 1, c: 3 }
 
+    const result = json.compare(obj1, obj2)
+
+    expect(result.isEqual).toBe(false)
+    expect(result.differences.missing).toContain('b')
+    expect(result.differences.extra).toContain('c')
+  })
   it('should validate file comparison methods', () => {
     const data = { a: 1, b: 2 }
     fs.writeFileSync(tempFile1, JSON.stringify(data))
@@ -43,7 +48,9 @@ describe('json.isEqual', () => {
 
     expect(json.isEqualFile(data, tempFile1)).toBe(true)
     expect(json.isEqualFiles(tempFile1, tempFile2)).toBe(true)
-    expect(json.compare(data, data)).toBe(true)
+
+    const result = json.compare(data, data)
+    expect(result.isEqual).toBe(true)
   })
 
   it('should display summary table of test results', () => {
@@ -58,5 +65,26 @@ describe('json.isEqual', () => {
   afterAll(() => {
     if (fs.existsSync(tempFile1)) fs.unlinkSync(tempFile1)
     if (fs.existsSync(tempFile2)) fs.unlinkSync(tempFile2)
+  })
+  it('should detect nested differences', () => {
+    const obj1 = {
+      settings: {
+        port: 8080,
+        active: true
+      }
+    }
+    const obj2 = {
+      settings: {
+        port: 9090,
+        active: true
+      }
+    }
+
+    const result = json.compare(obj1, obj2)
+
+    expect(result.isEqual).toBe(false)
+    expect(result.differences.updated[0].path).toBe('settings.port')
+    expect(result.differences.updated[0].oldValue).toBe(8080)
+    expect(result.differences.updated[0].newValue).toBe(9090)
   })
 })

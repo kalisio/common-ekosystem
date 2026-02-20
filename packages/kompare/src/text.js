@@ -63,6 +63,21 @@ export const text = {
   },
 
   compare (a, b, options = {}) {
-    return this.isEqual(a, b, options)
+    const areEqual = this.isEqual(a, b, options)
+    const str1 = normalizeString(a, options)
+    const str2 = normalizeString(b, options)
+
+    return {
+      isEqual: areEqual,
+      differences: areEqual
+        ? { updated: [] }
+        : {
+            updated: [{
+              path: 'text',
+              oldValue: str1,
+              newValue: str2
+            }]
+          }
+    }
   }
 }

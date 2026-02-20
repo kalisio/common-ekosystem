@@ -21,26 +21,31 @@ function normalizeObject (object, ignoredKeys = []) {
   return object
 }
 
-// Helper function to display the differences between 2 objects
-function showObjectsDifferences (object1, object2, path = '') {
+// Helper function to calculate the differences between 2 objects
+function diffObjects (object1, object2, path = '', diffs = { missing: [], extra: [], updated: [] }) {
   _.forEach(object1, (value, key) => {
     const newPath = path ? `${path}.${key}` : key
     if (!_.has(object2, key)) {
-      console.log(`:heavy_multiplication_x: Missing ${newPath}`)
+      diffs.missing.push(newPath)
     } else if (!_.isEqual(value, object2[key])) {
       if (_.isObject(value) && _.isObject(object2[key])) {
-        showObjectsDifferences(value, object2[key], newPath)
+        diffObjects(value, object2[key], newPath, diffs)
       } else {
-        console.log(`:arrows_counterclockwise: Updated ${newPath}: ${value} -> ${object2[key]}`)
+        diffs.updated.push({
+          path: newPath,
+          oldValue: value,
+          newValue: object2[key]
+        })
       }
     }
   })
   _.forEach(object2, (value, key) => {
     const newPath = path ? `${path}.${key}` : key
     if (!_.has(object1, key)) {
-      console.log(`Extra ${newPath}`)
+      diffs.extra.push(newPath)
     }
   })
+  return diffs
 }
 
 export const json = {
@@ -70,7 +75,6 @@ export const json = {
     } = options
     const obj1 = normalizeObject(object1, ignoredKeys)
     const obj2 = normalizeObject(object2, ignoredKeys)
-    showObjectsDifferences(obj1, obj2)
     return _.isEqual(obj1, obj2)
   },
 
@@ -87,6 +91,18 @@ export const json = {
   },
 
   compare (a, b, options = {}) {
-    return this.isEqual(a, b, options)
+    const {
+      ignoredKeys = []
+    } = options
+    const obj1 = normalizeObject(a, ignoredKeys)
+    const obj2 = normalizeObject(b, ignoredKeys)
+
+    const result = _.isEqual(obj1, obj2)
+    const differences = diffObjects(obj1, obj2)
+
+    return {
+      isEqual: result,
+      differences
+    }
   }
 }
