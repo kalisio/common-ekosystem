@@ -1,3 +1,5 @@
+import fs from 'fs'
+
 function normalizeString (str, options) {
   const {
     ignoreSpaces = false,
@@ -38,8 +40,8 @@ export const text = {
    *
    * @example
    * equal("École", "ecole", {
-   *   ignoreCase: true,
-   *   ignoreAccents: true
+   * ignoreCase: true,
+   * ignoreAccents: true
    * })
    * // → true
    */
@@ -47,5 +49,20 @@ export const text = {
     const str1 = normalizeString(text1, options)
     const str2 = normalizeString(text2, options)
     return str1 === str2
+  },
+
+  isEqualFile (content, filePath, options = {}) {
+    const fileContent = fs.readFileSync(filePath, 'utf-8')
+    return this.isEqual(content, fileContent, options)
+  },
+
+  isEqualFiles (path1, path2, options = {}) {
+    const fileContent1 = fs.readFileSync(path1, 'utf-8')
+    const fileContent2 = fs.readFileSync(path2, 'utf-8')
+    return this.isEqual(fileContent1, fileContent2, options)
+  },
+
+  compare (a, b, options = {}) {
+    return this.isEqual(a, b, options)
   }
 }

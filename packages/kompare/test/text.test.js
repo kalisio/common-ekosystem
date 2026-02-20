@@ -1,36 +1,73 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, afterAll } from 'vitest'
 import { text } from '../src/index.js'
+import fs from 'fs'
+import path from 'path'
 
 describe('text.isEqual', () => {
+  const sourcePath = path.join(__dirname, 'source_dataset.txt')
+  const targetPath = path.join(__dirname, 'target_dataset.txt')
+
   it('should return true for identical strings', () => {
-    expect(text.isEqual('hello', 'hello')).toBe(true)
+    const content = 'Kalisio common-ekosystem'
+    expect(text.isEqual(content, content)).toBe(true)
   })
 
   it('should return false for different strings', () => {
-    expect(text.isEqual('hello', 'world')).toBe(false)
+    const baseline = 'OPERATION_SUCCESSFUL'
+    const current = 'OPERATION_FAILED'
+    expect(text.isEqual(baseline, current)).toBe(false)
   })
 
   it('should ignore case when ignoreCase is true', () => {
-    expect(text.isEqual('Hello', 'hello', { ignoreCase: true })).toBe(true)
-    expect(text.isEqual('Hello', 'hello', { ignoreCase: false })).toBe(false)
+    const referenceLabel = 'INTERNAL_SERVER_ERROR'
+    const inputLabel = 'internal_server_error'
+    expect(text.isEqual(referenceLabel, inputLabel, { ignoreCase: true })).toBe(true)
+    expect(text.isEqual(referenceLabel, inputLabel, { ignoreCase: false })).toBe(false)
   })
 
   it('should ignore surrounding spaces when ignoreSpaces is true', () => {
-    expect(text.isEqual('  hello  ', 'hello', { ignoreSpaces: true })).toBe(true)
-    expect(text.isEqual('  hello  ', 'hello', { ignoreSpaces: false })).toBe(false)
+    const sanitizedEmail = 'admin@kalisio.com'
+    const rawEmail = '  admin@kalisio.com  '
+    expect(text.isEqual(sanitizedEmail, rawEmail, { ignoreSpaces: true })).toBe(true)
+    expect(text.isEqual(sanitizedEmail, rawEmail, { ignoreSpaces: false })).toBe(false)
   })
 
   it('should ignore accents when ignoreAccents is true', () => {
-    expect(text.isEqual('école', 'ecole', { ignoreAccents: true })).toBe(true)
-    expect(text.isEqual('école', 'ecole', { ignoreAccents: false })).toBe(false)
+    const localizedHeader = 'résumé' //
+    const normalizedHeader = 'resume'
+    expect(text.isEqual(localizedHeader, normalizedHeader, { ignoreAccents: true })).toBe(true)
+    expect(text.isEqual(localizedHeader, normalizedHeader, { ignoreAccents: false })).toBe(false)
   })
 
   it('should combine options correctly', () => {
+    const unformattedInput = '  RÉSUMÉ  '
+    const expectedOutput = 'resume'
     const options = { ignoreCase: true, ignoreSpaces: true, ignoreAccents: true }
-    expect(text.isEqual('  École  ', 'ecole', options)).toBe(true)
+    expect(text.isEqual(unformattedInput, expectedOutput, options)).toBe(true)
+  })
+
+  it('should validate file comparison methods', () => {
+    const rawData = '  Kalisio  '
+    const processedData = 'kalisio'
+
+    fs.writeFileSync(sourcePath, rawData)
+    fs.writeFileSync(targetPath, processedData)
+
+    const comparisonOptions = { ignoreSpaces: true, ignoreCase: true }
+
+    expect(text.isEqualFile(processedData, sourcePath, comparisonOptions)).toBe(true)
+    expect(text.isEqualFiles(sourcePath, targetPath, comparisonOptions)).toBe(true)
+    expect(text.compare(rawData, rawData)).toBe(true)
   })
 
   it('should return false if strings differ after normalization', () => {
-    expect(text.isEqual('école', 'écolle', { ignoreCase: true, ignoreAccents: true })).toBe(false)
+    const statusReady = 'system-ready'
+    const statusPending = 'system-pending'
+    expect(text.isEqual(statusReady, statusPending, { ignoreCase: true, ignoreAccents: true })).toBe(false)
+  })
+
+  afterAll(() => {
+    if (fs.existsSync(sourcePath)) fs.unlinkSync(sourcePath)
+    if (fs.existsSync(targetPath)) fs.unlinkSync(targetPath)
   })
 })
