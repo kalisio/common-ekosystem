@@ -4,10 +4,10 @@ title: assert
 
 # assert
 
-
 ## that
 
 ### Signature
+
 ```javascript
 that(value, validator, errorMessage)
 ```
@@ -38,12 +38,10 @@ assert.that(-1, (v) => v > 0, 'Value must be positive') // throws TypeError
 assert.that('hello', (v) => typeof v === 'string', 'Must be a string') // passes
 ```
 
-
----
-
 ## all
 
 ### Signature
+
 ```javascript
 all(validations, validations[].value, validations[].validator, validations[].message)
 ```

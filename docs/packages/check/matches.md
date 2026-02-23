@@ -4,11 +4,11 @@ title: matches
 
 # matches
 
-
 ## pattern
 
 ### Signature
-```javascript
+
+```js
 pattern(value, pattern)
 ```
 
@@ -40,7 +40,5 @@ matches.pattern(123, /\d+/) // false (not a string)
 matches.pattern('hello', 'pattern') // false (not a RegExp)
 ```
 
-
----
 
 

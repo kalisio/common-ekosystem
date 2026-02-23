@@ -4,11 +4,11 @@ title: is
 
 # is
 
-
 ## defined
 
 ### Signature
-```javascript
+
+```js
 defined(value)
 ```
 
@@ -30,20 +30,18 @@ Check if value is defined (not null or undefined)
 
 ### Examples
 
-```javascript
+```js
 is.defined(0) // true
 is.defined('') // true
 is.defined(null) // false
 is.defined(undefined) // false
 ```
 
-
----
-
 ## nil
 
 ### Signature
-```javascript
+
+```js
 nil(value)
 ```
 
@@ -65,20 +63,18 @@ Check if value is null or undefined
 
 ### Examples
 
-```javascript
+```js
 is.nil(null) // true
 is.nil(undefined) // true
 is.nil(0) // false
 is.nil('') // false
 ```
 
-
----
-
 ## plainObject
 
 ### Signature
-```javascript
+
+```js
 plainObject(value)
 ```
 
@@ -100,7 +96,7 @@ Check if value is a plain object (not array, not null, not a class instance)
 
 ### Examples
 
-```javascript
+```js
 is.plainObject({}) // true
 is.plainObject({ name: 'John' }) // true
 is.plainObject([]) // false
@@ -108,13 +104,11 @@ is.plainObject(null) // false
 is.plainObject(new Date()) // false
 ```
 
-
----
-
 ## emptyObject
 
 ### Signature
-```javascript
+
+```js
 emptyObject(value)
 ```
 
@@ -136,19 +130,17 @@ Check if value is an empty object
 
 ### Examples
 
-```javascript
+```js
 is.emptyObject({}) // true
 is.emptyObject({ name: 'John' }) // false
 is.emptyObject([]) // false
 ```
 
-
----
-
 ## string
 
 ### Signature
-```javascript
+
+```js
 string(value)
 ```
 
@@ -170,19 +162,17 @@ Check if value is a string
 
 ### Examples
 
-```javascript
+```js
 is.string('hello') // true
 is.string('') // true
 is.string(123) // false
 ```
 
-
----
-
 ## emptyString
 
 ### Signature
-```javascript
+
+```js
 emptyString(value)
 ```
 
@@ -204,20 +194,18 @@ Check if value is an empty string (whitespace only)
 
 ### Examples
 
-```javascript
+```js
 is.emptyString('') // true
 is.emptyString('   ') // true
 is.emptyString('hello') // false
 is.emptyString(null) // false
 ```
 
-
----
-
 ## number
 
 ### Signature
-```javascript
+
+```js
 number(value)
 ```
 
@@ -239,7 +227,7 @@ Check if value is a valid number (not NaN, not Infinity)
 
 ### Examples
 
-```javascript
+```js
 is.number(42) // true
 is.number(3.14) // true
 is.number(NaN) // false
@@ -247,13 +235,11 @@ is.number(Infinity) // false
 is.number('42') // false
 ```
 
-
----
-
 ## integer
 
 ### Signature
-```javascript
+
+```js
 integer(value)
 ```
 
@@ -275,20 +261,18 @@ Check if value is an integer
 
 ### Examples
 
-```javascript
+```js
 is.integer(42) // true
 is.integer(0) // true
 is.integer(3.14) // false
 is.integer('42') // false
 ```
 
-
----
-
 ## array
 
 ### Signature
-```javascript
+
+```js
 array(value)
 ```
 
@@ -310,20 +294,18 @@ Check if value is an array
 
 ### Examples
 
-```javascript
+```js
 is.array([]) // true
 is.array([1, 2, 3]) // true
 is.array({}) // false
 is.array('hello') // false
 ```
 
-
----
-
 ## emptyArray
 
 ### Signature
-```javascript
+
+```js
 emptyArray(value)
 ```
 
@@ -345,19 +327,17 @@ Check if value is an empty array
 
 ### Examples
 
-```javascript
+```js
 is.emptyArray([]) // true
 is.emptyArray([1, 2]) // false
 is.emptyArray({}) // false
 ```
 
-
----
-
 ## arrayOfLength
 
 ### Signature
-```javascript
+
+```js
 arrayOfLength(value, length)
 ```
 
@@ -380,19 +360,17 @@ Check if value is an array of specific length
 
 ### Examples
 
-```javascript
+```js
 is.arrayOfLength([1, 2, 3], 3) // true
 is.arrayOfLength([1, 2], 3) // false
 is.arrayOfLength([], 0) // true
 ```
 
-
----
-
 ## function
 
 ### Signature
-```javascript
+
+```js
 function(value)
 ```
 
@@ -414,20 +392,18 @@ Check if value is a function
 
 ### Examples
 
-```javascript
+```js
 is.function(() => {}) // true
 is.function(function() {}) // true
 is.function(Array.isArray) // true
 is.function({}) // false
 ```
 
-
----
-
 ## boolean
 
 ### Signature
-```javascript
+
+```js
 boolean(value)
 ```
 
@@ -449,20 +425,18 @@ Check if value is a boolean
 
 ### Examples
 
-```javascript
+```js
 is.boolean(true) // true
 is.boolean(false) // true
 is.boolean(1) // false
 is.boolean('true') // false
 ```
 
-
----
-
 ## oneOf
 
 ### Signature
-```javascript
+
+```js
 oneOf(value, allowedValues)
 ```
 
@@ -485,19 +459,17 @@ Check if value is one of the allowed values
 
 ### Examples
 
-```javascript
+```js
 is.oneOf('red', ['red', 'green', 'blue']) // true
 is.oneOf('yellow', ['red', 'green', 'blue']) // false
 is.oneOf(2, [1, 2, 3]) // true
 ```
 
-
----
-
 ## positive
 
 ### Signature
-```javascript
+
+```js
 positive(value)
 ```
 
@@ -519,20 +491,18 @@ Check if value is a positive number
 
 ### Examples
 
-```javascript
+```js
 is.positive(5) // true
 is.positive(0.1) // true
 is.positive(0) // false
 is.positive(-5) // false
 ```
 
-
----
-
 ## negative
 
 ### Signature
-```javascript
+
+```js
 negative(value)
 ```
 
@@ -554,20 +524,18 @@ Check if value is a negative number
 
 ### Examples
 
-```javascript
+```js
 is.negative(-5) // true
 is.negative(-0.1) // true
 is.negative(0) // false
 is.negative(5) // false
 ```
 
-
----
-
 ## inRange
 
 ### Signature
-```javascript
+
+```js
 inRange(value, min, max)
 ```
 
@@ -591,7 +559,7 @@ Check if value is within a numeric range (inclusive)
 
 ### Examples
 
-```javascript
+```js
 is.inRange(5, 1, 10) // true
 is.inRange(1, 1, 10) // true
 is.inRange(10, 1, 10) // true
@@ -599,13 +567,11 @@ is.inRange(0, 1, 10) // false
 is.inRange(11, 1, 10) // false
 ```
 
-
----
-
 ## empty
 
 ### Signature
-```javascript
+
+```js
 empty(value)
 ```
 
@@ -627,7 +593,7 @@ Check if value is empty (null, undefined, empty string, empty array, or empty ob
 
 ### Examples
 
-```javascript
+```js
 is.empty(null) // true
 is.empty(undefined) // true
 is.empty('') // true
@@ -638,8 +604,3 @@ is.empty(0) // false
 is.empty(false) // false
 is.empty('hello') // false
 ```
-
-
----
-
-
