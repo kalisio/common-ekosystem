@@ -37,10 +37,18 @@ export default withMermaid(
           { text: 'Contact', link: '/overview/contact' }
         ]
         ,
-        '/check/': getSideBar('check'),
-        '/geokit/': getSideBar('geokit'),
-        '/graphiks/': getSideBar('graphiks'),
-        '/kompare/': getSideBar('kompare')
+        '/packages/check/': [
+          { text: 'Usage', link: '/packages/check/index' },
+          { text: 'API', items: [
+            { text: 'assert', link: '/packages/check/assert' },
+            { text: 'has', link: '/packages/check/has' },
+            { text: 'is', link: '/packages/check/is' },
+            { text: 'matches', link: '/packages/check/matches' }
+          ]}
+        ],
+        '/pacakges/geokit/': getSideBar('geokit'),
+        '/packages/graphiks/': getSideBar('graphiks'),
+        '/packages/kompare/': getSideBar('kompare')
       },
       footer: {
         copyright: 'MIT Licensed | Copyright © 2026 Kalisio'
