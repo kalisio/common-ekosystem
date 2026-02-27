@@ -1,15 +1,23 @@
 import fs from 'fs'
+import { XMLParser } from 'fast-xml-parser'
+import { json } from './json.js'
 
-// Helper function to normalize an XML content based on options
-// Same normalization logic as in text.js, applied to the XML string
-function normalizeXmlString (str, options) {
+const parser = new XMLParser({
+  ignoreAttributes: false,
+  attributeNamePrefix: '',
+  allowBooleanAttributes: true,
+  parseTagValue: false,
+  parseAttributeValue: false,
+  trimValues: true
+})
+
+function normalizeString (str, options) {
   const {
     ignoreSpaces = false,
     ignoreAccents = false,
     ignoreCase = false
   } = options
   let result = str
-
   if (ignoreSpaces) {
     result = result.trim()
   }
@@ -27,10 +35,7 @@ function normalizeXmlString (str, options) {
 export const xml = {
 
   /**
-   * Compares two XML strings after normalization.
-   *
-   * The comparison can ignore case, surrounding spaces, and/or accents
-   * depending on the provided options.
+   * Compares two XML strings after normalization and parsing.
    *
    * @param {string} xml1 - The first XML string to compare.
    * @param {string} xml2 - The second XML string to compare.
@@ -38,13 +43,15 @@ export const xml = {
    * @param {boolean} [options.ignoreCase=false] - Whether to ignore case differences.
    * @param {boolean} [options.ignoreSpaces=false] - Whether to ignore leading and trailing spaces.
    * @param {boolean} [options.ignoreAccents=false] - Whether to remove diacritical marks before comparison.
-   *
-   * @returns {boolean} Returns `true` if the normalized XML strings are equal, otherwise `false`.
    */
   isEqual (xml1, xml2, options = {}) {
-    const str1 = normalizeXmlString(xml1, options)
-    const str2 = normalizeXmlString(xml2, options)
-    return str1 === str2
+    const str1 = normalizeString(xml1, options)
+    const str2 = normalizeString(xml2, options)
+
+    const obj1 = parser.parse(str1)
+    const obj2 = parser.parse(str2)
+
+    return json.isEqual(obj1, obj2, options)
   },
 
   isEqualFile (content, filePath, options = {}) {
@@ -59,22 +66,12 @@ export const xml = {
   },
 
   compare (a, b, options = {}) {
-    const areEqual = this.isEqual(a, b, options)
-    const str1 = normalizeXmlString(a, options)
-    const str2 = normalizeXmlString(b, options)
+    const str1 = normalizeString(a, options)
+    const str2 = normalizeString(b, options)
 
-    return {
-      isEqual: areEqual,
-      differences: areEqual
-        ? { updated: [] }
-        : {
-            updated: [{
-              // We use 'xml' as the path to indicate the entire XML block differs
-              path: 'xml',
-              oldValue: str1,
-              newValue: str2
-            }]
-          }
-    }
+    const obj1 = parser.parse(str1)
+    const obj2 = parser.parse(str2)
+
+    return json.compare(obj1, obj2, options)
   }
 }

@@ -1,4 +1,6 @@
 import fs from 'fs'
+import YAML from 'yaml'
+import { json } from './json.js'
 
 function normalizeString (str, options) {
   const {
@@ -24,10 +26,10 @@ function normalizeString (str, options) {
 export const yaml = {
 
   /**
-   * Compares two YAML strings after normalization.
+   * Compares two YAML strings after normalization and parsing.
    *
    * The comparison can ignore case, surrounding spaces, and/or accents
-   * depending on the provided options.
+   * depending on the provided options (via JSON comparison).
    *
    * @param {string} yaml1 - The first YAML string to compare.
    * @param {string} yaml2 - The second YAML string to compare.
@@ -36,7 +38,7 @@ export const yaml = {
    * @param {boolean} [options.ignoreSpaces=false] - Whether to ignore leading and trailing spaces.
    * @param {boolean} [options.ignoreAccents=false] - Whether to remove diacritical marks before comparison.
    *
-   * @returns {boolean} Returns `true` if the normalized strings are equal, otherwise `false`.
+   * @returns {boolean} Returns `true` if the normalized and parsed YAMLs are equal, otherwise `false`.
    *
    * @example
    * equal("key: Valeur", "key: valeur", {
@@ -47,7 +49,11 @@ export const yaml = {
   isEqual (yaml1, yaml2, options = {}) {
     const str1 = normalizeString(yaml1, options)
     const str2 = normalizeString(yaml2, options)
-    return str1 === str2
+
+    const obj1 = YAML.parse(str1)
+    const obj2 = YAML.parse(str2)
+
+    return json.isEqual(obj1, obj2, options)
   },
 
   isEqualFile (content, filePath, options = {}) {
@@ -62,21 +68,12 @@ export const yaml = {
   },
 
   compare (a, b, options = {}) {
-    const areEqual = this.isEqual(a, b, options)
     const str1 = normalizeString(a, options)
     const str2 = normalizeString(b, options)
 
-    return {
-      isEqual: areEqual,
-      differences: areEqual
-        ? { updated: [] }
-        : {
-            updated: [{
-              path: 'yaml',
-              oldValue: str1,
-              newValue: str2
-            }]
-          }
-    }
+    const obj1 = YAML.parse(str1)
+    const obj2 = YAML.parse(str2)
+
+    return json.compare(obj1, obj2, options)
   }
 }

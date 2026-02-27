@@ -7,36 +7,40 @@ describe('xml.isEqual', () => {
   const sourcePath = path.join(__dirname, 'source_xml.xml')
   const targetPath = path.join(__dirname, 'target_xml.xml')
 
-  it('should return true for identical XML strings', () => {
+  it('should return true for identical strings', () => {
     const content = '<root><node>value</node></root>'
     expect(xml.isEqual(content, content)).toBe(true)
   })
 
-  it('should return false for different XML strings', () => {
-    const xml1 = '<status>SUCCESS</status>'
-    const xml2 = '<status>FAILURE</status>'
-    expect(xml.isEqual(xml1, xml2)).toBe(false)
+  it('should return false for different strings', () => {
+    const baseline = '<status>SUCCESS</status>'
+    const current = '<status>FAILURE</status>'
+    expect(xml.isEqual(baseline, current)).toBe(false)
   })
 
   it('should ignore case when ignoreCase is true', () => {
-    const xml1 = '<TAG>Value</TAG>'
-    const xml2 = '<tag>value</tag>'
-    expect(xml.isEqual(xml1, xml2, { ignoreCase: true })).toBe(true)
-    expect(xml.isEqual(xml1, xml2, { ignoreCase: false })).toBe(false)
+    const referenceLabel = '<tag>Value</tag>'
+    const inputLabel = '<tag>value</tag>'
+    expect(xml.isEqual(referenceLabel, inputLabel, { ignoreCase: true })).toBe(true)
+    expect(xml.isEqual(referenceLabel, inputLabel, { ignoreCase: false })).toBe(false)
   })
 
   it('should ignore surrounding spaces when ignoreSpaces is true', () => {
-    const xml1 = '<root>data</root>'
-    const xml2 = '  <root>data</root>  '
-    expect(xml.isEqual(xml1, xml2, { ignoreSpaces: true })).toBe(true)
-    expect(xml.isEqual(xml1, xml2, { ignoreSpaces: false })).toBe(false)
+    const sanitized = '<root>data</root>'
+    const raw = '  <root>data</root>  '
+    expect(xml.isEqual(sanitized, raw, { ignoreSpaces: true })).toBe(true)
   })
 
   it('should ignore accents when ignoreAccents is true', () => {
-    const xml1 = '<item>café</item>'
-    const xml2 = '<item>cafe</item>'
-    expect(xml.isEqual(xml1, xml2, { ignoreAccents: true })).toBe(true)
-    expect(xml.isEqual(xml1, xml2, { ignoreAccents: false })).toBe(false)
+    const localized = '<item>café</item>'
+    const normalized = '<item>cafe</item>'
+    expect(xml.isEqual(localized, normalized, { ignoreAccents: true })).toBe(true)
+  })
+
+  it('should validate structural equality (attributes order)', () => {
+    const xml1 = '<user id="1" active="true"/>'
+    const xml2 = '<user active="true" id="1"/>'
+    expect(xml.isEqual(xml1, xml2)).toBe(true)
   })
 
   it('should validate file comparison methods', () => {
@@ -55,16 +59,16 @@ describe('xml.isEqual', () => {
     expect(result.isEqual).toBe(true)
   })
 
-  it('should return differences when XML does not match', () => {
-    const xml1 = '<version>1.0</version>'
-    const xml2 = '<version>2.0</version>'
+  it('should return precise differences when XML does not match', () => {
+    const xml1 = '<user name="henri" age="19"/>'
+    const xml2 = '<user name="henri" age="20"/>'
     const result = xml.compare(xml1, xml2)
 
     expect(result.isEqual).toBe(false)
     expect(result.differences.updated[0]).toMatchObject({
-      path: 'xml',
-      oldValue: xml1,
-      newValue: xml2
+      path: 'user.age',
+      oldValue: '19',
+      newValue: '20'
     })
   })
 

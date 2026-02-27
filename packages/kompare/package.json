@@ -41,7 +41,8 @@
   },
   "homepage": "https://github.com/kalisio/common-ekosystem/tree/main/packages/check#readme",
   "dependencies": {
-    "lodash": "catalog:"
-  },
-  "devDependencies": {}
+    "fast-xml-parser": "^5.4.1",
+    "lodash": "catalog:",
+    "yaml": "^2.8.2"
+  }
 }
