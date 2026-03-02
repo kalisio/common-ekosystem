@@ -201,6 +201,42 @@ is.emptyString('hello') // false
 is.emptyString(null) // false
 ```
 
+## regularExpression
+
+### Signature
+
+```js
+regularExpression(value)
+```
+
+### Description
+
+Check if value is a regular expression (instance of RegExp)
+
+### Parameters
+
+| Name  | Type | Required | Description        |
+|-------|------|----------|--------------------|
+| value | *    | yes      | The value to check |
+
+### Returns
+
+| Type    | Description                              |
+|---------|------------------------------------------|
+| boolean | True if value is a RegExp instance       |
+
+### Examples
+
+```js
+is.regularExpression(/abc/) // true
+is.regularExpression(new RegExp('abc')) // true
+
+is.regularExpression('abc') // false
+is.regularExpression(123) // false
+is.regularExpression(null) // false
+is.regularExpression(undefined) // false
+```
+
 ## number
 
 ### Signature

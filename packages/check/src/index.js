@@ -1,4 +1,5 @@
-export * from './assert.js'
+export * from './asserts.js'
+export * from './conforms.js'
 export * from './has.js'
 export * from './is.js'
 export * from './matches.js'

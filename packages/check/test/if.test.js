@@ -110,6 +110,28 @@ describe('is.emptyString', () => {
   })
 })
 
+describe('is.regularExpression', () => {
+  it('should return true for RegExp values', () => {
+    expect(is.regularExpression(/abc/)).toBe(true)
+    // eslint-disable-next-line prefer-regex-literals
+    expect(is.regularExpression(new RegExp('abc'))).toBe(true)
+    expect(is.regularExpression(/^\d+$/i)).toBe(true)
+  })
+
+  it('should return false for non-RegExp values', () => {
+    expect(is.regularExpression('abc')).toBe(false)
+    expect(is.regularExpression(123)).toBe(false)
+    expect(is.regularExpression({})).toBe(false)
+    expect(is.regularExpression([])).toBe(false)
+    expect(is.regularExpression(() => {})).toBe(false)
+  })
+
+  it('should return false for null or undefined', () => {
+    expect(is.regularExpression(null)).toBe(false)
+    expect(is.regularExpression(undefined)).toBe(false)
+  })
+})
+
 describe('is.number', () => {
   it('should return true for valid numbers', () => {
     expect(is.number(0)).toBe(true)

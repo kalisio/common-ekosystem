@@ -40,7 +40,8 @@ export default withMermaid(
         '/packages/check/': [
           { text: 'Usage', link: '/packages/check/index' },
           { text: 'API', items: [
-            { text: 'assert', link: '/packages/check/assert' },
+            { text: 'asserts', link: '/packages/check/asserts' },
+            { text: 'conforms', link: '/packages/check/conforms' },
             { text: 'has', link: '/packages/check/has' },
             { text: 'is', link: '/packages/check/is' },
             { text: 'matches', link: '/packages/check/matches' }

@@ -27,6 +27,10 @@ export const is = {
     return is.string(value) && value.trim().length === 0
   },
 
+  regularExpression (value) {
+    return is.defined(value) && value instanceof RegExp
+  },
+
   number (value) {
     return typeof value === 'number' && !isNaN(value) && isFinite(value)
   },
