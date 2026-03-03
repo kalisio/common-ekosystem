@@ -1,27 +1,7 @@
 import fs from 'fs'
 import YAML from 'yaml'
 import { json } from './json.js'
-
-function normalizeString (str, options) {
-  const {
-    ignoreSpaces = false,
-    ignoreAccents = false,
-    ignoreCase = false
-  } = options
-  let result = str
-  if (ignoreSpaces) {
-    result = result.trim()
-  }
-  if (ignoreAccents) {
-    result = result
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-  }
-  if (ignoreCase) {
-    result = result.toLowerCase()
-  }
-  return result
-}
+import { normalizeString } from './text.js'
 
 export const yaml = {
 

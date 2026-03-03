@@ -17,8 +17,7 @@ export default withMermaid(
       logo: 'https://kalisio.github.io/kalisioscope/kalisio/kalisio-icon-2048x2048.png',
       socialLinks: [{ icon: 'github', link: 'https://github.com/kalisio/common-ekosystem' }],
       nav: [
-        { text: 'Overview', link: '/overview/about' }
-        ,
+        { text: 'Overview', link: '/overview/about' },
         {
           text: 'Packages',
           items: [
@@ -35,8 +34,7 @@ export default withMermaid(
           { text: 'Contributing', link: '/overview/contributing' },
           { text: 'License', link: '/overview/license' },
           { text: 'Contact', link: '/overview/contact' }
-        ]
-        ,
+        ],
         '/packages/check/': [
           { text: 'Usage', link: '/packages/check/index' },
           { text: 'API', items: [
@@ -47,9 +45,17 @@ export default withMermaid(
             { text: 'matches', link: '/packages/check/matches' }
           ]}
         ],
-        '/pacakges/geokit/': getSideBar('geokit'),
-        '/packages/graphiks/': getSideBar('graphiks'),
-        '/packages/kompare/': getSideBar('kompare')
+        '/packages/kompare/': [
+          { text: 'Usage', link: '/packages/kompare/index' },
+          { text: 'API', items: [
+            { text: 'json', link: '/packages/kompare/json' },
+            { text: 'text', link: '/packages/kompare/text' },
+            { text: 'xml', link: '/packages/kompare/xml' },
+            { text: 'yaml', link: '/packages/kompare/yaml' }
+          ]}
+        ],
+        '/packages/geokit/': getSideBar('geokit'),
+        '/packages/graphiks/': getSideBar('graphiks')
       },
       footer: {
         copyright: 'MIT Licensed | Copyright © 2026 Kalisio'
@@ -66,7 +72,25 @@ export default withMermaid(
   })
 )
 
-
 function getSideBar (pkg) {
-  // TODO
+  const pkgDir = path.resolve(process.cwd(), `docs/packages/${pkg}`)
+  
+  if (!fs.existsSync(pkgDir)) {
+    return []
+  }
+
+  const files = fs.readdirSync(pkgDir)
+  
+  const items = files
+    .filter(file => file.endsWith('.md') && file !== 'index.md')
+    .map(file => {
+      const name = file.replace('.md', '')
+      return { text: name, link: `/packages/${pkg}/${name}` }
+    })
+    .sort((a, b) => a.text.localeCompare(b.text)) 
+
+  return [
+    { text: 'Usage', link: `/packages/${pkg}/index` },
+    ...items
+  ]
 }

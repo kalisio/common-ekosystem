@@ -1,6 +1,7 @@
 import fs from 'fs'
 import { XMLParser } from 'fast-xml-parser'
 import { json } from './json.js'
+import { normalizeString } from './text.js'
 
 const parser = new XMLParser({
   ignoreAttributes: false,
@@ -10,27 +11,6 @@ const parser = new XMLParser({
   parseAttributeValue: false,
   trimValues: true
 })
-
-function normalizeString (str, options) {
-  const {
-    ignoreSpaces = false,
-    ignoreAccents = false,
-    ignoreCase = false
-  } = options
-  let result = str
-  if (ignoreSpaces) {
-    result = result.trim()
-  }
-  if (ignoreAccents) {
-    result = result
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-  }
-  if (ignoreCase) {
-    result = result.toLowerCase()
-  }
-  return result
-}
 
 export const xml = {
 

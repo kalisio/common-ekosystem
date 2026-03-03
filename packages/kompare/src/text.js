@@ -1,6 +1,6 @@
 import fs from 'fs'
 
-function normalizeString (str, options) {
+export function normalizeString (str, options) {
   const {
     ignoreSpaces = false,
     ignoreAccents = false,
