@@ -1,0 +1,8 @@
+{
+  "DIRECTIONS": {
+    "NORTH": { "label": "North", "symbol": "N" },
+    "SOUTH": { "label": "South", "symbol": "S" },
+    "EAST":  { "label": "East", "symbol": "E" },
+    "WEST":  { "label": "West", "symbol": "W" }
+  }
+}

@@ -1,4 +1,4 @@
-import { is } from '@kalisio/check'
+import { asserts, is } from '@kalisio/check'
 
 // Precompute factors to speedup processing
 const FACTORS = Array.from({ length: 9 }, (_, i) => 10 ** i)
@@ -48,15 +48,23 @@ const FACTORS = Array.from({ length: 9 }, (_, i) => 10 ** i)
  * // null
  */
 export function truncateCoordinates (longitude, latitude, precision = 7) {
-  if (!is.number(longitude) || !is.number(latitude)) {
-    return null
-  }
-  if (!is.integer(precision) || !is.inRange(precision, 0, 8)) {
-    return null
-  }
+  asserts.all([
+    { value: longitude, validator: is.number, message: 'longitude must be a number' },
+    { value: latitude, validator: is.number, message: 'latitude must be a number' },
+    { value: precision, validator: (v) => is.inRange(v, 0, 8), message: 'precision must be in range [0, 8]' }
+  ])
   const factor = FACTORS[precision]
   return {
     longitude: Math.round(longitude * factor) / factor,
     latitude: Math.round(latitude * factor) / factor
   }
 }
+
+/* export function truncateCoordinates (coordinates, precision = 7) {
+  asserts.all([
+    { value: coordinates, validator: (v) => has.key(v, 'longitude'), message: 'coordinates must have a longitude property' },
+    { value: coordinates, validator: (v) => has.key(v, 'latitude'), message: 'coordinates must have a latitude property' },
+    { value: precision, validator: (v) => is.inRange(v, 0, 8), message: 'precision must be in range [0, 8]' },
+  ])
+  return truncateCoordinates(coordinates.longitude, coordinates.latitude)
+} */

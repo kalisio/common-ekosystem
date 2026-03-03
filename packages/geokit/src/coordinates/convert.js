@@ -1,39 +1,39 @@
-import { getLogger } from '@logtape/logtape'
-import { is } from '@kalisio/check'
+import { asserts, is } from '@kalisio/check'
+import { isDirection, isSouthDirection, isWestDirection } from '../directions'
+import { isCoordinateType, isLatitudeType } from './types.js'
 
-const logger = getLogger('geokit', 'convert')
+export function convertCoordinateFromSexagesimal (deg, min = 0, sec = 0, dir = undefined) {
+  asserts.all([
+    { value: deg, validator: is.number, message: 'deg must be a number' },
+    { value: min, validator: (v) => is.inRange(v, 0, 60), message: 'min must be in range [0, 60]' },
+    { value: sec, validator: (v) => is.inRange(v, 0, 60), message: 'sec must be in range [0, 60]' }
+  ])
+  let sign = Math.sign(deg) || 1
+  if (is.defined(dir)) {
+    asserts.that(dir, isDirection, 'dir must be a direction')
+    asserts.that(sign, is.positive, 'deg sign must be positive')
+    if (isSouthDirection(dir) || isWestDirection(dir)) sign = -1
+  }
+  const dd = Math.abs(deg) + (min / 60) + (sec / 3600)
+  return dd * sign
+}
 
-/**
- * Converts Degrees, Minutes, Seconds to Decimal Degrees
- *
- * @param {number} deg - degrees
- * @param {number} [min=0] - minutes
- * @param {number} [sec=0] - seconds
- * @param {'N'|'S'|'E'|'W'} [dir] - optional direction
- *
- * @returns {number} decimal degrees, positive for N/E, negative for S/W
- */
-export function convertFromSexagesimal (deg, min = 0, sec = 0, dir = undefined) {
-  if (!is.number(deg)) {
-    logger.error('Invalid argument: \'deg\', must be a number')
-    return null
-  }
-  if (!is.number(min)) {
-    logger.error('Invalid argument: \'min\', must be a number')
-    return null
-  }
-  if (!is.number(sec)) {
-    logger.error('Invalid argument: \'sec\', must be a number')
-    return null
-  }
-  const result = Math.abs(deg) + (min / 60) + (sec / 3600)
-  if (is.string(dir)) {
-    const d = dir.toUpperCase()
-    if (d === 'S' || d === 'W') return -result
-    if (d !== 'N' && d !== 'E') {
-      logger.error('Invalid argument: \'dir\' must be one of \'N\', \'S\', \'E\', \'W\'')
-      return null
+export function convertCoordinateToSexagesimal (coord, type = undefined) {
+  asserts.that(coord, is.number, 'coord must be a number')
+  const abs = Math.abs(coord)
+  const deg = Math.floor(abs)
+  const minFloat = (abs - deg) * 60
+  const min = Math.floor(minFloat)
+  const sec = (minFloat - min) * 60
+  if (is.defined(type)) {
+    asserts.that(type, isCoordinateType, 'type must be either "LAT" or "LON"')
+    let dir
+    if (isLatitudeType(type)) {
+      dir = coord < 0 ? 'S' : 'N'
+    } else {
+      dir = coord < 0 ? 'W' : 'E'
     }
+    return { deg, min, sec, dir }
   }
-  return result
+  return { deg: coord < 0 ? -deg : deg, min, sec }
 }
