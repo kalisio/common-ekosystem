@@ -1,21 +1,42 @@
 packages:
   - packages/*
 catalog:
-  "@changesets/changelog-github": ^0.5.2
   "@changesets/cli": ^2.29.8
+  "@feathersjs/adapter-commons": ^5.0.8
+  "@feathersjs/adapter-tests": ^5.0.8
+  "@feathersjs/authentication": ^5.0..8
+  "@feathersjs/authentication-client": ^5.0.8
+  "@feathersjs/authentication-local": ^5.0.8
+  "@feathersjs/client": ^5.0.8
+  "@feathersjs/commons": ^5.0.8
+  "@feathersjs/configuration": ^5.0.8
+  "@feathersjs/errors": ^5.0.8
+  "@feathersjs/express": ^5.0.8
+  "@feathersjs/feathers": ^5.0.8
+  "@feathersjs/memory": ^5.0.8
+  "@feathersjs/mongodb": ^5.0.8
+  "@feathersjs/rest-client": ^5.0.8
+  "@feathersjs/socketio": ^5.0.8
+  "@feathersjs/socketio-client": ^5.0.8
   "@logtape/logtape": ^0.7.0
   "@vitest/coverage-v8": ^4.0.17
+  ajv: ^8.18.0
+  ajv-formats: ^2.1.1
+  ajv-keywords: ^5.1.0
   cross-env: ^10.1.0
+  debug: ^4.1.0
   husky: ^9.1.7
   keycloak-js: ^23.0.4
   lint-staged: ^16.2.7
   lodash: ^4.17.21
   mermaid: ^10.8.0
   moment: ^2.30.1
-  quasar: ^2.14.3
+  quasar: ^2.18.6
+  socket.io-client: ^4.8.2
   standard: ^17.1.2
   vite: ^7.1.9
   vitepress: ^1.6.3
   vitepress-plugin-mermaid: ^2.0.16
   vitepress-theme-kalisio: https://github.com/kalisio/vitepress-theme-kalisio
   vitest: ^4.0.17
+  web-push: ^3.6.5

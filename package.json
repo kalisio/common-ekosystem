@@ -68,7 +68,6 @@
   },
   "homepage": "git://github.com/kalisio/common-ekosystem#readme",
   "devDependencies": {
-    "@changesets/changelog-github": "catalog:",
     "@changesets/cli": "catalog:",
     "@kalisio/meta-ekosystem": "^0.2.1",
     "@vitest/coverage-v8": "catalog:",
@@ -90,6 +89,7 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild"
-    ]
+    ],
+    "overrides": {}
   }
 }
