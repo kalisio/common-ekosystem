@@ -35,25 +35,8 @@ export default withMermaid(
           { text: 'License', link: '/overview/license' },
           { text: 'Contact', link: '/overview/contact' }
         ],
-        '/packages/check/': [
-          { text: 'Usage', link: '/packages/check/index' },
-          { text: 'API', items: [
-            { text: 'asserts', link: '/packages/check/asserts' },
-            { text: 'conforms', link: '/packages/check/conforms' },
-            { text: 'has', link: '/packages/check/has' },
-            { text: 'is', link: '/packages/check/is' },
-            { text: 'matches', link: '/packages/check/matches' }
-          ]}
-        ],
-        '/packages/kompare/': [
-          { text: 'Usage', link: '/packages/kompare/index' },
-          { text: 'API', items: [
-            { text: 'json', link: '/packages/kompare/json' },
-            { text: 'text', link: '/packages/kompare/text' },
-            { text: 'xml', link: '/packages/kompare/xml' },
-            { text: 'yaml', link: '/packages/kompare/yaml' }
-          ]}
-        ],
+        '/packages/check/': getSideBar('check'),
+        '/packages/kompare/': getSideBar('kompare'),
         '/packages/geokit/': getSideBar('geokit'),
         '/packages/graphiks/': getSideBar('graphiks')
       },
@@ -73,24 +56,50 @@ export default withMermaid(
 )
 
 function getSideBar (pkg) {
+  // Ensure the pkg folder exists
   const pkgDir = path.resolve(process.cwd(), `docs/packages/${pkg}`)
-  
-  if (!fs.existsSync(pkgDir)) {
+    if (!fs.existsSync(pkgDir)) {
     return []
   }
-
-  const files = fs.readdirSync(pkgDir)
-  
-  const items = files
-    .filter(file => file.endsWith('.md') && file !== 'index.md')
-    .map(file => {
-      const name = file.replace('.md', '')
-      return { text: name, link: `/packages/${pkg}/${name}` }
-    })
-    .sort((a, b) => a.text.localeCompare(b.text)) 
-
+  // Helper function to build the tree
+  function buildTree(dir, basePath = '') {
+    const entries = fs
+      .readdirSync(dir, { withFileTypes: true })
+      .sort((a, b) =>
+        a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+      )
+    const items = []
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name)
+      const relativePath = path.join(basePath, entry.name)
+      // Folder case
+      if (entry.isDirectory()) {
+        const children = buildTree(fullPath, relativePath)
+        if (children.length > 0) {
+          items.push({
+            text: entry.name,
+            items: children
+          })
+        }
+      }
+      // File case
+      if (
+        entry.isFile() &&
+        entry.name.endsWith('.md') &&
+        entry.name !== 'index.md'
+      ) {
+        const name = relativePath.replace(/\.md$/, '').replace(/\\/g, '/')
+        items.push({
+          text: entry.name.replace('.md', ''),
+          link: `/packages/${pkg}/${name}`
+        })
+      }
+    }
+    return items
+  }
+  // Build the sidebar tree
   return [
-    { text: 'Usage', link: `/packages/${pkg}/index` },
-    ...items
+    { text: pkg, link: `/packages/${pkg}/index` },
+    ...buildTree(pkgDir)
   ]
 }
