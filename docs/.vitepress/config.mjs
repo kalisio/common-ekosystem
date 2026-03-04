@@ -35,10 +35,10 @@ export default withMermaid(
           { text: 'License', link: '/overview/license' },
           { text: 'Contact', link: '/overview/contact' }
         ],
-        '/packages/check/': getSideBar('check'),
-        '/packages/kompare/': getSideBar('kompare'),
-        '/packages/geokit/': getSideBar('geokit'),
-        '/packages/graphiks/': getSideBar('graphiks')
+        '/packages/check/': generateSideBar('check'),
+        '/packages/kompare/': generateSideBar('kompare'),
+        '/packages/geokit/': generateSideBar('geokit'),
+        '/packages/graphiks/': generateSideBar('graphiks')
       },
       footer: {
         copyright: 'MIT Licensed | Copyright © 2026 Kalisio'
@@ -55,7 +55,7 @@ export default withMermaid(
   })
 )
 
-function getSideBar (pkg) {
+function generateSideBar (pkg) {
   // Ensure the pkg folder exists
   const pkgDir = path.resolve(process.cwd(), `docs/packages/${pkg}`)
     if (!fs.existsSync(pkgDir)) {
