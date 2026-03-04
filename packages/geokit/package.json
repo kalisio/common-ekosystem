@@ -3,11 +3,10 @@
   "description": "Lightweight geospatial utility library",
   "version": "0.0.0",
   "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
+      "development": "./src/index.js",
+      "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
     }
   },

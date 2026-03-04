@@ -3,12 +3,10 @@
   "description": "Object and file comparison utilities",
   "version": "0.0.0",
   "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
   "exports": {
     ".": {
       "development": "./src/index.js",
-      "import": "./dist/index.js",
+      "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
     }
   },

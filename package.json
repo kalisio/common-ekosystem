@@ -33,7 +33,7 @@
     "test:geokit": "pnpm run test --project geokit",
     "test:graphiks": "pnpm run test --project graphiks",
     "test:kompare": "pnpm run test --project kompare",
-    "build": "pnpm run build:check && pnpm run build:geokit && pnpm run build:graphiks && pnpm run kompare",
+    "build": "pnpm -r --filter @kalisio/* build",
     "build:check": "pnpm --filter @kalisio/check build",
     "build:geokit": "pnpm --filter @kalisio/geokit build",
     "build:graphiks": "pnpm --filter @kalisio/graphiks build",
