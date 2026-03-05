@@ -103,23 +103,40 @@ The process is illustrated in the diagram below:
 
 ```mermaid
 flowchart TD
-  subgraph Development
-    A[Code change]
-    B[pnpm changeset]
-    C[Create changeset file]
-    A --> B --> C
-  end
+    %% Development phase
+    subgraph Development phase
+        A[Implement change]:::human
+        B[Run pnpm changeset]:::human
+        C[Select affected package(s)]:::human
+        D[Choose version bump\nmajor / minor / patch]:::human
+        E[Write change description]:::human
+    end
 
-  subgraph Release
-    D[pnpm changeset:version]
-    E[Compute next version\nusing Semantic Versioning]
-    F[Update package.json]
-    G[Update CHANGELOG]
-    H[Commit release]
-    D --> E --> F --> G --> H
-  end
+    %% Automated by Changesets
+    subgraph Automated by Changesets
+        F[Create changeset file\nin .changeset/]:::auto
+        G[Collect pending changesets]:::auto
+        H[Apply Semantic Versioning rules]:::auto
+        I[Update package.json versions]:::auto
+        J[Generate or update CHANGELOG.md]:::auto
+        K[Remove processed changesets]:::auto
+    end
 
-  C --> D
+    %% Release preparation
+    subgraph Release preparation
+        L[Run pnpm changeset:version]:::release
+        M[Commit release changes]:::release
+    end
+
+    %% Flow
+    A --> B --> C --> D --> E --> F
+    F --> L
+    L --> G --> H --> I --> J --> K --> M
+
+    %% Styling
+    classDef human fill:#cce5ff,stroke:#3399ff,stroke-width:1px,color:#003366;
+    classDef auto fill:#d4edda,stroke:#28a745,stroke-width:1px,color:#155724;
+    classDef release fill:#fff3cd,stroke:#ffc107,stroke-width:1px,color:#856404;
 ```
 
 #### Development
