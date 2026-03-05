@@ -90,15 +90,88 @@ Where `type` must be one of the following:
 
 ### Versioning
 
-We rely on [Semantic Versioning](https://semver.org/) for versioning a release. Indeed, given a version number
+We follow [Semantic Versioning](https://semver.org/) for versioning a release. Given a version number
 `MAJOR.MINOR.PATCH`, increment the:
-* `MAJOR` version when you make a major evolution leading to breaking changes,
-* `MINOR` version when you add functionality in a backwards-compatible manner
-* `PATCH` version when you make backwards-compatible bug fixes.
+* `MAJOR` version when adding major evolution leading to breaking changes,
+* `MINOR` version when you adding backwards-compatible features,
+* `PATCH` version when applying backwards-compatible bug fixes.
+
+To help enforce these rules consistently, we use [Changesets](https://github.com/changesets/changesets) to record
+changes during development and automatically determine the next package versions.
+
+The process is illustrated in the diagram below:
+
+```mermaid
+flowchart TD
+  subgraph Development
+    A[Code change]
+    B[pnpm changeset]
+    C[Create changeset file]
+    A --> B --> C
+  end
+
+  subgraph Release
+    D[pnpm changeset:version]
+    E[Compute next version\nusing Semantic Versioning]
+    F[Update package.json]
+    G[Update CHANGELOG]
+    H[Commit release]
+    D --> E --> F --> G --> H
+  end
+
+  C --> D
+```
+
+#### Development
+
+During development, any change that should appear in a release must be recorded by creating a **changeset**:
+
+```bash
+pnpm changeset
+```
+
+This command will guide you through a short interactive process where you:
+- Select the package(s) affected by the change
+- Specify the type of version bump (major, minor, or patch) according to **Semantic Versioning**
+- Write a short description of the change
+
+A markdown file describing the change is then created in the `.changeset/` directory.
+
+Each **changeset** represents one contribution to the next release. Multiple changesets can accumulate during development.
+
+> [!NOTE]
+> It is recommended to create a **changeset** for each significant commit, e.g., a `fix` or `feat`.
+
+### Release
+
+When preparing a release, run:
+
+```bash
+pnpm changeset:version
+```
+
+**Changesets** then automatically:
+- updates the `package.json` versions by collecting all pending changesets and applying **Semantic Versioning** rules
+- generates or updates the `CHANGELOG.md`
+- removes the processed changeset files
+
+Finally, commit the updated versions and changelogs:
+
+```bash
+git add . && git commit -m "chore: bump <new version>"
+```
 
 ### Publishing
 
-_TODO_
+To publish the packages to [NPM](https://www.npmjs.com/), use:
+
+```bash
+pnpm changeset:publish
+git push --follow-tags
+```
+
+> [!NOTE]
+> When publishing a tag will be created corresponding to the **version** defined in the `package.json`
 
 ## Submission
 
