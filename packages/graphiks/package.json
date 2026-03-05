@@ -47,6 +47,6 @@
   },
   "devDependencies": {
     "@napi-rs/canvas": "^0.1.88",
-    "happy-dom": "^20.3.1"
+    "happy-dom": "catalog:"
   }
 }

@@ -20,13 +20,20 @@ catalog:
   "@feathersjs/socketio": ^5.0.8
   "@feathersjs/socketio-client": ^5.0.8
   "@logtape/logtape": ^0.7.0
+  "@quasar/app-vite": ^2.4.1
+  "@quasar/extras": ^1.16.15
+  "@vitejs/plugin-vue": ^6.0.4
   "@vitest/coverage-v8": ^4.0.17
+  "@vue/test-utils": ^2.4.6
   ajv: ^8.18.0
-  ajv-formats: ^2.1.1
+  ajv-formats: ^3.0.1
   ajv-keywords: ^5.1.0
   cross-env: ^10.1.0
   debug: ^4.1.0
+  feathers-hooks-common: ^8.2.1
+  happy-dom: ^20.3.1
   husky: ^9.1.7
+  is-docker: ^2.2.1
   keycloak-js: ^23.0.4
   lint-staged: ^16.2.7
   lodash: ^4.17.21
@@ -40,4 +47,8 @@ catalog:
   vitepress-plugin-mermaid: ^2.0.16
   vitepress-theme-kalisio: https://github.com/kalisio/vitepress-theme-kalisio
   vitest: ^4.0.17
+  vue: ^3.5.0
+  vue-i18n: ^20.3.1
+  vue-router: ^5.0.3
   web-push: ^3.6.5
+  winston: ^3.19.0

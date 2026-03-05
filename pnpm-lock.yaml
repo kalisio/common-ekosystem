@@ -18,6 +18,9 @@ catalogs:
     cross-env:
       specifier: ^10.1.0
       version: 10.1.0
+    happy-dom:
+      specifier: ^20.3.1
+      version: 20.8.3
     husky:
       specifier: ^9.1.7
       version: 9.1.7
@@ -147,7 +150,7 @@ importers:
         specifier: ^0.1.88
         version: 0.1.95
       happy-dom:
-        specifier: ^20.3.1
+        specifier: 'catalog:'
         version: 20.8.3
 
   packages/kompare:
