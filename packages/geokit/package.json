@@ -39,7 +39,7 @@
   "bugs": {
     "url": "https://github.com/kalisio/common-ekosystem/issues"
   },
-  "homepage": "https://github.com/kalisio/common-ekosystem/tree/main/packages/geokit#readme",
+  "homepage": "https://kalisio.github.io/common-ekosystem/packages/geokit",
   "dependencies": {
     "@kalisio/check": "workspace:*",
     "@logtape/logtape": "catalog:"

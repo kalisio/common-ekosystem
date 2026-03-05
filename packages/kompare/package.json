@@ -37,7 +37,7 @@
   "bugs": {
     "url": "https://github.com/kalisio/common-ekosystem/issues"
   },
-  "homepage": "https://github.com/kalisio/common-ekosystem",
+  "homepage": "https://kalisio.github.io/common-ekosystem/packages/kompare",
   "dependencies": {
     "fast-xml-parser": "^5.4.1",
     "lodash": "catalog:",
