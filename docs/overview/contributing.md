@@ -139,7 +139,7 @@ flowchart TD
     classDef release fill:#fff3cd,stroke:#ffc107,stroke-width:1px,color:#856404;
 ```
 
-#### Development
+#### Development phase
 
 During development, any change that should appear in a release must be recorded by creating a **changeset**:
 
@@ -159,7 +159,7 @@ Each **changeset** represents one contribution to the next release. Multiple cha
 > [!NOTE]
 > It is recommended to create a **changeset** for each significant commit, e.g., a `fix` or `feat`.
 
-### Release
+### Release preparation
 
 When preparing a release, run:
 
