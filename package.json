@@ -10,7 +10,9 @@
       "expect",
       "beforeEach",
       "afterEach",
-      "Image"
+      "Image",
+      "Vue",
+      "Quasar"
     ],
     "ignore": [
       "dist/**"

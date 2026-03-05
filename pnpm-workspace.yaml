@@ -1,5 +1,6 @@
 packages:
   - packages/*
+  - examples/*
 catalog:
   "@changesets/cli": ^2.29.8
   "@feathersjs/adapter-commons": ^5.0.8
