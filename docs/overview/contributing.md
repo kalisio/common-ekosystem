@@ -103,40 +103,39 @@ The process is illustrated in the diagram below:
 
 ```mermaid
 flowchart TD
-    %% Development phase
     subgraph Development phase
-        A[Implement change]:::human
-        B[Run pnpm changeset]:::human
-        C[Select affected package(s)]:::human
-        D[Choose version bump\nmajor / minor / patch]:::human
-        E[Write change description]:::human
+        A[Code change]:::developer
+        B[pnpm changeset]:::developer
+        A --> B
+
+        subgraph changesets-dev[changesets]
+            C[Create changeset file]
+        end
+
+        B --> C
     end
 
-    %% Automated by Changesets
-    subgraph Automated by Changesets
-        F[Create changeset file\nin .changeset/]:::auto
-        G[Collect pending changesets]:::auto
-        H[Apply Semantic Versioning rules]:::auto
-        I[Update package.json versions]:::auto
-        J[Generate or update CHANGELOG.md]:::auto
-        K[Remove processed changesets]:::auto
+    subgraph Release phase
+        D[pnpm changeset:version]:::developer
+        D --> E
+
+        subgraph changesets-release[changesets]
+            E[Compute next version using Semantic Versioning]
+            F[Update package.json]
+            G[Update CHANGELOG.md]
+            E --> F --> G
+        end
+
+        H[Commit release]:::developer
+        G --> H
     end
 
-    %% Release preparation
-    subgraph Release preparation
-        L[Run pnpm changeset:version]:::release
-        M[Commit release changes]:::release
-    end
-
-    %% Flow
-    A --> B --> C --> D --> E --> F
-    F --> L
-    L --> G --> H --> I --> J --> K --> M
+    C --> D
 
     %% Styling
-    classDef human fill:#cce5ff,stroke:#3399ff,stroke-width:1px,color:#003366;
-    classDef auto fill:#d4edda,stroke:#28a745,stroke-width:1px,color:#155724;
-    classDef release fill:#fff3cd,stroke:#ffc107,stroke-width:1px,color:#856404;
+    classDef developer fill:#bbd5ee,stroke:#3399ff,stroke-width:1px,color:#003366;
+    style changesets-dev fill:#5daf60,stroke:#28a745,stroke-width:1px,color:#155724;
+    style changesets-release fill:#5daf60,stroke:#28a745,stroke-width:1px,color:#155724;
 ```
 
 #### Development phase
@@ -159,7 +158,7 @@ Each **changeset** represents one contribution to the next release. Multiple cha
 > [!NOTE]
 > It is recommended to create a **changeset** for each significant commit, e.g., a `fix` or `feat`.
 
-### Release preparation
+### Release phase
 
 When preparing a release, run:
 
