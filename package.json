@@ -35,7 +35,6 @@
     "changeset:version": "changeset version",
     "docs:build": "vitepress build docs",
     "docs:dev": "vitepress dev docs",
-    "docs:preview": "vitepress preview docs",
     "lint": "standard 'packages/**/*.js' --fix",
     "lint:check": "pnpm run lint -- 'packages/check/**/*.js'",
     "lint:geokit": "pnpm run lint -- 'packages/geokit/**/*.js'",
