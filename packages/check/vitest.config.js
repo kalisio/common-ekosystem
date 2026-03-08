@@ -11,14 +11,6 @@ export default defineConfig({
     environment: 'node',
     globals: true,
     silent: false,
-    testTimeout: 30000,
-    coverage: {
-      provider: 'v8',
-      all: true,
-      include: ['src/**/*.js'],
-      exclude: ['**/*.test.js', 'node_modules/**', 'dist/**'],
-      reporter: ['text', 'html', 'lcov'],
-      reportsDirectory: path.join(__dirname, '../../coverage/check')
-    }
+    testTimeout: 30000
   }
 })
