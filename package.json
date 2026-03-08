@@ -36,16 +36,12 @@
     "docs:build": "vitepress build docs",
     "docs:dev": "vitepress dev docs",
     "lint": "standard 'packages/**/*.js' --fix",
-    "lint:check": "pnpm run lint -- 'packages/check/**/*.js'",
-    "lint:geokit": "pnpm run lint -- 'packages/geokit/**/*.js'",
-    "lint:graphiks": "pnpm run lint -- 'packages/graphiks/**/*.js'",
-    "lint:kompare": "pnpm run lint -- 'packages/kompare/**/*.js'",
     "prepare": "husky",
     "test": "vitest run --coverage",
-    "test:check": "pnpm run test --project check",
-    "test:geokit": "pnpm run test --project geokit",
-    "test:graphiks": "pnpm run test --project graphiks",
-    "test:kompare": "pnpm run test --project kompare"
+    "test:check": "pnpm --filter @kalisio/check test",
+    "test:geokit": "pnpm --filter @kalisio/geokit test",
+    "test:graphiks": "pnpm --filter @kalisio/graphiks test",
+    "test:kompare": "pnpm --filter @kalisio/kompare test"
   },
   "keywords": [
     "check",
