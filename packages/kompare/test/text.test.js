@@ -7,6 +7,11 @@ describe('text.isEqual', () => {
   const sourcePath = path.join(__dirname, 'source_dataset.txt')
   const targetPath = path.join(__dirname, 'target_dataset.txt')
 
+  afterAll(() => {
+    if (fs.existsSync(sourcePath)) fs.unlinkSync(sourcePath)
+    if (fs.existsSync(targetPath)) fs.unlinkSync(targetPath)
+  })
+
   it('should return true for identical strings', () => {
     const content = 'Kalisio common-ekosystem'
     expect(text.isEqual(content, content)).toBe(true)
@@ -68,10 +73,6 @@ describe('text.isEqual', () => {
     expect(text.isEqual(statusReady, statusPending, { ignoreCase: true, ignoreAccents: true })).toBe(false)
   })
 
-  afterAll(() => {
-    if (fs.existsSync(sourcePath)) fs.unlinkSync(sourcePath)
-    if (fs.existsSync(targetPath)) fs.unlinkSync(targetPath)
-  })
   it('should return differences when texts do not match', () => {
     const t1 = 'Hello World'
     const t2 = 'Goodbye World'

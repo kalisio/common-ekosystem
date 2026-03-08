@@ -7,6 +7,11 @@ describe('json.isEqual', () => {
   const tempFile1 = path.join(__dirname, 'test1.json')
   const tempFile2 = path.join(__dirname, 'test2.json')
 
+  afterAll(() => {
+    if (fs.existsSync(tempFile1)) fs.unlinkSync(tempFile1)
+    if (fs.existsSync(tempFile2)) fs.unlinkSync(tempFile2)
+  })
+
   it('should validate all features', () => {
     const obj1 = {
       id: 'A-1',
@@ -62,10 +67,7 @@ describe('json.isEqual', () => {
     ]
     console.table(results)
   })
-  afterAll(() => {
-    if (fs.existsSync(tempFile1)) fs.unlinkSync(tempFile1)
-    if (fs.existsSync(tempFile2)) fs.unlinkSync(tempFile2)
-  })
+
   it('should detect nested differences', () => {
     const obj1 = {
       settings: {

@@ -7,6 +7,11 @@ describe('xml.isEqual', () => {
   const sourcePath = path.join(__dirname, 'source_xml.xml')
   const targetPath = path.join(__dirname, 'target_xml.xml')
 
+  afterAll(() => {
+    if (fs.existsSync(sourcePath)) fs.unlinkSync(sourcePath)
+    if (fs.existsSync(targetPath)) fs.unlinkSync(targetPath)
+  })
+
   it('should return true for identical strings', () => {
     const content = '<root><node>value</node></root>'
     expect(xml.isEqual(content, content)).toBe(true)
@@ -70,10 +75,5 @@ describe('xml.isEqual', () => {
       oldValue: '19',
       newValue: '20'
     })
-  })
-
-  afterAll(() => {
-    if (fs.existsSync(sourcePath)) fs.unlinkSync(sourcePath)
-    if (fs.existsSync(targetPath)) fs.unlinkSync(targetPath)
   })
 })

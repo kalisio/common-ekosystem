@@ -7,6 +7,11 @@ describe('yaml.isEqual', () => {
   const sourcePath = path.join(__dirname, 'source_yaml.yaml')
   const targetPath = path.join(__dirname, 'target_yaml.yaml')
 
+  afterAll(() => {
+    if (fs.existsSync(sourcePath)) fs.unlinkSync(sourcePath)
+    if (fs.existsSync(targetPath)) fs.unlinkSync(targetPath)
+  })
+
   it('should return true for identical strings', () => {
     const content = 'project: kalisio-common-ekosystem'
     expect(yaml.isEqual(content, content)).toBe(true)
@@ -70,10 +75,5 @@ describe('yaml.isEqual', () => {
       oldValue: 19,
       newValue: 20
     })
-  })
-
-  afterAll(() => {
-    if (fs.existsSync(sourcePath)) fs.unlinkSync(sourcePath)
-    if (fs.existsSync(targetPath)) fs.unlinkSync(targetPath)
   })
 })

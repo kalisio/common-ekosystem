@@ -1,0 +1,24 @@
+import { defineConfig } from 'vitest/config'
+import { fileURLToPath } from 'node:url'
+import path from 'node:path'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+export default defineConfig({
+  root: __dirname,
+  test: {
+    name: 'kompare',
+    environment: 'node',
+    globals: true,
+    silent: false,
+    testTimeout: 30000,
+    coverage: {
+      provider: 'v8',
+      all: true,
+      include: ['src/**/*.js'],
+      exclude: ['**/*.test.js', 'node_modules/**', 'dist/**'],
+      reporter: ['text', 'html', 'lcov'],
+      reportsDirectory: path.join(__dirname, '../../coverage/kompare')
+    }
+  }
+})
