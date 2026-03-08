@@ -15,12 +15,11 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+logs/
 
 # Optional lockfiles
-# Uncomment if you prefer to ignore them
-# package-lock.json
-# yarn.lock
-# pnpm-lock.yaml
+package-lock.json
+yarn.lock
 
 # IDE/editor configs
 .vscode/
@@ -49,6 +48,7 @@ Thumbs.db
 *.zip
 *.tar.gz
 *.tgz
+*.bkp
 
 # Test coverage and temporary test outputs
 coverage/
@@ -58,5 +58,5 @@ jest-*.json
 # Husky hooks
 .husky/_
 
-# Vitepress cache 
+# Vitepress cache
 docs/.vitepress/cache/
