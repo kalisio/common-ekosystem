@@ -39,14 +39,14 @@ pnpm lint:<package>
 ### Testing
 
 ```bash
-# Run all tests
+# Test all packages
 pnpm test
 
-# Run tests for a specific package
+# Test a specific package
 pnpm test:<package>
 
 # Run a single test file
-pnpm vitest run --project <package> <file>.test.js
+pnpm test:<package> <file>.test.js
 ```
 
 > [!NOTE]
@@ -57,10 +57,10 @@ pnpm vitest run --project <package> <file>.test.js
 
 ```bash
 # Build all packages
-pnpm -r build
+pnpm build
 
 # Build a specific package
-pnpm --filter @kalisio/<package> build
+pnpm build:<package>
 ```
 
 ### Committing
