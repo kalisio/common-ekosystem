@@ -26,7 +26,7 @@
     "lint:graphiks": "pnpm --filter @kalisio/graphiks lint",
     "lint:kompare": "pnpm --filter @kalisio/kompare lint",
     "prepare": "husky",
-    "test": "vitest run --coverage",
+    "test": "pnpm -r test --coverage",
     "test:check": "pnpm --filter @kalisio/check test",
     "test:geokit": "pnpm --filter @kalisio/geokit test",
     "test:graphiks": "pnpm --filter @kalisio/graphiks test",
