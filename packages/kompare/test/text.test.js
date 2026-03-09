@@ -54,15 +54,11 @@ describe('text.isEqual', () => {
   it('should validate file comparison methods', () => {
     const rawData = '  Kalisio Dataset  '
     const processedData = 'kalisio dataset'
-
     fs.writeFileSync(sourcePath, rawData)
     fs.writeFileSync(targetPath, processedData)
-
     const comparisonOptions = { ignoreSpaces: true, ignoreCase: true }
-
     expect(text.isEqualFile(processedData, sourcePath, comparisonOptions)).toBe(true)
     expect(text.isEqualFiles(sourcePath, targetPath, comparisonOptions)).toBe(true)
-
     const result = text.compare(rawData, rawData)
     expect(result.isEqual).toBe(true)
   })
@@ -77,7 +73,6 @@ describe('text.isEqual', () => {
     const t1 = 'Hello World'
     const t2 = 'Goodbye World'
     const result = text.compare(t1, t2)
-
     expect(result.isEqual).toBe(false)
     expect(result.differences.updated[0]).toMatchObject({
       oldValue: t1,

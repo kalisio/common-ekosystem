@@ -3,7 +3,7 @@ import { XMLParser } from 'fast-xml-parser'
 import { json } from './json.js'
 import { normalizeString } from './text.js'
 
-const parser = new XMLParser({
+const PARSER = new XMLParser({
   ignoreAttributes: false,
   attributeNamePrefix: '',
   allowBooleanAttributes: true,
@@ -14,22 +14,12 @@ const parser = new XMLParser({
 
 export const xml = {
 
-  /**
-   * Compares two XML strings after normalization and parsing.
-   *
-   * @param {string} xml1 - The first XML string to compare.
-   * @param {string} xml2 - The second XML string to compare.
-   * @param {Object} [options={}] - Normalization options.
-   * @param {boolean} [options.ignoreCase=false] - Whether to ignore case differences.
-   * @param {boolean} [options.ignoreSpaces=false] - Whether to ignore leading and trailing spaces.
-   * @param {boolean} [options.ignoreAccents=false] - Whether to remove diacritical marks before comparison.
-   */
   isEqual (xml1, xml2, options = {}) {
     const str1 = normalizeString(xml1, options)
     const str2 = normalizeString(xml2, options)
 
-    const obj1 = parser.parse(str1)
-    const obj2 = parser.parse(str2)
+    const obj1 = PARSER.parse(str1)
+    const obj2 = PARSER.parse(str2)
 
     return json.isEqual(obj1, obj2, options)
   },
@@ -49,8 +39,8 @@ export const xml = {
     const str1 = normalizeString(a, options)
     const str2 = normalizeString(b, options)
 
-    const obj1 = parser.parse(str1)
-    const obj2 = parser.parse(str2)
+    const obj1 = PARSER.parse(str1)
+    const obj2 = PARSER.parse(str2)
 
     return json.compare(obj1, obj2, options)
   }

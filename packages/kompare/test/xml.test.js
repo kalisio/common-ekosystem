@@ -51,15 +51,11 @@ describe('xml.isEqual', () => {
   it('should validate file comparison methods', () => {
     const rawData = '  <root>Kalisio</root>  '
     const processedData = '<root>kalisio</root>'
-
     fs.writeFileSync(sourcePath, rawData)
     fs.writeFileSync(targetPath, processedData)
-
     const options = { ignoreSpaces: true, ignoreCase: true }
-
     expect(xml.isEqualFile(processedData, sourcePath, options)).toBe(true)
     expect(xml.isEqualFiles(sourcePath, targetPath, options)).toBe(true)
-
     const result = xml.compare(rawData, rawData, options)
     expect(result.isEqual).toBe(true)
   })
@@ -68,7 +64,6 @@ describe('xml.isEqual', () => {
     const xml1 = '<user name="henri" age="19"/>'
     const xml2 = '<user name="henri" age="20"/>'
     const result = xml.compare(xml1, xml2)
-
     expect(result.isEqual).toBe(false)
     expect(result.differences.updated[0]).toMatchObject({
       path: 'user.age',

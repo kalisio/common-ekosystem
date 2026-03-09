@@ -50,25 +50,6 @@ function diffObjects (object1, object2, path = '', diffs = { missing: [], extra:
 
 export const json = {
 
-  /**
-   * Compares two JSON objects after normalization.
-   *
-   * The comparison can ignore specific keys provided in the options.
-   *
-   * @param {Object|Array} object1 - The first object to compare.
-   * @param {Object|Array} object2 - The second object to compare.
-   * @param {Object} [options={}] - Comparison options.
-   * @param {string[]} [options.ignoredKeys=[]] - Keys to ignore during comparison.
-   *
-   * @returns {boolean} Returns `true` if the normalized objects are equal, otherwise `false`.
-   *
-   * @example
-   * isEqual({ a: 1, id: '1' }, { a: 1, id: '2' }, {
-   * ignoredKeys: ['id']
-   * })
-   * // → true
-   */
-
   isEqual (object1, object2, options = {}) {
     const {
       ignoredKeys = []

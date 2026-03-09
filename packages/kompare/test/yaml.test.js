@@ -51,15 +51,11 @@ describe('yaml.isEqual', () => {
   it('should validate file comparison methods', () => {
     const rawData = '  name: Kalisio  '
     const processedData = 'name: kalisio'
-
     fs.writeFileSync(sourcePath, rawData)
     fs.writeFileSync(targetPath, processedData)
-
     const options = { ignoreSpaces: true, ignoreCase: true }
-
     expect(yaml.isEqualFile(processedData, sourcePath, options)).toBe(true)
     expect(yaml.isEqualFiles(sourcePath, targetPath, options)).toBe(true)
-
     const result = yaml.compare(rawData, rawData, options)
     expect(result.isEqual).toBe(true)
   })
@@ -68,7 +64,6 @@ describe('yaml.isEqual', () => {
     const y1 = 'user:\n  name: henri\n  age: 19'
     const y2 = 'user:\n  name: henri\n  age: 20'
     const result = yaml.compare(y1, y2)
-
     expect(result.isEqual).toBe(false)
     expect(result.differences.updated[0]).toMatchObject({
       path: 'user.age',
