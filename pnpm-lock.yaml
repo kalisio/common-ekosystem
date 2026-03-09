@@ -69,8 +69,8 @@ importers:
         specifier: 'catalog:'
         version: 2.30.0(@types/node@25.3.3)
       '@kalisio/meta-ekosystem':
-        specifier: ^0.2.1
-        version: 0.2.1(@types/node@25.3.3)
+        specifier: ^0.4.0
+        version: 0.4.1(@types/node@25.3.3)
       '@vitest/coverage-v8':
         specifier: 'catalog:'
         version: 4.0.18(vitest@4.0.18(@types/node@25.3.3)(happy-dom@20.8.3)(yaml@2.8.2))
@@ -706,8 +706,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@kalisio/meta-ekosystem@0.2.1':
-    resolution: {integrity: sha512-KZQSRBetKH5haM9xLsLfp+ih4YmskmdcTxFEnHWQuEyk6jglHFrhvENnupNWJAqrBy/4NV9ZREiPuZ+TXA3vlA==}
+  '@kalisio/meta-ekosystem@0.4.1':
+    resolution: {integrity: sha512-Wk5osctvL1fy22lbSCNWtVlJ1jxxFXSd8X3UvNWF4+7PmAe40CMMtaZSUj+OwH0vvCpOXKU45UPicuQS8qHx4Q==}
     engines: {node: '>=20'}
     hasBin: true
 
@@ -3958,7 +3958,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@kalisio/meta-ekosystem@0.2.1(@types/node@25.3.3)':
+  '@kalisio/meta-ekosystem@0.4.1(@types/node@25.3.3)':
     dependencies:
       node-plop: 0.32.3(@types/node@25.3.3)
     transitivePeerDependencies:
