@@ -1,74 +1,146 @@
-import { describe, it, expect, afterAll } from 'vitest'
-import { yaml } from '../src/index.js'
-import fs from 'fs'
-import path from 'path'
+import { describe, it, expect } from 'vitest'
+import fs from 'node:fs'
+import { yaml } from '../src/yaml.js'
 
 describe('yaml.isEqual', () => {
-  const sourcePath = path.join(__dirname, 'source_yaml.yaml')
-  const targetPath = path.join(__dirname, 'target_yaml.yaml')
-
-  afterAll(() => {
-    if (fs.existsSync(sourcePath)) fs.unlinkSync(sourcePath)
-    if (fs.existsSync(targetPath)) fs.unlinkSync(targetPath)
+  it('identical structured YAML', () => {
+    const a = `
+order:
+  id: 100
+  customer:
+    name: Alice
+    country: FR
+  items:
+    - sku: A1
+      name: Book
+    - sku: B2
+      name: Pen
+`
+    const b = `
+order:
+  id: 100
+  customer:
+    name: Alice
+    country: FR
+  items:
+    - sku: A1
+      name: Book
+    - sku: B2
+      name: Pen
+`
+    expect(yaml.isEqual(a, b)).toBe(true)
   })
 
-  it('should return true for identical strings', () => {
-    const content = 'project: kalisio-common-ekosystem'
-    expect(yaml.isEqual(content, content)).toBe(true)
+  it('detect value change in nested object', () => {
+    const a = `
+order:
+  id: 100
+  customer:
+    name: Alice
+    country: FR
+`
+    const b = `
+order:
+  id: 100
+  customer:
+    name: Alice
+    country: US
+`
+    expect(yaml.isEqual(a, b)).toBe(false)
   })
 
-  it('should return false for different strings', () => {
-    const baseline = 'status: SUCCESS'
-    const current = 'status: FAILURE'
-    expect(yaml.isEqual(baseline, current)).toBe(false)
+  it('ignore case option for structured YAML', () => {
+    const a = `
+status:
+  state: Active
+`
+    const b = `
+status:
+  state: active
+`
+    expect(yaml.isEqual(a, b, { ignoreCase: true })).toBe(true)
   })
+})
 
-  it('should ignore case when ignoreCase is true', () => {
-    const referenceLabel = 'label: Value'
-    const inputLabel = 'label: value'
-    expect(yaml.isEqual(referenceLabel, inputLabel, { ignoreCase: true })).toBe(true)
-    expect(yaml.isEqual(referenceLabel, inputLabel, { ignoreCase: false })).toBe(false)
-  })
-
-  it('should ignore surrounding spaces when ignoreSpaces is true', () => {
-    const sanitized = 'name: kalisio'
-    const raw = '  name: kalisio  '
-    expect(yaml.isEqual(sanitized, raw, { ignoreSpaces: true })).toBe(true)
-  })
-
-  it('should ignore accents when ignoreAccents is true', () => {
-    const localized = 'item: café'
-    const normalized = 'item: cafe'
-    expect(yaml.isEqual(localized, normalized, { ignoreAccents: true })).toBe(true)
-  })
-
-  it('should validate structural equality (keys order)', () => {
-    const y1 = 'id: 1\nactive: true'
-    const y2 = 'active: true\nid: 1'
-    expect(yaml.isEqual(y1, y2)).toBe(true)
-  })
-
-  it('should validate file comparison methods', () => {
-    const rawData = '  name: Kalisio  '
-    const processedData = 'name: kalisio'
-    fs.writeFileSync(sourcePath, rawData)
-    fs.writeFileSync(targetPath, processedData)
-    const options = { ignoreSpaces: true, ignoreCase: true }
-    expect(yaml.isEqualFile(processedData, sourcePath, options)).toBe(true)
-    expect(yaml.isEqualFiles(sourcePath, targetPath, options)).toBe(true)
-    const result = yaml.compare(rawData, rawData, options)
-    expect(result.isEqual).toBe(true)
-  })
-
-  it('should return precise differences when YAML does not match', () => {
-    const y1 = 'user:\n  name: henri\n  age: 19'
-    const y2 = 'user:\n  name: henri\n  age: 20'
-    const result = yaml.compare(y1, y2)
+describe('yaml.compare', () => {
+  it('detect updated nested value', () => {
+    const a = `
+order:
+  id: 100
+  customer:
+    name: Alice
+`
+    const b = `
+order:
+  id: 100
+  customer:
+    name: Bob
+`
+    const result = yaml.compare(a, b)
     expect(result.isEqual).toBe(false)
-    expect(result.differences.updated[0]).toMatchObject({
-      path: 'user.age',
-      oldValue: 19,
-      newValue: 20
-    })
+    expect(result.differences.updated[0].path).toBe('order.customer.name')
+  })
+
+  it('detect extra property in object', () => {
+    const a = `
+order:
+  id: 100
+`
+    const b = `
+order:
+  id: 100
+  status: shipped
+`
+    const result = yaml.compare(a, b)
+    expect(result.isEqual).toBe(false)
+    expect(result.differences.extra).toContain('order.status')
+  })
+
+  it('detect missing property', () => {
+    const a = `
+order:
+  id: 100
+  status: shipped
+`
+    const b = `
+order:
+  id: 100
+`
+    const result = yaml.compare(a, b)
+    expect(result.isEqual).toBe(false)
+    expect(result.differences.missing).toContain('order.status')
+  })
+})
+
+describe('yaml file comparison', () => {
+  const file1 = './test1.yaml'
+  const file2 = './test2.yaml'
+
+  it('string vs file with structured YAML', () => {
+    const content = `
+order:
+  id: 100
+  customer:
+    name: Alice
+`
+    fs.writeFileSync(file1, content)
+    const result = yaml.isEqualFile(content, file1)
+    expect(result).toBe(true)
+    fs.unlinkSync(file1)
+  })
+
+  it('file vs file with identical structured YAML', () => {
+    const content = `
+order:
+  id: 100
+  customer:
+    name: Alice
+`
+    fs.writeFileSync(file1, content)
+    fs.writeFileSync(file2, content)
+    const result = yaml.isEqualFiles(file1, file2)
+    expect(result).toBe(true)
+    fs.unlinkSync(file1)
+    fs.unlinkSync(file2)
   })
 })

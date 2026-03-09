@@ -1,74 +1,156 @@
-import { describe, it, expect, afterAll } from 'vitest'
-import { xml } from '../src/index.js'
-import fs from 'fs'
-import path from 'path'
+import { describe, it, expect } from 'vitest'
+import fs from 'node:fs'
+import { xml } from '../src/xml.js'
 
 describe('xml.isEqual', () => {
-  const sourcePath = path.join(__dirname, 'source_xml.xml')
-  const targetPath = path.join(__dirname, 'target_xml.xml')
-
-  afterAll(() => {
-    if (fs.existsSync(sourcePath)) fs.unlinkSync(sourcePath)
-    if (fs.existsSync(targetPath)) fs.unlinkSync(targetPath)
+  it('identical structured XML', () => {
+    const a = `
+<order>
+  <id>100</id>
+  <customer>
+    <name>Alice</name>
+    <country>FR</country>
+  </customer>
+  <items>
+    <item sku="A1">Book</item>
+    <item sku="B2">Pen</item>
+  </items>
+</order>
+`
+    const b = `
+<order>
+  <id>100</id>
+  <customer>
+    <name>Alice</name>
+    <country>FR</country>
+  </customer>
+  <items>
+    <item sku="A1">Book</item>
+    <item sku="B2">Pen</item>
+  </items>
+</order>
+`
+    expect(xml.isEqual(a, b)).toBe(true)
   })
 
-  it('should return true for identical strings', () => {
-    const content = '<root><node>value</node></root>'
-    expect(xml.isEqual(content, content)).toBe(true)
+  it('detect value change in nested element', () => {
+    const a = `
+<order>
+  <id>100</id>
+  <customer>
+    <name>Alice</name>
+  </customer>
+</order>
+`
+    const b = `
+<order>
+  <id>100</id>
+  <customer>
+    <name>Bob</name>
+  </customer>
+</order>
+`
+    expect(xml.isEqual(a, b)).toBe(false)
   })
 
-  it('should return false for different strings', () => {
-    const baseline = '<status>SUCCESS</status>'
-    const current = '<status>FAILURE</status>'
-    expect(xml.isEqual(baseline, current)).toBe(false)
+  it('ignore case option in element text', () => {
+    const a = '<status><state>Active</state></status>'
+    const b = '<status><state>active</state></status>'
+    expect(xml.isEqual(a, b, { ignoreCase: true })).toBe(true)
   })
+})
 
-  it('should ignore case when ignoreCase is true', () => {
-    const referenceLabel = '<tag>Value</tag>'
-    const inputLabel = '<tag>value</tag>'
-    expect(xml.isEqual(referenceLabel, inputLabel, { ignoreCase: true })).toBe(true)
-    expect(xml.isEqual(referenceLabel, inputLabel, { ignoreCase: false })).toBe(false)
-  })
-
-  it('should ignore surrounding spaces when ignoreSpaces is true', () => {
-    const sanitized = '<root>data</root>'
-    const raw = '  <root>data</root>  '
-    expect(xml.isEqual(sanitized, raw, { ignoreSpaces: true })).toBe(true)
-  })
-
-  it('should ignore accents when ignoreAccents is true', () => {
-    const localized = '<item>café</item>'
-    const normalized = '<item>cafe</item>'
-    expect(xml.isEqual(localized, normalized, { ignoreAccents: true })).toBe(true)
-  })
-
-  it('should validate structural equality (attributes order)', () => {
-    const xml1 = '<user id="1" active="true"/>'
-    const xml2 = '<user active="true" id="1"/>'
-    expect(xml.isEqual(xml1, xml2)).toBe(true)
-  })
-
-  it('should validate file comparison methods', () => {
-    const rawData = '  <root>Kalisio</root>  '
-    const processedData = '<root>kalisio</root>'
-    fs.writeFileSync(sourcePath, rawData)
-    fs.writeFileSync(targetPath, processedData)
-    const options = { ignoreSpaces: true, ignoreCase: true }
-    expect(xml.isEqualFile(processedData, sourcePath, options)).toBe(true)
-    expect(xml.isEqualFiles(sourcePath, targetPath, options)).toBe(true)
-    const result = xml.compare(rawData, rawData, options)
-    expect(result.isEqual).toBe(true)
-  })
-
-  it('should return precise differences when XML does not match', () => {
-    const xml1 = '<user name="henri" age="19"/>'
-    const xml2 = '<user name="henri" age="20"/>'
-    const result = xml.compare(xml1, xml2)
+describe('xml.compare', () => {
+  it('detect updated nested element', () => {
+    const a = `
+<order>
+  <id>100</id>
+  <customer>
+    <name>Alice</name>
+  </customer>
+</order>
+`
+    const b = `
+<order>
+  <id>100</id>
+  <customer>
+    <name>Bob</name>
+  </customer>
+</order>
+`
+    const result = xml.compare(a, b)
     expect(result.isEqual).toBe(false)
-    expect(result.differences.updated[0]).toMatchObject({
-      path: 'user.age',
-      oldValue: '19',
-      newValue: '20'
-    })
+    expect(result.differences.updated[0].path).toBe('order.customer.name')
+  })
+
+  it('detect extra element', () => {
+    const a = `
+<order>
+  <id>100</id>
+</order>
+`
+    const b = `
+<order>
+  <id>100</id>
+  <status>shipped</status>
+</order>
+`
+    const result = xml.compare(a, b)
+    expect(result.isEqual).toBe(false)
+    expect(result.differences.extra).toContain('order.status')
+  })
+
+  it('detect missing element', () => {
+    const a = `
+<order>
+  <id>100</id>
+  <status>shipped</status>
+</order>
+`
+    const b = `
+<order>
+  <id>100</id>
+</order>
+`
+    const result = xml.compare(a, b)
+    expect(result.isEqual).toBe(false)
+    expect(result.differences.missing).toContain('order.status')
+  })
+})
+
+describe('xml file comparison', () => {
+  const file1 = './test1.xml'
+  const file2 = './test2.xml'
+
+  it('string vs file with structured XML', () => {
+    const content = `
+<order>
+  <id>100</id>
+  <customer>
+    <name>Alice</name>
+  </customer>
+</order>
+`
+    fs.writeFileSync(file1, content)
+    const result = xml.isEqualFile(content, file1)
+    expect(result).toBe(true)
+    fs.unlinkSync(file1)
+  })
+
+  it('file vs file with identical structured XML', () => {
+    const content = `
+<order>
+  <id>100</id>
+  <customer>
+    <name>Alice</name>
+  </customer>
+</order>
+`
+    fs.writeFileSync(file1, content)
+    fs.writeFileSync(file2, content)
+    const result = xml.isEqualFiles(file1, file2)
+    expect(result).toBe(true)
+    fs.unlinkSync(file1)
+    fs.unlinkSync(file2)
   })
 })

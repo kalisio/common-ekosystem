@@ -4,14 +4,14 @@
 
 ### Signature
 
-```javascript
+```js
 compare(a, b, options)
 ```
 
 ### Description
 
-Perform a deep comparison between two YAML strings and return detailed differences.  
-The YAML is converted to objects to identify missing, extra, or updated properties.
+Perform a deep comparison between two YAML strings and return detailed differences.
+The YAML is parsed into objects to identify missing, extra, or updated properties.
 
 ### Parameters
 
@@ -29,9 +29,33 @@ The YAML is converted to objects to identify missing, extra, or updated properti
 
 ### Examples
 
-```javascript
-const yamlA = "version: 1\nitems: [a, b]"
-const yamlB = "version: 2\nitems: [a, b]"
+```js
+const yamlA = `
+version: 1
+service:
+  name: api
+  port: 3000
+database:
+  host: localhost
+  port: 5432
+features:
+  - login
+  - search
+`
+
+const yamlB = `
+version: 2
+service:
+  name: api
+  port: 3000
+database:
+  host: db.internal
+  port: 5432
+features:
+  - login
+  - search
+  - export
+`
 
 yaml.compare(yamlA, yamlB)
 /*
@@ -39,8 +63,11 @@ yaml.compare(yamlA, yamlB)
   isEqual: false,
   differences: {
     missing: [],
-    extra: [],
-    updated: [{ path: 'version', oldValue: 1, newValue: 2 }]
+    extra: ["features[2]"],
+    updated: [
+      { path: "version", oldValue: 1, newValue: 2 },
+      { path: "database.host", oldValue: "localhost", newValue: "db.internal" }
+    ]
   }
 }
 */
@@ -50,14 +77,14 @@ yaml.compare(yamlA, yamlB)
 
 ### Signature
 
-```javascript
+```js
 isEqual(yaml1, yaml2, options)
 ```
 
 ### Description
 
-Compares two YAML strings after normalization and parsing into objects.  
-The comparison uses the `json.isEqual` logic once the YAML is parsed, allowing for structural comparison that ignores key order. It can ignore case, surrounding spaces, and accents based on the provided options.
+Compares two YAML strings after normalization and parsing into objects.
+The comparison uses the same structural logic as JSON comparison, allowing key order differences while still detecting real data changes.
 
 ### Parameters
 
@@ -78,23 +105,87 @@ The comparison uses the `json.isEqual` logic once the YAML is parsed, allowing f
 
 ### Examples
 
-```javascript
-yaml.isEqual("key: Valeur", "key: valeur", { ignoreCase: true }) // true
-yaml.isEqual("name:  John", "name: John", { ignoreSpaces: true }) // true
+Ignore case in values:
+
+```js
+yaml.isEqual(
+`
+status: Active
+`,
+`
+status: active
+`,
+{ ignoreCase: true }
+)
+// true
+```
+
+Ignore surrounding spaces:
+
+```js
+yaml.isEqual(
+`
+name:  Alice
+`,
+`
+name: Alice
+`,
+{ ignoreSpaces: true }
+)
+// true
+```
+
+Compare nested configuration:
+
+```js
+const configA = `
+app:
+  name: my-service
+  env: production
+logging:
+  level: info
+`
+
+const configB = `
+logging:
+  level: info
+app:
+  env: production
+  name: my-service
+`
+
+yaml.isEqual(configA, configB)
+// true
+```
+
+Detect a real difference:
+
+```js
+yaml.isEqual(
+`
+server:
+  port: 3000
+`,
+`
+server:
+  port: 4000
+`
+)
+// false
 ```
 
 ## isEqualFile
 
 ### Signature
 
-```javascript
+```js
 isEqualFile(content, filePath, options)
 ```
 
 ### Description
 
-Compare a YAML string with the content of a YAML file.  
-The file is read as UTF-8, and both the input string and the file content are parsed and compared structurally.
+Compare a YAML string with the content of a YAML file.
+The file is read as UTF-8 and parsed before being compared structurally.
 
 ### Parameters
 
@@ -110,24 +201,44 @@ The file is read as UTF-8, and both the input string and the file content are pa
 |------|-------------|
 | boolean | True if the YAML content matches the file content |
 
-### Examples
+### Example
 
-```javascript
-yaml.isEqualFile("status: active", "./config.yaml")
+`config.yaml`
+
+```
+app:
+  name: api
+  port: 3000
+```
+
+```js
+const yaml = `
+app:
+  name: api
+  port: 3000
+`
+
+yaml.isEqualFile(yaml, "./config.yaml")
+// true
+```
+
+```js
+yaml.isEqualFile("app:\n  port: 4000", "./config.yaml")
+// false
 ```
 
 ## isEqualFiles
 
 ### Signature
 
-```javascript
+```js
 isEqualFiles(path1, path2, options)
 ```
 
 ### Description
 
-Compare the content of two different YAML files.  
-Both files are read and parsed to ensure they represent the same data structure, regardless of key order or formatting.
+Compare the content of two YAML files.
+Both files are parsed to ensure they represent the same data structure, regardless of key order or formatting.
 
 ### Parameters
 
@@ -143,9 +254,36 @@ Both files are read and parsed to ensure they represent the same data structure,
 |------|-------------|
 | boolean | True if both files are structurally equal |
 
-### Examples
+### Example
 
-```javascript
-yaml.isEqualFiles("./env.prod.yaml", "./env.backup.yaml")
+`env.prod.yaml`
+
+```
+app:
+  name: service
+  env: production
+database:
+  host: db
+  port: 5432
 ```
 
+`env.backup.yaml`
+
+```
+database:
+  port: 5432
+  host: db
+app:
+  env: production
+  name: service
+```
+
+```js
+yaml.isEqualFiles("./env.prod.yaml", "./env.backup.yaml")
+// true
+```
+
+```js
+yaml.isEqualFiles("./env.prod.yaml", "./env.dev.yaml")
+// false
+```

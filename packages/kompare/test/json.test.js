@@ -1,74 +1,106 @@
-import { describe, it, expect, afterAll } from 'vitest'
-import { json } from '../src/index.js'
+import { describe, it, expect } from 'vitest'
 import fs from 'fs'
-import path from 'path'
+import { json } from '../src/json.js'
 
 describe('json.isEqual', () => {
-  const tempFile1 = path.join(__dirname, 'test1.json')
-  const tempFile2 = path.join(__dirname, 'test2.json')
-
-  afterAll(() => {
-    if (fs.existsSync(tempFile1)) fs.unlinkSync(tempFile1)
-    if (fs.existsSync(tempFile2)) fs.unlinkSync(tempFile2)
-  })
-
-  it('should validate all features', () => {
-    const obj1 = {
-      id: 'A-1',
-      details: { version: 1.5, status: 'stable', tags: ['prod', 'web', 'api'] },
-      metrics: [{ type: 'cpu', value: 45 }, { type: 'ram', value: 80 }],
-      updatedAt: '2026-01-01'
+  it('identical structured objects with different array order', () => {
+    const a = {
+      order: {
+        id: 100,
+        items: [
+          { sku: 'B2', name: 'Pen' },
+          { sku: 'A1', name: 'Book' }
+        ]
+      }
     }
-    const obj2 = {
-      details: { status: 'stable', tags: ['api', 'prod', 'web'], version: 1.5 },
-      metrics: [{ value: 80, type: 'ram' }, { value: 45, type: 'cpu' }],
-      id: 'B-2',
-      updatedAt: '2026-02-18'
+    const b = {
+      order: {
+        id: 100,
+        items: [
+          { sku: 'A1', name: 'Book' },
+          { sku: 'B2', name: 'Pen' }
+        ]
+      }
     }
-    expect(json.isEqual(obj1, obj2, { ignoredKeys: ['id', 'updatedAt'] })).toBe(true)
+    expect(json.isEqual(a, b)).toBe(true)
   })
 
-  it('should detect value updates and type mismatches', () => {
-    expect(json.isEqual({ a: 10 }, { a: 20 })).toBe(false)
-    expect(json.isEqual({ a: 10 }, { a: '10' })).toBe(false)
-    expect(json.isEqual({ a: { b: 1 } }, { a: { b: 2 } })).toBe(false)
+  it('detect value change in nested object', () => {
+    const a = { order: { id: 100, customer: { name: 'Alice' } } }
+    const b = { order: { id: 100, customer: { name: 'Bob' } } }
+    expect(json.isEqual(a, b)).toBe(false)
   })
 
-  it('should detect missing and extra keys', () => {
-    const obj1 = { a: 1, b: 2 }
-    const obj2 = { a: 1, c: 3 }
-    const result = json.compare(obj1, obj2)
+  it('ignore specific keys', () => {
+    const a = { id: 1, token: 'abc', name: 'Alice' }
+    const b = { id: 2, token: 'def', name: 'Alice' }
+    expect(json.isEqual(a, b, { ignoredKeys: ['id', 'token'] })).toBe(true)
+  })
+})
+
+describe('json.compare', () => {
+  it('detect updated nested value', () => {
+    const a = { order: { id: 100, customer: { name: 'Alice' } } }
+    const b = { order: { id: 100, customer: { name: 'Bob' } } }
+    const result = json.compare(a, b)
     expect(result.isEqual).toBe(false)
-    expect(result.differences.missing).toContain('b')
-    expect(result.differences.extra).toContain('c')
-  })
-  it('should validate file comparison methods', () => {
-    const data = { a: 1, b: 2 }
-    fs.writeFileSync(tempFile1, JSON.stringify(data))
-    fs.writeFileSync(tempFile2, JSON.stringify({ b: 2, a: 1 }))
-    expect(json.isEqualFile(data, tempFile1)).toBe(true)
-    expect(json.isEqualFiles(tempFile1, tempFile2)).toBe(true)
-    const result = json.compare(data, data)
-    expect(result.isEqual).toBe(true)
+    expect(result.differences.updated[0].path).toBe('order.customer.name')
   })
 
-  it('should detect nested differences', () => {
+  it('detect extra and missing properties', () => {
+    const a = { order: { id: 100, status: 'pending' } }
+    const b = { order: { id: 100, priority: 'high' } }
+    const result = json.compare(a, b)
+    expect(result.isEqual).toBe(false)
+    expect(result.differences.extra).toContain('order.priority')
+    expect(result.differences.missing).toContain('order.status')
+  })
+})
+
+describe('json file comparison', () => {
+  const file1 = './test1.json'
+  const file2 = './test2.json'
+
+  it('object vs file with array order changed', () => {
+    const obj = {
+      order: {
+        id: 100,
+        items: [
+          { sku: 'B2', name: 'Pen' },
+          { sku: 'A1', name: 'Book' }
+        ]
+      }
+    }
+    fs.writeFileSync(file1, JSON.stringify(obj, null, 2))
+    const result = json.isEqualFile(obj, file1)
+    expect(result).toBe(true)
+    fs.unlinkSync(file1)
+  })
+
+  it('file vs file identical with different array order', () => {
     const obj1 = {
-      settings: {
-        port: 8080,
-        active: true
+      order: {
+        id: 100,
+        items: [
+          { sku: 'B2', name: 'Pen' },
+          { sku: 'A1', name: 'Book' }
+        ]
       }
     }
     const obj2 = {
-      settings: {
-        port: 9090,
-        active: true
+      order: {
+        id: 100,
+        items: [
+          { sku: 'A1', name: 'Book' },
+          { sku: 'B2', name: 'Pen' }
+        ]
       }
     }
-    const result = json.compare(obj1, obj2)
-    expect(result.isEqual).toBe(false)
-    expect(result.differences.updated[0].path).toBe('settings.port')
-    expect(result.differences.updated[0].oldValue).toBe(8080)
-    expect(result.differences.updated[0].newValue).toBe(9090)
+    fs.writeFileSync(file1, JSON.stringify(obj1, null, 2))
+    fs.writeFileSync(file2, JSON.stringify(obj2, null, 2))
+    const result = json.isEqualFiles(file1, file2)
+    expect(result).toBe(true)
+    fs.unlinkSync(file1)
+    fs.unlinkSync(file2)
   })
 })

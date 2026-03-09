@@ -4,7 +4,7 @@
 
 ### Signature
 
-```javascript
+```js
 compare(a, b, options)
 ```
 
@@ -28,14 +28,46 @@ Perform a deep comparison between two objects and return detailed differences.
 
 ### Examples
 
-```javascript
-json.compare({ a: 1 }, { a: 2, b: 3 })
-/* {
+```js
+const source = {
+  id: 1,
+  name: "Alice",
+  tags: ["admin", "user"],
+  profile: {
+    age: 25,
+    address: {
+      city: "Paris",
+      zip: "75000"
+    }
+  }
+}
+
+const target = {
+  id: 1,
+  name: "Alice",
+  tags: ["admin", "editor"],
+  profile: {
+    age: 26,
+    address: {
+      city: "Paris",
+      zip: "75000"
+    }
+  },
+  active: true
+}
+
+json.compare(source, target)
+
+/*
+{
   isEqual: false,
   differences: {
     missing: [],
-    extra: ['b'],
-    updated: [{ path: 'a', oldValue: 1, newValue: 2 }]
+    extra: ["active"],
+    updated: [
+      { path: "tags[1]", oldValue: "user", newValue: "editor" },
+      { path: "profile.age", oldValue: 25, newValue: 26 }
+    ]
   }
 }
 */
@@ -45,7 +77,7 @@ json.compare({ a: 1 }, { a: 2, b: 3 })
 
 ### Signature
 
-```javascript
+```js
 isEqual(object1, object2, options)
 ```
 
@@ -70,16 +102,58 @@ Compares two JSON objects after normalization. The comparison can ignore specifi
 
 ### Examples
 
-```javascript
-json.isEqual({ a: 1, id: '1' }, { a: 1, id: '2' }, { ignoredKeys: ['id'] }) // true
-json.isEqual({ a: 1, b: 2 }, { b: 2, a: 1 }) // true
+- Ignore dynamic fields
+
+```js
+const user1 = {
+  id: "abc123",
+  createdAt: "2024-01-01",
+  profile: {
+    name: "Alice",
+    roles: ["admin", "user"]
+  }
+}
+
+const user2 = {
+  id: "xyz999",
+  createdAt: "2024-05-10",
+  profile: {
+    roles: ["admin", "user"],
+    name: "Alice"
+  }
+}
+
+json.isEqual(user1, user2, {
+  ignoredKeys: ["id", "createdAt"]
+})
+// true
+```
+
+- Detect array difference
+
+```js
+json.isEqual(
+  {
+    items: [
+      { id: 1, name: "Book" },
+      { id: 2, name: "Pen" }
+    ]
+  },
+  {
+    items: [
+      { id: 1, name: "Book" },
+      { id: 2, name: "Pencil" }
+    ]
+  }
+)
+// false
 ```
 
 ## isEqualFile
 
 ### Signature
 
-```javascript
+```js
 isEqualFile(object, filePath, options)
 ```
 
@@ -103,15 +177,50 @@ Compare an object with the content of a JSON file.
 
 ### Examples
 
-```javascript
-json.isEqualFile({ a: 1 }, './data.json')
+`data.json`:
+
+```json
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Alice",
+      "roles": ["admin", "user"]
+    },
+    {
+      "id": 2,
+      "name": "Bob",
+      "roles": ["user"]
+    }
+  ]
+}
+```
+
+```js
+const data = {
+  users: [
+    {
+      id: 1,
+      roles: ["user", "admin"],
+      name: "Alice"
+    },
+    {
+      id: 2,
+      name: "Bob",
+      roles: ["user"]
+    }
+  ]
+}
+
+json.isEqualFile(data, "./data.json")
+// true
 ```
 
 ## isEqualFiles
 
 ### Signature
 
-```javascript
+```js
 isEqualFiles(path1, path2, options)
 ```
 
@@ -135,7 +244,32 @@ Compare the content of two JSON files.
 
 ### Examples
 
-```javascript
-json.isEqualFiles('./baseline.json', './current.json')
+`baseline.json`:
+
+```json
+{
+  "settings": {
+    "theme": "dark",
+    "notifications": true
+  },
+  "features": ["search", "export"]
+}
+```
+
+`current.json`:
+
+```json
+{
+  "features": ["search", "export"],
+  "settings": {
+    "notifications": true,
+    "theme": "dark"
+  }
+}
+```
+
+```js
+json.isEqualFiles("./baseline.json", "./current.json")
+// true
 ```
 
