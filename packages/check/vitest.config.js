@@ -25,7 +25,7 @@ export default defineConfig({
         '*.config.js'
       ],
       reporter: ['text', 'html', 'lcov'],
-      reportsDirectory: '../../coverage/check'
+      reportsDirectory: './coverage/'
     }
   }
 })
