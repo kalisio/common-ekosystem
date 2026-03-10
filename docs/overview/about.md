@@ -4,7 +4,7 @@
 
 This repository contains the following packages:
 
-- **[@kalisio/check](./packages/check)**
-- **[@kalisio/geokit](./packages/geokit)**
-- **[@kalisio/graphiks](./packages/graphiks)**
-- **[@kalisio/kompare](./packages/kompare)**
+- **[@kalisio/check](../packages/check)**
+- **[@kalisio/geokit](../packages/geokit)**
+- **[@kalisio/graphiks](../packages/graphiks)**
+- **[@kalisio/kompare](../packages/kompare)**
