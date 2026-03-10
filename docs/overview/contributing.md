@@ -102,6 +102,7 @@ changes during development and automatically determine the next package versions
 The process is illustrated in the diagram below:
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'lineColor': '#333333'}}}%%
 flowchart TD
     subgraph Development phase
         A[Code change]:::developer
@@ -134,8 +135,8 @@ flowchart TD
 
     %% Styling
     classDef developer fill:#bbd5ee,stroke:#3399ff,stroke-width:1px,color:#003366;
-    style changesets-dev fill:#5daf60,stroke:#28a745,stroke-width:1px,color:#155724;
-    style changesets-release fill:#5daf60,stroke:#28a745,stroke-width:1px,color:#155724;
+    style changesets-dev fill:#d1e8d2,stroke:#28a745,stroke-width:1px,color:#155724;
+    style changesets-release fill:#d1e8d2,stroke:#28a745,stroke-width:1px,color:#155724;
 ```
 
 #### Development phase
@@ -158,7 +159,7 @@ Each **changeset** represents one contribution to the next release. Multiple cha
 > [!NOTE]
 > It is recommended to create a **changeset** for each significant commit, e.g., a `fix` or `feat`.
 
-### Release phase
+#### Release phase
 
 When preparing a release, run:
 
@@ -175,6 +176,7 @@ Finally, commit the updated versions and changelogs:
 
 ```bash
 git add . && git commit -m "chore: bump <new version>"
+git push
 ```
 
 ### Publishing
