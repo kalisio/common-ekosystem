@@ -18,6 +18,9 @@ catalogs:
     cross-env:
       specifier: ^10.1.0
       version: 10.1.0
+    fast-xml-parser:
+      specifier: ^5.4.1
+      version: 5.4.2
     happy-dom:
       specifier: ^20.3.1
       version: 20.8.3
@@ -63,6 +66,9 @@ catalogs:
     vitest:
       specifier: ^4.0.17
       version: 4.0.18
+    yaml:
+      specifier: ^2.8.2
+      version: 2.8.2
 
 importers:
 
@@ -162,13 +168,13 @@ importers:
   packages/kompare:
     dependencies:
       fast-xml-parser:
-        specifier: ^5.4.1
+        specifier: 'catalog:'
         version: 5.4.2
       lodash:
         specifier: 'catalog:'
         version: 4.17.23
       yaml:
-        specifier: ^2.8.2
+        specifier: 'catalog:'
         version: 2.8.2
 
 packages:
