@@ -2,7 +2,7 @@
 
 **check** is a minimalist conditional and assertion library for JavaScript
 
-## Principles
+## Principle
 
 **check** is a lightweight validation library organized around five focused modules:
 - `is` provides a set of boolean predicates to test the type and state of a value.
@@ -62,15 +62,20 @@ has.keyWithValue({ name: null }, 'name')
 ### conforms
 
 ```javascript
-conforms.schema({ name: 'Alice', age: 25 }, { name: is.string, age: is.number })
+conforms.schema(
+  { name: 'Alice', age: 25, tags: [] },
+  { name: is.string, age: is.number, tags: is.array }
+)
 // true
-conforms.schema({ name: 'Alice', age: '25' }, { name: is.string, age: is.number })
+conforms.schema(
+  { name: 'Alice', age: '25' },
+  { name: is.string, age: is.number }
+)
 // false
-conforms.schema({ count: 5 }, { count: is.positive })
-// true
-conforms.schema({ tags: [] }, { tags: is.array })
-// true
-conforms.schema({ address: { city: 'Paris' } }, { address: { city: is.nonEmptyString } })
+conforms.schema(
+  { address: { city: 'Paris' } },
+  { address: { city: is.nonEmptyString } }
+)
 // true
 ```
 
