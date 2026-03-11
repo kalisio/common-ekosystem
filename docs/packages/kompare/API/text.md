@@ -1,124 +1,90 @@
+--
+title: comparator
+description: TEXT comparison functions
+---
+
 # text
 
-## compare
+## normalizeString
 
 ### Signature
 
-```js
-compare(a, b, options)
+```javascript
+normalizeString(str, options)
 ```
 
 ### Description
 
-Perform a comparison between two strings and return the status along with detailed differences.
-Differences are reported at the `"text"` path if the strings do not match after normalization.
+Normalize a string before comparison by applying transformations based on the provided options.
+Used internally by `text.isEqual` and `text.compare`.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| a | string | yes | The source string |
-| b | string | yes | The target string |
-| options | Object | no | Normalization options |
+| str | string | yes | The string to normalize |
+| options | object | no | Normalization options |
+| options.ignoreSpaces | boolean | no | Trim leading and trailing whitespace (default: false) |
+| options.ignoreAccents | boolean | no | Strip accent characters (default: false) |
+| options.ignoreCase | boolean | no | Convert to lowercase (default: false) |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| Object | An object containing `isEqual` (boolean) and `differences` (updated) |
+| string | The normalized string |
 
 ### Examples
 
-```js
-text.compare("Apple", "apple")
-/*
-{
-  isEqual: false,
-  differences: {
-    updated: [
-      { path: "text", oldValue: "Apple", newValue: "apple" }
-    ]
-  }
-}
-*/
-```
-
-```js
-text.compare("Hello world", "Hello  world")
-/*
-{
-  isEqual: false,
-  differences: {
-    updated: [
-      { path: "text", oldValue: "Hello world", newValue: "Hello  world" }
-    ]
-  }
-}
-*/
+```javascript
+normalizeString('  Hello  ', { ignoreSpaces: true })
+// 'Hello'
+normalizeString('Héllo', { ignoreAccents: true })
+// 'Hello'
+normalizeString('Hello', { ignoreCase: true })
+// 'hello'
+normalizeString('  Héllo  ', { ignoreSpaces: true, ignoreAccents: true, ignoreCase: true })
+// 'hello'
 ```
 
 ## isEqual
 
 ### Signature
 
-```js
-isEqual(text1, text2, options)
+```javascript
+text.isEqual(text1, text2, options)
 ```
 
 ### Description
 
-Compares two strings after normalization.
-The comparison can ignore case differences, surrounding spaces (trim), and/or accents (diacritical marks) based on the provided options.
+Check if two strings are equal after optional normalization.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| text1 | string | yes | The first string to compare |
-| text2 | string | yes | The second string to compare |
-| options | Object | no | Normalization options |
-| options.ignoreCase | boolean | no | Ignore case differences |
-| options.ignoreSpaces | boolean | no | Ignore leading/trailing spaces |
-| options.ignoreAccents | boolean | no | Remove accents before comparison |
+| text1 | string | yes | The first string |
+| text2 | string | yes | The second string |
+| options | object | no | Normalization options (see `normalizeString`) |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the normalized strings are equal |
+| boolean | True if both strings are equal after normalization |
 
 ### Examples
 
-Ignore case differences:
-
-```js
-text.isEqual("Hello", "hello", { ignoreCase: true })
+```javascript
+text.isEqual('hello', 'hello')
 // true
-```
-
-Ignore accents:
-
-```js
-text.isEqual("École", "ecole", {
-  ignoreCase: true,
-  ignoreAccents: true
-})
+text.isEqual('Hello', 'hello', { ignoreCase: true })
 // true
-```
-
-Ignore surrounding spaces:
-
-```js
-text.isEqual(" Hello ", "Hello", {
-  ignoreSpaces: true
-})
+text.isEqual('  hello', 'hello', { ignoreSpaces: true })
 // true
-```
-
-Detect real differences:
-
-```js
-text.isEqual("Hello world", "Hello worlds")
+text.isEqual('héllo', 'hello', { ignoreAccents: true })
+// true
+text.isEqual('hello', 'world')
 // false
 ```
 
@@ -126,14 +92,13 @@ text.isEqual("Hello world", "Hello worlds")
 
 ### Signature
 
-```js
-isEqualFile(content, filePath, options)
+```javascript
+text.isEqualFile(content, filePath, options)
 ```
 
 ### Description
 
-Compare a string with the content of a file.
-The file is read as UTF-8 and both strings are normalized according to the options before comparison.
+Check if a string is equal to the content of a file after optional normalization.
 
 ### Parameters
 
@@ -141,47 +106,34 @@ The file is read as UTF-8 and both strings are normalized according to the optio
 |------|------|----------|-------------|
 | content | string | yes | The string to compare |
 | filePath | string | yes | Path to the file |
-| options | Object | no | Normalization options |
+| options | object | no | Normalization options (see `normalizeString`) |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the content matches the file |
+| boolean | True if the string matches the file content |
 
-### Example
+### Examples
 
-`greeting.txt`
-
-```
-Hello World
-```
-
-```js
-text.isEqualFile("hello world", "./greeting.txt", {
-  ignoreCase: true
-})
-// true
-```
-
-```js
-text.isEqualFile("Hello Mars", "./greeting.txt")
-
-// false
+```javascript
+text.isEqualFile('hello world', './fixtures/expected.txt')
+// true or false
+text.isEqualFile('Hello World', './fixtures/expected.txt', { ignoreCase: true })
+// true or false
 ```
 
 ## isEqualFiles
 
 ### Signature
 
-```js
-isEqualFiles(path1, path2, options)
+```javascript
+text.isEqualFiles(path1, path2, options)
 ```
 
 ### Description
 
-Compare the content of two different files.
-Both files are read and normalized before being compared.
+Check if two files have equal content after optional normalization.
 
 ### Parameters
 
@@ -189,36 +141,20 @@ Both files are read and normalized before being compared.
 |------|------|----------|-------------|
 | path1 | string | yes | Path to the first file |
 | path2 | string | yes | Path to the second file |
-| options | Object | no | Normalization options |
+| options | object | no | Normalization options (see `normalizeString`) |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if both files contain the same normalized text |
+| boolean | True if both files have equal content |
 
-### Example
+### Examples
 
-`doc1.txt`
-
-```
-Hello World
-```
-
-`doc2.txt`
-
-```
-hello world
+```javascript
+text.isEqualFiles('./fixtures/actual.txt', './fixtures/expected.txt')
+// true or false
+text.isEqualFiles('./fixtures/actual.txt', './fixtures/expected.txt', { ignoreCase: true })
+// true or false
 ```
 
-```js
-text.isEqualFiles("./doc1.txt", "./doc2.txt", {
-  ignoreCase: true
-})
-// true
-```
-
-```js
-text.isEqualFiles("./doc1.txt", "./doc2.txt")
-// false
-```

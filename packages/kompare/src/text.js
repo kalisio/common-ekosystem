@@ -29,33 +29,14 @@ export const text = {
     return str1 === str2
   },
 
-  isEqualFile (content, filePath, options = {}) {
-    const fileContent = fs.readFileSync(filePath, 'utf-8')
-    return this.isEqual(content, fileContent, options)
+  isEqualFile (text, textFilePath, options = {}) {
+    const textFileContent = fs.readFileSync(textFilePath, 'utf-8')
+    return this.isEqual(text, textFileContent, options)
   },
 
-  isEqualFiles (path1, path2, options = {}) {
-    const fileContent1 = fs.readFileSync(path1, 'utf-8')
-    const fileContent2 = fs.readFileSync(path2, 'utf-8')
-    return this.isEqual(fileContent1, fileContent2, options)
-  },
-
-  compare (a, b, options = {}) {
-    const areEqual = this.isEqual(a, b, options)
-    const str1 = normalizeString(a, options)
-    const str2 = normalizeString(b, options)
-
-    return {
-      isEqual: areEqual,
-      differences: areEqual
-        ? { updated: [] }
-        : {
-            updated: [{
-              path: 'text',
-              oldValue: str1,
-              newValue: str2
-            }]
-          }
-    }
+  isEqualFiles (textFilePath1, textFilePath2, options = {}) {
+    const textFileContent1 = fs.readFileSync(textFilePath1, 'utf-8')
+    const textFileContent2 = fs.readFileSync(textFilePath2, 'utf-8')
+    return this.isEqual(textFileContent1, textFileContent2, options)
   }
 }

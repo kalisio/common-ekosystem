@@ -2,6 +2,8 @@
 
 **kompare** is a lightweight utility for object and file comparison.
 
+`kompare` is built around four format-specific modules (`text`, `json`, `yaml`, `xml`) and a `comparator` factory for creating custom format comparators.
+
 ## Installation
 
 Install with your preferred package manager:

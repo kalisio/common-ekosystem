@@ -34,24 +34,6 @@ describe('text.isEqual', () => {
   })
 })
 
-describe('text.compare', () => {
-  it('detect updated text', () => {
-    const a = 'Hello'
-    const b = 'hello'
-    const result = text.compare(a, b)
-    expect(result.isEqual).toBe(false)
-    expect(result.differences.updated[0].path).toBe('text')
-  })
-
-  it('strings are equal after normalization', () => {
-    const a = ' École '
-    const b = 'ecole'
-    const result = text.compare(a, b, { ignoreSpaces: true, ignoreCase: true, ignoreAccents: true })
-    expect(result.isEqual).toBe(true)
-    expect(result.differences.updated.length).toBe(0)
-  })
-})
-
 describe('text file comparison', () => {
   const file1 = './test1.txt'
   const file2 = './test2.txt'

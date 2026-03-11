@@ -1,175 +1,50 @@
+
+---
+title: xml
+description: XML comparison functions
+---
+
 # xml
 
-## compare
-
-### Signature
-
-```javascript
-compare(a, b, options)
-```
-
-### Description
-
-Perform a deep comparison between two XML strings and return detailed differences.
-The XML is parsed into objects to identify missing, extra, or updated tags and attributes.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| a | string | yes | The source XML string |
-| b | string | yes | The target XML string |
-| options | Object | no | Normalization options |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| Object | An object containing `isEqual` (boolean) and `differences` (missing, extra, updated) |
-
-### Examples
-
-```javascript
-const xmlA = `
-<order>
-  <id>1001</id>
-  <customer>
-    <name>Alice</name>
-    <country>FR</country>
-  </customer>
-  <items>
-    <item sku="A1">Book</item>
-    <item sku="B2">Pen</item>
-  </items>
-</order>
-`
-
-const xmlB = `
-<order>
-  <id>1001</id>
-  <customer>
-    <name>Alice</name>
-    <country>US</country>
-  </customer>
-  <items>
-    <item sku="A1">Book</item>
-    <item sku="B2">Pencil</item>
-  </items>
-  <status>shipped</status>
-</order>
-`
-
-xml.compare(xmlA, xmlB)
-/*
-{
-  isEqual: false,
-  differences: {
-    missing: [],
-    extra: ["order.status"],
-    updated: [
-      { path: "order.customer.country", oldValue: "FR", newValue: "US" },
-      { path: "order.items.item[1]", oldValue: "Pen", newValue: "Pencil" }
-    ]
-  }
-}
-*/
-```
+The `xml` module exposes the same interface as `json` (`isEqual`, `isEqualFile`, `isEqualFiles`, `compare`) but accepts XML strings as input. Both strings are parsed into objects before comparison.
 
 ## isEqual
 
 ### Signature
 
 ```javascript
-isEqual(xml1, xml2, options)
+xml.isEqual(xml1, xml2, options)
 ```
 
 ### Description
 
-Compares two XML strings after normalization and parsing into objects.
-The comparison uses the same structural logic as JSON comparison, allowing nested elements and attributes to be compared reliably.
+Check if two XML strings are semantically equal. Both strings are parsed into objects and compared using deep equality.
+Throws a `TypeError` if either argument is not a non-empty string.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| xml1 | string | yes | The first XML string to compare |
-| xml2 | string | yes | The second XML string to compare |
-| options | Object | no | Normalization options |
-| options.ignoreCase | boolean | no | Whether to ignore case differences |
-| options.ignoreSpaces | boolean | no | Whether to ignore leading/trailing spaces |
-| options.ignoreAccents | boolean | no | Whether to remove accents before comparison |
+| xml1 | string | yes | The first XML string |
+| xml2 | string | yes | The second XML string |
+| options | object | no | Comparison options |
+| options.parser | object | no | Additional options passed to the XML parser |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the parsed XML structures are equal, false otherwise |
+| boolean | True if both XML strings are semantically equal |
 
 ### Examples
 
-Ignore case in text nodes:
-
 ```javascript
-const xml1 = `
-<message>
-  <title>Hello</title>
-</message>
-`
-
-const xml2 = `
-<message>
-  <title>hello</title>
-</message>
-`
-
-xml.isEqual(xml1, xml2, { ignoreCase: true })
+xml.isEqual('Alice', '  Alice  ')
 // true
-```
-
-Detect structural difference:
-
-```javascript
-const xml1 = `
-<user>
-  <name>Alice</name>
-  <role>admin</role>
-</user>
-`
-
-const xml2 = `
-<user>
-  <name>Alice</name>
-  <role>user</role>
-</user>
-`
-
-xml.isEqual(xml1, xml2)
+xml.isEqual('1', '2')
 // false
-```
-
-Compare nested lists:
-
-```javascript
-const xml1 = `
-<catalog>
-  <products>
-    <product id="1">Book</product>
-    <product id="2">Pen</product>
-  </products>
-</catalog>
-`
-
-const xml2 = `
-<catalog>
-  <products>
-    <product id="1">Book</product>
-    <product id="2">Pen</product>
-  </products>
-</catalog>
-`
-
-xml.isEqual(xml1, xml2)
-// true
+xml.isEqual('1', '1')
+// false — attributes compared
 ```
 
 ## isEqualFile
@@ -177,58 +52,33 @@ xml.isEqual(xml1, xml2)
 ### Signature
 
 ```javascript
-isEqualFile(content, filePath, options)
+xml.isEqualFile(xml, xmlFilePath, options)
 ```
 
 ### Description
 
-Compare an XML string with the content of an XML file.
-The file is read, and both the input string and the file content are parsed and compared structurally.
+Check if an XML string is semantically equal to the content of an XML file.
+Throws a `TypeError` if either argument is not a non-empty string.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| content | string | yes | The XML string to compare |
-| filePath | string | yes | The path to the XML file |
-| options | Object | no | Normalization options |
+| xml | string | yes | The XML string to compare |
+| xmlFilePath | string | yes | Path to the XML file |
+| options | object | no | Comparison options (see `isEqual`) |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the XML content matches the file content |
+| boolean | True if the XML string matches the file content |
 
-### Example
-
-`config.xml`
-
-```
-<config>
-  <database>
-    <host>localhost</host>
-    <port>5432</port>
-  </database>
-</config>
-```
+### Examples
 
 ```javascript
-const xml = `
-<config>
-  <database>
-    <host>localhost</host>
-    <port>5432</port>
-  </database>
-</config>
-`
-
-xml.isEqualFile(xml, "./config.xml")
-// true
-```
-
-```javascript
-xml.isEqualFile("<config></config>", "./config.xml")
-// false
+xml.isEqualFile('Alice', './fixtures/expected.xml')
+// true or false
 ```
 
 ## isEqualFiles
@@ -236,54 +86,71 @@ xml.isEqualFile("<config></config>", "./config.xml")
 ### Signature
 
 ```javascript
-isEqualFiles(path1, path2, options)
+xml.isEqualFiles(xmlFilePath1, xmlFilePath2, options)
 ```
 
 ### Description
 
-Compare the content of two different XML files.
-Both files are read and parsed to ensure they are structurally identical.
+Check if two XML files are semantically equal.
+Throws a `TypeError` if either argument is not a non-empty string.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| path1 | string | yes | Path to the first XML file |
-| path2 | string | yes | Path to the second XML file |
-| options | Object | no | Normalization options |
+| xmlFilePath1 | string | yes | Path to the first XML file |
+| xmlFilePath2 | string | yes | Path to the second XML file |
+| options | object | no | Comparison options (see `isEqual`) |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if both files are structurally equal |
+| boolean | True if both files are semantically equal |
 
-### Example
-
-`config.xml`
-
-```
-<config>
-  <theme>dark</theme>
-  <language>en</language>
-</config>
-```
-
-`backup.xml`
-
-```
-<config>
-  <language>en</language>
-  <theme>dark</theme>
-</config>
-```
+### Examples
 
 ```javascript
-xml.isEqualFiles("./config.xml", "./backup.xml")
-// true
+xml.isEqualFiles('./fixtures/actual.xml', './fixtures/expected.xml')
+// true or false
 ```
 
+## compare
+
+### Signature
+
 ```javascript
-xml.isEqualFiles("./config.xml", "./modified.xml")
-// false
+xml.compare(xml1, xml2, options)
+```
+
+### Description
+
+Compare two XML strings and return a detailed diff. Both strings are parsed into objects before comparison.
+Throws a `TypeError` if either argument is not a non-empty string.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| xml1 | string | yes | The first XML string |
+| xml2 | string | yes | The second XML string |
+| options | object | no | Comparison options (see `isEqual`) |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| object | An object with `isEqual` (boolean) and `differences` (object with `missing`, `extra`, `updated`) |
+
+### Examples
+
+```javascript
+xml.compare('', '')
+// { isEqual: true, differences: { missing: [], extra: [], updated: [] } }
+
+xml.compare('1', '2')
+// { isEqual: false, differences: { missing: [], extra: [], updated: [{ path: 'root.count', oldValue: '1', newValue: '2' }] } }
+
+xml.compare('1', '1')
+// { isEqual: false, differences: { missing: ['root.a'], extra: ['root.b'], updated: [] } }
 ```

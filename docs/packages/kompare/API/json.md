@@ -1,151 +1,55 @@
+
+---
+title: json
+description: JSON comparison functions
+---
+
 # json
-
-## compare
-
-### Signature
-
-```js
-compare(a, b, options)
-```
-
-### Description
-
-Perform a deep comparison between two objects and return detailed differences.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| a | Object \| Array | yes | The source object |
-| b | Object \| Array | yes | The target object |
-| options | Object | no | Comparison options |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| Object | An object containing isEqual (boolean) and differences (missing, extra, updated) |
-
-### Examples
-
-```js
-const source = {
-  id: 1,
-  name: "Alice",
-  tags: ["admin", "user"],
-  profile: {
-    age: 25,
-    address: {
-      city: "Paris",
-      zip: "75000"
-    }
-  }
-}
-
-const target = {
-  id: 1,
-  name: "Alice",
-  tags: ["admin", "editor"],
-  profile: {
-    age: 26,
-    address: {
-      city: "Paris",
-      zip: "75000"
-    }
-  },
-  active: true
-}
-
-json.compare(source, target)
-
-/*
-{
-  isEqual: false,
-  differences: {
-    missing: [],
-    extra: ["active"],
-    updated: [
-      { path: "tags[1]", oldValue: "user", newValue: "editor" },
-      { path: "profile.age", oldValue: 25, newValue: 26 }
-    ]
-  }
-}
-*/
-```
 
 ## isEqual
 
 ### Signature
 
-```js
-isEqual(object1, object2, options)
+```javascript
+json.isEqual(json1, json2, options)
 ```
 
 ### Description
 
-Compares two JSON objects after normalization. The comparison can ignore specific keys provided in the options.
+Check if two JSON objects are deeply equal after normalization.
+Key order is ignored, array elements are sorted, and string values can be normalized using the same options as `text`.
+Throws a `TypeError` if either argument is not a non-empty string.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| object1 | Object \| Array | yes | The first object to compare |
-| object2 | Object \| Array | yes | The second object to compare |
-| options | Object | no | Comparison options |
-| options.ignoredKeys | string[] | no | Keys to ignore during comparison |
+| json1 | object | yes | The first JSON object |
+| json2 | object | yes | The second JSON object |
+| options | object | no | Comparison options |
+| options.ignoredKeys | string[] | no | Keys to exclude from comparison |
+| options.ignoreCase | boolean | no | Normalize string values to lowercase |
+| options.ignoreAccents | boolean | no | Strip accents from string values |
+| options.ignoreSpaces | boolean | no | Trim whitespace from string values |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | Returns true if the normalized objects are equal, otherwise false |
+| boolean | True if both objects are deeply equal after normalization |
 
 ### Examples
 
-- Ignore dynamic fields
-
-```js
-const user1 = {
-  id: "abc123",
-  createdAt: "2024-01-01",
-  profile: {
-    name: "Alice",
-    roles: ["admin", "user"]
-  }
-}
-
-const user2 = {
-  id: "xyz999",
-  createdAt: "2024-05-10",
-  profile: {
-    roles: ["admin", "user"],
-    name: "Alice"
-  }
-}
-
-json.isEqual(user1, user2, {
-  ignoredKeys: ["id", "createdAt"]
-})
+```javascript
+json.isEqual({ b: 2, a: 1 }, { a: 1, b: 2 })
+// true — key order ignored
+json.isEqual([3, 1, 2], [1, 2, 3])
+// true — array order ignored
+json.isEqual({ a: 1, b: 2 }, { a: 1 }, { ignoredKeys: ['b'] })
+// true — key ignored
+json.isEqual({ name: 'Alice' }, { name: 'alice' }, { ignoreCase: true })
 // true
-```
-
-- Detect array difference
-
-```js
-json.isEqual(
-  {
-    items: [
-      { id: 1, name: "Book" },
-      { id: 2, name: "Pen" }
-    ]
-  },
-  {
-    items: [
-      { id: 1, name: "Book" },
-      { id: 2, name: "Pencil" }
-    ]
-  }
-)
+json.isEqual({ a: 1 }, { a: 2 })
 // false
 ```
 
@@ -153,123 +57,111 @@ json.isEqual(
 
 ### Signature
 
-```js
-isEqualFile(object, filePath, options)
+```javascript
+json.isEqualFile(json, jsonFilePath, options)
 ```
 
 ### Description
 
-Compare an object with the content of a JSON file.
+Check if a JSON object is deeply equal to the content of a JSON file.
+Throws a `TypeError` if either argument is not a non-empty string.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| object | Object \| Array | yes | The object to compare |
-| filePath | string | yes | The path to the JSON file |
-| options | Object | no | Comparison options |
+| json | object | yes | The JSON object to compare |
+| jsonFilePath | string | yes | Path to the JSON file |
+| options | object | no | Comparison options (see `isEqual`) |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | Returns true if the object matches the file content |
+| boolean | True if the object matches the file content |
 
 ### Examples
 
-`data.json`:
-
-```json
-{
-  "users": [
-    {
-      "id": 1,
-      "name": "Alice",
-      "roles": ["admin", "user"]
-    },
-    {
-      "id": 2,
-      "name": "Bob",
-      "roles": ["user"]
-    }
-  ]
-}
-```
-
-```js
-const data = {
-  users: [
-    {
-      id: 1,
-      roles: ["user", "admin"],
-      name: "Alice"
-    },
-    {
-      id: 2,
-      name: "Bob",
-      roles: ["user"]
-    }
-  ]
-}
-
-json.isEqualFile(data, "./data.json")
-// true
+```javascript
+json.isEqualFile({ name: 'Alice', age: 25 }, './fixtures/expected.json')
+// true or false
 ```
 
 ## isEqualFiles
 
 ### Signature
 
-```js
-isEqualFiles(path1, path2, options)
+```javascript
+json.isEqualFiles(jsonFilePath1, jsonFilePath2, options)
 ```
 
 ### Description
 
-Compare the content of two JSON files.
+Check if two JSON files are deeply equal.
+Throws a `TypeError` if either argument is not a non-empty string.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| path1 | string | yes | Path to the first file |
-| path2 | string | yes | Path to the second file |
-| options | Object | no | Comparison options |
+| jsonFilePath1 | string | yes | Path to the first JSON file |
+| jsonFilePath2 | string | yes | Path to the second JSON file |
+| options | object | no | Comparison options (see `isEqual`) |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | Returns true if both files are structurally equal |
+| boolean | True if both files are deeply equal |
 
 ### Examples
 
-`baseline.json`:
-
-```json
-{
-  "settings": {
-    "theme": "dark",
-    "notifications": true
-  },
-  "features": ["search", "export"]
-}
+```javascript
+json.isEqualFiles('./fixtures/actual.json', './fixtures/expected.json')
+// true or false
 ```
 
-`current.json`:
+## compare
 
-```json
-{
-  "features": ["search", "export"],
-  "settings": {
-    "notifications": true,
-    "theme": "dark"
-  }
-}
+### Signature
+
+```javascript
+json.compare(json1, json2, options)
 ```
 
-```js
-json.isEqualFiles("./baseline.json", "./current.json")
-// true
-```
+### Description
 
+Compare two JSON objects and return a detailed diff.
+Throws a `TypeError` if either argument is not a non-empty string.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| json1 | object | yes | The first JSON object |
+| json2 | object | yes | The second JSON object |
+| options | object | no | Comparison options (see `isEqual`) |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| object | An object with `isEqual` (boolean) and `differences` (object) |
+
+The `differences` object contains three arrays:
+- `missing`: paths present in `json1` but absent in `json2`
+- `extra`: paths present in `json2` but absent in `json1`
+- `updated`: paths present in both but with different values, each entry containing `path`, `oldValue`, and `newValue`
+
+### Examples
+
+```javascript
+json.compare({ a: 1 }, { a: 1 })
+// { isEqual: true, differences: { missing: [], extra: [], updated: [] } }
+
+json.compare({ a: 1, b: 2 }, { a: 9, c: 3 })
+// { isEqual: false, differences: { missing: ['b'], extra: ['c'], updated: [{ path: 'a', oldValue: 1, newValue: 9 }] } }
+
+json.compare({ user: { name: 'Alice', age: 25 } }, { user: { name: 'Alice', age: 30 } })
+// { isEqual: false, differences: { missing: [], extra: [], updated: [{ path: 'user.age', oldValue: 25, newValue: 30 }] } }
+```

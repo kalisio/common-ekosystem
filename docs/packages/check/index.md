@@ -1,10 +1,8 @@
 # check
 
-**check** is a minimalist conditional and assertion library for JavaScript
+**check** is a minimalist conditional and assertion library for JavaScript.
 
-## Principle
-
-**check** is a lightweight validation library organized around five focused modules:
+**check** is organized around five focused modules:
 - `is` provides a set of boolean predicates to test the type and state of a value.
 - `has` checks for the presence and definition of keys in an object.
 - `conforms` validates an object against a schema, supporting nested structures and any `is` predicate as a validator.
