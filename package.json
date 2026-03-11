@@ -77,8 +77,6 @@
     "onlyBuiltDependencies": [
       "esbuild"
     ],
-    "overrides": {
-      "@kalisio/meta-ekosystem": "link:../meta-ekosystem"
-    }
+    "overrides": {}
   }
 }
