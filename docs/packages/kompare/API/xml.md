@@ -1,4 +1,3 @@
-
 ---
 title: xml
 description: XML comparison functions

@@ -2,7 +2,7 @@
 
 **kompare** is a lightweight utility for object and file comparison.
 
-`kompare` is built around four format-specific modules (`text`, `json`, `yaml`, `xml`) and a `comparator` factory for creating custom format comparators.
+**kompare** is built around four format-specific modules ([text](API/text.md), [json](API/json.md), [yaml](API/yaml.md), [xml](API/xml.md)) and a [comparator](API/comparator.md) factory for creating custom format comparators.
 
 ## Installation
 

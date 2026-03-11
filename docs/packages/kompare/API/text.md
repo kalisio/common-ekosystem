@@ -1,4 +1,4 @@
---
+---
 title: comparator
 description: TEXT comparison functions
 ---

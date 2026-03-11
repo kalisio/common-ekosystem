@@ -3,7 +3,6 @@ title: conforms
 description: Functions to validate an object against a schema
 ---
 
-
 # conforms
 
 ## schema

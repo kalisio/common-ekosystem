@@ -1,4 +1,3 @@
-
 ---
 title: yaml
 description: YAML comparison functions
