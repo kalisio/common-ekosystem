@@ -1,15 +1,28 @@
 import { fileURLToPath } from 'node:url'
+import { builtinModules } from 'node:module'
 import path from 'node:path'
 import { defineConfig, mergeConfig } from 'vite'
-import { defaultConfig } from '../../vite.config'
+import { baseConfig } from '../../vite.base-config'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-export default mergeConfig(defaultConfig, defineConfig({
+export default mergeConfig(baseConfig, defineConfig({
   root: __dirname,
   build: {
+    lib: {
+      entry: 'src/index.js',
+      formats: ['es', 'cjs'],
+      fileName: (format) => format === 'es' ? 'index.mjs' : 'index.cjs'
+    },
     rollupOptions: {
-      external: ['@kalisio/check']
+      external: [
+        ...builtinModules,
+        ...builtinModules.map(m => `node:${m}`),
+        '@kalisio/check',
+        'fast-xml-parser',
+        'lodash',
+        'yaml'
+      ]
     }
   }
 }))

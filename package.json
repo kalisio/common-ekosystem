@@ -67,6 +67,7 @@
     "quasar": "catalog:",
     "standard": "catalog:",
     "vite": "catalog:",
+    "vite-bundle-visualizer": "catalog:",
     "vitepress": "catalog:",
     "vitepress-plugin-mermaid": "catalog:",
     "vitepress-theme-kalisio": "catalog:",
@@ -76,6 +77,8 @@
     "onlyBuiltDependencies": [
       "esbuild"
     ],
-    "overrides": {}
+    "overrides": {
+      "@kalisio/meta-ekosystem": "link:../meta-ekosystem"
+    }
   }
 }
