@@ -1,4 +1,4 @@
---
+---
 title: comparator
 description: Factory for creating custom format comparators
 ---
