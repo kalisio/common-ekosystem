@@ -1,5 +1,6 @@
 ---
 title: is
+description: Functions that return a boolean for checking the type or state of a value.
 ---
 
 # is
@@ -8,13 +9,13 @@ title: is
 
 ### Signature
 
-```js
+```javascript
 defined(value)
 ```
 
 ### Description
 
-Check if value is defined (not null or undefined)
+Check if a value is defined (not `null` or `undefined`).
 
 ### Parameters
 
@@ -30,10 +31,10 @@ Check if value is defined (not null or undefined)
 
 ### Examples
 
-```js
-is.defined(0) // true
-is.defined('') // true
-is.defined(null) // false
+```javascript
+is.defined(0)         // true
+is.defined('')        // true
+is.defined(null)      // false
 is.defined(undefined) // false
 ```
 
@@ -41,13 +42,13 @@ is.defined(undefined) // false
 
 ### Signature
 
-```js
+```javascript
 nil(value)
 ```
 
 ### Description
 
-Check if value is null or undefined
+Check if a value is `null` or `undefined`.
 
 ### Parameters
 
@@ -63,24 +64,24 @@ Check if value is null or undefined
 
 ### Examples
 
-```js
-is.nil(null) // true
+```javascript
+is.nil(null)      // true
 is.nil(undefined) // true
-is.nil(0) // false
-is.nil('') // false
+is.nil(0)         // false
+is.nil('')        // false
 ```
 
 ## plainObject
 
 ### Signature
 
-```js
+```javascript
 plainObject(value)
 ```
 
 ### Description
 
-Check if value is a plain object (not array, not null, not a class instance)
+Check if a value is a plain object literal (not an array, not `null`, not a class instance).
 
 ### Parameters
 
@@ -96,25 +97,25 @@ Check if value is a plain object (not array, not null, not a class instance)
 
 ### Examples
 
-```js
-is.plainObject({}) // true
-is.plainObject({ name: 'John' }) // true
-is.plainObject([]) // false
-is.plainObject(null) // false
-is.plainObject(new Date()) // false
+```javascript
+is.plainObject({})                // true
+is.plainObject({ name: 'Alice' }) // true
+is.plainObject([])                // false
+is.plainObject(null)              // false
+is.plainObject(new Date())        // false
 ```
 
 ## emptyObject
 
 ### Signature
 
-```js
+```javascript
 emptyObject(value)
 ```
 
 ### Description
 
-Check if value is an empty object
+Check if a value is a plain object with no keys.
 
 ### Parameters
 
@@ -130,23 +131,54 @@ Check if value is an empty object
 
 ### Examples
 
-```js
-is.emptyObject({}) // true
-is.emptyObject({ name: 'John' }) // false
-is.emptyObject([]) // false
+```javascript
+is.emptyObject({})                // true
+is.emptyObject({ name: 'Alice' }) // false
+is.emptyObject([])                // false
+```
+
+## nonEmptyObject
+
+### Signature
+
+```javascript
+nonEmptyObject(value)
+```
+
+### Description
+
+Check if a value is a plain object with at least one key.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| value | * | yes | The value to check |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| boolean | True if the value is a plain object with at least one key |
+
+### Examples
+
+```javascript
+is.nonEmptyObject({ name: 'Alice' }) // true
+is.nonEmptyObject({})                // false
 ```
 
 ## string
 
 ### Signature
 
-```js
+```javascript
 string(value)
 ```
 
 ### Description
 
-Check if value is a string
+Check if a value is a string.
 
 ### Parameters
 
@@ -162,23 +194,23 @@ Check if value is a string
 
 ### Examples
 
-```js
+```javascript
 is.string('hello') // true
-is.string('') // true
-is.string(123) // false
+is.string('')      // true
+is.string(123)     // false
 ```
 
 ## emptyString
 
 ### Signature
 
-```js
+```javascript
 emptyString(value)
 ```
 
 ### Description
 
-Check if value is an empty string (whitespace only)
+Check if a value is a string containing only whitespace.
 
 ### Parameters
 
@@ -194,60 +226,89 @@ Check if value is an empty string (whitespace only)
 
 ### Examples
 
-```js
-is.emptyString('') // true
-is.emptyString('   ') // true
+```javascript
+is.emptyString('')      // true
+is.emptyString('   ')   // true
 is.emptyString('hello') // false
-is.emptyString(null) // false
+is.emptyString(null)    // false
+```
+
+## nonEmptyString
+
+### Signature
+
+```javascript
+nonEmptyString(value)
+```
+
+### Description
+
+Check if a value is a non-empty, non-whitespace-only string.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| value | * | yes | The value to check |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| boolean | True if the value is a string with at least one non-whitespace character |
+
+### Examples
+
+```javascript
+is.nonEmptyString('hello') // true
+is.nonEmptyString('')      // false
+is.nonEmptyString('   ')   // false
 ```
 
 ## regularExpression
 
 ### Signature
 
-```js
+```javascript
 regularExpression(value)
 ```
 
 ### Description
 
-Check if value is a regular expression (instance of RegExp)
+Check if a value is a regular expression (instance of `RegExp`).
 
 ### Parameters
 
-| Name  | Type | Required | Description        |
-|-------|------|----------|--------------------|
-| value | *    | yes      | The value to check |
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| value | * | yes | The value to check |
 
 ### Returns
 
-| Type    | Description                              |
-|---------|------------------------------------------|
-| boolean | True if value is a RegExp instance       |
+| Type | Description |
+|------|-------------|
+| boolean | True if the value is a RegExp instance |
 
 ### Examples
 
-```js
-is.regularExpression(/abc/) // true
+```javascript
+is.regularExpression(/abc/)             // true
 is.regularExpression(new RegExp('abc')) // true
-
-is.regularExpression('abc') // false
-is.regularExpression(123) // false
-is.regularExpression(null) // false
-is.regularExpression(undefined) // false
+is.regularExpression('abc')             // false
+is.regularExpression(null)              // false
 ```
 
 ## number
 
 ### Signature
 
-```js
+```javascript
 number(value)
 ```
 
 ### Description
 
-Check if value is a valid number (not NaN, not Infinity)
+Check if a value is a valid finite number (not `NaN`, not `Infinity`).
 
 ### Parameters
 
@@ -263,25 +324,25 @@ Check if value is a valid number (not NaN, not Infinity)
 
 ### Examples
 
-```js
-is.number(42) // true
-is.number(3.14) // true
-is.number(NaN) // false
+```javascript
+is.number(42)       // true
+is.number(3.14)     // true
+is.number(NaN)      // false
 is.number(Infinity) // false
-is.number('42') // false
+is.number('42')     // false
 ```
 
 ## integer
 
 ### Signature
 
-```js
+```javascript
 integer(value)
 ```
 
 ### Description
 
-Check if value is an integer
+Check if a value is an integer.
 
 ### Parameters
 
@@ -297,9 +358,9 @@ Check if value is an integer
 
 ### Examples
 
-```js
-is.integer(42) // true
-is.integer(0) // true
+```javascript
+is.integer(42)   // true
+is.integer(0)    // true
 is.integer(3.14) // false
 is.integer('42') // false
 ```
@@ -308,13 +369,13 @@ is.integer('42') // false
 
 ### Signature
 
-```js
+```javascript
 array(value)
 ```
 
 ### Description
 
-Check if value is an array
+Check if a value is an array.
 
 ### Parameters
 
@@ -330,24 +391,24 @@ Check if value is an array
 
 ### Examples
 
-```js
-is.array([]) // true
+```javascript
+is.array([])        // true
 is.array([1, 2, 3]) // true
-is.array({}) // false
-is.array('hello') // false
+is.array({})        // false
+is.array('hello')   // false
 ```
 
 ## emptyArray
 
 ### Signature
 
-```js
+```javascript
 emptyArray(value)
 ```
 
 ### Description
 
-Check if value is an empty array
+Check if a value is an empty array.
 
 ### Parameters
 
@@ -363,23 +424,54 @@ Check if value is an empty array
 
 ### Examples
 
-```js
-is.emptyArray([]) // true
+```javascript
+is.emptyArray([])     // true
 is.emptyArray([1, 2]) // false
-is.emptyArray({}) // false
+is.emptyArray({})     // false
+```
+
+## nonEmptyArray
+
+### Signature
+
+```javascript
+nonEmptyArray(value)
+```
+
+### Description
+
+Check if a value is an array with at least one element.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| value | * | yes | The value to check |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| boolean | True if the value is an array with at least one element |
+
+### Examples
+
+```javascript
+is.nonEmptyArray([1, 2]) // true
+is.nonEmptyArray([])     // false
 ```
 
 ## arrayOfLength
 
 ### Signature
 
-```js
+```javascript
 arrayOfLength(value, length)
 ```
 
 ### Description
 
-Check if value is an array of specific length
+Check if a value is an array of a specific length.
 
 ### Parameters
 
@@ -396,23 +488,23 @@ Check if value is an array of specific length
 
 ### Examples
 
-```js
+```javascript
 is.arrayOfLength([1, 2, 3], 3) // true
-is.arrayOfLength([1, 2], 3) // false
-is.arrayOfLength([], 0) // true
+is.arrayOfLength([1, 2], 3)    // false
+is.arrayOfLength([], 0)        // true
 ```
 
 ## function
 
 ### Signature
 
-```js
+```javascript
 function(value)
 ```
 
 ### Description
 
-Check if value is a function
+Check if a value is a function.
 
 ### Parameters
 
@@ -428,24 +520,24 @@ Check if value is a function
 
 ### Examples
 
-```js
-is.function(() => {}) // true
+```javascript
+is.function(() => {})      // true
 is.function(function() {}) // true
 is.function(Array.isArray) // true
-is.function({}) // false
+is.function({})            // false
 ```
 
 ## boolean
 
 ### Signature
 
-```js
+```javascript
 boolean(value)
 ```
 
 ### Description
 
-Check if value is a boolean
+Check if a value is a boolean.
 
 ### Parameters
 
@@ -461,10 +553,10 @@ Check if value is a boolean
 
 ### Examples
 
-```js
-is.boolean(true) // true
-is.boolean(false) // true
-is.boolean(1) // false
+```javascript
+is.boolean(true)   // true
+is.boolean(false)  // true
+is.boolean(1)      // false
 is.boolean('true') // false
 ```
 
@@ -472,13 +564,13 @@ is.boolean('true') // false
 
 ### Signature
 
-```js
+```javascript
 oneOf(value, allowedValues)
 ```
 
 ### Description
 
-Check if value is one of the allowed values
+Check if a value is one of the allowed values.
 
 ### Parameters
 
@@ -495,23 +587,23 @@ Check if value is one of the allowed values
 
 ### Examples
 
-```js
-is.oneOf('red', ['red', 'green', 'blue']) // true
+```javascript
+is.oneOf('red', ['red', 'green', 'blue'])    // true
 is.oneOf('yellow', ['red', 'green', 'blue']) // false
-is.oneOf(2, [1, 2, 3]) // true
+is.oneOf(2, [1, 2, 3])                       // true
 ```
 
 ## positive
 
 ### Signature
 
-```js
+```javascript
 positive(value)
 ```
 
 ### Description
 
-Check if value is a positive number
+Check if a value is a positive number (strictly greater than 0).
 
 ### Parameters
 
@@ -527,24 +619,24 @@ Check if value is a positive number
 
 ### Examples
 
-```js
-is.positive(5) // true
+```javascript
+is.positive(5)   // true
 is.positive(0.1) // true
-is.positive(0) // false
-is.positive(-5) // false
+is.positive(0)   // false
+is.positive(-5)  // false
 ```
 
 ## negative
 
 ### Signature
 
-```js
+```javascript
 negative(value)
 ```
 
 ### Description
 
-Check if value is a negative number
+Check if a value is a negative number (strictly less than 0).
 
 ### Parameters
 
@@ -560,24 +652,24 @@ Check if value is a negative number
 
 ### Examples
 
-```js
-is.negative(-5) // true
+```javascript
+is.negative(-5)   // true
 is.negative(-0.1) // true
-is.negative(0) // false
-is.negative(5) // false
+is.negative(0)    // false
+is.negative(5)    // false
 ```
 
 ## inRange
 
 ### Signature
 
-```js
+```javascript
 inRange(value, min, max)
 ```
 
 ### Description
 
-Check if value is within a numeric range (inclusive)
+Check if a value is within a numeric range (inclusive on both ends).
 
 ### Parameters
 
@@ -595,11 +687,11 @@ Check if value is within a numeric range (inclusive)
 
 ### Examples
 
-```js
-is.inRange(5, 1, 10) // true
-is.inRange(1, 1, 10) // true
+```javascript
+is.inRange(5, 1, 10)  // true
+is.inRange(1, 1, 10)  // true
 is.inRange(10, 1, 10) // true
-is.inRange(0, 1, 10) // false
+is.inRange(0, 1, 10)  // false
 is.inRange(11, 1, 10) // false
 ```
 
@@ -607,13 +699,13 @@ is.inRange(11, 1, 10) // false
 
 ### Signature
 
-```js
+```javascript
 empty(value)
 ```
 
 ### Description
 
-Check if value is empty (null, undefined, empty string, empty array, or empty object)
+Check if a value is empty. A value is considered empty if it is `null`, `undefined`, a whitespace-only string, an empty array, or an empty object.
 
 ### Parameters
 
@@ -629,14 +721,14 @@ Check if value is empty (null, undefined, empty string, empty array, or empty ob
 
 ### Examples
 
-```js
-is.empty(null) // true
+```javascript
+is.empty(null)      // true
 is.empty(undefined) // true
-is.empty('') // true
-is.empty('   ') // true
-is.empty([]) // true
-is.empty({}) // true
-is.empty(0) // false
-is.empty(false) // false
-is.empty('hello') // false
+is.empty('')        // true
+is.empty('   ')     // true
+is.empty([])        // true
+is.empty({})        // true
+is.empty(0)         // false
+is.empty(false)     // false
+is.empty('hello')   // false
 ```

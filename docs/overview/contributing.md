@@ -175,7 +175,8 @@ pnpm changeset:version
 Finally, commit the updated versions and changelogs:
 
 ```bash
-git add . && git commit -m "chore: bump <new version>"
+git add .
+git commit -m "chore: bump <new version>"
 git push
 ```
 

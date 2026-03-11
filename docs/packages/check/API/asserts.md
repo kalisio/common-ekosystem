@@ -1,20 +1,21 @@
 ---
-title: assert
+title: asserts
+description: Functions that throw a TypeError if validation fails. Used to guard function inputs.
 ---
 
-# assert
+# asserts
 
 ## that
 
 ### Signature
 
 ```javascript
-that(value, validator, errorMessage)
+asserts.that(value, validator, errorMessage)
 ```
 
 ### Description
 
-Assert that a value passes validation
+Assert that a value passes a validator function. Throws a `TypeError` with the given message if the validator returns `false`.
 
 ### Parameters
 
@@ -22,20 +23,20 @@ Assert that a value passes validation
 |------|------|----------|-------------|
 | value | * | yes | The value to validate |
 | validator | function | yes | A function that returns true if the value is valid |
-| errorMessage | string | yes | The error message to throw if validation fails |
+| errorMessage | string | yes | The error message thrown if validation fails |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| void |  |
+| void | |
 
 ### Examples
 
 ```javascript
-assert.that(5, (v) => v > 0, 'Value must be positive') // passes
-assert.that(-1, (v) => v > 0, 'Value must be positive') // throws TypeError
-assert.that('hello', (v) => typeof v === 'string', 'Must be a string') // passes
+asserts.that(5, (v) => v > 0, 'Value must be positive')  // passes
+asserts.that(-1, (v) => v > 0, 'Value must be positive') // throws TypeError: 'Value must be positive'
+asserts.that('hello', is.string, 'Must be a string')     // passes
 ```
 
 ## all
@@ -43,18 +44,18 @@ assert.that('hello', (v) => typeof v === 'string', 'Must be a string') // passes
 ### Signature
 
 ```javascript
-all(validations, validations[].value, validations[].validator, validations[].message)
+asserts.all(validations)
 ```
 
 ### Description
 
-Assert multiple validations at once
+Assert multiple validations at once. Iterates through the array and throws a `TypeError` at the first failing validation.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| validations | Array.&lt;{value: *, validator: function(), message: string}&gt; | yes | Array of validation objects |
+| validations | Array | yes | Array of validation objects |
 | validations[].value | * | yes | The value to validate |
 | validations[].validator | function | yes | The validator function |
 | validations[].message | string | yes | The error message if validation fails |
@@ -63,25 +64,22 @@ Assert multiple validations at once
 
 | Type | Description |
 |------|-------------|
-| void |  |
+| void | |
 
 ### Examples
 
 ```javascript
-assert.all([
-  { value: 5, validator: (v) => v > 0, message: 'Must be positive' },
-  { value: 'test', validator: (v) => v.length > 0, message: 'Must not be empty' }
-]) // passes
+// passes
+asserts.all([
+  { value: 'Alice', validator: is.nonEmptyString, message: 'name must be a non-empty string' },
+  { value: 25, validator: is.positive, message: 'age must be positive' }
+])
 ```
 
 ```javascript
-assert.all([
-  { value: 5, validator: (v) => v > 0, message: 'Must be positive' },
-  { value: -1, validator: (v) => v > 0, message: 'Must be positive' }
-]) // throws TypeError: 'Must be positive'
+// throws TypeError: 'age must be positive'
+asserts.all([
+  { value: 'Alice', validator: is.nonEmptyString, message: 'name must be a non-empty string' },
+  { value: -1, validator: is.positive, message: 'age must be positive' }
+])
 ```
-
-
----
-
-
