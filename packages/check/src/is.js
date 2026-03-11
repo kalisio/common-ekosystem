@@ -19,12 +19,20 @@ export const is = {
     return is.plainObject(value) && Object.keys(value).length === 0
   },
 
+  nonEmptyObject (value) {
+    return !is.emptyObject(value)
+  },
+
   string (value) {
     return typeof value === 'string'
   },
 
   emptyString (value) {
     return is.string(value) && value.trim().length === 0
+  },
+
+  nonEmptyString (value) {
+    return !is.emptyString(value)
   },
 
   regularExpression (value) {
@@ -45,6 +53,10 @@ export const is = {
 
   emptyArray (value) {
     return is.array(value) && value.length === 0
+  },
+
+  nonEmptyArray (value) {
+    return !is.emptyArray(value)
   },
 
   arrayOfLength (value, length) {
