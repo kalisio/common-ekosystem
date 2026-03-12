@@ -71,7 +71,7 @@ Assert multiple validations at once. Iterates through the array and throws a `Ty
 ```javascript
 // passes
 asserts.all([
-  { value: 'Alice', validator: is.nonEmptyString, message: 'name must be a non-empty string' },
+  { value: 'Alice', validator: (v) => !is.emptyString(v), message: 'name must be a non-empty string' },
   { value: 25, validator: is.positive, message: 'age must be positive' }
 ])
 ```
@@ -79,7 +79,7 @@ asserts.all([
 ```javascript
 // throws TypeError: 'age must be positive'
 asserts.all([
-  { value: 'Alice', validator: is.nonEmptyString, message: 'name must be a non-empty string' },
+  { value: 'Alice', validator: (v) => !is.emptyString(v), message: 'name must be a non-empty string' },
   { value: -1, validator: is.positive, message: 'age must be positive' }
 ])
 ```

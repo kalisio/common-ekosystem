@@ -137,37 +137,6 @@ is.emptyObject({ name: 'Alice' }) // false
 is.emptyObject([])                // false
 ```
 
-## nonEmptyObject
-
-### Signature
-
-```javascript
-nonEmptyObject(value)
-```
-
-### Description
-
-Check if a value is a plain object with at least one key.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| value | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| boolean | True if the value is a plain object with at least one key |
-
-### Examples
-
-```javascript
-is.nonEmptyObject({ name: 'Alice' }) // true
-is.nonEmptyObject({})                // false
-```
-
 ## string
 
 ### Signature
@@ -231,38 +200,6 @@ is.emptyString('')      // true
 is.emptyString('   ')   // true
 is.emptyString('hello') // false
 is.emptyString(null)    // false
-```
-
-## nonEmptyString
-
-### Signature
-
-```javascript
-nonEmptyString(value)
-```
-
-### Description
-
-Check if a value is a non-empty, non-whitespace-only string.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| value | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| boolean | True if the value is a string with at least one non-whitespace character |
-
-### Examples
-
-```javascript
-is.nonEmptyString('hello') // true
-is.nonEmptyString('')      // false
-is.nonEmptyString('   ')   // false
 ```
 
 ## regularExpression

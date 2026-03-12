@@ -30,8 +30,6 @@ yarn add @kalisio/check
 ### is
 
 ```javascript
-is.nonEmptyString('hello')
-// true
 is.positive(42)
 // true
 is.inRange(5, 1, 10)
@@ -72,7 +70,7 @@ conforms.schema(
 // false
 conforms.schema(
   { address: { city: 'Paris' } },
-  { address: { city: is.nonEmptyString } }
+  { address: { city: (v) => !is.emptyString(v) } }
 )
 // true
 ```
@@ -95,12 +93,12 @@ matches.pattern('HELLO', /^[A-Z]+$/)
 ### asserts
 
 ```javascript
-asserts.that('hello', is.nonEmptyString, 'name must be a non-empty string')
+asserts.that('hello', (v) => !is.emptyString(v), 'name must be a non-empty string')
 asserts.that(42, is.positive, 'age must be positive')
 asserts.that(true, is.boolean, 'flag must be a boolean')
 asserts.that([1, 2], is.nonEmptyArray, 'items must be a non-empty array')
 asserts.all([
-  { value: 'Alice', validator: is.nonEmptyString, message: 'name must be a non-empty string' },
+  { value: 'Alice', validator: (v) => !is.emptyString(v), message: 'name must be a non-empty string' },
   { value: 25, validator: is.positive, message: 'age must be positive' }
 ])
 ```
