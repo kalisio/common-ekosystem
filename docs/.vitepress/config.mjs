@@ -1,7 +1,15 @@
-import fs from 'fs'
-import path from 'path'
 import { defineConfig } from 'vitepress'
 import { withMermaid } from 'vitepress-plugin-mermaid'
+import { generateSideBar } from './sidebar.mjs'
+import packages from './packages.json'
+
+const sortePackagesNavBar = packages.sort().map(pkg => {
+  return { text: pkg, link: `/packages/${pkg}/` }
+})
+
+const sortedPackageSidebar = Object.fromEntries(
+  packages.sort().map(pkg => [`/packages/${pkg}/`, generateSideBar(pkg)])
+)
 
 export default withMermaid(
   defineConfig({
@@ -20,12 +28,7 @@ export default withMermaid(
         { text: 'Overview', link: '/overview/about' },
         {
           text: 'Packages',
-          items: [
-            { text: 'check', link: '/packages/check/' },
-            { text: 'geokit', link: '/packages/geokit/' },
-            { text: 'graphiks', link: '/packages/graphiks/' },
-            { text: 'kompare', link: '/packages/kompare/' }
-          ]
+          items: sortePackagesNavBar
         }
       ],
       sidebar: {
@@ -37,10 +40,7 @@ export default withMermaid(
           { text: 'License', link: '/overview/license' },
           { text: 'Contact', link: '/overview/contact' }
         ],
-        '/packages/check/': generateSideBar('check'),
-        '/packages/kompare/': generateSideBar('kompare'),
-        '/packages/geokit/': generateSideBar('geokit'),
-        '/packages/graphiks/': generateSideBar('graphiks')
+        ...sortedPackageSidebar
       },
       footer: {
         copyright: 'MIT Licensed | Copyright © 2026 Kalisio'
@@ -56,52 +56,3 @@ export default withMermaid(
     }
   })
 )
-
-function generateSideBar (pkg) {
-  // Ensure the pkg folder exists
-  const pkgDir = path.resolve(process.cwd(), `docs/packages/${pkg}`)
-    if (!fs.existsSync(pkgDir)) {
-    return []
-  }
-  // Helper function to build the tree
-  function buildTree(dir, basePath = '') {
-    const entries = fs
-      .readdirSync(dir, { withFileTypes: true })
-      .sort((a, b) =>
-        a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
-      )
-    const items = []
-    for (const entry of entries) {
-      const fullPath = path.join(dir, entry.name)
-      const relativePath = path.join(basePath, entry.name)
-      // Folder case
-      if (entry.isDirectory()) {
-        const children = buildTree(fullPath, relativePath)
-        if (children.length > 0) {
-          items.push({
-            text: entry.name,
-            items: children
-          })
-        }
-      }
-      // File case
-      if (
-        entry.isFile() &&
-        entry.name.endsWith('.md') &&
-        entry.name !== 'index.md'
-      ) {
-        const name = relativePath.replace(/\.md$/, '').replace(/\\/g, '/')
-        items.push({
-          text: entry.name.replace('.md', ''),
-          link: `/packages/${pkg}/${name}`
-        })
-      }
-    }
-    return items
-  }
-  // Build the sidebar tree
-  return [
-    { text: pkg, link: `/packages/${pkg}/index` },
-    ...buildTree(pkgDir)
-  ]
-}
