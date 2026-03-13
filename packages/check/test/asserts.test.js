@@ -37,7 +37,7 @@ describe('asserts.that', () => {
     }).not.toThrow()
 
     expect(() => {
-      asserts.that(-5, (v) => is.number(v) && is.positive(v), 'Age must be positive')
+      asserts.that(-5, is.positive, 'Age must be positive')
     }).toThrow('Age must be positive')
   })
 
@@ -148,12 +148,11 @@ describe('asserts.all', () => {
       email: 'john@example.com',
       isActive: true
     }
-
     expect(() => {
       asserts.all([
-        { value: user.name, validator: (v) => !is.emptyString(v), message: 'Name is required' },
-        { value: user.age, validator: (v) => is.number(v) && is.positive(v), message: 'Age must be positive' },
-        { value: user.email, validator: (v) => !is.emptyString(v), message: 'Email is required' },
+        { value: user.name, validator: is.nonEmptyString, message: 'Name is required' },
+        { value: user.age, validator: is.positive, message: 'Age must be positive' },
+        { value: user.email, validator: is.nonEmptyString, message: 'Email is required' },
         { value: user.isActive, validator: is.boolean, message: 'isActive must be boolean' }
       ])
     }).not.toThrow()
@@ -168,14 +167,14 @@ describe('asserts.all', () => {
 
     expect(() => {
       asserts.all([
-        { value: user.name, validator: (v) => !is.emptyString(v), message: 'Name is required' }
+        { value: user.name, validator: is.nonEmptyString, message: 'Name is required' }
       ])
     }).toThrow('Name is required')
 
     expect(() => {
       asserts.all([
         { value: user.name, validator: is.string, message: 'Name must be string' },
-        { value: user.age, validator: (v) => is.number(v) && is.positive(v), message: 'Age must be positive' }
+        { value: user.age, validator: is.positive, message: 'Age must be positive' }
       ])
     }).toThrow('Age must be positive')
   })
@@ -209,9 +208,9 @@ describe('asserts.all', () => {
   it('should validate function parameters', () => {
     function createUser (name, age, email) {
       asserts.all([
-        { value: name, validator: (v) => !is.emptyString(v), message: 'Name must be a non-empty string' },
-        { value: age, validator: (v) => is.number(v) && is.positive(v), message: 'Age must be a positive number' },
-        { value: email, validator: (v) => !is.emptyString(v), message: 'Email must be a non-empty string' }
+        { value: name, validator: is.nonEmptyString, message: 'Name must be a non-empty string' },
+        { value: age, validator: is.positive, message: 'Age must be a positive number' },
+        { value: email, validator: is.nonEmptyString, message: 'Email must be a non-empty string' }
       ])
       return { name, age, email }
     }
@@ -235,12 +234,12 @@ describe('asserts.all', () => {
 
     expect(() => {
       asserts.all([
-        { value: config.port, validator: (v) => is.number(v) && is.positive(v), message: 'Port must be positive number' },
-        { value: config.host, validator: (v) => !is.emptyString(v), message: 'Host is required' },
+        { value: config.port, validator: is.positive, message: 'Port must be positive number' },
+        { value: config.host, validator: is.nonEmptyString, message: 'Host is required' },
         { value: config.env, validator: (v) => is.oneOf(v, ['development', 'production', 'test']), message: 'Invalid environment' },
-        { value: config.db, validator: (v) => !is.emptyObject(v), message: 'Database config is required' },
-        { value: config.db.name, validator: (v) => !is.emptyString(v), message: 'Database name is required' },
-        { value: config.db.user, validator: (v) => !is.emptyString(v), message: 'Database user is required' }
+        { value: config.db, validator: is.nonEmptyObject, message: 'Database config is required' },
+        { value: config.db.name, validator: is.nonEmptyString, message: 'Database name is required' },
+        { value: config.db.user, validator: is.nonEmptyString, message: 'Database user is required' }
       ])
     }).not.toThrow()
   })
@@ -250,7 +249,7 @@ describe('asserts.all', () => {
 
     expect(() => {
       asserts.all([
-        { value: items, validator: (v) => !is.emptyArray(v), message: 'Items must be non-empty array' },
+        { value: items, validator: is.nonEmptyArray, message: 'Items must be non-empty array' },
         { value: items.length, validator: (len) => len >= 3, message: 'Must have at least 3 items' },
         { value: items.every(n => is.number(n)), validator: (v) => v === true, message: 'All items must be numbers' }
       ])
@@ -306,21 +305,21 @@ describe('asserts integration with is', () => {
 
   it('should validate with negations', () => {
     expect(() => {
-      asserts.that('hello', (v) => !is.emptyString(v), 'String must not be empty')
+      asserts.that('hello', is.nonEmptyString, 'String must not be empty')
     }).not.toThrow()
 
     expect(() => {
-      asserts.that('', (v) => !is.emptyString(v), 'String must not be empty')
+      asserts.that('', is.nonEmptyString, 'String must not be empty')
     }).toThrow('String must not be empty')
   })
 
   it('should combine multiple is checks', () => {
     expect(() => {
-      asserts.that(5, (v) => is.number(v) && is.positive(v) && is.integer(v), 'Must be positive integer')
+      asserts.that(5, is.positiveInteger, 'Must be positive integer')
     }).not.toThrow()
 
     expect(() => {
-      asserts.that(5.5, (v) => is.number(v) && is.positive(v) && is.integer(v), 'Must be positive integer')
+      asserts.that(5.5, is.positiveInteger, 'Must be positive integer')
     }).toThrow('Must be positive integer')
   })
 })

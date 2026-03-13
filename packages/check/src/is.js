@@ -1,3 +1,5 @@
+import { asserts } from './asserts.js'
+
 export const is = {
 
   defined (value) {
@@ -19,12 +21,20 @@ export const is = {
     return is.plainObject(value) && Object.keys(value).length === 0
   },
 
+  nonEmptyObject (value) {
+    return is.plainObject(value) && Object.keys(value).length > 0
+  },
+
   string (value) {
     return typeof value === 'string'
   },
 
   emptyString (value) {
     return is.string(value) && value.trim().length === 0
+  },
+
+  nonEmptyString (value) {
+    return is.string(value) && value.trim().length > 0
   },
 
   regularExpression (value) {
@@ -35,10 +45,46 @@ export const is = {
     return typeof value === 'number' && !isNaN(value) && isFinite(value)
   },
 
+  positive (value) {
+    return is.number(value) && value > 0
+  },
+
+  nonPositive (value) {
+    return is.number(value) && value <= 0
+  },
+
+  negative (value) {
+    return is.number(value) && value < 0
+  },
+
+  nonNegative (value) {
+    return is.number(value) && value >= 0
+  },
+
+  inRange (value, min, max) {
+    asserts.that(max, (v) => v >= min, 'max must be greater than or equal to min')
+    return is.number(value) && value >= min && value <= max
+  },
+
   integer (value) {
     return is.number(value) && Number.isInteger(value)
   },
 
+  positiveInteger (value) {
+    return is.integer(value) && is.positive(value)
+  },
+
+  nonPositiveInteger (value) {
+    return is.integer(value) && is.nonPositive(value)
+  },
+
+  negativeInteger (value) {
+    return is.integer(value) && is.negative(value)
+  },
+
+  nonNegativeInteger (value) {
+    return is.integer(value) && is.nonNegative(value)
+  },
   array (value) {
     return Array.isArray(value)
   },
@@ -48,11 +94,36 @@ export const is = {
   },
 
   nonEmptyArray (value) {
-    return !is.emptyArray(value)
+    return is.array(value) && value.length > 0
   },
 
   arrayOfLength (value, length) {
+    asserts.that(length, is.nonNegativeInteger, 'length must be a non negative integer')
     return is.array(value) && value.length === length
+  },
+
+  map (value) {
+    return is.defined(value) && value instanceof Map
+  },
+
+  emptyMap (value) {
+    return is.map(value) && value.size === 0
+  },
+
+  nonEmptyMap (value) {
+    return is.map(value) && value.size > 0
+  },
+
+  set (value) {
+    return is.defined(value) && value instanceof Set
+  },
+
+  emptySet (value) {
+    return is.set(value) && value.size === 0
+  },
+
+  nonEmptySet (value) {
+    return is.set(value) && value.size > 0
   },
 
   function (value) {
@@ -64,26 +135,17 @@ export const is = {
   },
 
   oneOf (value, allowedValues) {
+    asserts.that(allowedValues, is.nonEmptyArray, 'allowed values must be a non empty array')
     return allowedValues.includes(value)
-  },
-
-  positive (value) {
-    return is.number(value) && value > 0
-  },
-
-  negative (value) {
-    return is.number(value) && value < 0
-  },
-
-  inRange (value, min, max) {
-    return is.number(value) && value >= min && value <= max
   },
 
   empty (value) {
     if (is.nil(value)) return true
-    if (is.string(value)) return value.trim().length === 0
-    if (is.array(value)) return value.length === 0
-    if (is.plainObject(value)) return Object.keys(value).length === 0
+    if (is.string(value)) return is.emptyString(value)
+    if (is.array(value)) return is.emptyArray(value)
+    if (is.plainObject(value)) return is.emptyObject(value)
+    if (is.map(value)) return is.emptyMap(value)
+    if (is.set(value)) return is.emptySet(value)
     return false
   }
 }

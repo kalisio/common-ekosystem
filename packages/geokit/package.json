@@ -57,6 +57,7 @@
   "homepage": "https://kalisio.github.io/common-ekosystem/packages/geokit",
   "dependencies": {
     "@kalisio/check": "workspace:*",
-    "@logtape/logtape": "catalog:"
+    "@logtape/logtape": "catalog:",
+    "proj4": "catalog:"
   }
 }

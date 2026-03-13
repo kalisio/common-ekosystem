@@ -98,7 +98,7 @@ export function Position (position) {
 
     toString (format, options = {}) {
       asserts.all([
-        { value: format, validator: (v) => !is.emptyString(v), message: 'format must be a non-empty string' },
+        { value: format, validator: is.nonEmptyString, message: 'format must be a non-empty string' },
         { value: options, validator: is.plainObject, message: 'options must be an object' }
       ])
       if (!this.isValid()) return null

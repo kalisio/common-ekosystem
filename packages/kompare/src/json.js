@@ -58,8 +58,8 @@ export const json = {
 
   isEqual (json1, json2, options = {}) {
     asserts.all([
-      { value: json1, validator: (v) => !is.emptyString(v), message: 'json1 should be a non-empty string' },
-      { value: json2, validator: (v) => !is.emptyString(v), message: 'json2 should be a non-empty string' }
+      { value: json1, validator: is.nonEmptyObject, message: 'json1 should be a non-empty object' },
+      { value: json2, validator: is.nonEmptyObject, message: 'json2 should be a non-empty object' }
     ])
     const obj1 = normalizeObject(json1, options)
     const obj2 = normalizeObject(json2, options)
@@ -68,8 +68,8 @@ export const json = {
 
   isEqualFile (json, jsonFilePath, options = {}) {
     asserts.all([
-      { value: json, validator: (v) => !is.emptyString(v), message: 'json should be a non-empty string' },
-      { value: jsonFilePath, validator: (v) => !is.emptyString(v), message: 'jsonFilePath should be a non-empty string' }
+      { value: json, validator: is.nonEmptyObject, message: 'json should be a non-empty object' },
+      { value: jsonFilePath, validator: is.nonEmptyString, message: 'jsonFilePath should be a non-empty string' }
     ])
     const jsonFileContent = fs.readFileSync(jsonFilePath, 'utf-8')
     return this.isEqual(json, JSON.parse(jsonFileContent), options)
@@ -77,8 +77,8 @@ export const json = {
 
   isEqualFiles (jsonFilePath1, jsonFilePath2, options = {}) {
     asserts.all([
-      { value: jsonFilePath1, validator: (v) => !is.emptyString(v), message: 'jsonFilePath1 should be a non-empty string' },
-      { value: jsonFilePath2, validator: (v) => !is.emptyString(v), message: 'jsonFilePath2 should be a non-empty string' }
+      { value: jsonFilePath1, validator: is.nonEmptyString, message: 'jsonFilePath1 should be a non-empty string' },
+      { value: jsonFilePath2, validator: is.nonEmptyString, message: 'jsonFilePath2 should be a non-empty string' }
     ])
     const jsonFileContent1 = fs.readFileSync(jsonFilePath1, 'utf-8')
     const jsonFileContent2 = fs.readFileSync(jsonFilePath2, 'utf-8')
@@ -87,8 +87,8 @@ export const json = {
 
   compare (json1, json2, options = {}) {
     asserts.all([
-      { value: json1, validator: (v) => !is.emptyString(v), message: 'json1 should be a non-empty string' },
-      { value: json2, validator: (v) => !is.emptyString(v), message: 'json2 should be a non-empty string' }
+      { value: json1, validator: is.nonEmptyObject, message: 'json1 should be a non-empty object' },
+      { value: json2, validator: is.nonEmptyObject, message: 'json2 should be a non-empty object' }
     ])
     const obj1 = normalizeObject(json1, options)
     const obj2 = normalizeObject(json2, options)

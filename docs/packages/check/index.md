@@ -70,7 +70,7 @@ conforms.schema(
 // false
 conforms.schema(
   { address: { city: 'Paris' } },
-  { address: { city: (v) => !is.emptyString(v) } }
+  { address: { city: (v) => is.nonEmptyString(v) } }
 )
 // true
 ```
@@ -93,12 +93,12 @@ matches.pattern('HELLO', /^[A-Z]+$/)
 ### asserts
 
 ```javascript
-asserts.that('hello', (v) => !is.emptyString(v), 'name must be a non-empty string')
+asserts.that('hello', (v) => is.nonEmptyString(v), 'name must be a non-empty string')
 asserts.that(42, is.positive, 'age must be positive')
 asserts.that(true, is.boolean, 'flag must be a boolean')
 asserts.that([1, 2], is.nonEmptyArray, 'items must be a non-empty array')
 asserts.all([
-  { value: 'Alice', validator: (v) => !is.emptyString(v), message: 'name must be a non-empty string' },
+  { value: 'Alice', validator: (v) => is.nonEmptyString(v), message: 'name must be a non-empty string' },
   { value: 25, validator: is.positive, message: 'age must be positive' }
 ])
 ```
