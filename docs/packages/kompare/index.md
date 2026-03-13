@@ -1,3 +1,8 @@
+---
+title: kompare
+description: A lightweight utility for object and file comparison
+---
+
 # kompare
 
 **kompare** is a lightweight utility for object and file comparison.

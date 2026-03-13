@@ -1,3 +1,8 @@
+---
+title: graphiks
+description: A lightweight and extensible library for creating, composing, and rendering parametric shapes using SVG
+---
+
 # graphiks
 
 **Graphiks** is a lightweight and extensible library for creating, composing, and rendering parametric shapes using **SVG**.
@@ -91,11 +96,11 @@ Install with your preferred package manager:
 ```shell
 pnpm add @kalisio/graphiks
 ```
- 
+
 ```shell
 npm install @kalisio/graphiks
 ```
- 
+
 ```shell
 yarn add @kalisio/graphiks
 ```

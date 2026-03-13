@@ -1,3 +1,8 @@
+---
+title: geokit
+description: A lightweight geospatial utility library
+---
+
 # geokit
 
 **geokit** is a lightweight geospatial utility library
@@ -9,11 +14,11 @@ Install with your preferred package manager:
 ```shell
 pnpm add @kalisio/geokit
 ```
- 
+
 ```shell
 npm install @kalisio/geokit
 ```
- 
+
 ```shell
 yarn add @kalisio/geokit
 ```

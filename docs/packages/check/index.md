@@ -1,3 +1,8 @@
+---
+title: check
+description: A minimalist conditional and assertion library for JavaScript
+---
+
 # check
 
 **check** is a minimalist conditional and assertion library for JavaScript.
