@@ -1,9 +1,9 @@
 import { asserts, is } from '@kalisio/check'
 import { coordinate } from '../core'
-import { Coords } from './coords.js'
-import { BBox } from './bbox.js'
+import { Position } from './position.js'
+import { BoundingBox } from './bounding-box.js'
 
-export function CoordsArray (points = []) {
+export function PositionArray (points = []) {
   const hasAlt = points.some(p => (is.array(p) && p.length > 2) || (p && (p.alt != null || p.z != null)))
   const stride = hasAlt ? 3 : 2
   const buffer = new Float64Array(points.length * stride)
@@ -31,11 +31,11 @@ export function CoordsArray (points = []) {
 
   const length = points.length
 
-  const coordsAt = (i) => {
+  const positionAt = (i) => {
     const value = stride === 3
       ? [buffer[i * stride], buffer[i * stride + 1], buffer[i * stride + 2]]
       : [buffer[i * stride], buffer[i * stride + 1]]
-    return Coords(value)
+    return Position(value)
   }
 
   return {
@@ -43,31 +43,31 @@ export function CoordsArray (points = []) {
     stride,
     buffer,
     isValid,
-    at: coordsAt,
+    at: positionAt,
 
     get dimension () { return stride },
 
     [Symbol.iterator]: function * () {
       if (!isValid || length === 0) return
-      for (let i = 0; i < length; i++) yield coordsAt(i)
+      for (let i = 0; i < length; i++) yield positionAt(i)
     },
 
     forEach (fn) {
       if (!isValid || length === 0) return
-      for (let i = 0; i < length; i++) fn(coordsAt(i), i)
+      for (let i = 0; i < length; i++) fn(positionAt(i), i)
     },
 
     map (fn) {
       const results = []
       if (!isValid || length === 0) return results
-      for (let i = 0; i < length; i++) results.push(fn(coordsAt(i), i))
+      for (let i = 0; i < length; i++) results.push(fn(positionAt(i), i))
       return results
     },
 
     toArray () {
       const arr = []
       if (!isValid || length === 0) return arr
-      for (let i = 0; i < length; i++) arr.push(coordsAt(i).toArray())
+      for (let i = 0; i < length; i++) arr.push(positionAt(i).toArray())
       return arr
     },
 
@@ -75,7 +75,7 @@ export function CoordsArray (points = []) {
       const coordinates = []
       if (!isValid || length === 0) return { coordinates }
       for (let i = 0; i < length; i++) {
-        const c = coordsAt(i)
+        const c = positionAt(i)
         const arr = c.altitude != null ? [c.longitude, c.latitude, c.altitude] : [c.longitude, c.latitude]
         coordinates.push(arr)
       }
@@ -107,7 +107,7 @@ export function CoordsArray (points = []) {
           maxLon = Math.max(maxLon, lon)
           maxLat = Math.max(maxLat, lat)
         }
-        return BBox([[minLon, minLat], [maxLon, maxLat]])
+        return BoundingBox([[minLon, minLat], [maxLon, maxLat]])
       }
       for (let i = 0; i < length; i++) {
         const lon = buffer[i * stride]
@@ -120,7 +120,7 @@ export function CoordsArray (points = []) {
         minAlt = Math.min(minAlt, alt)
         maxAlt = Math.max(maxAlt, alt)
       }
-      return BBox([[minLon, minLat, minAlt], [maxLon, maxLat, maxAlt]])
+      return BoundingBox([[minLon, minLat, minAlt], [maxLon, maxLat, maxAlt]])
     },
 
     centroid () {
@@ -131,14 +131,14 @@ export function CoordsArray (points = []) {
           sumLon += buffer[i * stride]
           sumLat += buffer[i * stride + 1]
         }
-        return Coords([sumLon / length, sumLat / length])
+        return Position([sumLon / length, sumLat / length])
       }
       for (let i = 0; i < length; i++) {
         sumLon += buffer[i * stride]
         sumLat += buffer[i * stride + 1]
         sumAlt += buffer[i * stride + 2]
       }
-      return Coords([sumLon / length, sumLat / length, sumAlt / length])
+      return Position([sumLon / length, sumLat / length, sumAlt / length])
     }
   }
 }

@@ -1,18 +1,18 @@
 import { asserts, is, has } from '@kalisio/check'
-import { Coords } from './coords.js'
+import { Position } from './position.js'
 
-export function BBox (bounds) {
+export function BoundingBox (bounds) {
   let min = null
   let max = null
   let isValid = false
 
   if (is.array(bounds) && bounds.length === 2) {
-    min = Coords(bounds[0])
-    max = Coords(bounds[1])
+    min = Position(bounds[0])
+    max = Position(bounds[1])
     isValid = min.isValid() && max.isValid()
   } else if (is.plainObject(bounds) && has.keys(bounds, ['min', 'max'])) {
-    min = Coords(bounds.min)
-    max = Coords(bounds.max)
+    min = Position(bounds.min)
+    max = Position(bounds.max)
     isValid = min.isValid() && max.isValid()
   }
 
@@ -32,17 +32,17 @@ export function BBox (bounds) {
       return this
     },
 
-    extend (coords) {
+    extend (position) {
       asserts.all([
-        { value: coords, validator: (v) => is.defined(v) && v.isValid(), message: 'coords must be a valid Coords' },
+        { value: position, validator: (v) => is.defined(v) && v.isValid(), message: 'position must be a valid Position' },
         { value: this, validator: (v) => v.isValid, message: 'this must be a valid BBox' }
       ])
-      min.longitude = Math.min(min.longitude, coords.longitude)
-      min.latitude = Math.min(min.latitude, coords.latitude)
-      max.longitude = Math.max(max.longitude, coords.longitude)
-      max.latitude = Math.max(max.latitude, coords.latitude)
+      min.longitude = Math.min(min.longitude, position.longitude)
+      min.latitude = Math.min(min.latitude, position.latitude)
+      max.longitude = Math.max(max.longitude, position.longitude)
+      max.latitude = Math.max(max.latitude, position.latitude)
       if (this.dimension === 3) {
-        const alt = coords.altitude ?? 0
+        const alt = position.altitude ?? 0
         min.altitude = Math.min(min.altitude, alt)
         max.altitude = Math.max(max.altitude, alt)
       }

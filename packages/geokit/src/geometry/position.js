@@ -2,17 +2,17 @@ import { asserts, is } from '@kalisio/check'
 import { axes, coordinate } from '../core'
 import { COORD_FORMATS, COORD_UNITS } from './constants.js'
 
-export function Coords (coords) {
+export function Position (position) {
   const value = [null, null, null]
 
-  if (is.array(coords) && coords.length > 1) {
-    value[0] = coords[0]
-    value[1] = coords[1]
-    if (coords.length > 2) value[2] = coords[2]
-  } else if (is.plainObject(coords)) {
-    value[0] = coords.lon ?? coords.longitude ?? coords.x ?? null
-    value[1] = coords.lat ?? coords.latitude ?? coords.y ?? null
-    value[2] = coords.alt ?? coords.altitude ?? coords.z ?? null
+  if (is.array(position) && position.length > 1) {
+    value[0] = position[0]
+    value[1] = position[1]
+    if (position.length > 2) value[2] = position[2]
+  } else if (is.plainObject(position)) {
+    value[0] = position.lon ?? position.longitude ?? position.x ?? null
+    value[1] = position.lat ?? position.latitude ?? position.y ?? null
+    value[2] = position.alt ?? position.altitude ?? position.z ?? null
   }
 
   return {
@@ -130,7 +130,7 @@ export function Coords (coords) {
   }
 }
 
-export function parseCoords (pattern) {
+export function parsePosition (pattern) {
   asserts.that(pattern, (v) => is.string(v), 'pattern must be a non-empty string')
   const parts = pattern.split(/[,;|]/)
   if (parts.length !== 2) return null
@@ -138,18 +138,18 @@ export function parseCoords (pattern) {
   // Both parts should have the same format
   if (first.format !== second.format) return null
   // If both types are explicit
-  if (first.type === axes.LONGITUDE && second.type === axes.LATITUDE) return Coords([first.value, second.value])
-  if (first.type === axes.LATITUDE && second.type === axes.LONGITUDE) return Coords([second.value, first.value])
+  if (first.type === axes.LONGITUDE && second.type === axes.LATITUDE) return Position([first.value, second.value])
+  if (first.type === axes.LATITUDE && second.type === axes.LONGITUDE) return Position([second.value, first.value])
   // If one is explicit, the other is ambiguous
   if ((first.type === axes.LONGITUDE && is.array(second.type)) ||
-      (second.type === axes.LATITUDE && is.array(first.type))) return Coords([first.value, second.value])
+      (second.type === axes.LATITUDE && is.array(first.type))) return Position([first.value, second.value])
   if ((first.type === axes.LATITUDE && is.array(second.type)) ||
-      (second.type === axes.LONGITUDE && is.array(first.type))) return Coords([second.value, first.value])
+      (second.type === axes.LONGITUDE && is.array(first.type))) return Position([second.value, first.value])
   // If both are ambiguous → assume [lat, lon] order by convention
   if (is.array(first.type) && is.array(second.type)) {
     return [
-      Coords([first.value, second.value]),
-      Coords([second.value, first.value])
+      Position([first.value, second.value]),
+      Position([second.value, first.value])
     ]
   }
 }

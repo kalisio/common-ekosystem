@@ -1,4 +1,4 @@
-export * from './bbox.js'
+export * from './bounding-box.js'
 export * from './constants.js'
-export * from './coords-array.js'
-export * from './coords.js'
+export * from './position-array.js'
+export * from './position.js'
