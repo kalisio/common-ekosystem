@@ -66,6 +66,21 @@ export const is = {
     return is.number(value) && value >= min && value <= max
   },
 
+  inRangeExclusive (value, min, max) {
+    asserts.that(max, (v) => v > min, 'max must be greater than min')
+    return is.number(value) && value > min && value < max
+  },
+
+  inRangeExclusiveMin (value, min, max) {
+    asserts.that(max, (v) => v > min, 'max must be greater than min')
+    return is.number(value) && value > min && value <= max
+  },
+
+  inRangeExclusiveMax (value, min, max) {
+    asserts.that(max, (v) => v >= min, 'max must be greater than or equal to min')
+    return is.number(value) && value >= min && value < max
+  },
+
   integer (value) {
     return is.number(value) && Number.isInteger(value)
   },
