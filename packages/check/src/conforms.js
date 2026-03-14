@@ -1,10 +1,13 @@
 import { is } from './is.js'
+import { has } from './has.js'
 import { asserts } from './asserts.js'
 
 function check (obj, schema, path = '') {
   return Object.entries(schema).every(([key, validator]) => {
     const fullPath = path ? `${path}.${key}` : key
-    if (!Object.hasOwn(obj, key)) return false
+    if (!has.key(obj, key)) {
+      return validator._optional === true
+    }
     const value = obj[key]
     if (is.plainObject(validator)) {
       // recursive check
