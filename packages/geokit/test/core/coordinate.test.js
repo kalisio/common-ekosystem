@@ -5,6 +5,7 @@ import {
   guessCoordinateAxis,
   convertCoordinate,
   parseCoordinate,
+  COORDINATE_FORMATS,
   COORDINATE_MODELS
 } from '../../src/core/coordinate.js'
 import { AXES } from '../../src/core/axes.js'
@@ -233,44 +234,197 @@ describe('parseCoordinate', () => {
   it('should throw if pattern is not a string', () => {
     expect(() => parseCoordinate(null)).toThrow()
     expect(() => parseCoordinate(42)).toThrow()
-  })
-
-  it('should parse a DD string - negate number', () => {
-    const coord = parseCoordinate('-48.85')
-    expect(coord).not.toBe(null)
-    expect(coord.isValid()).toBe(true)
-    expect(coord.format).toBe('DD')
-  })
-
-  it('should parse a DD string', () => {
-    const coord = parseCoordinate('48.8566°N')
-    expect(coord).not.toBe(null)
-    expect(coord.isValid()).toBe(true)
-    expect(coord.format).toBe('DD')
-  })
-
-  it('should parse a DDM string', () => {
-    const coord = parseCoordinate("48°51.396'N")
-    expect(coord).not.toBe(null)
-    expect(coord.isValid()).toBe(true)
-    expect(coord.format).toBe('DDM')
-  })
-
-  it('should parse a DMS string', () => {
-    const coord = parseCoordinate("48°51'23.76\"N")
-    expect(coord).not.toBe(null)
-    expect(coord.isValid()).toBe(true)
-    expect(coord.format).toBe('DMS')
-  })
-
-  it('should parse a DDMAero string', () => {
-    const coord = parseCoordinate('48513N')
-    expect(coord).not.toBe(null)
-    expect(coord.isValid()).toBe(true)
-    expect(coord.format).toBe('DDM_AERO')
+    expect(() => parseCoordinate(undefined)).toThrow()
   })
 
   it('should return null for an unrecognized string', () => {
     expect(parseCoordinate('invalid')).toBe(null)
+    expect(parseCoordinate('abc def')).toBe(null)
+    expect(parseCoordinate('!@#$%')).toBe(null)
+  })
+
+  describe('DD', () => {
+    it('should parse a positive value with N direction', () => {
+      const coord = parseCoordinate('48.8566N')
+      expect(coord).not.toBe(null)
+      expect(coord.isValid()).toBe(true)
+      expect(coord.format).toBe(COORDINATE_FORMATS.DD)
+      expect(coord.degrees).toBeCloseTo(48.8566)
+      expect(coord.direction).toBe('N')
+    })
+
+    it('should parse a positive value with S direction', () => {
+      const coord = parseCoordinate('48.8566S')
+      expect(coord.direction).toBe('S')
+    })
+
+    it('should parse a positive value with E direction', () => {
+      const coord = parseCoordinate('2.3522E')
+      expect(coord.direction).toBe('E')
+      expect(coord.degrees).toBeCloseTo(2.3522)
+    })
+
+    it('should parse a positive value with W direction', () => {
+      const coord = parseCoordinate('73.9857W')
+      expect(coord.direction).toBe('W')
+    })
+
+    it('should parse a value with degree symbol and direction', () => {
+      const coord = parseCoordinate('48.8566°N')
+      expect(coord).not.toBe(null)
+      expect(coord.isValid()).toBe(true)
+      expect(coord.format).toBe(COORDINATE_FORMATS.DD)
+    })
+
+    it('should parse a signed negative value', () => {
+      const coord = parseCoordinate('-48.8566')
+      expect(coord).not.toBe(null)
+      expect(coord.isValid()).toBe(true)
+      expect(coord.degrees).toBeCloseTo(-48.8566)
+      expect(coord.direction).toBe(null)
+    })
+
+    it('should parse a signed positive value', () => {
+      const coord = parseCoordinate('48.8566')
+      expect(coord).not.toBe(null)
+      expect(coord.isValid()).toBe(true)
+      expect(coord.degrees).toBeCloseTo(48.8566)
+      expect(coord.direction).toBe(null)
+    })
+
+    it('should parse an integer value', () => {
+      const coord = parseCoordinate('48N')
+      expect(coord).not.toBe(null)
+      expect(coord.degrees).toBe(48)
+    })
+
+    it('should parse ignoring whitespace', () => {
+      const coord = parseCoordinate('48.8566 ° N')
+      expect(coord).not.toBe(null)
+      expect(coord.isValid()).toBe(true)
+    })
+  })
+
+  describe('DDM', () => {
+    it('should parse a value with direction', () => {
+      const coord = parseCoordinate("48°51.396'N")
+      expect(coord).not.toBe(null)
+      expect(coord.isValid()).toBe(true)
+      expect(coord.format).toBe(COORDINATE_FORMATS.DDM)
+      expect(coord.degrees).toBe(48)
+      expect(coord.minutes).toBeCloseTo(51.396)
+      expect(coord.direction).toBe('N')
+    })
+
+    it('should parse a signed value', () => {
+      const coord = parseCoordinate("-48°51.396'")
+      expect(coord).not.toBe(null)
+      expect(coord.isValid()).toBe(true)
+      expect(coord.format).toBe(COORDINATE_FORMATS.DDM)
+      expect(coord.degrees).toBe(-48)
+      expect(coord.minutes).toBeCloseTo(51.396)
+    })
+
+    it('should parse without the minute symbol', () => {
+      const coord = parseCoordinate('48°51.396')
+      expect(coord).not.toBe(null)
+      expect(coord.isValid()).toBe(true)
+    })
+
+    it('should parse all directions', () => {
+      expect(parseCoordinate("48°30'S").direction).toBe('S')
+      expect(parseCoordinate("48°30'E").direction).toBe('E')
+      expect(parseCoordinate("48°30'W").direction).toBe('W')
+    })
+
+    it('should parse ignoring whitespace', () => {
+      const coord = parseCoordinate("48° 51.396' N")
+      expect(coord).not.toBe(null)
+      expect(coord.isValid()).toBe(true)
+    })
+  })
+
+  describe('DMS', () => {
+    it('should parse a value with direction', () => {
+      const coord = parseCoordinate("48°51'23.76\"N")
+      expect(coord).not.toBe(null)
+      expect(coord.isValid()).toBe(true)
+      expect(coord.format).toBe(COORDINATE_FORMATS.DMS)
+      expect(coord.degrees).toBe(48)
+      expect(coord.minutes).toBe(51)
+      expect(coord.seconds).toBeCloseTo(23.76)
+      expect(coord.direction).toBe('N')
+    })
+
+    it('should parse a signed value', () => {
+      const coord = parseCoordinate("-48°51'23.76\"")
+      expect(coord).not.toBe(null)
+      expect(coord.isValid()).toBe(true)
+      expect(coord.degrees).toBe(-48)
+    })
+
+    it('should parse without the second symbol', () => {
+      const coord = parseCoordinate("48°51'23.76")
+      expect(coord).not.toBe(null)
+      expect(coord.isValid()).toBe(true)
+    })
+
+    it('should parse all directions', () => {
+      expect(parseCoordinate("48°51'23\"S").direction).toBe('S')
+      expect(parseCoordinate("48°51'23\"E").direction).toBe('E')
+      expect(parseCoordinate("48°51'23\"W").direction).toBe('W')
+    })
+
+    it('should parse ignoring whitespace', () => {
+      const coord = parseCoordinate("48° 51' 23.76\" N")
+      expect(coord).not.toBe(null)
+      expect(coord.isValid()).toBe(true)
+    })
+  })
+
+  describe('DDMAero', () => {
+    it('should parse a latitude string', () => {
+      const coord = parseCoordinate('48510N')
+      expect(coord).not.toBe(null)
+      expect(coord.isValid()).toBe(true)
+      expect(coord.format).toBe(COORDINATE_FORMATS.DDM_AERO)
+      expect(coord.degrees).toBe(48)
+      expect(coord.minutes).toBeCloseTo(51)
+      expect(coord.direction).toBe('N')
+    })
+
+    it('should parse a S direction', () => {
+      expect(parseCoordinate('48510S').direction).toBe('S')
+    })
+
+    it('should parse a longitude string', () => {
+      const coord = parseCoordinate('002209E')
+      expect(coord).not.toBe(null)
+      expect(coord.isValid()).toBe(true)
+      expect(coord.degrees).toBe(2)
+      expect(coord.minutes).toBeCloseTo(20.9)
+      expect(coord.direction).toBe('E')
+    })
+
+    it('should parse a W direction', () => {
+      expect(parseCoordinate('002209W').direction).toBe('W')
+    })
+  })
+
+  describe('ambiguous cases', () => {
+    it('should prefer DD over DDMAero for simple numeric strings', () => {
+      const coord = parseCoordinate('48.8566')
+      expect(coord.format).toBe(COORDINATE_FORMATS.DD)
+    })
+
+    it('should prefer DDM over DD for degree-minute strings', () => {
+      const coord = parseCoordinate("48°30'N")
+      expect(coord.format).toBe(COORDINATE_FORMATS.DDM)
+    })
+
+    it('should prefer DMS over DDM for degree-minute-second strings', () => {
+      const coord = parseCoordinate("48°51'23\"N")
+      expect(coord.format).toBe(COORDINATE_FORMATS.DMS)
+    })
   })
 })
