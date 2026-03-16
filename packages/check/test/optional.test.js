@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { optional } from './../src/optional.js'
+import { optional } from '../src/optional.js'
 import { is } from '../src/is.js'
 
 describe('optional', () => {
@@ -17,9 +17,19 @@ describe('optional', () => {
     expect(optional(is.string)._optional).toBe(true)
   })
 
-  it('should validate the value when present', () => {
-    const validator = optional(is.string)
-    expect(validator('hello')).toBe(true)
-    expect(validator(42)).toBe(false)
+  it('should return true if value is null', () => {
+    expect(optional(is.string)(null)).toBe(true)
+  })
+
+  it('should return true if value is undefined', () => {
+    expect(optional(is.string)(undefined)).toBe(true)
+  })
+
+  it('should validate the value when present and valid', () => {
+    expect(optional(is.string)('hello')).toBe(true)
+  })
+
+  it('should validate the value when present and invalid', () => {
+    expect(optional(is.string)(42)).toBe(false)
   })
 })
