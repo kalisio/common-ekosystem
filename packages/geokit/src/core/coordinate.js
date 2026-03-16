@@ -36,7 +36,7 @@ export function guessCoordinateAxis (coord, dir) {
     return getDirectionAxis(dir)
   }
   if (Math.abs(coord) > 90) return AXES.LONGITUDE
-  return [AXES.LONGITUDE, AXES.LATITUDE]
+  return undefined
 }
 
 export function convertCoordinate (from, to) {

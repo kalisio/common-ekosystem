@@ -141,7 +141,7 @@ export function parsePosition (pattern) {
     return Position([secondDD.degrees, firstDD.degrees])
   }
   // If both are ambiguous → assume [lat, lon] order by convention
-  if (is.array(firstAxis) && is.array(secondAxis)) {
+  if (!firstAxis && !secondAxis) {
     return [
       Position([firstDD.degrees, secondDD.degrees]),
       Position([secondDD.degrees, firstDD.degrees])

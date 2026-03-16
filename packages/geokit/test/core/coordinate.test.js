@@ -139,23 +139,19 @@ describe('guessCoordinateAxis', () => {
     expect(guessCoordinateAxis(-91)).toBe(AXES.LONGITUDE)
   })
 
-  it('should return both LONGITUDE and LATITUDE if coord is ambiguous', () => {
+  it('should return undefined if coord is ambiguous', () => {
     const result = guessCoordinateAxis(45)
-    expect(result).toContain(AXES.LONGITUDE)
-    expect(result).toContain(AXES.LATITUDE)
-    expect(result).toHaveLength(2)
+    expect(result).toBeUndefined()
   })
 
   it('should return both for 0', () => {
     const result = guessCoordinateAxis(0)
-    expect(result).toContain(AXES.LONGITUDE)
-    expect(result).toContain(AXES.LATITUDE)
+    expect(result).toBeUndefined()
   })
 
   it('should return both for 90', () => {
     const result = guessCoordinateAxis(90)
-    expect(result).toContain(AXES.LONGITUDE)
-    expect(result).toContain(AXES.LATITUDE)
+    expect(result).toBeUndefined()
   })
 
   it('should work with french locale directions', () => {
