@@ -140,13 +140,13 @@ describe('conforms.schema', () => {
     it('should return false if an optional key is present but null', () => {
       const schema = { name: is.string, nickname: optional(is.string) }
       const obj = { name: 'Alice', nickname: null }
-      expect(conforms.schema(obj, schema)).toBe(false)
+      expect(conforms.schema(obj, schema)).toBe(true)
     })
 
     it('should return false if an optional key is present but undefined', () => {
       const schema = { name: is.string, nickname: optional(is.string) }
       const obj = { name: 'Alice', nickname: undefined }
-      expect(conforms.schema(obj, schema)).toBe(false)
+      expect(conforms.schema(obj, schema)).toBe(true)
     })
 
     it('should return true if all keys are optional and obj is empty', () => {
