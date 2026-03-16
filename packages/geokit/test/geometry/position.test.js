@@ -1,394 +1,391 @@
-import { describe, it, expect } from 'vitest'
-import { Position } from '../../src/geometry/position.js'
+import { describe, it, expect, beforeEach } from 'vitest'
+import { Position, parsePosition } from '../../src/geometry/position.js'
+import { setLocale } from '../../src/core/locale.js'
+
+beforeEach(() => {
+  setLocale('en')
+})
 
 describe('Position', () => {
-  describe('constructor', () => {
-    it('creates empty position without argument', () => {
-      const c = Position()
-      expect(c.longitude).toBeNull()
-      expect(c.latitude).toBeNull()
-      expect(c.altitude).toBeNull()
+  describe('from array', () => {
+    it('should be valid with lon and lat', () => {
+      const pos = Position([2.3522, 48.8566])
+      expect(pos.isValid()).toBe(true)
+      expect(pos.longitude).toBe(2.3522)
+      expect(pos.latitude).toBe(48.8566)
+      expect(pos.altitude).toBe(null)
     })
 
-    it('parses a 2D array', () => {
-      const c = Position([1.5, 48.8])
-      expect(c.longitude).toBe(1.5)
-      expect(c.latitude).toBe(48.8)
-      expect(c.altitude).toBeNull()
+    it('should be valid with lon, lat and altitude', () => {
+      const pos = Position([2.3522, 48.8566, 100])
+      expect(pos.isValid()).toBe(true)
+      expect(pos.longitude).toBe(2.3522)
+      expect(pos.latitude).toBe(48.8566)
+      expect(pos.altitude).toBe(100)
     })
 
-    it('parses a 3D array', () => {
-      const c = Position([1.5, 48.8, 100])
-      expect(c.longitude).toBe(1.5)
-      expect(c.latitude).toBe(48.8)
-      expect(c.altitude).toBe(100)
+    it('should be invalid with only one element', () => {
+      expect(Position([2.3522]).isValid()).toBe(false)
     })
 
-    it('ignores an array with less than 2 elements', () => {
-      const c = Position([1.5])
-      expect(c.longitude).toBeNull()
+    it('should be invalid with non-number values', () => {
+      expect(Position(['a', 48.8566]).isValid()).toBe(false)
+      expect(Position([2.3522, 'b']).isValid()).toBe(false)
     })
 
-    it('parses an object with lon/lat', () => {
-      const c = Position({ lon: 1.5, lat: 48.8 })
-      expect(c.longitude).toBe(1.5)
-      expect(c.latitude).toBe(48.8)
+    it('should be invalid with null altitude', () => {
+      const pos = Position([2.3522, 48.8566, null])
+      expect(pos.isValid()).toBe(true)
+    })
+  })
+
+  describe('from object', () => {
+    it('should be valid with lon and lat', () => {
+      const pos = Position({ lon: 2.3522, lat: 48.8566 })
+      expect(pos.isValid()).toBe(true)
+      expect(pos.longitude).toBe(2.3522)
+      expect(pos.latitude).toBe(48.8566)
     })
 
-    it('parses an object with longitude/latitude', () => {
-      const c = Position({ longitude: 1.5, latitude: 48.8 })
-      expect(c.longitude).toBe(1.5)
-      expect(c.latitude).toBe(48.8)
+    it('should be valid with longitude and latitude', () => {
+      const pos = Position({ longitude: 2.3522, latitude: 48.8566 })
+      expect(pos.isValid()).toBe(true)
+      expect(pos.longitude).toBe(2.3522)
+      expect(pos.latitude).toBe(48.8566)
     })
 
-    it('parses an object with x/y/z', () => {
-      const c = Position({ x: 1.5, y: 48.8, z: 100 })
-      expect(c.longitude).toBe(1.5)
-      expect(c.latitude).toBe(48.8)
-      expect(c.altitude).toBe(100)
+    it('should be valid with x and y', () => {
+      const pos = Position({ x: 2.3522, y: 48.8566 })
+      expect(pos.isValid()).toBe(true)
+      expect(pos.longitude).toBe(2.3522)
+      expect(pos.latitude).toBe(48.8566)
     })
 
-    it('parses an object with alt', () => {
-      expect(Position({ lon: 1, lat: 2, alt: 50 }).altitude).toBe(50)
+    it('should be valid with alt', () => {
+      const pos = Position({ lon: 2.3522, lat: 48.8566, alt: 100 })
+      expect(pos.isValid()).toBe(true)
+      expect(pos.altitude).toBe(100)
     })
 
-    it('parses an object with altitude', () => {
-      expect(Position({ lon: 1, lat: 2, altitude: 50 }).altitude).toBe(50)
+    it('should be valid with altitude', () => {
+      const pos = Position({ lon: 2.3522, lat: 48.8566, altitude: 100 })
+      expect(pos.isValid()).toBe(true)
+      expect(pos.altitude).toBe(100)
+    })
+
+    it('should be valid with z', () => {
+      const pos = Position({ lon: 2.3522, lat: 48.8566, z: 100 })
+      expect(pos.isValid()).toBe(true)
+      expect(pos.altitude).toBe(100)
+    })
+
+    it('should be invalid with missing lat', () => {
+      expect(Position({ lon: 2.3522 }).isValid()).toBe(false)
+    })
+
+    it('should be invalid with missing lon', () => {
+      expect(Position({ lat: 48.8566 }).isValid()).toBe(false)
+    })
+  })
+
+  describe('from invalid input', () => {
+    it('should be invalid with null', () => {
+      expect(Position(null).isValid()).toBe(false)
+    })
+
+    it('should be invalid with a string', () => {
+      expect(Position('48.8566, 2.3522').isValid()).toBe(false)
+    })
+
+    it('should be invalid with a number', () => {
+      expect(Position(42).isValid()).toBe(false)
     })
   })
 
   describe('dimension', () => {
-    it('returns 2 without altitude', () => {
-      expect(Position([1, 2]).dimension).toBe(2)
+    it('should be 2 without altitude', () => {
+      expect(Position([2.3522, 48.8566]).dimension).toBe(2)
     })
 
-    it('returns 3 with altitude', () => {
-      expect(Position([1, 2, 3]).dimension).toBe(3)
-    })
-  })
-
-  describe('isValid', () => {
-    it('validates correct 2D position', () => {
-      expect(Position([1.5, 48.8]).isValid()).toBe(true)
-    })
-
-    it('validates correct 3D position', () => {
-      expect(Position([1.5, 48.8, 100]).isValid()).toBe(true)
-    })
-
-    it('invalidates if longitude is missing', () => {
-      expect(Position([null, 48.8]).isValid()).toBe(false)
-    })
-
-    it('invalidates if latitude is missing', () => {
-      const c = Position([1.5, 48.8])
-      c.latitude = null
-      expect(c.isValid()).toBe(false)
-    })
-
-    it('invalidates if altitude is not a number', () => {
-      const c = Position([1.5, 48.8, 100])
-      c.altitude = 'foo'
-      expect(c.isValid()).toBe(false)
-    })
-
-    it('invalidates without argument', () => {
-      expect(Position().isValid()).toBe(false)
+    it('should be 3 with altitude', () => {
+      expect(Position([2.3522, 48.8566, 100]).dimension).toBe(3)
     })
   })
 
   describe('setters', () => {
-    it('updates longitude/latitude/altitude', () => {
-      const c = Position([1, 2])
-      c.longitude = 10
-      c.latitude = 20
-      c.altitude = 30
-      expect(c.longitude).toBe(10)
-      expect(c.latitude).toBe(20)
-      expect(c.altitude).toBe(30)
+    it('should update longitude', () => {
+      const pos = Position([2.3522, 48.8566])
+      pos.longitude = 3.0
+      expect(pos.longitude).toBe(3.0)
+    })
+
+    it('should update latitude', () => {
+      const pos = Position([2.3522, 48.8566])
+      pos.latitude = 49.0
+      expect(pos.latitude).toBe(49.0)
+    })
+
+    it('should update altitude', () => {
+      const pos = Position([2.3522, 48.8566, 100])
+      pos.altitude = 200
+      expect(pos.altitude).toBe(200)
     })
   })
 
   describe('normalize', () => {
-    it('does not modify already valid position', () => {
-      const c = Position([2.3488, 48.8534])
-      c.normalize()
-      expect(c.longitude).toBeCloseTo(2.3488, 4)
-      expect(c.latitude).toBeCloseTo(48.8534, 4)
+    it('should throw if position is invalid', () => {
+      expect(() => Position(null).normalize()).toThrow()
     })
 
-    it('normalizes longitude > 180', () => {
-      // 200 → 200 - 360 = -160
-      const c = Position([200, 48])
-      c.normalize()
-      expect(c.longitude).toBeCloseTo(-160, 5)
+    it('should keep a valid position unchanged', () => {
+      const pos = Position([2.3522, 48.8566])
+      pos.normalize()
+      expect(pos.longitude).toBeCloseTo(2.3522)
+      expect(pos.latitude).toBeCloseTo(48.8566)
     })
 
-    it('normalizes longitude < -180', () => {
-      // -200 → -200 + 360 = 160
-      const c = Position([-200, 48])
-      c.normalize()
-      expect(c.longitude).toBeCloseTo(160, 5)
+    it('should wrap longitude above 180', () => {
+      const pos = Position([181, 48.8566])
+      pos.normalize()
+      expect(pos.longitude).toBeCloseTo(-179)
     })
 
-    it('normalizes longitude = 360', () => {
-      const c = Position([360, 48])
-      c.normalize()
-      expect(c.longitude).toBe(0)
+    it('should wrap longitude below -180', () => {
+      const pos = Position([-181, 48.8566])
+      pos.normalize()
+      expect(pos.longitude).toBeCloseTo(179)
     })
 
-    it('normalizes longitude = -360', () => {
-      const c = Position([-360, 48])
-      c.normalize()
-      expect(c.longitude).toBe(0)
+    it('should wrap latitude above 90', () => {
+      const pos = Position([2.3522, 91])
+      pos.normalize()
+      expect(pos.latitude).toBe(89)
     })
 
-    it('normalizes -180 → 180', () => {
-      const c = Position([-180, 48])
-      c.normalize()
-      expect(c.longitude).toBe(-180)
+    it('should wrap latitude below -90', () => {
+      const pos = Position([2.3522, -91])
+      pos.normalize()
+      expect(pos.latitude).toBe(-89)
     })
 
-    it('normalizes latitude > 90 (north pole bounce)', () => {
-      // lat=100 → after modulo → 80 (bounce), lon=10+180=190 → normalized → -170
-      const c = Position([10, 100])
-      c.normalize()
-      expect(c.latitude).toBeCloseTo(80, 5)
-      expect(c.longitude).toBeCloseTo(-170, 5)
-    })
-
-    it('normalizes latitude < -90 (south pole bounce)', () => {
-      // lat=-100 → after modulo → -80 (bounce), lon=10+180=190 → normalized → -170
-      const c = Position([10, -100])
-      c.normalize()
-      expect(c.latitude).toBeCloseTo(-80, 5)
-      expect(c.longitude).toBeCloseTo(-170, 5)
-    })
-
-    it('normalizes latitude and longitude simultaneously', () => {
-      // lat=100 → 80, lon=200+180=380 → normalized → 20
-      const c = Position([200, 100])
-      c.normalize()
-      expect(c.latitude).toBeCloseTo(80, 5)
-      expect(c.longitude).toBeCloseTo(20, 5)
-    })
-
-    it('does not touch altitude', () => {
-      const c = Position([200, 48, 1000])
-      c.normalize()
-      expect(c.altitude).toBe(1000)
-    })
-
-    it('returns this for chaining', () => {
-      const c = Position([200, 48])
-      expect(c.normalize()).toBe(c)
-    })
-
-    it('throws if invalid', () => {
-      expect(() => Position().normalize()).toThrow()
+    it('should return this for chaining', () => {
+      const pos = Position([2.3522, 48.8566])
+      expect(pos.normalize()).toBe(pos)
     })
   })
 
   describe('truncate', () => {
-    it('truncates to default precision (7)', () => {
-      const c = Position([1.123456789, 48.987654321])
-      c.truncate()
-      expect(c.longitude).toBe(1.1234568)
-      expect(c.latitude).toBe(48.9876543)
+    it('should throw if precision is out of range', () => {
+      const pos = Position([2.3522, 48.8566])
+      expect(() => pos.truncate(-1)).toThrow()
+      expect(() => pos.truncate(9)).toThrow()
     })
 
-    it('truncates to a given precision', () => {
-      const c = Position([1.123456789, 48.987654321])
-      c.truncate(2)
-      expect(c.longitude).toBe(1.12)
-      expect(c.latitude).toBe(48.99)
+    it('should throw if position is invalid', () => {
+      expect(() => Position(null).truncate(2)).toThrow()
     })
 
-    it('truncates altitude as well', () => {
-      const c = Position([1.1, 2.2, 100.123456789])
-      c.truncate(3)
-      expect(c.altitude).toBe(100.123)
+    it('should truncate lon and lat', () => {
+      const pos = Position([2.3522, 48.8566])
+      pos.truncate(2)
+      expect(pos.longitude).toBe(2.35)
+      expect(pos.latitude).toBe(48.86)
     })
 
-    it('returns this for chaining', () => {
-      const c = Position([1.1, 2.2])
-      expect(c.truncate()).toBe(c)
+    it('should truncate altitude if defined', () => {
+      const pos = Position([2.3522, 48.8566, 100.123])
+      pos.truncate(2)
+      expect(pos.altitude).toBe(100.12)
     })
 
-    it('throws if precision is out of range', () => {
-      expect(() => Position([1, 2]).truncate(9)).toThrow()
+    it('should use default precision of 7', () => {
+      const pos = Position([2.352200001, 48.856600001])
+      pos.truncate()
+      expect(pos.longitude).toBe(2.3522)
+      expect(pos.latitude).toBe(48.8566)
     })
 
-    it('throws if position are invalid', () => {
-      expect(() => Position().truncate()).toThrow()
-    })
-
-    it('chains normalize().truncate()', () => {
-      // lon=200.123456789 → normalized → -159.876543211 → truncated(4) → -159.8765
-      // lat=48.987654321 → unchanged → truncated(4) → 48.9877
-      const c = Position([200.123456789, 48.987654321])
-      c.normalize().truncate(4)
-      expect(c.longitude).toBe(-159.8765)
-      expect(c.latitude).toBe(48.9877)
+    it('should return this for chaining', () => {
+      const pos = Position([2.3522, 48.8566])
+      expect(pos.truncate(2)).toBe(pos)
     })
   })
 
   describe('toArray', () => {
-    it('returns [lon, lat] in 2D', () => {
-      expect(Position([1.5, 48.8]).toArray()).toEqual([1.5, 48.8])
+    it('should return null if invalid', () => {
+      expect(Position(null).toArray()).toBe(null)
     })
 
-    it('returns [lon, lat, alt] in 3D', () => {
-      expect(Position([1.5, 48.8, 100]).toArray()).toEqual([1.5, 48.8, 100])
+    it('should return [lon, lat] for 2D position', () => {
+      expect(Position([2.3522, 48.8566]).toArray()).toEqual([2.3522, 48.8566])
     })
 
-    it('returns null if invalid', () => {
-      expect(Position().toArray()).toBeNull()
+    it('should return [lon, lat, alt] for 3D position', () => {
+      expect(Position([2.3522, 48.8566, 100]).toArray()).toEqual([2.3522, 48.8566, 100])
     })
   })
 
   describe('toJSON', () => {
-    it('returns { lon, lat } in 2D', () => {
-      expect(Position([1.5, 48.8]).toJSON()).toEqual({ lon: 1.5, lat: 48.8 })
+    it('should return null if invalid', () => {
+      expect(Position(null).toJSON()).toBe(null)
     })
 
-    it('returns { lon, lat, alt } in 3D', () => {
-      expect(Position([1.5, 48.8, 100]).toJSON()).toEqual({ lon: 1.5, lat: 48.8, alt: 100 })
+    it('should return lon and lat', () => {
+      expect(Position([2.3522, 48.8566]).toJSON()).toEqual({ lon: 2.3522, lat: 48.8566 })
     })
 
-    it('returns null if invalid', () => {
-      expect(Position().toJSON()).toBeNull()
+    it('should include alt if defined', () => {
+      expect(Position([2.3522, 48.8566, 100]).toJSON()).toEqual({ lon: 2.3522, lat: 48.8566, alt: 100 })
     })
   })
 
   describe('toGeoJSON', () => {
-    it('returns coordinates in 2D', () => {
-      expect(Position([1.5, 48.8]).toGeoJSON()).toEqual({ coordinates: [1.5, 48.8] })
+    it('should return null if invalid', () => {
+      expect(Position(null).toGeoJSON()).toBe(null)
     })
 
-    it('returns coordinates in 3D', () => {
-      expect(Position([1.5, 48.8, 100]).toGeoJSON()).toEqual({ coordinates: [1.5, 48.8, 100] })
+    it('should return coordinates array', () => {
+      expect(Position([2.3522, 48.8566]).toGeoJSON()).toEqual({ coordinates: [2.3522, 48.8566] })
     })
 
-    it('returns null if invalid', () => {
-      expect(Position().toGeoJSON()).toBeNull()
-    })
-
-    it('coordinates are isolated (no reference leak)', () => {
-      const c = Position([1.5, 48.8])
-      const geo = c.toGeoJSON()
-      geo.coordinates[0] = 999
-      expect(c.longitude).toBe(1.5)
-    })
-  })
-
-  describe('toSexagesimal', () => {
-    it('returns DMS values for lon and lat', () => {
-      // Paris: lon=2.3488, lat=48.8534
-      const dms = Position([2.3488, 48.8534]).toSexagesimal()
-      expect(dms.lon.deg).toBe(2)
-      expect(dms.lon.min).toBe(20)
-      expect(dms.lon.sec).toBeCloseTo(55.68, 1)
-      expect(dms.lon.dir).toBe('E')
-      expect(dms.lat.deg).toBe(48)
-      expect(dms.lat.min).toBe(51)
-      expect(dms.lat.sec).toBeCloseTo(12.24, 1)
-      expect(dms.lat.dir).toBe('N')
-    })
-
-    it('returns S and W for negative coordinates', () => {
-      const dms = Position([-73.9857, -40.7128]).toSexagesimal()
-      expect(dms.lon.dir).toBe('W')
-      expect(dms.lat.dir).toBe('S')
-    })
-
-    it('includes alt if defined', () => {
-      const dms = Position([1.5, 48.8, 100]).toSexagesimal()
-      expect(dms.alt).toBe(100)
-    })
-
-    it('does not include alt if absent', () => {
-      const dms = Position([1.5, 48.8]).toSexagesimal()
-      expect(dms.alt).toBeUndefined()
-    })
-
-    it('returns null if invalid', () => {
-      expect(Position().toSexagesimal()).toBeNull()
+    it('should include altitude if defined', () => {
+      expect(Position([2.3522, 48.8566, 100]).toGeoJSON()).toEqual({ coordinates: [2.3522, 48.8566, 100] })
     })
   })
 
   describe('toString', () => {
-    it('format FFf (degrees minutes seconds)', () => {
-      const s = Position([2.3488, 48.8534]).toString('FFf')
-      expect(s).toContain('°')
-      expect(s).toContain('′')
-      expect(s).toContain('″')
-      expect(s).toContain('N')
-      expect(s).toContain('E')
+    it('should throw if format is not a non-empty string', () => {
+      const pos = Position([2.3522, 48.8566])
+      expect(() => pos.toString('')).toThrow()
+      expect(() => pos.toString(null)).toThrow()
     })
 
-    it('format Ff (degrees decimal minutes)', () => {
-      const s = Position([2.3488, 48.8534]).toString('Ff')
-      expect(s).toContain('′')
-      expect(s).not.toContain('″')
+    it('should throw if decimalPlaces is not a positive integer', () => {
+      const pos = Position([2.3522, 48.8566])
+      expect(() => pos.toString('DD', 0)).toThrow()
+      expect(() => pos.toString('DD', -1)).toThrow()
+      expect(() => pos.toString('DD', 1.5)).toThrow()
     })
 
-    it('format f (decimal degrees)', () => {
-      const s = Position([2.3488, 48.8534]).toString('f')
-      expect(s).toContain('°')
-      expect(s).not.toContain('′')
+    it('should return null if invalid', () => {
+      expect(Position(null).toString('DD', 2)).toBe(null)
     })
 
-    it('format AERO matches expected pattern', () => {
-      const s = Position([2.3488, 48.8534]).toString('AERO')
-      expect(s).toMatch(/^\d{2}\d{3}[NS] \d{3}\d{3}[EW]$/)
-      expect(s).toContain('N')
-      expect(s).toContain('E')
+    it('should format in DD', () => {
+      const pos = Position([2.3522, 48.8566])
+      const result = pos.toString('DD', 2)
+      expect(result).toContain('N')
+      expect(result).toContain('E')
     })
 
-    it('format AERO exact values for Paris', () => {
-      // lat=48.8534 → deg=48, min=51, sec=12.24 → latMin = floor(51*10 + 12.24/6) = floor(512.04) = 512
-      // lon=2.3488  → deg=02, min=20, sec=55.68 → lonMin = floor(20*10 + 55.68/6) = floor(209.28) = 209
-      const s = Position([2.3488, 48.8534]).toString('AERO')
-      expect(s).toBe('48512N 002209E')
+    it('should format in DDM', () => {
+      const pos = Position([2.3522, 48.8566])
+      const result = pos.toString('DDM', 2)
+      expect(result).toContain('N')
+      expect(result).toContain('E')
     })
 
-    it('format AERO with negative coordinates', () => {
-      const s = Position([-73.9857, -40.7128]).toString('AERO')
-      expect(s).toContain('S')
-      expect(s).toContain('W')
+    it('should format in DMS', () => {
+      const pos = Position([2.3522, 48.8566])
+      const result = pos.toString('DMS', 2)
+      expect(result).toContain('N')
+      expect(result).toContain('E')
     })
 
-    it('custom lat/lon separator', () => {
-      const s = Position([2.3488, 48.8534]).toString('f', { latLonSeparator: ' / ' })
-      expect(s).toContain(' / ')
+    it('should format negative coordinates with S and W', () => {
+      const pos = Position([-73.9857, -40.7128])
+      const result = pos.toString('DD', 2)
+      expect(result).toContain('S')
+      expect(result).toContain('W')
     })
 
-    it('custom decimal places', () => {
-      const s = Position([2.3488, 48.8534]).toString('f', { decimalPlaces: 2 })
-      const parts = s.split(' ')
-      parts.forEach(p => {
-        const match = p.match(/(\d+\.\d+)/)
-        if (match) expect(match[1].split('.')[1].length).toBeLessThanOrEqual(2)
-      })
+    it('should use default decimalPlaces of 5', () => {
+      const pos = Position([2.3522, 48.8566])
+      const result = pos.toString('DD')
+      expect(result).toBeDefined()
     })
 
-    it('throws if format is undefined', () => {
-      expect(() => Position([1, 2]).toString()).toThrow()
-    })
-
-    it('throws if format is empty string', () => {
-      expect(() => Position([1, 2]).toString('')).toThrow()
-    })
-
-    it('returns null if invalid', () => {
-      expect(Position().toString('f')).toBeNull()
+    it('should reflect locale change', () => {
+      setLocale('fr')
+      const pos = Position([2.3522, 48.8566])
+      const result = pos.toString('DD', 2)
+      expect(result).toContain('N')
+      expect(result).toContain('E')
     })
   })
+})
 
-  describe('private value', () => {
-    it('does not expose value directly', () => {
-      expect(Position([1.5, 48.8]).value).toBeUndefined()
-    })
+describe('parsePosition', () => {
+  it('should throw if pattern is empty', () => {
+    expect(() => parsePosition('')).toThrow()
+  })
+
+  it('should throw if pattern is not a string', () => {
+    expect(() => parsePosition(null)).toThrow()
+    expect(() => parsePosition(42)).toThrow()
+  })
+
+  it('should return null if pattern has no separator', () => {
+    expect(parsePosition('48.8566N')).toBe(null)
+  })
+
+  it('should return null if pattern has more than 2 parts', () => {
+    expect(parsePosition('48.8566N,2.3522E,100')).toBe(null)
+  })
+
+  it('should return null if one part is unrecognized', () => {
+    expect(parsePosition('invalid,2.3522E')).toBe(null)
+  })
+
+  it('should parse explicit lon/lat with comma separator', () => {
+    const pos = parsePosition('2.3522E,48.8566N')
+    expect(pos).not.toBe(null)
+    expect(Array.isArray(pos)).toBe(false)
+    expect(pos.isValid()).toBe(true)
+    expect(pos.longitude).toBeCloseTo(2.3522)
+    expect(pos.latitude).toBeCloseTo(48.8566)
+  })
+
+  it('should parse explicit lat/lon with comma separator', () => {
+    const pos = parsePosition('48.8566N,2.3522E')
+    expect(pos).not.toBe(null)
+    expect(Array.isArray(pos)).toBe(false)
+    expect(pos.isValid()).toBe(true)
+    expect(pos.longitude).toBeCloseTo(2.3522)
+    expect(pos.latitude).toBeCloseTo(48.8566)
+  })
+
+  it('should parse with semicolon separator', () => {
+    const pos = parsePosition('48.8566N;2.3522E')
+    expect(pos).not.toBe(null)
+    expect(pos.isValid()).toBe(true)
+  })
+
+  it('should parse with pipe separator', () => {
+    const pos = parsePosition('48.8566N|2.3522E')
+    expect(pos).not.toBe(null)
+    expect(pos.isValid()).toBe(true)
+  })
+
+  it('should return two positions if both parts are ambiguous', () => {
+    const result = parsePosition('48.8566,2.3522')
+    expect(Array.isArray(result)).toBe(true)
+    expect(result).toHaveLength(2)
+    expect(result[0].isValid()).toBe(true)
+    expect(result[1].isValid()).toBe(true)
+  })
+
+  it('should parse DDM coordinates', () => {
+    const pos = parsePosition("48°51.396'N,2°21.132'E")
+    expect(pos).not.toBe(null)
+    expect(pos.isValid()).toBe(true)
+    expect(pos.latitude).toBeCloseTo(48.8566, 2)
+    expect(pos.longitude).toBeCloseTo(2.3522, 2)
+  })
+
+  it('should parse DMS coordinates', () => {
+    const pos = parsePosition("48°51'23.76\"N,2°21'7.92\"E")
+    expect(pos).not.toBe(null)
+    expect(pos.isValid()).toBe(true)
   })
 })

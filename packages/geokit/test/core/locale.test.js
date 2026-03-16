@@ -1,133 +1,96 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { locale } from '../../src/core/locale.js'
+import { listLocales, registerLocale, setLocale, getLocale } from '../../src/core/locale.js'
 
-describe('locale', () => {
-  beforeEach(() => {
-    locale.set('en')
+beforeEach(() => {
+  setLocale('en')
+})
+
+describe('listLocales', () => {
+  it('should return at least en and fr', () => {
+    const list = listLocales()
+    expect(list).toContain('en')
+    expect(list).toContain('fr')
   })
 
-  describe('frozen', () => {
-    it('cannot be mutated', () => {
-      expect(() => { locale.get = null }).toThrow()
-    })
+  it('should return an array of strings', () => {
+    listLocales().forEach(code => expect(typeof code).toBe('string'))
+  })
+})
+
+describe('registerLocale', () => {
+  it('should throw if code is not a string', () => {
+    expect(() => registerLocale(42, {})).toThrow()
+    expect(() => registerLocale(null, {})).toThrow()
   })
 
-  describe('list', () => {
-    it('returns available locale codes', () => {
-      const codes = locale.list()
-      expect(codes).toContain('en')
-      expect(codes).toContain('fr')
-    })
-
-    it('returns an array of strings', () => {
-      expect(locale.list().every(c => typeof c === 'string')).toBe(true)
-    })
+  it('should throw if code is already registered', () => {
+    expect(() => registerLocale('en', {})).toThrow()
+    expect(() => registerLocale('fr', {})).toThrow()
   })
 
-  describe('get', () => {
-    it('returns { code, content } for the current locale', () => {
-      const l = locale.get()
-      expect(l).toHaveProperty('code')
-      expect(l).toHaveProperty('content')
-    })
+  it('should throw if content is not a plain object', () => {
+    expect(() => registerLocale('xx', null)).toThrow()
+    expect(() => registerLocale('xx', 'string')).toThrow()
+    expect(() => registerLocale('xx', 42)).toThrow()
+  })
 
-    it('returns en as default code', () => {
-      expect(locale.get().code).toBe('en')
-    })
-
-    it('content has DIRECTIONS with NORTH, SOUTH, EAST, WEST', () => {
-      const { content } = locale.get()
-      expect(content).toHaveProperty('DIRECTIONS')
-      for (const key of ['NORTH', 'SOUTH', 'EAST', 'WEST']) {
-        expect(content.DIRECTIONS[key]).toHaveProperty('label')
-        expect(content.DIRECTIONS[key]).toHaveProperty('symbol')
-        expect(typeof content.DIRECTIONS[key].label).toBe('string')
-        expect(typeof content.DIRECTIONS[key].symbol).toBe('string')
+  it('should throw if content does not conform to schema', () => {
+    expect(() => registerLocale('xx', {})).toThrow()
+    expect(() => registerLocale('xx', { DIRECTIONS: {} })).toThrow()
+    expect(() => registerLocale('xx', {
+      DIRECTIONS: {
+        NORTH: { label: 'North' } // missing symbol
       }
-    })
-
-    it('content is frozen — mutations throw', () => {
-      const { content } = locale.get()
-      expect(() => { content.DIRECTIONS.NORTH.label = 'oops' }).toThrow()
-    })
-
-    it('returns fr after set', () => {
-      locale.set('fr')
-      expect(locale.get().code).toBe('fr')
-      expect(locale.get().content).toHaveProperty('DIRECTIONS')
-    })
+    })).toThrow()
   })
 
-  describe('set', () => {
-    it('switches to fr locale', () => {
-      locale.set('fr')
-      expect(locale.get().code).toBe('fr')
-    })
+  it('should register a valid locale', () => {
+    const content = {
+      DIRECTIONS: {
+        NORTH: { label: 'North', symbol: 'N' },
+        SOUTH: { label: 'South', symbol: 'S' },
+        EAST: { label: 'East', symbol: 'E' },
+        WEST: { label: 'West', symbol: 'W' }
+      }
+    }
+    registerLocale('test', content)
+    expect(listLocales()).toContain('test')
+  })
+})
 
-    it('switches back to en locale', () => {
-      locale.set('fr')
-      locale.set('en')
-      expect(locale.get().code).toBe('en')
-    })
-
-    it('throws if code is not a string', () => {
-      expect(() => locale.set(42)).toThrow()
-      expect(() => locale.set(null)).toThrow()
-    })
-
-    it('throws if code is unknown', () => {
-      expect(() => locale.set('de')).toThrow()
-      expect(() => locale.set('')).toThrow()
-    })
+describe('setLocale', () => {
+  it('should throw if code is not a string', () => {
+    expect(() => setLocale(42)).toThrow()
+    expect(() => setLocale(null)).toThrow()
   })
 
-  describe('register', () => {
-    it('registers a new valid locale', () => {
-      const de = {
-        DIRECTIONS: {
-          NORTH: { label: 'Nord', symbol: 'N' },
-          SOUTH: { label: 'Süd', symbol: 'S' },
-          EAST: { label: 'Ost', symbol: 'E' },
-          WEST: { label: 'West', symbol: 'W' }
-        }
-      }
-      locale.register('de', de)
-      expect(locale.list()).toContain('de')
-      locale.set('de')
-      expect(locale.get().code).toBe('de')
-      expect(locale.get().content.DIRECTIONS.NORTH.label).toBe('Nord')
-    })
+  it('should throw if code is unknown', () => {
+    expect(() => setLocale('unknown')).toThrow()
+  })
 
-    it('registered content is frozen', () => {
-      const de = {
-        DIRECTIONS: {
-          NORTH: { label: 'Nord', symbol: 'N' },
-          SOUTH: { label: 'Süd', symbol: 'S' },
-          EAST: { label: 'Ost', symbol: 'E' },
-          WEST: { label: 'West', symbol: 'W' }
-        }
-      }
-      locale.register('de2', de)
-      locale.set('de2')
-      expect(() => { locale.get().content.DIRECTIONS.NORTH.label = 'oops' }).toThrow()
-    })
+  it('should set the current locale', () => {
+    setLocale('fr')
+    expect(getLocale().code).toBe('fr')
+  })
+})
 
-    it('throws if code is not a string', () => {
-      expect(() => locale.register(42, {})).toThrow()
-    })
+describe('getLocale', () => {
+  it('should return the current locale code', () => {
+    expect(getLocale().code).toBe('en')
+  })
 
-    it('throws if locale is already registered', () => {
-      expect(() => locale.register('en', { DIRECTIONS: { NORTH: { label: 'North', symbol: 'N' }, SOUTH: { label: 'South', symbol: 'S' }, EAST: { label: 'East', symbol: 'E' }, WEST: { label: 'West', symbol: 'W' } } })).toThrow()
-    })
+  it('should return the current locale content', () => {
+    const { content } = getLocale()
+    expect(content.DIRECTIONS.NORTH.symbol).toBe('N')
+    expect(content.DIRECTIONS.SOUTH.symbol).toBe('S')
+    expect(content.DIRECTIONS.EAST.symbol).toBe('E')
+    expect(content.DIRECTIONS.WEST.symbol).toBe('W')
+  })
 
-    it('throws if content is not a plain object', () => {
-      expect(() => locale.register('xx', 'not an object')).toThrow()
-      expect(() => locale.register('xx', null)).toThrow()
-    })
-
-    it('throws if content does not conform to the schema', () => {
-      expect(() => locale.register('xx', {})).toThrow()
-      expect(() => locale.register('xx', { DIRECTIONS: { NORTH: { label: 42, symbol: 'N' } } })).toThrow()
-    })
+  it('should reflect locale change', () => {
+    setLocale('fr')
+    const { content } = getLocale()
+    expect(content.DIRECTIONS.WEST.symbol).toBe('O')
+    expect(content.DIRECTIONS.NORTH.label).toBe('Nord')
   })
 })

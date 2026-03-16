@@ -1,5 +1,5 @@
 import { asserts, is } from '@kalisio/check'
-import { coordinate } from '../core'
+import { truncateCoordinate } from '../core'
 import { Position } from './position.js'
 import { BoundingBox } from './bounding-box.js'
 
@@ -88,7 +88,7 @@ export function PositionArray (points = []) {
         { value: this, validator: (v) => v.isValid, message: 'this must be valid' }
       ])
       for (let i = 0; i < buffer.length; i++) {
-        buffer[i] = coordinate.truncate(buffer[i], precision)
+        buffer[i] = truncateCoordinate(buffer[i], precision)
       }
       return this
     },

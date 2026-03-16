@@ -1,58 +1,61 @@
 import { asserts, is } from '@kalisio/check'
-import { locale } from './locale.js'
+import { getLocale } from './locale.js'
+import { AXES, isLatitude, isLongitude, isAxis } from './axes.js'
 
-function isDirectionOf (type, dir) {
-  const directions = locale.get().content.DIRECTIONS
-  const label = directions[type].label.toUpperCase()
-  const symbol = directions[type].symbol.toUpperCase()
-  const direction = dir.toUpperCase()
-  return label === direction || symbol === direction
+function getAll () {
+  return getLocale().content.DIRECTIONS
 }
 
-export const directions = Object.freeze({
-  get () {
-    return locale.get().content.DIRECTIONS
-  },
+function isDirectionOf (type, dir) {
+  const all = getAll()
+  const label = all[type].label.toUpperCase()
+  const symbol = all[type].symbol.toUpperCase()
+  return dir.toUpperCase() === label || dir.toUpperCase() === symbol
+}
 
-  getNorth () {
-    return this.get().NORTH
-  },
-
-  getSouth () {
-    return this.get().SOUTH
-  },
-
-  getEast () {
-    return this.get().EAST
-  },
-
-  getWest () {
-    return this.get().WEST
-  },
-
-  isDirection (dir) {
-    return (
-      this.isNorth(dir) || this.isSouth(dir) || this.isEast(dir) || this.isWest(dir)
-    )
-  },
-
-  isNorth (dir) {
-    asserts.that(dir, is.string, 'dir must be a string')
-    return isDirectionOf('NORTH', dir)
-  },
-
-  isSouth (dir) {
-    asserts.that(dir, is.string, 'dir must be a string')
-    return isDirectionOf('SOUTH', dir)
-  },
-
-  isEast (dir) {
-    asserts.that(dir, is.string, 'dir must be a string')
-    return isDirectionOf('EAST', dir)
-  },
-
-  isWest (dir) {
-    asserts.that(dir, is.string, 'dir must be a string')
-    return isDirectionOf('WEST', dir)
+export function getDirections (axis = null) {
+  const directions = getAll()
+  if (is.defined(axis)) {
+    asserts.that(axis, isAxis, 'axis must be a valid axis')
+    if (isLatitude(axis)) return [directions.SOUTH, directions.NORTH]
+    if (isLongitude(axis)) return [directions.EAST, directions.WEST]
+    return []
   }
-})
+  return [directions.SOUTH, directions.NORTH, directions.EAST, directions.WEST]
+}
+
+export function getNorth () { return getAll().NORTH }
+export function getSouth () { return getAll().SOUTH }
+export function getEast () { return getAll().EAST }
+export function getWest () { return getAll().WEST }
+
+export function isDirection (dir) {
+  asserts.that(dir, is.string, 'dir must be a string')
+  return isNorth(dir) || isSouth(dir) || isEast(dir) || isWest(dir)
+}
+
+export function isNorth (dir) {
+  asserts.that(dir, is.string, 'dir must be a string')
+  return isDirectionOf('NORTH', dir)
+}
+
+export function isSouth (dir) {
+  asserts.that(dir, is.string, 'dir must be a string')
+  return isDirectionOf('SOUTH', dir)
+}
+
+export function isEast (dir) {
+  asserts.that(dir, is.string, 'dir must be a string')
+  return isDirectionOf('EAST', dir)
+}
+
+export function isWest (dir) {
+  asserts.that(dir, is.string, 'dir must be a string')
+  return isDirectionOf('WEST', dir)
+}
+
+export function getDirectionAxis (dir) {
+  asserts.that(dir, isDirection, 'dir must be a direction')
+  if (isWest(dir) || isEast(dir)) return AXES.LONGITUDE
+  return AXES.LATITUDE
+}

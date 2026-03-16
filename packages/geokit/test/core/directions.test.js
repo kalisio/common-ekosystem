@@ -1,164 +1,302 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { locale, directions } from '../../src/core'
+import {
+  getDirections,
+  getNorth,
+  getSouth,
+  getEast,
+  getWest,
+  isDirection,
+  isNorth,
+  isSouth,
+  isEast,
+  isWest,
+  getDirectionAxis
+} from '../../src/core/directions.js'
+import { AXES } from '../../src/core/axes.js'
+import { setLocale } from '../../src/core/locale.js'
 
-describe('directions', () => {
-  beforeEach(() => {
-    locale.set('en')
+beforeEach(() => {
+  setLocale('en')
+})
+
+describe('getDirections', () => {
+  it('should return all four directions when called without axis', () => {
+    expect(getDirections()).toHaveLength(4)
   })
 
-  describe('frozen', () => {
-    it('cannot be mutated', () => {
-      expect(() => { directions.get = null }).toThrow()
-    })
+  it('should return SOUTH and NORTH for latitude axis', () => {
+    const result = getDirections(AXES.LATITUDE)
+    expect(result).toHaveLength(2)
+    expect(result.some(d => d.symbol === 'S')).toBe(true)
+    expect(result.some(d => d.symbol === 'N')).toBe(true)
   })
 
-  describe('get', () => {
-    it('returns the directions object from the current locale', () => {
-      const d = directions.get()
-      expect(d).toHaveProperty('NORTH')
-      expect(d).toHaveProperty('SOUTH')
-      expect(d).toHaveProperty('EAST')
-      expect(d).toHaveProperty('WEST')
-    })
-
-    it('content is frozen — mutations throw', () => {
-      const d = directions.get()
-      expect(() => { d.NORTH.label = 'oops' }).toThrow()
-    })
-
-    it('reflects the active locale', () => {
-      const en = directions.get()
-      locale.set('fr')
-      const fr = directions.get()
-      // structure is the same but content may differ
-      expect(fr).toHaveProperty('NORTH')
-      expect(fr).not.toBe(en)
-    })
+  it('should return EAST and WEST for longitude axis', () => {
+    const result = getDirections(AXES.LONGITUDE)
+    expect(result).toHaveLength(2)
+    expect(result.some(d => d.symbol === 'E')).toBe(true)
+    expect(result.some(d => d.symbol === 'W')).toBe(true)
   })
 
-  describe('getNorth / getSouth / getEast / getWest', () => {
-    it('returns NORTH with label and symbol', () => {
-      const n = directions.getNorth()
-      expect(n).toHaveProperty('label')
-      expect(n).toHaveProperty('symbol')
-    })
-
-    it('returns SOUTH with label and symbol', () => {
-      const s = directions.getSouth()
-      expect(s).toHaveProperty('label')
-      expect(s).toHaveProperty('symbol')
-    })
-
-    it('returns EAST with label and symbol', () => {
-      const e = directions.getEast()
-      expect(e).toHaveProperty('label')
-      expect(e).toHaveProperty('symbol')
-    })
-
-    it('returns WEST with label and symbol', () => {
-      const w = directions.getWest()
-      expect(w).toHaveProperty('label')
-      expect(w).toHaveProperty('symbol')
-    })
+  it('should return an empty array for altitude axis', () => {
+    expect(getDirections(AXES.ALTITUDE)).toHaveLength(0)
   })
 
-  describe('isNorth', () => {
-    it('recognizes N and North (case insensitive)', () => {
-      expect(directions.isNorth('N')).toBe(true)
-      expect(directions.isNorth('n')).toBe(true)
-      expect(directions.isNorth('North')).toBe(true)
-      expect(directions.isNorth('NORTH')).toBe(true)
-    })
-
-    it('rejects other directions', () => {
-      expect(directions.isNorth('S')).toBe(false)
-      expect(directions.isNorth('E')).toBe(false)
-      expect(directions.isNorth('W')).toBe(false)
-    })
-
-    it('throws if not a string', () => {
-      expect(() => directions.isNorth(42)).toThrow()
-      expect(() => directions.isNorth(null)).toThrow()
-    })
+  it('should throw if axis is not a valid axis', () => {
+    expect(() => getDirections('UNKNOWN')).toThrow()
   })
 
-  describe('isSouth', () => {
-    it('recognizes S and South (case insensitive)', () => {
-      expect(directions.isSouth('S')).toBe(true)
-      expect(directions.isSouth('s')).toBe(true)
-      expect(directions.isSouth('South')).toBe(true)
-      expect(directions.isSouth('SOUTH')).toBe(true)
-    })
+  it('should reflect locale change', () => {
+    setLocale('fr')
+    const result = getDirections(AXES.LONGITUDE)
+    expect(result.some(d => d.symbol === 'O')).toBe(true)
+  })
+})
 
-    it('rejects other directions', () => {
-      expect(directions.isSouth('N')).toBe(false)
-      expect(directions.isSouth('E')).toBe(false)
-    })
-
-    it('throws if not a string', () => {
-      expect(() => directions.isSouth(null)).toThrow()
-    })
+describe('getNorth', () => {
+  it('should return the NORTH direction object in english', () => {
+    expect(getNorth().symbol).toBe('N')
+    expect(getNorth().label).toBe('North')
   })
 
-  describe('isEast', () => {
-    it('recognizes E and East (case insensitive)', () => {
-      expect(directions.isEast('E')).toBe(true)
-      expect(directions.isEast('e')).toBe(true)
-      expect(directions.isEast('East')).toBe(true)
-      expect(directions.isEast('EAST')).toBe(true)
-    })
+  it('should return the NORTH direction object in french', () => {
+    setLocale('fr')
+    expect(getNorth().symbol).toBe('N')
+    expect(getNorth().label).toBe('Nord')
+  })
+})
 
-    it('rejects other directions', () => {
-      expect(directions.isEast('W')).toBe(false)
-      expect(directions.isEast('N')).toBe(false)
-    })
-
-    it('throws if not a string', () => {
-      expect(() => directions.isEast(null)).toThrow()
-    })
+describe('getSouth', () => {
+  it('should return the SOUTH direction object in english', () => {
+    expect(getSouth().symbol).toBe('S')
+    expect(getSouth().label).toBe('South')
   })
 
-  describe('isWest', () => {
-    it('recognizes W and West (case insensitive)', () => {
-      expect(directions.isWest('W')).toBe(true)
-      expect(directions.isWest('w')).toBe(true)
-      expect(directions.isWest('West')).toBe(true)
-      expect(directions.isWest('WEST')).toBe(true)
-    })
+  it('should return the SOUTH direction object in french', () => {
+    setLocale('fr')
+    expect(getSouth().symbol).toBe('S')
+    expect(getSouth().label).toBe('Sud')
+  })
+})
 
-    it('rejects other directions', () => {
-      expect(directions.isWest('E')).toBe(false)
-      expect(directions.isWest('S')).toBe(false)
-    })
-
-    it('throws if not a string', () => {
-      expect(() => directions.isWest(null)).toThrow()
-    })
+describe('getEast', () => {
+  it('should return the EAST direction object in english', () => {
+    expect(getEast().symbol).toBe('E')
+    expect(getEast().label).toBe('East')
   })
 
-  describe('isDirection', () => {
-    it('returns true for any valid direction', () => {
-      expect(directions.isDirection('N')).toBe(true)
-      expect(directions.isDirection('S')).toBe(true)
-      expect(directions.isDirection('E')).toBe(true)
-      expect(directions.isDirection('W')).toBe(true)
-      expect(directions.isDirection('North')).toBe(true)
-      expect(directions.isDirection('south')).toBe(true)
-    })
+  it('should return the EAST direction object in french', () => {
+    setLocale('fr')
+    expect(getEast().symbol).toBe('E')
+    expect(getEast().label).toBe('Est')
+  })
+})
 
-    it('returns false for unknown values', () => {
-      expect(directions.isDirection('foo')).toBe(false)
-      expect(directions.isDirection('X')).toBe(false)
-    })
+describe('getWest', () => {
+  it('should return the WEST direction object in english', () => {
+    expect(getWest().symbol).toBe('W')
+    expect(getWest().label).toBe('West')
   })
 
-  describe('locale switch', () => {
-    it('reflects direction labels from the active locale', () => {
-      locale.set('fr')
-      const d = directions.get()
-      expect(d).toHaveProperty('NORTH')
-      expect(d.NORTH).toHaveProperty('label')
-      expect(d.NORTH).toHaveProperty('symbol')
-    })
+  it('should return the WEST direction object in french', () => {
+    setLocale('fr')
+    expect(getWest().symbol).toBe('O')
+    expect(getWest().label).toBe('Ouest')
+  })
+})
+
+describe('isDirection', () => {
+  it('should return true for valid symbols', () => {
+    expect(isDirection('N')).toBe(true)
+    expect(isDirection('S')).toBe(true)
+    expect(isDirection('E')).toBe(true)
+    expect(isDirection('W')).toBe(true)
+  })
+
+  it('should return true for valid labels', () => {
+    expect(isDirection('North')).toBe(true)
+    expect(isDirection('South')).toBe(true)
+    expect(isDirection('East')).toBe(true)
+    expect(isDirection('West')).toBe(true)
+  })
+
+  it('should be case insensitive', () => {
+    expect(isDirection('n')).toBe(true)
+    expect(isDirection('north')).toBe(true)
+    expect(isDirection('NORTH')).toBe(true)
+  })
+
+  it('should return true for french symbols', () => {
+    setLocale('fr')
+    expect(isDirection('O')).toBe(true)
+    expect(isDirection('Ouest')).toBe(true)
+  })
+
+  it('should return false for W in french locale', () => {
+    setLocale('fr')
+    expect(isDirection('W')).toBe(false)
+  })
+
+  it('should return false for an unknown direction', () => {
+    expect(isDirection('X')).toBe(false)
+    expect(isDirection('Z')).toBe(false)
+  })
+
+  it('should throw if dir is not a string', () => {
+    expect(() => isDirection(null)).toThrow()
+    expect(() => isDirection(42)).toThrow()
+    expect(() => isDirection(undefined)).toThrow()
+  })
+})
+
+describe('isNorth', () => {
+  it('should return true for symbol N', () => {
+    expect(isNorth('N')).toBe(true)
+  })
+
+  it('should return true for label North', () => {
+    expect(isNorth('North')).toBe(true)
+  })
+
+  it('should return true for french label Nord', () => {
+    setLocale('fr')
+    expect(isNorth('Nord')).toBe(true)
+  })
+
+  it('should be case insensitive', () => {
+    expect(isNorth('n')).toBe(true)
+    expect(isNorth('north')).toBe(true)
+  })
+
+  it('should return false for other directions', () => {
+    expect(isNorth('S')).toBe(false)
+    expect(isNorth('E')).toBe(false)
+    expect(isNorth('W')).toBe(false)
+  })
+
+  it('should throw if dir is not a string', () => {
+    expect(() => isNorth(null)).toThrow()
+  })
+})
+
+describe('isSouth', () => {
+  it('should return true for symbol S', () => {
+    expect(isSouth('S')).toBe(true)
+  })
+
+  it('should return true for label South', () => {
+    expect(isSouth('South')).toBe(true)
+  })
+
+  it('should return true for french label Sud', () => {
+    setLocale('fr')
+    expect(isSouth('Sud')).toBe(true)
+  })
+
+  it('should return false for other directions', () => {
+    expect(isSouth('N')).toBe(false)
+    expect(isSouth('E')).toBe(false)
+    expect(isSouth('W')).toBe(false)
+  })
+
+  it('should throw if dir is not a string', () => {
+    expect(() => isSouth(null)).toThrow()
+  })
+})
+
+describe('isEast', () => {
+  it('should return true for symbol E', () => {
+    expect(isEast('E')).toBe(true)
+  })
+
+  it('should return true for label East', () => {
+    expect(isEast('East')).toBe(true)
+  })
+
+  it('should return true for french label Est', () => {
+    setLocale('fr')
+    expect(isEast('Est')).toBe(true)
+  })
+
+  it('should return false for other directions', () => {
+    expect(isEast('N')).toBe(false)
+    expect(isEast('S')).toBe(false)
+    expect(isEast('W')).toBe(false)
+  })
+
+  it('should throw if dir is not a string', () => {
+    expect(() => isEast(null)).toThrow()
+  })
+})
+
+describe('isWest', () => {
+  it('should return true for symbol W', () => {
+    expect(isWest('W')).toBe(true)
+  })
+
+  it('should return true for label West', () => {
+    expect(isWest('West')).toBe(true)
+  })
+
+  it('should return true for french symbol O', () => {
+    setLocale('fr')
+    expect(isWest('O')).toBe(true)
+  })
+
+  it('should return true for french label Ouest', () => {
+    setLocale('fr')
+    expect(isWest('Ouest')).toBe(true)
+  })
+
+  it('should return false for W in french locale', () => {
+    setLocale('fr')
+    expect(isWest('W')).toBe(false)
+  })
+
+  it('should return false for other directions', () => {
+    expect(isWest('N')).toBe(false)
+    expect(isWest('S')).toBe(false)
+    expect(isWest('E')).toBe(false)
+  })
+
+  it('should throw if dir is not a string', () => {
+    expect(() => isWest(null)).toThrow()
+  })
+})
+
+describe('getDirectionAxis', () => {
+  it('should return LONGITUDE for E', () => {
+    expect(getDirectionAxis('E')).toBe(AXES.LONGITUDE)
+  })
+
+  it('should return LONGITUDE for W', () => {
+    expect(getDirectionAxis('W')).toBe(AXES.LONGITUDE)
+  })
+
+  it('should return LATITUDE for N', () => {
+    expect(getDirectionAxis('N')).toBe(AXES.LATITUDE)
+  })
+
+  it('should return LATITUDE for S', () => {
+    expect(getDirectionAxis('S')).toBe(AXES.LATITUDE)
+  })
+
+  it('should return LONGITUDE for East label', () => {
+    expect(getDirectionAxis('East')).toBe(AXES.LONGITUDE)
+  })
+
+  it('should return LATITUDE for North label', () => {
+    expect(getDirectionAxis('North')).toBe(AXES.LATITUDE)
+  })
+
+  it('should work with french locale', () => {
+    setLocale('fr')
+    expect(getDirectionAxis('O')).toBe(AXES.LONGITUDE)
+    expect(getDirectionAxis('Nord')).toBe(AXES.LATITUDE)
+  })
+
+  it('should throw if dir is not a valid direction', () => {
+    expect(() => getDirectionAxis('X')).toThrow()
+    expect(() => getDirectionAxis(null)).toThrow()
   })
 })
