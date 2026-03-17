@@ -60,6 +60,7 @@ catalog:
   husky: ^9.1.7
   is-docker: ^2.2.1
   keycloak-js: ^23.0.4
+  lcov-result-merger: ^5.0.1
   lint-staged: ^16.2.7
   localforage: ^1.10.0
   lodash: ^4.17.21
