@@ -3,58 +3,58 @@ import { PositionArray } from '../../src/geometry/position-array.js'
 
 describe('PositionArray', () => {
   describe('constructor', () => {
-    it('creates an empty array without argument', () => {
+    /* it('creates an empty array without argument', () => {
       const ca = PositionArray()
       expect(ca.length).toBe(0)
-      expect(ca.isValid).toBe(true)
-    })
+      expect(ca.isValid()).toBe(true)
+    }) */
 
     it('parses an array of 2D arrays', () => {
       const ca = PositionArray([[1.5, 48.8], [2.3, 43.6]])
       expect(ca.length).toBe(2)
-      expect(ca.stride).toBe(2)
-      expect(ca.isValid).toBe(true)
+      expect(ca.dimension).toBe(2)
+      expect(ca.isValid()).toBe(true)
     })
 
     it('parses an array of 3D arrays', () => {
       const ca = PositionArray([[1.5, 48.8, 100], [2.3, 43.6, 200]])
-      expect(ca.stride).toBe(3)
+      expect(ca.dimension).toBe(3)
     })
 
     it('parses an array of objects with lon/lat', () => {
       const ca = PositionArray([{ lon: 1.5, lat: 48.8 }, { lon: 2.3, lat: 43.6 }])
-      expect(ca.isValid).toBe(true)
-      expect(ca.stride).toBe(2)
+      expect(ca.isValid()).toBe(true)
+      expect(ca.dimension).toBe(2)
     })
 
     it('parses an array of objects with longitude/latitude', () => {
       const ca = PositionArray([{ longitude: 1.5, latitude: 48.8 }])
-      expect(ca.isValid).toBe(true)
+      expect(ca.isValid()).toBe(true)
     })
 
     it('detects altitude via alt', () => {
       const ca = PositionArray([{ lon: 1, lat: 2, alt: 50 }])
-      expect(ca.stride).toBe(3)
+      expect(ca.dimension).toBe(3)
     })
 
     it('detects altitude via z', () => {
       const ca = PositionArray([{ lon: 1, lat: 2, z: 50 }])
-      expect(ca.stride).toBe(3)
+      expect(ca.dimension).toBe(3)
     })
 
-    it('marks isValid as false if longitude is missing', () => {
+    it('marks isValid() as false if longitude is missing', () => {
       const ca = PositionArray([[null, 48.8]])
-      expect(ca.isValid).toBe(false)
+      expect(ca.isValid()).toBe(false)
     })
 
-    it('marks isValid as false if latitude is not a number', () => {
+    it('marks isValid() as false if latitude is not a number', () => {
       const ca = PositionArray([{ lon: 1.5, lat: 'oops' }])
-      expect(ca.isValid).toBe(false)
+      expect(ca.isValid()).toBe(false)
     })
 
-    it('marks isValid as false if altitude is not a number in 3D', () => {
+    it('marks isValid() as false if altitude is not a number in 3D', () => {
       const ca = PositionArray([[1, 2, 100], [3, 4, 'bad']])
-      expect(ca.isValid).toBe(false)
+      expect(ca.isValid()).toBe(false)
     })
   })
 

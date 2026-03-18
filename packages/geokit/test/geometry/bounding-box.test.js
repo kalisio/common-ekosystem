@@ -6,29 +6,29 @@ describe('BoundingBox', () => {
   describe('constructor', () => {
     it('creates a valid bbox from a 2D array', () => {
       const bb = BoundingBox([[1, 10], [5, 20]])
-      expect(bb.isValid).toBe(true)
+      expect(bb.isValid()).toBe(true)
     })
 
     it('creates a valid bbox from a 3D array', () => {
       const bb = BoundingBox([[1, 10, 0], [5, 20, 100]])
-      expect(bb.isValid).toBe(true)
+      expect(bb.isValid()).toBe(true)
     })
 
     it('creates a valid bbox from a { min, max } object', () => {
       const bb = BoundingBox({ min: [1, 10], max: [5, 20] })
-      expect(bb.isValid).toBe(true)
+      expect(bb.isValid()).toBe(true)
     })
 
     it('creates an invalid bbox without argument', () => {
-      expect(BoundingBox().isValid).toBe(false)
+      expect(BoundingBox().isValid()).toBe(false)
     })
 
     it('creates an invalid bbox with incorrect position', () => {
-      expect(BoundingBox([[null, 10], [5, 20]]).isValid).toBe(false)
+      expect(BoundingBox([[null, 10], [5, 20]]).isValid()).toBe(false)
     })
 
     it('creates an invalid bbox with an array of incorrect length', () => {
-      expect(BoundingBox([[1, 10]]).isValid).toBe(false)
+      expect(BoundingBox([[1, 10]]).isValid()).toBe(false)
     })
   })
 

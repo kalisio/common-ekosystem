@@ -26,6 +26,7 @@ export function Position (position) {
   }
 
   return {
+    get type () { return 'Position' },
     get dimension () { return is.defined(_value[2]) ? 3 : 2 },
     get longitude () { return _value[0] },
     get latitude () { return _value[1] },
@@ -117,6 +118,10 @@ export function Position (position) {
       return `${lat.toString(decimalPlaces)} ${lon.toString(decimalPlaces)}`
     }
   }
+}
+
+export function isPosition (position) {
+  return is.defined(position) && position.type === 'Position'
 }
 
 export function parsePosition (pattern) {

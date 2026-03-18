@@ -2,33 +2,37 @@ import { asserts, is, has } from '@kalisio/check'
 import { Position } from './position.js'
 
 export function BoundingBox (bounds) {
-  let min = null
-  let max = null
-  let isValid = false
+  let _min = null
+  let _max = null
+  let _isValid = false
 
   if (is.array(bounds) && bounds.length === 2) {
-    min = Position(bounds[0])
-    max = Position(bounds[1])
-    isValid = min.isValid() && max.isValid()
+    _min = Position(bounds[0])
+    _max = Position(bounds[1])
+    _isValid = _min.isValid() && _max.isValid()
   } else if (is.plainObject(bounds) && has.keys(bounds, ['min', 'max'])) {
-    min = Position(bounds.min)
-    max = Position(bounds.max)
-    isValid = min.isValid() && max.isValid()
+    _min = Position(bounds.min)
+    _max = Position(bounds.max)
+    _isValid = _min.isValid() && _max.isValid()
   }
 
   return {
-    get min () { return min },
-    get max () { return max },
-    get isValid () { return isValid },
-    get dimension () { return isValid ? min.dimension : 0 },
+    get type () { return 'BoundingBox' },
+    get dimension () { return _isValid ? _min.dimension : 0 },
+    get min () { return _min },
+    get max () { return _max },
+
+    isValid () {
+      return _isValid
+    },
 
     truncate (precision = 7) {
       asserts.all([
         { value: precision, validator: (v) => is.inRange(v, 0, 8), message: 'precision must be in range [0, 8]' },
         { value: this, validator: (v) => v.isValid, message: 'this must be a valid BBox' }
       ])
-      min.truncate(precision)
-      max.truncate(precision)
+      _min.truncate(precision)
+      _max.truncate(precision)
       return this
     },
 
@@ -37,14 +41,14 @@ export function BoundingBox (bounds) {
         { value: position, validator: (v) => is.defined(v) && v.isValid(), message: 'position must be a valid Position' },
         { value: this, validator: (v) => v.isValid, message: 'this must be a valid BBox' }
       ])
-      min.longitude = Math.min(min.longitude, position.longitude)
-      min.latitude = Math.min(min.latitude, position.latitude)
-      max.longitude = Math.max(max.longitude, position.longitude)
-      max.latitude = Math.max(max.latitude, position.latitude)
+      _min.longitude = Math.min(_min.longitude, position.longitude)
+      _min.latitude = Math.min(_min.latitude, position.latitude)
+      _max.longitude = Math.max(_max.longitude, position.longitude)
+      _max.latitude = Math.max(_max.latitude, position.latitude)
       if (this.dimension === 3) {
         const alt = position.altitude ?? 0
-        min.altitude = Math.min(min.altitude, alt)
-        max.altitude = Math.max(max.altitude, alt)
+        _min.altitude = Math.min(_min.altitude, alt)
+        _max.altitude = Math.max(_max.altitude, alt)
       }
       return this
     },
@@ -58,21 +62,21 @@ export function BoundingBox (bounds) {
     },
 
     toArray () {
-      if (!isValid) return null
-      return [min.toArray(), max.toArray()]
+      if (!_isValid) return null
+      return [_min.toArray(), _max.toArray()]
     },
 
     toJSON () {
-      if (!isValid) return null
+      if (!_isValid) return null
       return {
-        min: min.toJSON(),
-        max: max.toJSON()
+        min: _min.toJSON(),
+        max: _max.toJSON()
       }
     },
 
     toGeoJSON () {
-      if (!isValid) return null
-      return { bbox: [...min.toArray(), ...max.toArray()] }
+      if (!_isValid) return null
+      return { bbox: [..._min.toArray(), ..._max.toArray()] }
     }
   }
 }
