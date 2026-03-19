@@ -1,5 +1,4 @@
 import { asserts, is, has, conforms } from '@kalisio/check'
-import { deepFreeze } from './utils.js'
 import fr from './locales/fr.json'
 import en from './locales/en.json'
 
@@ -13,8 +12,8 @@ const LOCALE_SCHEMA = {
 }
 
 const LOCALES = {
-  en: deepFreeze(en),
-  fr: deepFreeze(fr)
+  en,
+  fr
 }
 
 let CURRENT_LOCALE = 'en'
@@ -30,7 +29,7 @@ export function registerLocale (code, content) {
     { value: content, validator: is.plainObject, message: 'content must be an object' },
     { value: content, validator: (v) => conforms.schema(v, LOCALE_SCHEMA), message: 'content does not conform to schema' }
   ])
-  LOCALES[code] = deepFreeze(content)
+  LOCALES[code] = content
 }
 
 export function setLocale (code) {

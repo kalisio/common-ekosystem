@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { BoundingBox } from '../../src/geometry/bounding-box.js'
-import { Position } from '../../src/geometry/position.js'
+import { Point } from '../../src/geometry/point.js'
 
 describe('BoundingBox', () => {
   describe('constructor', () => {
@@ -23,7 +23,7 @@ describe('BoundingBox', () => {
       expect(BoundingBox().isValid()).toBe(false)
     })
 
-    it('creates an invalid bbox with incorrect position', () => {
+    it('creates an invalid bbox with incorrect point', () => {
       expect(BoundingBox([[null, 10], [5, 20]]).isValid()).toBe(false)
     })
 
@@ -105,7 +105,7 @@ describe('BoundingBox', () => {
   describe('extend', () => {
     it('extends the bbox toward the top-right', () => {
       const bb = BoundingBox([[1, 10], [5, 20]])
-      bb.extend(Position([8, 25]))
+      bb.extend(Point([8, 25]))
       expect(bb.max.longitude).toBe(8)
       expect(bb.max.latitude).toBe(25)
       expect(bb.min.longitude).toBe(1)
@@ -114,7 +114,7 @@ describe('BoundingBox', () => {
 
     it('extends the bbox toward the bottom-left', () => {
       const bb = BoundingBox([[1, 10], [5, 20]])
-      bb.extend(Position([-2, 5]))
+      bb.extend(Point([-2, 5]))
       expect(bb.min.longitude).toBe(-2)
       expect(bb.min.latitude).toBe(5)
       expect(bb.max.longitude).toBe(5)
@@ -123,7 +123,7 @@ describe('BoundingBox', () => {
 
     it('does not extend if the point is inside', () => {
       const bb = BoundingBox([[1, 10], [5, 20]])
-      bb.extend(Position([3, 15]))
+      bb.extend(Point([3, 15]))
       expect(bb.min.longitude).toBe(1)
       expect(bb.min.latitude).toBe(10)
       expect(bb.max.longitude).toBe(5)
@@ -132,29 +132,29 @@ describe('BoundingBox', () => {
 
     it('extends altitude in 3D', () => {
       const bb = BoundingBox([[1, 10, 0], [5, 20, 100]])
-      bb.extend(Position([3, 15, 200]))
+      bb.extend(Point([3, 15, 200]))
       expect(bb.max.altitude).toBe(200)
       expect(bb.min.altitude).toBe(0)
     })
 
     it('uses 0 if altitude is absent in 3D', () => {
       const bb = BoundingBox([[1, 10, 50], [5, 20, 100]])
-      bb.extend(Position([3, 15, 0]))
+      bb.extend(Point([3, 15, 0]))
       expect(bb.min.altitude).toBe(0)
     })
 
     it('returns this for chaining', () => {
       const bb = BoundingBox([[1, 10], [5, 20]])
-      expect(bb.extend(Position([3, 15]))).toBe(bb)
+      expect(bb.extend(Point([3, 15]))).toBe(bb)
     })
 
-    it('throws if position are invalid', () => {
+    it('throws if point are invalid', () => {
       const bb = BoundingBox([[1, 10], [5, 20]])
-      expect(() => bb.extend(Position())).toThrow()
+      expect(() => bb.extend(Point())).toThrow()
     })
 
     it('throws if bbox is invalid', () => {
-      expect(() => BoundingBox().extend(Position([3, 15]))).toThrow()
+      expect(() => BoundingBox().extend(Point([3, 15]))).toThrow()
     })
   })
 

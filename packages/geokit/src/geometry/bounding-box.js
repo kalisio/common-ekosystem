@@ -1,18 +1,18 @@
 import { asserts, is, has } from '@kalisio/check'
-import { Position } from './position.js'
+import { Point } from './point.js'
 
-export function BoundingBox (bounds) {
+export function BoundingBox (bbox) {
   let _min = null
   let _max = null
   let _isValid = false
 
-  if (is.array(bounds) && bounds.length === 2) {
-    _min = Position(bounds[0])
-    _max = Position(bounds[1])
+  if (is.array(bbox) && bbox.length === 2) {
+    _min = Point(bbox[0])
+    _max = Point(bbox[1])
     _isValid = _min.isValid() && _max.isValid()
-  } else if (is.plainObject(bounds) && has.keys(bounds, ['min', 'max'])) {
-    _min = Position(bounds.min)
-    _max = Position(bounds.max)
+  } else if (is.plainObject(bbox) && has.keys(bbox, ['min', 'max'])) {
+    _min = Point(bbox.min)
+    _max = Point(bbox.max)
     _isValid = _min.isValid() && _max.isValid()
   }
 
@@ -36,17 +36,17 @@ export function BoundingBox (bounds) {
       return this
     },
 
-    extend (position) {
+    extend (point) {
       asserts.all([
-        { value: position, validator: (v) => is.defined(v) && v.isValid(), message: 'position must be a valid Position' },
+        { value: point, validator: (v) => is.defined(v) && v.isValid(), message: 'point must be a valid Point' },
         { value: this, validator: (v) => v.isValid, message: 'this must be a valid BBox' }
       ])
-      _min.longitude = Math.min(_min.longitude, position.longitude)
-      _min.latitude = Math.min(_min.latitude, position.latitude)
-      _max.longitude = Math.max(_max.longitude, position.longitude)
-      _max.latitude = Math.max(_max.latitude, position.latitude)
+      _min.longitude = Math.min(_min.longitude, point.longitude)
+      _min.latitude = Math.min(_min.latitude, point.latitude)
+      _max.longitude = Math.max(_max.longitude, point.longitude)
+      _max.latitude = Math.max(_max.latitude, point.latitude)
       if (this.dimension === 3) {
-        const alt = position.altitude ?? 0
+        const alt = point.altitude ?? 0
         _min.altitude = Math.min(_min.altitude, alt)
         _max.altitude = Math.max(_max.altitude, alt)
       }

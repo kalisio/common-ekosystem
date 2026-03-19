@@ -1,9 +1,9 @@
 import { asserts, is } from '@kalisio/check'
-import { truncateCoordinate } from '../core'
-import { Position } from './position.js'
+import { truncateCoordinate } from '../core/index.js'
+import { Point } from './point.js'
 import { BoundingBox } from './bounding-box.js'
 
-export function PositionArray (points = []) {
+export function PointArray (points = []) {
   asserts.that(points, is.array, 'points must be an array')
   const _hasAlt = points.some(p => (is.array(p) && p.length > 2) || (p && (p.alt != null || p.z != null)))
   const _stride = _hasAlt ? 3 : 2
@@ -31,19 +31,19 @@ export function PositionArray (points = []) {
     }
   }
 
-  const positionAt = (i) => {
+  const pointAt = (i) => {
     const value = _stride === 3
       ? [_buffer[i * _stride], _buffer[i * _stride + 1], _buffer[i * _stride + 2]]
       : [_buffer[i * _stride], _buffer[i * _stride + 1]]
-    return Position(value)
+    return Point(value)
   }
 
   return {
-    get type () { return 'PositionArray' },
+    get type () { return 'PointArray' },
     get dimension () { return _stride },
     get length () { return _length },
     get buffer () { return _buffer },
-    at: positionAt,
+    at: pointAt,
 
     isValid () {
       return _isValid
@@ -51,25 +51,25 @@ export function PositionArray (points = []) {
 
     [Symbol.iterator]: function * () {
       if (!_isValid || _length === 0) return
-      for (let i = 0; i < _length; i++) yield positionAt(i)
+      for (let i = 0; i < _length; i++) yield pointAt(i)
     },
 
     forEach (fn) {
       if (!_isValid || _length === 0) return
-      for (let i = 0; i < _length; i++) fn(positionAt(i), i)
+      for (let i = 0; i < _length; i++) fn(pointAt(i), i)
     },
 
     map (fn) {
       const results = []
       if (!_isValid || _length === 0) return results
-      for (let i = 0; i < _length; i++) results.push(fn(positionAt(i), i))
+      for (let i = 0; i < _length; i++) results.push(fn(pointAt(i), i))
       return results
     },
 
     toArray () {
       const arr = []
       if (!_isValid || _length === 0) return arr
-      for (let i = 0; i < _length; i++) arr.push(positionAt(i).toArray())
+      for (let i = 0; i < _length; i++) arr.push(pointAt(i).toArray())
       return arr
     },
 
@@ -77,7 +77,7 @@ export function PositionArray (points = []) {
       const coordinates = []
       if (!_isValid || _length === 0) return { coordinates }
       for (let i = 0; i < _length; i++) {
-        const c = positionAt(i)
+        const c = pointAt(i)
         const arr = c.altitude != null ? [c.longitude, c.latitude, c.altitude] : [c.longitude, c.latitude]
         coordinates.push(arr)
       }
@@ -133,14 +133,14 @@ export function PositionArray (points = []) {
           sumLon += _buffer[i * _stride]
           sumLat += _buffer[i * _stride + 1]
         }
-        return Position([sumLon / _length, sumLat / _length])
+        return Point([sumLon / _length, sumLat / _length])
       }
       for (let i = 0; i < _length; i++) {
         sumLon += _buffer[i * _stride]
         sumLat += _buffer[i * _stride + 1]
         sumAlt += _buffer[i * _stride + 2]
       }
-      return Position([sumLon / _length, sumLat / _length, sumAlt / _length])
+      return Point([sumLon / _length, sumLat / _length, sumAlt / _length])
     }
   }
 }
