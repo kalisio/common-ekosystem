@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { converter } from '../../../src/core/coordinate-formats/converter.js'
-import { COORDINATE_MODELS } from '../../../src/core/coordinate.js'
+import { converter } from '../../../src/foundation/coordinate-formats/converter.js'
+import { COORDINATE_MODELS } from '../../../src/foundation/coordinate.js'
 
 const { DD, DDM_AERO: DDMAero } = COORDINATE_MODELS
 

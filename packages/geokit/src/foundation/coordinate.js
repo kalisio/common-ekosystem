@@ -6,6 +6,24 @@ export { COORDINATE_FORMATS, COORDINATE_MODELS } from './coordinate-formats'
 
 const COORDINATE_TRUNCATION_FACTORS = Array.from({ length: 9 }, (_, i) => 10 ** i)
 
+export function guessCoordinateAxis (coord, dir) {
+  asserts.that(coord, is.number, 'coord must be a number')
+  if (is.defined(dir)) {
+    asserts.that(dir, isDirection, 'dir must be a direction')
+    return getDirectionAxis(dir)
+  }
+  if (Math.abs(coord) > 90) return AXES.LONGITUDE
+  return undefined
+}
+
+export function getCoordinatePrecision (coord) {
+  asserts.that(coord, is.number, 'coord must be a number')
+  const str = coord.toExponential()
+  const [base, exp] = str.split('e').map(Number)
+  const decimalsInBase = (base.toString().split('.')[1] || '').length
+  return Math.max(0, decimalsInBase - exp)
+}
+
 export function truncateCoordinate (coord, precision) {
   asserts.all([
     { value: coord, validator: is.number, message: 'coord must be a number' },
@@ -27,16 +45,6 @@ export function normalizeCoordinate (coord, axis) {
   if (lon === -180) lon = 180
   if (Object.is(lon, -0)) lon = 0
   return lon
-}
-
-export function guessCoordinateAxis (coord, dir) {
-  asserts.that(coord, is.number, 'coord must be a number')
-  if (is.defined(dir)) {
-    asserts.that(dir, isDirection, 'dir must be a direction')
-    return getDirectionAxis(dir)
-  }
-  if (Math.abs(coord) > 90) return AXES.LONGITUDE
-  return undefined
 }
 
 export function convertCoordinate (from, to) {

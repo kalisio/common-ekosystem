@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { DD } from '../../../src/core/coordinate-formats/dd.js'
+import { DD } from '../../../src/foundation/coordinate-formats/dd.js'
 
 describe('DD', () => {
   describe('from object', () => {

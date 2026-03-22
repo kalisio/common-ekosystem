@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { listLocales, registerLocale, setLocale, getLocale } from '../../src/core/locale.js'
+import { listLocales, registerLocale, setLocale, getLocale } from '../../src/foundation/locale.js'
 
 beforeEach(() => {
   setLocale('en')

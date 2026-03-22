@@ -1,2 +1,2 @@
-export * from './core'
-export * from './geometry'
+export * from './foundation'
+export * from './algorithms'

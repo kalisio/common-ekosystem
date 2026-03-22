@@ -11,9 +11,9 @@ import {
   isEast,
   isWest,
   getDirectionAxis
-} from '../../src/core/directions.js'
-import { AXES } from '../../src/core/axes.js'
-import { setLocale } from '../../src/core/locale.js'
+} from '../../src/foundation/directions.js'
+import { AXES } from '../../src/foundation/axes.js'
+import { setLocale } from '../../src/foundation/locale.js'
 
 beforeEach(() => {
   setLocale('en')

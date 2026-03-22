@@ -117,6 +117,25 @@ export const is = {
     return is.array(value) && value.length === length
   },
 
+  arrayOfLengthAtLeast (value, minLength) {
+    asserts.that(minLength, is.nonNegativeInteger, 'minLength must be a non negative integer')
+    return is.array(value) && value.length >= minLength
+  },
+
+  arrayOfLengthAtMost (value, maxLength) {
+    asserts.that(maxLength, is.nonNegativeInteger, 'maxLength must be a non negative integer')
+    return is.array(value) && value.length <= maxLength
+  },
+
+  arrayOfLengthBetween (value, minLength, maxLength) {
+    asserts.all([
+      { value: minLength, validator: is.nonNegativeInteger, message: 'minLength must be a non negative integer' },
+      { value: maxLength, validator: is.nonNegativeInteger, message: 'maxLength must be a non negative integer' },
+      { value: minLength, validator: (v) => v <= maxLength, message: 'minLength must be less than or equal to maxLength' }
+    ])
+    return is.array(value) && value.length >= minLength && value.length <= maxLength
+  },
+
   map (value) {
     return is.defined(value) && value instanceof Map
   },

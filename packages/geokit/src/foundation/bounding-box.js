@@ -1,5 +1,5 @@
 import { asserts, is, has } from '@kalisio/check'
-import { Point } from './point.js'
+import { Point } from '../geometry/point.js'
 
 export function BoundingBox (bbox) {
   let _min = null

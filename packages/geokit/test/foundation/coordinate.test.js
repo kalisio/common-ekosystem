@@ -7,9 +7,9 @@ import {
   parseCoordinate,
   COORDINATE_FORMATS,
   COORDINATE_MODELS
-} from '../../src/core/coordinate.js'
-import { AXES } from '../../src/core/axes.js'
-import { setLocale } from '../../src/core/locale.js'
+} from '../../src/foundation/coordinate.js'
+import { AXES } from '../../src/foundation/axes.js'
+import { setLocale } from '../../src/foundation/locale.js'
 
 const { DD, DDM, DMS /*, /*DDM_AERO: DDMAero */ } = COORDINATE_MODELS
 

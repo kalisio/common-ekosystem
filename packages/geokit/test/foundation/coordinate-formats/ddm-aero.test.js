@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { DDMAero } from '../../../src/core/coordinate-formats/ddm-aero.js'
+import { DDMAero } from '../../../src/foundation/coordinate-formats/ddm-aero.js'
 
 describe('DDMAero', () => {
   describe('from object', () => {

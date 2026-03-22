@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { AXES, isAxis, isLatitude, isLongitude, isAltitude } from '../../src/core/axes.js'
+import { AXES, isAxis, isLatitude, isLongitude, isAltitude } from '../../src/foundation/axes.js'
 
 describe('AXES', () => {
   it('should contain LATITUDE', () => {
