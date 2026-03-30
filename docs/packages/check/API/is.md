@@ -137,6 +137,38 @@ is.emptyObject({ name: 'Alice' }) // false
 is.emptyObject([])                // false
 ```
 
+## nonEmptyObject
+
+### Signature
+
+```javascript
+nonEmptyObject(value)
+```
+
+### Description
+
+Check if a value is a plain object with at least one key.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| value | * | yes | The value to check |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| boolean | True if the value is a plain object with at least one key |
+
+### Examples
+
+```javascript
+is.nonEmptyObject({ name: 'Alice' }) // true
+is.nonEmptyObject({})                // false
+is.nonEmptyObject([])                // false
+```
+
 ## string
 
 ### Signature
@@ -200,6 +232,39 @@ is.emptyString('')      // true
 is.emptyString('   ')   // true
 is.emptyString('hello') // false
 is.emptyString(null)    // false
+```
+
+## nonEmptyString
+
+### Signature
+
+```javascript
+nonEmptyString(value)
+```
+
+### Description
+
+Check if a value is a string containing at least one non-whitespace character.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| value | * | yes | The value to check |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| boolean | True if the value is a string with at least one non-whitespace character |
+
+### Examples
+
+```javascript
+is.nonEmptyString('hello') // true
+is.nonEmptyString('')      // false
+is.nonEmptyString('   ')   // false
+is.nonEmptyString(null)    // false
 ```
 
 ## regularExpression
@@ -269,6 +334,274 @@ is.number(Infinity) // false
 is.number('42')     // false
 ```
 
+## positive
+
+### Signature
+
+```javascript
+positive(value)
+```
+
+### Description
+
+Check if a value is a positive number (strictly greater than 0).
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| value | * | yes | The value to check |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| boolean | True if the value is a number greater than 0 |
+
+### Examples
+
+```javascript
+is.positive(5)   // true
+is.positive(0.1) // true
+is.positive(0)   // false
+is.positive(-5)  // false
+```
+
+## nonPositive
+
+### Signature
+
+```javascript
+nonPositive(value)
+```
+
+### Description
+
+Check if a value is a number less than or equal to 0.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| value | * | yes | The value to check |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| boolean | True if the value is a number ≤ 0 |
+
+### Examples
+
+```javascript
+is.nonPositive(0)  // true
+is.nonPositive(-5) // true
+is.nonPositive(1)  // false
+```
+
+## negative
+
+### Signature
+
+```javascript
+negative(value)
+```
+
+### Description
+
+Check if a value is a negative number (strictly less than 0).
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| value | * | yes | The value to check |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| boolean | True if the value is a number less than 0 |
+
+### Examples
+
+```javascript
+is.negative(-5)   // true
+is.negative(-0.1) // true
+is.negative(0)    // false
+is.negative(5)    // false
+```
+
+## nonNegative
+
+### Signature
+
+```javascript
+nonNegative(value)
+```
+
+### Description
+
+Check if a value is a number greater than or equal to 0.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| value | * | yes | The value to check |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| boolean | True if the value is a number ≥ 0 |
+
+### Examples
+
+```javascript
+is.nonNegative(0)  // true
+is.nonNegative(5)  // true
+is.nonNegative(-1) // false
+```
+
+## inRange
+
+### Signature
+
+```javascript
+inRange(value, min, max)
+```
+
+### Description
+
+Check if a value is within a numeric range (inclusive on both ends).
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| value | * | yes | The value to check |
+| min | number | yes | Minimum value (inclusive) |
+| max | number | yes | Maximum value (inclusive) |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| boolean | True if the value is a number between min and max (inclusive) |
+
+### Examples
+
+```javascript
+is.inRange(5, 1, 10)  // true
+is.inRange(1, 1, 10)  // true
+is.inRange(10, 1, 10) // true
+is.inRange(0, 1, 10)  // false
+is.inRange(11, 1, 10) // false
+```
+
+## inRangeExclusive
+
+### Signature
+
+```javascript
+inRangeExclusive(value, min, max)
+```
+
+### Description
+
+Check if a value is strictly within a numeric range (exclusive on both ends).
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| value | * | yes | The value to check |
+| min | number | yes | Minimum value (exclusive) |
+| max | number | yes | Maximum value (exclusive) |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| boolean | True if the value is a number strictly between min and max |
+
+### Examples
+
+```javascript
+is.inRangeExclusive(5, 1, 10)  // true
+is.inRangeExclusive(1, 1, 10)  // false
+is.inRangeExclusive(10, 1, 10) // false
+```
+
+## inRangeExclusiveMin
+
+### Signature
+
+```javascript
+inRangeExclusiveMin(value, min, max)
+```
+
+### Description
+
+Check if a value is within a numeric range, exclusive on the lower bound and inclusive on the upper bound.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| value | * | yes | The value to check |
+| min | number | yes | Minimum value (exclusive) |
+| max | number | yes | Maximum value (inclusive) |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| boolean | True if `min < value <= max` |
+
+### Examples
+
+```javascript
+is.inRangeExclusiveMin(10, 1, 10) // true
+is.inRangeExclusiveMin(1, 1, 10)  // false
+is.inRangeExclusiveMin(5, 1, 10)  // true
+```
+
+## inRangeExclusiveMax
+
+### Signature
+
+```javascript
+inRangeExclusiveMax(value, min, max)
+```
+
+### Description
+
+Check if a value is within a numeric range, inclusive on the lower bound and exclusive on the upper bound.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| value | * | yes | The value to check |
+| min | number | yes | Minimum value (inclusive) |
+| max | number | yes | Maximum value (exclusive) |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| boolean | True if `min <= value < max` |
+
+### Examples
+
+```javascript
+is.inRangeExclusiveMax(1, 1, 10)  // true
+is.inRangeExclusiveMax(10, 1, 10) // false
+is.inRangeExclusiveMax(5, 1, 10)  // true
+```
+
 ## integer
 
 ### Signature
@@ -300,6 +633,137 @@ is.integer(42)   // true
 is.integer(0)    // true
 is.integer(3.14) // false
 is.integer('42') // false
+```
+
+## positiveInteger
+
+### Signature
+
+```javascript
+positiveInteger(value)
+```
+
+### Description
+
+Check if a value is an integer strictly greater than 0.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| value | * | yes | The value to check |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| boolean | True if the value is an integer > 0 |
+
+### Examples
+
+```javascript
+is.positiveInteger(1)    // true
+is.positiveInteger(42)   // true
+is.positiveInteger(0)    // false
+is.positiveInteger(-1)   // false
+is.positiveInteger(3.14) // false
+```
+
+## nonPositiveInteger
+
+### Signature
+
+```javascript
+nonPositiveInteger(value)
+```
+
+### Description
+
+Check if a value is an integer less than or equal to 0.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| value | * | yes | The value to check |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| boolean | True if the value is an integer ≤ 0 |
+
+### Examples
+
+```javascript
+is.nonPositiveInteger(0)  // true
+is.nonPositiveInteger(-3) // true
+is.nonPositiveInteger(1)  // false
+```
+
+## negativeInteger
+
+### Signature
+
+```javascript
+negativeInteger(value)
+```
+
+### Description
+
+Check if a value is an integer strictly less than 0.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| value | * | yes | The value to check |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| boolean | True if the value is an integer < 0 |
+
+### Examples
+
+```javascript
+is.negativeInteger(-1)  // true
+is.negativeInteger(-42) // true
+is.negativeInteger(0)   // false
+is.negativeInteger(1)   // false
+```
+
+## nonNegativeInteger
+
+### Signature
+
+```javascript
+nonNegativeInteger(value)
+```
+
+### Description
+
+Check if a value is an integer greater than or equal to 0.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| value | * | yes | The value to check |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| boolean | True if the value is an integer ≥ 0 |
+
+### Examples
+
+```javascript
+is.nonNegativeInteger(0)  // true
+is.nonNegativeInteger(5)  // true
+is.nonNegativeInteger(-1) // false
 ```
 
 ## array
@@ -431,6 +895,297 @@ is.arrayOfLength([1, 2], 3)    // false
 is.arrayOfLength([], 0)        // true
 ```
 
+## arrayOfLengthAtLeast
+
+### Signature
+
+```javascript
+arrayOfLengthAtLeast(value, minLength)
+```
+
+### Description
+
+Check if a value is an array with at least a given number of elements.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| value | * | yes | The value to check |
+| minLength | number | yes | Minimum number of elements (inclusive) |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| boolean | True if the value is an array with `length >= minLength` |
+
+### Examples
+
+```javascript
+is.arrayOfLengthAtLeast([1, 2, 3], 3) // true
+is.arrayOfLengthAtLeast([1, 2, 3], 2) // true
+is.arrayOfLengthAtLeast([1], 2)        // false
+```
+
+## arrayOfLengthAtMost
+
+### Signature
+
+```javascript
+arrayOfLengthAtMost(value, maxLength)
+```
+
+### Description
+
+Check if a value is an array with at most a given number of elements.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| value | * | yes | The value to check |
+| maxLength | number | yes | Maximum number of elements (inclusive) |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| boolean | True if the value is an array with `length <= maxLength` |
+
+### Examples
+
+```javascript
+is.arrayOfLengthAtMost([1, 2], 3)    // true
+is.arrayOfLengthAtMost([1, 2], 2)    // true
+is.arrayOfLengthAtMost([1, 2, 3], 2) // false
+```
+
+## arrayOfLengthBetween
+
+### Signature
+
+```javascript
+arrayOfLengthBetween(value, minLength, maxLength)
+```
+
+### Description
+
+Check if a value is an array whose length falls within a given range (inclusive on both ends).
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| value | * | yes | The value to check |
+| minLength | number | yes | Minimum number of elements (inclusive) |
+| maxLength | number | yes | Maximum number of elements (inclusive) |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| boolean | True if the value is an array with `minLength <= length <= maxLength` |
+
+### Examples
+
+```javascript
+is.arrayOfLengthBetween([1, 2], 1, 3)       // true
+is.arrayOfLengthBetween([1, 2, 3], 1, 3)    // true
+is.arrayOfLengthBetween([], 1, 3)            // false
+is.arrayOfLengthBetween([1, 2, 3, 4], 1, 3) // false
+```
+
+## map
+
+### Signature
+
+```javascript
+map(value)
+```
+
+### Description
+
+Check if a value is a `Map` instance.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| value | * | yes | The value to check |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| boolean | True if the value is a Map instance |
+
+### Examples
+
+```javascript
+is.map(new Map())           // true
+is.map(new Map([['a', 1]])) // true
+is.map({})                  // false
+is.map(null)                // false
+```
+
+## emptyMap
+
+### Signature
+
+```javascript
+emptyMap(value)
+```
+
+### Description
+
+Check if a value is a `Map` instance with no entries.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| value | * | yes | The value to check |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| boolean | True if the value is a Map with no entries |
+
+### Examples
+
+```javascript
+is.emptyMap(new Map())           // true
+is.emptyMap(new Map([['a', 1]])) // false
+```
+
+## nonEmptyMap
+
+### Signature
+
+```javascript
+nonEmptyMap(value)
+```
+
+### Description
+
+Check if a value is a `Map` instance with at least one entry.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| value | * | yes | The value to check |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| boolean | True if the value is a Map with at least one entry |
+
+### Examples
+
+```javascript
+is.nonEmptyMap(new Map([['a', 1]])) // true
+is.nonEmptyMap(new Map())           // false
+```
+
+## set
+
+### Signature
+
+```javascript
+set(value)
+```
+
+### Description
+
+Check if a value is a `Set` instance.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| value | * | yes | The value to check |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| boolean | True if the value is a Set instance |
+
+### Examples
+
+```javascript
+is.set(new Set())       // true
+is.set(new Set([1, 2])) // true
+is.set([])              // false
+is.set(null)            // false
+```
+
+## emptySet
+
+### Signature
+
+```javascript
+emptySet(value)
+```
+
+### Description
+
+Check if a value is a `Set` instance with no elements.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| value | * | yes | The value to check |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| boolean | True if the value is a Set with no elements |
+
+### Examples
+
+```javascript
+is.emptySet(new Set())       // true
+is.emptySet(new Set([1, 2])) // false
+```
+
+## nonEmptySet
+
+### Signature
+
+```javascript
+nonEmptySet(value)
+```
+
+### Description
+
+Check if a value is a `Set` instance with at least one element.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| value | * | yes | The value to check |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| boolean | True if the value is a Set with at least one element |
+
+### Examples
+
+```javascript
+is.nonEmptySet(new Set([1, 2])) // true
+is.nonEmptySet(new Set())       // false
+```
+
 ## function
 
 ### Signature
@@ -530,108 +1285,6 @@ is.oneOf('yellow', ['red', 'green', 'blue']) // false
 is.oneOf(2, [1, 2, 3])                       // true
 ```
 
-## positive
-
-### Signature
-
-```javascript
-positive(value)
-```
-
-### Description
-
-Check if a value is a positive number (strictly greater than 0).
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| value | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| boolean | True if the value is a number greater than 0 |
-
-### Examples
-
-```javascript
-is.positive(5)   // true
-is.positive(0.1) // true
-is.positive(0)   // false
-is.positive(-5)  // false
-```
-
-## negative
-
-### Signature
-
-```javascript
-negative(value)
-```
-
-### Description
-
-Check if a value is a negative number (strictly less than 0).
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| value | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| boolean | True if the value is a number less than 0 |
-
-### Examples
-
-```javascript
-is.negative(-5)   // true
-is.negative(-0.1) // true
-is.negative(0)    // false
-is.negative(5)    // false
-```
-
-## inRange
-
-### Signature
-
-```javascript
-inRange(value, min, max)
-```
-
-### Description
-
-Check if a value is within a numeric range (inclusive on both ends).
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| value | * | yes | The value to check |
-| min | number | yes | Minimum value (inclusive) |
-| max | number | yes | Maximum value (inclusive) |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| boolean | True if the value is a number between min and max (inclusive) |
-
-### Examples
-
-```javascript
-is.inRange(5, 1, 10)  // true
-is.inRange(1, 1, 10)  // true
-is.inRange(10, 1, 10) // true
-is.inRange(0, 1, 10)  // false
-is.inRange(11, 1, 10) // false
-```
-
 ## empty
 
 ### Signature
@@ -642,7 +1295,7 @@ empty(value)
 
 ### Description
 
-Check if a value is empty. A value is considered empty if it is `null`, `undefined`, a whitespace-only string, an empty array, or an empty object.
+Check if a value is empty. A value is considered empty if it is `null`, `undefined`, a whitespace-only string, an empty array, an empty object, an empty Map, or an empty Set.
 
 ### Parameters
 
@@ -665,6 +1318,8 @@ is.empty('')        // true
 is.empty('   ')     // true
 is.empty([])        // true
 is.empty({})        // true
+is.empty(new Map()) // true
+is.empty(new Set()) // true
 is.empty(0)         // false
 is.empty(false)     // false
 is.empty('hello')   // false
