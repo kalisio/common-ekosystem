@@ -3,11 +3,6 @@
   "description": "A common base of small, reusable utility libraries for the Kalisio ecosystem",
   "packageManager": "pnpm@10.1.0",
   "type": "module",
-  "lint-staged": {
-    "*.{js,cjs,mjs}": [
-      "standard --fix"
-    ]
-  },
   "scripts": {
     "build": "pnpm -r build",
     "build:check": "pnpm --filter @kalisio/check build",
