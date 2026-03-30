@@ -5,7 +5,7 @@
   "type": "module",
   "lint-staged": {
     "*.{js,cjs,mjs}": [
-      "pnpm lint"
+      "standard --fix"
     ]
   },
   "scripts": {

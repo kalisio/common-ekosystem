@@ -1,6 +1,5 @@
 export const baseConfig = {
   test: {
-    globals: true,
     silent: false,
     testTimeout: 30000,
     coverage: {
