@@ -4,6 +4,4 @@ import { Graphiks } from '@kalisio/graphiks'
 let graphiks
 if (!graphiks) graphiks = new Graphiks()
 
-  let toto
-
 export { graphiks }

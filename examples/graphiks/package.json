@@ -3,8 +3,15 @@
   "description": "Graphiks example",
   "packageManager": "pnpm@10.1.0",
   "type": "module",
+  "standard": {
+    "globals": [
+      "Vue",
+      "Quasar"
+    ]
+  },
   "scripts": {
-    "dev": "vite"
+    "dev": "vite",
+    "lint": "standard --fix"
   },
   "author": {
     "name": "KALISIO <contact@kalisio.com>",
