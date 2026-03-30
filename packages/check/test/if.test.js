@@ -981,3 +981,231 @@ describe('is.empty', () => {
     expect(is.empty(() => {})).toBe(false)
   })
 })
+
+describe('is.inRangeExclusive', () => {
+  it('returns true when value is strictly within range', () => {
+    expect(is.inRangeExclusive(5, 1, 10)).toBe(true)
+  })
+  it('returns true for a float strictly within range', () => {
+    expect(is.inRangeExclusive(1.5, 1, 2)).toBe(true)
+  })
+  it('returns true for a negative range', () => {
+    expect(is.inRangeExclusive(-5, -10, -1)).toBe(true)
+  })
+  it('returns false for the min boundary', () => {
+    expect(is.inRangeExclusive(1, 1, 10)).toBe(false)
+  })
+  it('returns false for the max boundary', () => {
+    expect(is.inRangeExclusive(10, 1, 10)).toBe(false)
+  })
+  it('returns false when below range', () => {
+    expect(is.inRangeExclusive(0, 1, 10)).toBe(false)
+  })
+  it('returns false when above range', () => {
+    expect(is.inRangeExclusive(11, 1, 10)).toBe(false)
+  })
+  it('returns false for NaN', () => {
+    expect(is.inRangeExclusive(NaN, 1, 10)).toBe(false)
+  })
+  it('returns false for a string value', () => {
+    expect(is.inRangeExclusive('5', 1, 10)).toBe(false)
+  })
+  it('throws when max is less than or equal to min', () => {
+    expect(() => is.inRangeExclusive(5, 10, 1)).toThrow()
+  })
+  it('throws when max equals min', () => {
+    expect(() => is.inRangeExclusive(5, 5, 5)).toThrow()
+  })
+})
+
+describe('is.inRangeExclusiveMin', () => {
+  it('returns true when value is strictly above min and within max', () => {
+    expect(is.inRangeExclusiveMin(5, 1, 10)).toBe(true)
+  })
+  it('returns true for the max boundary', () => {
+    expect(is.inRangeExclusiveMin(10, 1, 10)).toBe(true)
+  })
+  it('returns true for a float strictly above min', () => {
+    expect(is.inRangeExclusiveMin(1.1, 1, 2)).toBe(true)
+  })
+  it('returns true for a negative range', () => {
+    expect(is.inRangeExclusiveMin(-1, -10, -1)).toBe(true)
+  })
+  it('returns false for the min boundary', () => {
+    expect(is.inRangeExclusiveMin(1, 1, 10)).toBe(false)
+  })
+  it('returns false when below range', () => {
+    expect(is.inRangeExclusiveMin(0, 1, 10)).toBe(false)
+  })
+  it('returns false when above range', () => {
+    expect(is.inRangeExclusiveMin(11, 1, 10)).toBe(false)
+  })
+  it('returns false for NaN', () => {
+    expect(is.inRangeExclusiveMin(NaN, 1, 10)).toBe(false)
+  })
+  it('returns false for a string value', () => {
+    expect(is.inRangeExclusiveMin('5', 1, 10)).toBe(false)
+  })
+  it('throws when max is less than or equal to min', () => {
+    expect(() => is.inRangeExclusiveMin(5, 10, 1)).toThrow()
+  })
+  it('throws when max equals min', () => {
+    expect(() => is.inRangeExclusiveMin(5, 5, 5)).toThrow()
+  })
+})
+
+describe('is.inRangeExclusiveMax', () => {
+  it('returns true when value is within min and strictly below max', () => {
+    expect(is.inRangeExclusiveMax(5, 1, 10)).toBe(true)
+  })
+  it('returns true for the min boundary', () => {
+    expect(is.inRangeExclusiveMax(1, 1, 10)).toBe(true)
+  })
+  it('returns true for a float strictly below max', () => {
+    expect(is.inRangeExclusiveMax(1.9, 1, 2)).toBe(true)
+  })
+  it('returns true for a negative range', () => {
+    expect(is.inRangeExclusiveMax(-10, -10, -1)).toBe(true)
+  })
+  it('returns false for the max boundary', () => {
+    expect(is.inRangeExclusiveMax(10, 1, 10)).toBe(false)
+  })
+  it('returns false when below range', () => {
+    expect(is.inRangeExclusiveMax(0, 1, 10)).toBe(false)
+  })
+  it('returns false when above range', () => {
+    expect(is.inRangeExclusiveMax(11, 1, 10)).toBe(false)
+  })
+  it('returns false for NaN', () => {
+    expect(is.inRangeExclusiveMax(NaN, 1, 10)).toBe(false)
+  })
+  it('returns false for a string value', () => {
+    expect(is.inRangeExclusiveMax('5', 1, 10)).toBe(false)
+  })
+  it('throws when max is less than min', () => {
+    expect(() => is.inRangeExclusiveMax(5, 10, 1)).toThrow()
+  })
+})
+
+describe('is.arrayOfLengthAtLeast', () => {
+  it('returns true when length equals minLength', () => {
+    expect(is.arrayOfLengthAtLeast([1, 2], 2)).toBe(true)
+  })
+  it('returns true when length is greater than minLength', () => {
+    expect(is.arrayOfLengthAtLeast([1, 2, 3], 2)).toBe(true)
+  })
+  it('returns true for an empty array with minLength 0', () => {
+    expect(is.arrayOfLengthAtLeast([], 0)).toBe(true)
+  })
+  it('returns true for [null] with minLength 1', () => {
+    expect(is.arrayOfLengthAtLeast([null], 1)).toBe(true)
+  })
+  it('returns false when length is less than minLength', () => {
+    expect(is.arrayOfLengthAtLeast([1], 2)).toBe(false)
+  })
+  it('returns false for an empty array with minLength 1', () => {
+    expect(is.arrayOfLengthAtLeast([], 1)).toBe(false)
+  })
+  it('returns false for null', () => {
+    expect(is.arrayOfLengthAtLeast(null, 0)).toBe(false)
+  })
+  it('returns false for undefined', () => {
+    expect(is.arrayOfLengthAtLeast(undefined, 0)).toBe(false)
+  })
+  it('returns false for a string', () => {
+    expect(is.arrayOfLengthAtLeast('abc', 1)).toBe(false)
+  })
+  it('throws when minLength is negative', () => {
+    expect(() => is.arrayOfLengthAtLeast([1], -1)).toThrow()
+  })
+  it('throws when minLength is a float', () => {
+    expect(() => is.arrayOfLengthAtLeast([1], 1.5)).toThrow()
+  })
+  it('throws when minLength is not a number', () => {
+    expect(() => is.arrayOfLengthAtLeast([1], '1')).toThrow()
+  })
+})
+
+describe('is.arrayOfLengthAtMost', () => {
+  it('returns true when length equals maxLength', () => {
+    expect(is.arrayOfLengthAtMost([1, 2], 2)).toBe(true)
+  })
+  it('returns true when length is less than maxLength', () => {
+    expect(is.arrayOfLengthAtMost([1], 2)).toBe(true)
+  })
+  it('returns true for an empty array with any maxLength', () => {
+    expect(is.arrayOfLengthAtMost([], 0)).toBe(true)
+  })
+  it('returns true for [null] with maxLength 1', () => {
+    expect(is.arrayOfLengthAtMost([null], 1)).toBe(true)
+  })
+  it('returns false when length exceeds maxLength', () => {
+    expect(is.arrayOfLengthAtMost([1, 2, 3], 2)).toBe(false)
+  })
+  it('returns false for a non-empty array with maxLength 0', () => {
+    expect(is.arrayOfLengthAtMost([1], 0)).toBe(false)
+  })
+  it('returns false for null', () => {
+    expect(is.arrayOfLengthAtMost(null, 1)).toBe(false)
+  })
+  it('returns false for undefined', () => {
+    expect(is.arrayOfLengthAtMost(undefined, 1)).toBe(false)
+  })
+  it('returns false for a string', () => {
+    expect(is.arrayOfLengthAtMost('abc', 3)).toBe(false)
+  })
+  it('throws when maxLength is negative', () => {
+    expect(() => is.arrayOfLengthAtMost([1], -1)).toThrow()
+  })
+  it('throws when maxLength is a float', () => {
+    expect(() => is.arrayOfLengthAtMost([1], 1.5)).toThrow()
+  })
+  it('throws when maxLength is not a number', () => {
+    expect(() => is.arrayOfLengthAtMost([1], '1')).toThrow()
+  })
+})
+
+describe('is.arrayOfLengthBetween', () => {
+  it('returns true when length is within range', () => {
+    expect(is.arrayOfLengthBetween([1, 2], 1, 3)).toBe(true)
+  })
+  it('returns true for the minLength boundary', () => {
+    expect(is.arrayOfLengthBetween([1], 1, 3)).toBe(true)
+  })
+  it('returns true for the maxLength boundary', () => {
+    expect(is.arrayOfLengthBetween([1, 2, 3], 1, 3)).toBe(true)
+  })
+  it('returns true for an empty array with minLength 0', () => {
+    expect(is.arrayOfLengthBetween([], 0, 2)).toBe(true)
+  })
+  it('returns true for [null] within range', () => {
+    expect(is.arrayOfLengthBetween([null], 0, 2)).toBe(true)
+  })
+  it('returns false when length is below minLength', () => {
+    expect(is.arrayOfLengthBetween([], 1, 3)).toBe(false)
+  })
+  it('returns false when length exceeds maxLength', () => {
+    expect(is.arrayOfLengthBetween([1, 2, 3, 4], 1, 3)).toBe(false)
+  })
+  it('returns false for null', () => {
+    expect(is.arrayOfLengthBetween(null, 0, 2)).toBe(false)
+  })
+  it('returns false for undefined', () => {
+    expect(is.arrayOfLengthBetween(undefined, 0, 2)).toBe(false)
+  })
+  it('returns false for a string', () => {
+    expect(is.arrayOfLengthBetween('abc', 1, 3)).toBe(false)
+  })
+  it('throws when minLength is negative', () => {
+    expect(() => is.arrayOfLengthBetween([1], -1, 3)).toThrow()
+  })
+  it('throws when maxLength is a float', () => {
+    expect(() => is.arrayOfLengthBetween([1], 1, 3.5)).toThrow()
+  })
+  it('throws when minLength is greater than maxLength', () => {
+    expect(() => is.arrayOfLengthBetween([1], 3, 1)).toThrow()
+  })
+  it('throws when minLength is not a number', () => {
+    expect(() => is.arrayOfLengthBetween([1], '1', 3)).toThrow()
+  })
+})
