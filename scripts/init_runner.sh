@@ -16,7 +16,7 @@ init_github_run_tests() {
 }
 
 init_github_additional_tests() {
-    install_reqs age sops nvm node22 node24
+    install_reqs age sops nvm node24
 }
 
 init_github_build_docs() {
