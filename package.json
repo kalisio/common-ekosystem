@@ -76,5 +76,8 @@
     ],
     "overrides": {}
   },
-  "metaCatalog": "0.7.0"
+  "metaCatalog": {
+    "version": "0.7.0",
+    "syncedAt": "2026-04-11T11:50:25.653Z"
+  }
 }
