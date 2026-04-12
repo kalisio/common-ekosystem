@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { apply } from '../src/apply.js'
 
+// ─── apply.mapping ────────────────────────────────────────────────────────────
+
 describe('apply.mapping', () => {
   describe('basic renaming', () => {
     it('renames a top-level key', () => {
@@ -120,6 +122,137 @@ describe('apply.mapping', () => {
     })
   })
 })
+
+// ─── apply.unitMapping ────────────────────────────────────────────────────────
+
+describe('apply.unitMapping', () => {
+  describe('asDate', () => {
+    it('converts an ISO string to a Date (UTC)', () => {
+      const result = apply.unitMapping([{ ts: '2024-01-15T12:00:00Z' }], { ts: { asDate: 'utc' } })
+      expect(result[0].ts).toBeInstanceOf(Date)
+    })
+
+    it('reformats a date to a target string format', () => {
+      const result = apply.unitMapping([{ ts: '2024-01-15' }], { ts: { asDate: 'utc', from: 'YYYY-MM-DD', to: 'DD/MM/YYYY' } })
+      expect(result[0].ts).toBe('15/01/2024')
+    })
+
+    it('converts to a local Date', () => {
+      const result = apply.unitMapping([{ ts: '2024-01-15T12:00:00' }], { ts: { asDate: 'local' } })
+      expect(result[0].ts).toBeInstanceOf(Date)
+    })
+
+    it('applies conversion to every object in the array', () => {
+      const result = apply.unitMapping(
+        [{ ts: '2024-01-01' }, { ts: '2024-06-15' }],
+        { ts: { asDate: 'utc', from: 'YYYY-MM-DD', to: 'DD/MM/YYYY' } }
+      )
+      expect(result[0].ts).toBe('01/01/2024')
+      expect(result[1].ts).toBe('15/06/2024')
+    })
+  })
+
+  describe('asString', () => {
+    it('converts a number to a string', () => {
+      expect(apply.unitMapping([{ n: 255 }], { n: { asString: true } })[0].n).toBe('255')
+    })
+
+    it('converts to base 16', () => {
+      expect(apply.unitMapping([{ n: 255 }], { n: { asString: 16 } })[0].n).toBe('ff')
+    })
+  })
+
+  describe('asNumber', () => {
+    it('converts a string to a number', () => {
+      expect(apply.unitMapping([{ n: '42' }], { n: { asNumber: true } })[0].n).toBe(42)
+    })
+
+    it('strips spaces before conversion', () => {
+      expect(apply.unitMapping([{ n: '120 000' }], { n: { asNumber: true } })[0].n).toBe(120000)
+    })
+  })
+
+  describe('physical unit conversion', () => {
+    it('converts km to miles', () => {
+      expect(apply.unitMapping([{ d: 1 }], { d: { from: 'km', to: 'mile' } })[0].d).toBeCloseTo(0.621371, 4)
+    })
+
+    it('converts 0°C to 32°F', () => {
+      expect(apply.unitMapping([{ t: 0 }], { t: { from: 'degC', to: 'degF' } })[0].t).toBeCloseTo(32, 1)
+    })
+  })
+
+  describe('asCase', () => {
+    it('applies camelCase via lodash', () => {
+      const result = apply.unitMapping([{ label: 'hello world' }], { label: { asString: true, asCase: 'camelCase' } })
+      expect(result[0].label).toBe('helloWorld')
+    })
+
+    it('applies snakeCase via lodash', () => {
+      const result = apply.unitMapping([{ label: 'Hello World' }], { label: { asString: true, asCase: 'snakeCase' } })
+      expect(result[0].label).toBe('hello_world')
+    })
+
+    it('applies toUpperCase via native prototype', () => {
+      const result = apply.unitMapping([{ label: 'hello' }], { label: { asString: true, asCase: 'toUpperCase' } })
+      expect(result[0].label).toBe('HELLO')
+    })
+
+    it('applies toLowerCase via native prototype', () => {
+      const result = apply.unitMapping([{ label: 'HELLO' }], { label: { asString: true, asCase: 'toLowerCase' } })
+      expect(result[0].label).toBe('hello')
+    })
+
+    it('does not apply asCase when value is not a string', () => {
+      const result = apply.unitMapping([{ n: 42 }], { n: { asNumber: true, asCase: 'toUpperCase' } })
+      expect(result[0].n).toBe(42)
+    })
+  })
+
+  describe('empty fallback', () => {
+    it('sets the empty value when the path is missing', () => {
+      const result = apply.unitMapping([{ other: 1 }], { missing: { asNumber: true, empty: 0 } })
+      expect(result[0].missing).toBe(0)
+    })
+
+    it('sets a null empty value', () => {
+      const result = apply.unitMapping([{ other: 1 }], { missing: { asNumber: true, empty: null } })
+      expect(result[0].missing).toBeNull()
+    })
+
+    it('does not add the key when path is missing and no empty defined', () => {
+      const result = apply.unitMapping([{ other: 1 }], { missing: { asNumber: true } })
+      expect(result[0]).not.toHaveProperty('missing')
+    })
+  })
+
+  describe('mutation', () => {
+    it('mutates and returns the original array', () => {
+      const array = [{ n: '42' }]
+      expect(apply.unitMapping(array, { n: { asNumber: true } })).toBe(array)
+    })
+  })
+
+  describe('assertions', () => {
+    it('throws when array is not an array', () => {
+      expect(() => apply.unitMapping({ n: 1 }, { n: { asNumber: true } })).toThrow()
+    })
+
+    it('throws when array is null', () => {
+      expect(() => apply.unitMapping(null, { n: { asNumber: true } })).toThrow()
+    })
+
+    it('throws when unitMapping is not a plain object', () => {
+      expect(() => apply.unitMapping([{ n: 1 }], 'invalid')).toThrow()
+    })
+
+    it('throws when unitMapping is null', () => {
+      expect(() => apply.unitMapping([{ n: 1 }], null)).toThrow()
+    })
+  })
+})
+
+// ─── apply.modifier ───────────────────────────────────────────────────────────
 
 describe('apply.modifier', () => {
   describe('pick', () => {
