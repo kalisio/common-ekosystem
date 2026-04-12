@@ -43,7 +43,7 @@
   },
   "homepage": "https://github.com/kalisio/common-ekosystem/tree/main/packages/kast",
   "dependencies": {
-    "@kalisio/check": "workspace:",
+    "@kalisio/check": "workspace:*",
     "lodash": "catalog:",
     "mathjs": "catalog:",
     "moment": "catalog:",
