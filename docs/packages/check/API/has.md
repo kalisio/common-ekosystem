@@ -23,14 +23,14 @@ Throws a `TypeError` if `obj` is not a plain object or `key` is not a string.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| obj | object | yes | The object to check |
-| key | string | yes | The property name to look for |
+| `obj` | `object` | yes | The object to check |
+| `key` | `string` | yes | The property name to look for |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the object has the specified own property |
+| `boolean` | True if the object has the specified own property |
 
 ### Examples
 
@@ -57,14 +57,14 @@ Throws a `TypeError` if `obj` is not a plain object or `keys` is not a non-empty
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| obj | object | yes | The object to check |
-| keys | string[] | yes | Array of property names to look for |
+| `obj` | `object` | yes | The object to check |
+| `keys` | `string[]` | yes | Array of property names to look for |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the object has all the specified own properties |
+| `boolean` | True if the object has all the specified own properties |
 
 ### Examples
 
@@ -90,14 +90,14 @@ Check if an object has a specific own property and its value is defined (not `nu
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| obj | object | yes | The object to check |
-| key | string | yes | The property name to look for |
+| `obj` | `object` | yes | The object to check |
+| `key` | `string` | yes | The property name to look for |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the object has the property and its value is not null or undefined |
+| `boolean` | True if the object has the property and its value is not null or undefined |
 
 ### Examples
 

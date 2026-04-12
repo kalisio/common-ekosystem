@@ -22,14 +22,14 @@ Throws a `TypeError` if `value` is not a string or `pattern` is not a `RegExp`.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | string | yes | The string to test |
-| pattern | RegExp | yes | The regular expression to test against |
+| `value` | `string` | yes | The string to test |
+| `pattern` | `RegExp` | yes | The regular expression to test against |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the string matches the pattern |
+| `boolean` | True if the string matches the pattern |
 
 ### Examples
 

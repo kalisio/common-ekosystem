@@ -21,13 +21,13 @@ Check if a value is defined (not `null` or `undefined`).
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is not null and not undefined |
+| `boolean` | True if the value is not null and not undefined |
 
 ### Examples
 
@@ -54,13 +54,13 @@ Check if a value is `null` or `undefined`.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is null or undefined |
+| `boolean` | True if the value is null or undefined |
 
 ### Examples
 
@@ -87,13 +87,13 @@ Check if a value is a plain object literal (not an array, not `null`, not a clas
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is a plain object literal |
+| `boolean` | True if the value is a plain object literal |
 
 ### Examples
 
@@ -121,13 +121,13 @@ Check if a value is a plain object with no keys.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is a plain object with no keys |
+| `boolean` | True if the value is a plain object with no keys |
 
 ### Examples
 
@@ -153,13 +153,13 @@ Check if a value is a plain object with at least one key.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is a plain object with at least one key |
+| `boolean` | True if the value is a plain object with at least one key |
 
 ### Examples
 
@@ -185,13 +185,13 @@ Check if a value is a string.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is a string |
+| `boolean` | True if the value is a string |
 
 ### Examples
 
@@ -217,13 +217,13 @@ Check if a value is a string containing only whitespace.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is a string with only whitespace |
+| `boolean` | True if the value is a string with only whitespace |
 
 ### Examples
 
@@ -250,13 +250,13 @@ Check if a value is a string containing at least one non-whitespace character.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is a string with at least one non-whitespace character |
+| `boolean` | True if the value is a string with at least one non-whitespace character |
 
 ### Examples
 
@@ -283,13 +283,13 @@ Check if a value is a regular expression (instance of `RegExp`).
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is a RegExp instance |
+| `boolean` | True if the value is a RegExp instance |
 
 ### Examples
 
@@ -316,13 +316,13 @@ Check if a value is a valid finite number (not `NaN`, not `Infinity`).
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is a finite number |
+| `boolean` | True if the value is a finite number |
 
 ### Examples
 
@@ -350,13 +350,13 @@ Check if a value is a positive number (strictly greater than 0).
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is a number greater than 0 |
+| `boolean` | True if the value is a number greater than 0 |
 
 ### Examples
 
@@ -383,13 +383,13 @@ Check if a value is a number less than or equal to 0.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is a number ≤ 0 |
+| `boolean` | True if the value is a number ≤ 0 |
 
 ### Examples
 
@@ -415,13 +415,13 @@ Check if a value is a negative number (strictly less than 0).
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is a number less than 0 |
+| `boolean` | True if the value is a number less than 0 |
 
 ### Examples
 
@@ -448,13 +448,13 @@ Check if a value is a number greater than or equal to 0.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is a number ≥ 0 |
+| `boolean` | True if the value is a number ≥ 0 |
 
 ### Examples
 
@@ -480,7 +480,7 @@ Check if a value is within a numeric range (inclusive on both ends).
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 | min | number | yes | Minimum value (inclusive) |
 | max | number | yes | Maximum value (inclusive) |
 
@@ -488,7 +488,7 @@ Check if a value is within a numeric range (inclusive on both ends).
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is a number between min and max (inclusive) |
+| `boolean` | True if the value is a number between min and max (inclusive) |
 
 ### Examples
 
@@ -516,7 +516,7 @@ Check if a value is strictly within a numeric range (exclusive on both ends).
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 | min | number | yes | Minimum value (exclusive) |
 | max | number | yes | Maximum value (exclusive) |
 
@@ -524,7 +524,7 @@ Check if a value is strictly within a numeric range (exclusive on both ends).
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is a number strictly between min and max |
+| `boolean` | True if the value is a number strictly between min and max |
 
 ### Examples
 
@@ -550,7 +550,7 @@ Check if a value is within a numeric range, exclusive on the lower bound and inc
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 | min | number | yes | Minimum value (exclusive) |
 | max | number | yes | Maximum value (inclusive) |
 
@@ -558,7 +558,7 @@ Check if a value is within a numeric range, exclusive on the lower bound and inc
 
 | Type | Description |
 |------|-------------|
-| boolean | True if `min < value <= max` |
+| `boolean` | True if `min < value <= max` |
 
 ### Examples
 
@@ -584,7 +584,7 @@ Check if a value is within a numeric range, inclusive on the lower bound and exc
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 | min | number | yes | Minimum value (inclusive) |
 | max | number | yes | Maximum value (exclusive) |
 
@@ -592,7 +592,7 @@ Check if a value is within a numeric range, inclusive on the lower bound and exc
 
 | Type | Description |
 |------|-------------|
-| boolean | True if `min <= value < max` |
+| `boolean` | True if `min <= value < max` |
 
 ### Examples
 
@@ -618,13 +618,13 @@ Check if a value is an integer.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is an integer |
+| `boolean` | True if the value is an integer |
 
 ### Examples
 
@@ -651,13 +651,13 @@ Check if a value is an integer strictly greater than 0.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is an integer > 0 |
+| `boolean` | True if the value is an integer > 0 |
 
 ### Examples
 
@@ -685,13 +685,13 @@ Check if a value is an integer less than or equal to 0.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is an integer ≤ 0 |
+| `boolean` | True if the value is an integer ≤ 0 |
 
 ### Examples
 
@@ -717,13 +717,13 @@ Check if a value is an integer strictly less than 0.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is an integer < 0 |
+| `boolean` | True if the value is an integer < 0 |
 
 ### Examples
 
@@ -750,13 +750,13 @@ Check if a value is an integer greater than or equal to 0.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is an integer ≥ 0 |
+| `boolean` | True if the value is an integer ≥ 0 |
 
 ### Examples
 
@@ -782,13 +782,13 @@ Check if a value is an array.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is an array |
+| `boolean` | True if the value is an array |
 
 ### Examples
 
@@ -815,13 +815,13 @@ Check if a value is an empty array.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is an array with no elements |
+| `boolean` | True if the value is an array with no elements |
 
 ### Examples
 
@@ -847,13 +847,13 @@ Check if a value is an array with at least one element.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is an array with at least one element |
+| `boolean` | True if the value is an array with at least one element |
 
 ### Examples
 
@@ -878,14 +878,14 @@ Check if a value is an array of a specific length.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 | length | number | yes | The expected length |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is an array with the specified length |
+| `boolean` | True if the value is an array with the specified length |
 
 ### Examples
 
@@ -911,14 +911,14 @@ Check if a value is an array with at least a given number of elements.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 | minLength | number | yes | Minimum number of elements (inclusive) |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is an array with `length >= minLength` |
+| `boolean` | True if the value is an array with `length >= minLength` |
 
 ### Examples
 
@@ -944,14 +944,14 @@ Check if a value is an array with at most a given number of elements.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 | maxLength | number | yes | Maximum number of elements (inclusive) |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is an array with `length <= maxLength` |
+| `boolean` | True if the value is an array with `length <= maxLength` |
 
 ### Examples
 
@@ -977,7 +977,7 @@ Check if a value is an array whose length falls within a given range (inclusive 
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 | minLength | number | yes | Minimum number of elements (inclusive) |
 | maxLength | number | yes | Maximum number of elements (inclusive) |
 
@@ -985,7 +985,7 @@ Check if a value is an array whose length falls within a given range (inclusive 
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is an array with `minLength <= length <= maxLength` |
+| `boolean` | True if the value is an array with `minLength <= length <= maxLength` |
 
 ### Examples
 
@@ -1012,13 +1012,13 @@ Check if a value is a `Map` instance.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is a Map instance |
+| `boolean` | True if the value is a Map instance |
 
 ### Examples
 
@@ -1045,13 +1045,13 @@ Check if a value is a `Map` instance with no entries.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is a Map with no entries |
+| `boolean` | True if the value is a Map with no entries |
 
 ### Examples
 
@@ -1076,13 +1076,13 @@ Check if a value is a `Map` instance with at least one entry.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is a Map with at least one entry |
+| `boolean` | True if the value is a Map with at least one entry |
 
 ### Examples
 
@@ -1107,13 +1107,13 @@ Check if a value is a `Set` instance.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is a Set instance |
+| `boolean` | True if the value is a Set instance |
 
 ### Examples
 
@@ -1140,13 +1140,13 @@ Check if a value is a `Set` instance with no elements.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is a Set with no elements |
+| `boolean` | True if the value is a Set with no elements |
 
 ### Examples
 
@@ -1171,13 +1171,13 @@ Check if a value is a `Set` instance with at least one element.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is a Set with at least one element |
+| `boolean` | True if the value is a Set with at least one element |
 
 ### Examples
 
@@ -1202,13 +1202,13 @@ Check if a value is a function.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is a function |
+| `boolean` | True if the value is a function |
 
 ### Examples
 
@@ -1235,13 +1235,13 @@ Check if a value is a boolean.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is a boolean |
+| `boolean` | True if the value is a boolean |
 
 ### Examples
 
@@ -1268,14 +1268,14 @@ Check if a value is one of the allowed values.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 | allowedValues | Array | yes | Array of allowed values |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is included in allowedValues |
+| `boolean` | True if the value is included in allowedValues |
 
 ### Examples
 
@@ -1301,13 +1301,13 @@ Check if a value is empty. A value is considered empty if it is `null`, `undefin
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | * | yes | The value to check |
+| `value` | * | yes | The value to check |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the value is considered empty |
+| `boolean` | True if the value is considered empty |
 
 ### Examples
 

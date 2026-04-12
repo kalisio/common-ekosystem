@@ -28,14 +28,14 @@ Throws a `TypeError` if `obj` or `schema` are not plain objects.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| obj | object | yes | The object to validate |
-| schema | object | yes | The schema describing expected keys and their validators |
+| `obj` | `object` | yes | The object to validate |
+| `schema` | `object` | yes | The schema describing expected keys and their validators |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the object conforms to the schema, false otherwise |
+| `boolean` | True if the object conforms to the schema, false otherwise |
 
 ### Examples
 
