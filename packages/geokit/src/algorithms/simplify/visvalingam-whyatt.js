@@ -10,24 +10,38 @@ class MinHeap {
   }
 
   pop () {
+    if (this._data.length === 0) return undefined
     const top = this._data[0]
     const last = this._data.pop()
     if (this._data.length > 0) {
       this._data[0] = last
       this._sinkDown(0)
     }
+
     return top
   }
 
-  peek () { return this._data[0] }
-  get size () { return this._data.length }
+  peek () {
+    return this._data[0]
+  }
+
+  get size () {
+    return this._data.length
+  }
+
+  clear () {
+    this._data = []
+  }
+
   _bubbleUp (i) {
     while (i > 0) {
       const parent = (i - 1) >> 1
       if (this._compare(this._data[i], this._data[parent]) < 0) {
-        ;[this._data[i], this._data[parent]] = [this._data[parent], this._data[i]]
+        this._swap(i, parent)
         i = parent
-      } else break
+      } else {
+        break
+      }
     }
   }
 
@@ -35,13 +49,24 @@ class MinHeap {
     const n = this._data.length
     while (true) {
       let min = i
-      const l = 2 * i + 1; const r = 2 * i + 2
-      if (l < n && this._compare(this._data[l], this._data[min]) < 0) min = l
-      if (r < n && this._compare(this._data[r], this._data[min]) < 0) min = r
+      const l = 2 * i + 1
+      const r = 2 * i + 2
+      if (l < n && this._compare(this._data[l], this._data[min]) < 0) {
+        min = l
+      }
+      if (r < n && this._compare(this._data[r], this._data[min]) < 0) {
+        min = r
+      }
       if (min === i) break
-      ;[this._data[i], this._data[min]] = [this._data[min], this._data[i]]
+      this._swap(i, min)
       i = min
     }
+  }
+
+  _swap (a, b) {
+    const tmp = this._data[a]
+    this._data[a] = this._data[b]
+    this._data[b] = tmp
   }
 }
 
@@ -94,11 +119,11 @@ export function simplify (coords, { tolerance = 0, getWeight = () => 1 } = {}) {
     if (node.next) node.next.prev = node.prev
 
     // Recompute area for neighbors and push updated versions
-    if (node.prev && node.prev.prev) {
+    if (node.prev?.prev) {
       node.prev.area = computeArea(node.prev)
       heap.push(node.prev)
     }
-    if (node.next && node.next.next) {
+    if (node.next?.next) {
       node.next.area = computeArea(node.next)
       heap.push(node.next)
     }
