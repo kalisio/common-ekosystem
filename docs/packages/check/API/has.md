@@ -10,8 +10,8 @@ desciption: Functions to check the presence of keys in an object.
 
 ### Signature
 
-```javascript
-has.key(obj, key)
+```js
+has.key (obj, key)
 ```
 
 ### Description
@@ -34,7 +34,7 @@ Throws a `TypeError` if `obj` is not a plain object or `key` is not a string.
 
 ### Examples
 
-```javascript
+```js
 has.key({ name: 'Alice' }, 'name') // true
 has.key({ name: 'Alice' }, 'age')  // false
 has.key({ name: null }, 'name')    // true
@@ -44,8 +44,8 @@ has.key({ name: null }, 'name')    // true
 
 ### Signature
 
-```javascript
-has.keys(obj, keys)
+```js
+has.keys (obj, keys)
 ```
 
 ### Description
@@ -68,7 +68,7 @@ Throws a `TypeError` if `obj` is not a plain object or `keys` is not a non-empty
 
 ### Examples
 
-```javascript
+```js
 has.keys({ name: 'Alice', age: 25 }, ['name', 'age']) // true
 has.keys({ name: 'Alice' }, ['name', 'age'])           // false
 has.keys({ name: 'Alice', age: 25 }, ['name'])         // true
@@ -78,8 +78,8 @@ has.keys({ name: 'Alice', age: 25 }, ['name'])         // true
 
 ### Signature
 
-```javascript
-has.keyWithValue(obj, key)
+```js
+has.keyWithValue (obj, key)
 ```
 
 ### Description
@@ -101,7 +101,7 @@ Check if an object has a specific own property and its value is defined (not `nu
 
 ### Examples
 
-```javascript
+```js
 has.keyWithValue({ name: 'Alice' }, 'name')  // true
 has.keyWithValue({ name: null }, 'name')      // false
 has.keyWithValue({ name: undefined }, 'name') // false

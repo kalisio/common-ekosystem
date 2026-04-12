@@ -77,7 +77,7 @@ Throws a `TypeError` if either argument is not a non-empty string.
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the object matches the file content |
+| boolean | True if the object match the file content |
 
 ### Examples
 

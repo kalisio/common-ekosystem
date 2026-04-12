@@ -70,7 +70,7 @@ Throws a `TypeError` if either argument is not a non-empty string.
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the YAML string matches the file content |
+| boolean | True if the YAML string match the file content |
 
 ### Examples
 

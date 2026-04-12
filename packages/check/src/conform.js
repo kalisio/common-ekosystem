@@ -1,6 +1,6 @@
 import { is } from './is.js'
 import { has } from './has.js'
-import { asserts } from './asserts.js'
+import { assert } from './assert.js'
 
 function check (obj, schema, path = '') {
   return Object.entries(schema).every(([key, validator]) => {
@@ -22,12 +22,13 @@ function check (obj, schema, path = '') {
   })
 }
 
-export const conforms = {
+export const conform = {
   schema (obj, schema) {
-    asserts.all([
+    assert.all([
       { value: obj, validator: is.plainObject, message: 'obj must be an object' },
       { value: schema, validator: is.plainObject, message: 'schema must be an object' }
     ])
     return check(obj, schema)
   }
+
 }

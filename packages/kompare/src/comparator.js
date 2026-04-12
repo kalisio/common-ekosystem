@@ -1,11 +1,11 @@
 import fs from 'node:fs'
-import { asserts, is } from '@kalisio/check'
+import { assert, is } from '@kalisio/check'
 import { json } from './json.js'
 
 function createComparator (parse) {
   return {
     isEqual (str1, str2, options = {}) {
-      asserts.all([
+      assert.all([
         { value: str1, validator: is.nonEmptyString, message: 'str1 should be a non-empty string' },
         { value: str2, validator: is.nonEmptyString, message: 'str2 should be a non-empty string' }
       ])
@@ -15,7 +15,7 @@ function createComparator (parse) {
     },
 
     isEqualFile (str, filePath, options = {}) {
-      asserts.all([
+      assert.all([
         { value: str, validator: is.nonEmptyString, message: 'str should be a non-empty string' },
         { value: filePath, validator: is.nonEmptyString, message: 'filePath should be a non-empty string' }
       ])
@@ -23,7 +23,7 @@ function createComparator (parse) {
     },
 
     isEqualFiles (filePath1, filePath2, options = {}) {
-      asserts.all([
+      assert.all([
         { value: filePath1, validator: is.nonEmptyString, message: 'filePath1 should be a non-empty string' },
         { value: filePath2, validator: is.nonEmptyString, message: 'filePath2 should be a non-empty string' }
       ])
@@ -31,7 +31,7 @@ function createComparator (parse) {
     },
 
     compare (str1, str2, options = {}) {
-      asserts.all([
+      assert.all([
         { value: str1, validator: is.nonEmptyString, message: 'str1 should be a non-empty string' },
         { value: str2, validator: is.nonEmptyString, message: 'str2 should be a non-empty string' }
       ])

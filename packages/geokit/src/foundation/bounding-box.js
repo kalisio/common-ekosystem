@@ -1,4 +1,4 @@
-import { asserts, is, has } from '@kalisio/check'
+import { assert, is, has } from '@kalisio/check'
 import { Point } from '../geometry/point.js'
 
 export function BoundingBox (bbox) {
@@ -27,7 +27,7 @@ export function BoundingBox (bbox) {
     },
 
     truncate (precision = 7) {
-      asserts.all([
+      assert.all([
         { value: precision, validator: (v) => is.inRange(v, 0, 8), message: 'precision must be in range [0, 8]' },
         { value: this, validator: (v) => v.isValid, message: 'this must be a valid BBox' }
       ])
@@ -37,7 +37,7 @@ export function BoundingBox (bbox) {
     },
 
     extend (point) {
-      asserts.all([
+      assert.all([
         { value: point, validator: (v) => is.defined(v) && v.isValid(), message: 'point must be a valid Point' },
         { value: this, validator: (v) => v.isValid, message: 'this must be a valid BBox' }
       ])
@@ -54,7 +54,7 @@ export function BoundingBox (bbox) {
     },
 
     merge (bbox) {
-      asserts.all([
+      assert.all([
         { value: bbox, validator: (v) => is.defined(v) && v.isValid, message: 'v must be a valid BBox' },
         { value: this, validator: (v) => v.isValid, message: 'this must be a valid BBox' }
       ])

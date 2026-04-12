@@ -1,4 +1,4 @@
-import { asserts, is, has } from '@kalisio/check'
+import { assert, is, has } from '@kalisio/check'
 import proj4 from 'proj4'
 
 export function listProjections () {
@@ -6,7 +6,7 @@ export function listProjections () {
 }
 
 export function registerProjection (name, def) {
-  asserts.all([
+  assert.all([
     { value: name, validator: is.nonEmptyString, message: 'name must be a non empty string' },
     { value: def, validator: (v) => (is.nonEmptyString(v) || is.nonEmptyObject(v)), message: 'def must be a non empty string or a non empty object' }
   ])
@@ -14,7 +14,7 @@ export function registerProjection (name, def) {
 }
 
 export function getProjection (name) {
-  asserts.all([
+  assert.all([
     { value: name, validator: is.nonEmptyString, message: 'name must be a non empty string' },
     { value: name, validator: (v) => has.key(proj4.defs, v), message: 'name must be a defined projection' }
   ])

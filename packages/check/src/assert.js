@@ -1,4 +1,4 @@
-export const asserts = {
+export const assert = {
 
   that (value, validator, errorMessage) {
     if (!validator(value)) {
@@ -8,7 +8,8 @@ export const asserts = {
 
   all (validations) {
     for (const { value, validator, message } of validations) {
-      asserts.that(value, validator, message)
+      assert.that(value, validator, message)
     }
   }
+
 }

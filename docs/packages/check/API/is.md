@@ -9,7 +9,7 @@ description: Functions that return a boolean for checking the type or state of a
 
 ### Signature
 
-```javascript
+```js
 defined(value)
 ```
 
@@ -31,7 +31,7 @@ Check if a value is defined (not `null` or `undefined`).
 
 ### Examples
 
-```javascript
+```js
 is.defined(0)         // true
 is.defined('')        // true
 is.defined(null)      // false
@@ -42,7 +42,7 @@ is.defined(undefined) // false
 
 ### Signature
 
-```javascript
+```js
 nil(value)
 ```
 
@@ -64,7 +64,7 @@ Check if a value is `null` or `undefined`.
 
 ### Examples
 
-```javascript
+```js
 is.nil(null)      // true
 is.nil(undefined) // true
 is.nil(0)         // false
@@ -75,7 +75,7 @@ is.nil('')        // false
 
 ### Signature
 
-```javascript
+```js
 plainObject(value)
 ```
 
@@ -97,7 +97,7 @@ Check if a value is a plain object literal (not an array, not `null`, not a clas
 
 ### Examples
 
-```javascript
+```js
 is.plainObject({})                // true
 is.plainObject({ name: 'Alice' }) // true
 is.plainObject([])                // false
@@ -109,7 +109,7 @@ is.plainObject(new Date())        // false
 
 ### Signature
 
-```javascript
+```js
 emptyObject(value)
 ```
 
@@ -131,7 +131,7 @@ Check if a value is a plain object with no keys.
 
 ### Examples
 
-```javascript
+```js
 is.emptyObject({})                // true
 is.emptyObject({ name: 'Alice' }) // false
 is.emptyObject([])                // false
@@ -141,7 +141,7 @@ is.emptyObject([])                // false
 
 ### Signature
 
-```javascript
+```js
 nonEmptyObject(value)
 ```
 
@@ -163,7 +163,7 @@ Check if a value is a plain object with at least one key.
 
 ### Examples
 
-```javascript
+```js
 is.nonEmptyObject({ name: 'Alice' }) // true
 is.nonEmptyObject({})                // false
 is.nonEmptyObject([])                // false
@@ -173,7 +173,7 @@ is.nonEmptyObject([])                // false
 
 ### Signature
 
-```javascript
+```js
 string(value)
 ```
 
@@ -195,7 +195,7 @@ Check if a value is a string.
 
 ### Examples
 
-```javascript
+```js
 is.string('hello') // true
 is.string('')      // true
 is.string(123)     // false
@@ -205,7 +205,7 @@ is.string(123)     // false
 
 ### Signature
 
-```javascript
+```js
 emptyString(value)
 ```
 
@@ -227,7 +227,7 @@ Check if a value is a string containing only whitespace.
 
 ### Examples
 
-```javascript
+```js
 is.emptyString('')      // true
 is.emptyString('   ')   // true
 is.emptyString('hello') // false
@@ -238,7 +238,7 @@ is.emptyString(null)    // false
 
 ### Signature
 
-```javascript
+```js
 nonEmptyString(value)
 ```
 
@@ -260,7 +260,7 @@ Check if a value is a string containing at least one non-whitespace character.
 
 ### Examples
 
-```javascript
+```js
 is.nonEmptyString('hello') // true
 is.nonEmptyString('')      // false
 is.nonEmptyString('   ')   // false
@@ -271,7 +271,7 @@ is.nonEmptyString(null)    // false
 
 ### Signature
 
-```javascript
+```js
 regularExpression(value)
 ```
 
@@ -293,7 +293,7 @@ Check if a value is a regular expression (instance of `RegExp`).
 
 ### Examples
 
-```javascript
+```js
 is.regularExpression(/abc/)             // true
 is.regularExpression(new RegExp('abc')) // true
 is.regularExpression('abc')             // false
@@ -304,7 +304,7 @@ is.regularExpression(null)              // false
 
 ### Signature
 
-```javascript
+```js
 number(value)
 ```
 
@@ -326,7 +326,7 @@ Check if a value is a valid finite number (not `NaN`, not `Infinity`).
 
 ### Examples
 
-```javascript
+```js
 is.number(42)       // true
 is.number(3.14)     // true
 is.number(NaN)      // false
@@ -338,7 +338,7 @@ is.number('42')     // false
 
 ### Signature
 
-```javascript
+```js
 positive(value)
 ```
 
@@ -360,7 +360,7 @@ Check if a value is a positive number (strictly greater than 0).
 
 ### Examples
 
-```javascript
+```js
 is.positive(5)   // true
 is.positive(0.1) // true
 is.positive(0)   // false
@@ -371,7 +371,7 @@ is.positive(-5)  // false
 
 ### Signature
 
-```javascript
+```js
 nonPositive(value)
 ```
 
@@ -393,7 +393,7 @@ Check if a value is a number less than or equal to 0.
 
 ### Examples
 
-```javascript
+```js
 is.nonPositive(0)  // true
 is.nonPositive(-5) // true
 is.nonPositive(1)  // false
@@ -403,7 +403,7 @@ is.nonPositive(1)  // false
 
 ### Signature
 
-```javascript
+```js
 negative(value)
 ```
 
@@ -425,7 +425,7 @@ Check if a value is a negative number (strictly less than 0).
 
 ### Examples
 
-```javascript
+```js
 is.negative(-5)   // true
 is.negative(-0.1) // true
 is.negative(0)    // false
@@ -436,7 +436,7 @@ is.negative(5)    // false
 
 ### Signature
 
-```javascript
+```js
 nonNegative(value)
 ```
 
@@ -458,7 +458,7 @@ Check if a value is a number greater than or equal to 0.
 
 ### Examples
 
-```javascript
+```js
 is.nonNegative(0)  // true
 is.nonNegative(5)  // true
 is.nonNegative(-1) // false
@@ -468,7 +468,7 @@ is.nonNegative(-1) // false
 
 ### Signature
 
-```javascript
+```js
 inRange(value, min, max)
 ```
 
@@ -492,7 +492,7 @@ Check if a value is within a numeric range (inclusive on both ends).
 
 ### Examples
 
-```javascript
+```js
 is.inRange(5, 1, 10)  // true
 is.inRange(1, 1, 10)  // true
 is.inRange(10, 1, 10) // true
@@ -504,7 +504,7 @@ is.inRange(11, 1, 10) // false
 
 ### Signature
 
-```javascript
+```js
 inRangeExclusive(value, min, max)
 ```
 
@@ -528,7 +528,7 @@ Check if a value is strictly within a numeric range (exclusive on both ends).
 
 ### Examples
 
-```javascript
+```js
 is.inRangeExclusive(5, 1, 10)  // true
 is.inRangeExclusive(1, 1, 10)  // false
 is.inRangeExclusive(10, 1, 10) // false
@@ -538,7 +538,7 @@ is.inRangeExclusive(10, 1, 10) // false
 
 ### Signature
 
-```javascript
+```js
 inRangeExclusiveMin(value, min, max)
 ```
 
@@ -562,7 +562,7 @@ Check if a value is within a numeric range, exclusive on the lower bound and inc
 
 ### Examples
 
-```javascript
+```js
 is.inRangeExclusiveMin(10, 1, 10) // true
 is.inRangeExclusiveMin(1, 1, 10)  // false
 is.inRangeExclusiveMin(5, 1, 10)  // true
@@ -572,7 +572,7 @@ is.inRangeExclusiveMin(5, 1, 10)  // true
 
 ### Signature
 
-```javascript
+```js
 inRangeExclusiveMax(value, min, max)
 ```
 
@@ -596,7 +596,7 @@ Check if a value is within a numeric range, inclusive on the lower bound and exc
 
 ### Examples
 
-```javascript
+```js
 is.inRangeExclusiveMax(1, 1, 10)  // true
 is.inRangeExclusiveMax(10, 1, 10) // false
 is.inRangeExclusiveMax(5, 1, 10)  // true
@@ -606,7 +606,7 @@ is.inRangeExclusiveMax(5, 1, 10)  // true
 
 ### Signature
 
-```javascript
+```js
 integer(value)
 ```
 
@@ -628,7 +628,7 @@ Check if a value is an integer.
 
 ### Examples
 
-```javascript
+```js
 is.integer(42)   // true
 is.integer(0)    // true
 is.integer(3.14) // false
@@ -639,7 +639,7 @@ is.integer('42') // false
 
 ### Signature
 
-```javascript
+```js
 positiveInteger(value)
 ```
 
@@ -661,7 +661,7 @@ Check if a value is an integer strictly greater than 0.
 
 ### Examples
 
-```javascript
+```js
 is.positiveInteger(1)    // true
 is.positiveInteger(42)   // true
 is.positiveInteger(0)    // false
@@ -673,7 +673,7 @@ is.positiveInteger(3.14) // false
 
 ### Signature
 
-```javascript
+```js
 nonPositiveInteger(value)
 ```
 
@@ -695,7 +695,7 @@ Check if a value is an integer less than or equal to 0.
 
 ### Examples
 
-```javascript
+```js
 is.nonPositiveInteger(0)  // true
 is.nonPositiveInteger(-3) // true
 is.nonPositiveInteger(1)  // false
@@ -705,7 +705,7 @@ is.nonPositiveInteger(1)  // false
 
 ### Signature
 
-```javascript
+```js
 negativeInteger(value)
 ```
 
@@ -727,7 +727,7 @@ Check if a value is an integer strictly less than 0.
 
 ### Examples
 
-```javascript
+```js
 is.negativeInteger(-1)  // true
 is.negativeInteger(-42) // true
 is.negativeInteger(0)   // false
@@ -738,7 +738,7 @@ is.negativeInteger(1)   // false
 
 ### Signature
 
-```javascript
+```js
 nonNegativeInteger(value)
 ```
 
@@ -760,7 +760,7 @@ Check if a value is an integer greater than or equal to 0.
 
 ### Examples
 
-```javascript
+```js
 is.nonNegativeInteger(0)  // true
 is.nonNegativeInteger(5)  // true
 is.nonNegativeInteger(-1) // false
@@ -770,7 +770,7 @@ is.nonNegativeInteger(-1) // false
 
 ### Signature
 
-```javascript
+```js
 array(value)
 ```
 
@@ -792,7 +792,7 @@ Check if a value is an array.
 
 ### Examples
 
-```javascript
+```js
 is.array([])        // true
 is.array([1, 2, 3]) // true
 is.array({})        // false
@@ -803,7 +803,7 @@ is.array('hello')   // false
 
 ### Signature
 
-```javascript
+```js
 emptyArray(value)
 ```
 
@@ -825,7 +825,7 @@ Check if a value is an empty array.
 
 ### Examples
 
-```javascript
+```js
 is.emptyArray([])     // true
 is.emptyArray([1, 2]) // false
 is.emptyArray({})     // false
@@ -835,7 +835,7 @@ is.emptyArray({})     // false
 
 ### Signature
 
-```javascript
+```js
 nonEmptyArray(value)
 ```
 
@@ -857,7 +857,7 @@ Check if a value is an array with at least one element.
 
 ### Examples
 
-```javascript
+```js
 is.nonEmptyArray([1, 2]) // true
 is.nonEmptyArray([])     // false
 ```
@@ -866,7 +866,7 @@ is.nonEmptyArray([])     // false
 
 ### Signature
 
-```javascript
+```js
 arrayOfLength(value, length)
 ```
 
@@ -889,7 +889,7 @@ Check if a value is an array of a specific length.
 
 ### Examples
 
-```javascript
+```js
 is.arrayOfLength([1, 2, 3], 3) // true
 is.arrayOfLength([1, 2], 3)    // false
 is.arrayOfLength([], 0)        // true
@@ -899,7 +899,7 @@ is.arrayOfLength([], 0)        // true
 
 ### Signature
 
-```javascript
+```js
 arrayOfLengthAtLeast(value, minLength)
 ```
 
@@ -922,7 +922,7 @@ Check if a value is an array with at least a given number of elements.
 
 ### Examples
 
-```javascript
+```js
 is.arrayOfLengthAtLeast([1, 2, 3], 3) // true
 is.arrayOfLengthAtLeast([1, 2, 3], 2) // true
 is.arrayOfLengthAtLeast([1], 2)        // false
@@ -932,7 +932,7 @@ is.arrayOfLengthAtLeast([1], 2)        // false
 
 ### Signature
 
-```javascript
+```js
 arrayOfLengthAtMost(value, maxLength)
 ```
 
@@ -955,7 +955,7 @@ Check if a value is an array with at most a given number of elements.
 
 ### Examples
 
-```javascript
+```js
 is.arrayOfLengthAtMost([1, 2], 3)    // true
 is.arrayOfLengthAtMost([1, 2], 2)    // true
 is.arrayOfLengthAtMost([1, 2, 3], 2) // false
@@ -965,7 +965,7 @@ is.arrayOfLengthAtMost([1, 2, 3], 2) // false
 
 ### Signature
 
-```javascript
+```js
 arrayOfLengthBetween(value, minLength, maxLength)
 ```
 
@@ -989,7 +989,7 @@ Check if a value is an array whose length falls within a given range (inclusive 
 
 ### Examples
 
-```javascript
+```js
 is.arrayOfLengthBetween([1, 2], 1, 3)       // true
 is.arrayOfLengthBetween([1, 2, 3], 1, 3)    // true
 is.arrayOfLengthBetween([], 1, 3)            // false
@@ -1000,7 +1000,7 @@ is.arrayOfLengthBetween([1, 2, 3, 4], 1, 3) // false
 
 ### Signature
 
-```javascript
+```js
 map(value)
 ```
 
@@ -1022,7 +1022,7 @@ Check if a value is a `Map` instance.
 
 ### Examples
 
-```javascript
+```js
 is.map(new Map())           // true
 is.map(new Map([['a', 1]])) // true
 is.map({})                  // false
@@ -1033,7 +1033,7 @@ is.map(null)                // false
 
 ### Signature
 
-```javascript
+```js
 emptyMap(value)
 ```
 
@@ -1055,7 +1055,7 @@ Check if a value is a `Map` instance with no entries.
 
 ### Examples
 
-```javascript
+```js
 is.emptyMap(new Map())           // true
 is.emptyMap(new Map([['a', 1]])) // false
 ```
@@ -1064,7 +1064,7 @@ is.emptyMap(new Map([['a', 1]])) // false
 
 ### Signature
 
-```javascript
+```js
 nonEmptyMap(value)
 ```
 
@@ -1086,7 +1086,7 @@ Check if a value is a `Map` instance with at least one entry.
 
 ### Examples
 
-```javascript
+```js
 is.nonEmptyMap(new Map([['a', 1]])) // true
 is.nonEmptyMap(new Map())           // false
 ```
@@ -1095,7 +1095,7 @@ is.nonEmptyMap(new Map())           // false
 
 ### Signature
 
-```javascript
+```js
 set(value)
 ```
 
@@ -1117,7 +1117,7 @@ Check if a value is a `Set` instance.
 
 ### Examples
 
-```javascript
+```js
 is.set(new Set())       // true
 is.set(new Set([1, 2])) // true
 is.set([])              // false
@@ -1128,7 +1128,7 @@ is.set(null)            // false
 
 ### Signature
 
-```javascript
+```js
 emptySet(value)
 ```
 
@@ -1150,7 +1150,7 @@ Check if a value is a `Set` instance with no elements.
 
 ### Examples
 
-```javascript
+```js
 is.emptySet(new Set())       // true
 is.emptySet(new Set([1, 2])) // false
 ```
@@ -1159,7 +1159,7 @@ is.emptySet(new Set([1, 2])) // false
 
 ### Signature
 
-```javascript
+```js
 nonEmptySet(value)
 ```
 
@@ -1181,7 +1181,7 @@ Check if a value is a `Set` instance with at least one element.
 
 ### Examples
 
-```javascript
+```js
 is.nonEmptySet(new Set([1, 2])) // true
 is.nonEmptySet(new Set())       // false
 ```
@@ -1190,7 +1190,7 @@ is.nonEmptySet(new Set())       // false
 
 ### Signature
 
-```javascript
+```js
 function(value)
 ```
 
@@ -1212,7 +1212,7 @@ Check if a value is a function.
 
 ### Examples
 
-```javascript
+```js
 is.function(() => {})      // true
 is.function(function() {}) // true
 is.function(Array.isArray) // true
@@ -1223,7 +1223,7 @@ is.function({})            // false
 
 ### Signature
 
-```javascript
+```js
 boolean(value)
 ```
 
@@ -1245,7 +1245,7 @@ Check if a value is a boolean.
 
 ### Examples
 
-```javascript
+```js
 is.boolean(true)   // true
 is.boolean(false)  // true
 is.boolean(1)      // false
@@ -1256,7 +1256,7 @@ is.boolean('true') // false
 
 ### Signature
 
-```javascript
+```js
 oneOf(value, allowedValues)
 ```
 
@@ -1279,7 +1279,7 @@ Check if a value is one of the allowed values.
 
 ### Examples
 
-```javascript
+```js
 is.oneOf('red', ['red', 'green', 'blue'])    // true
 is.oneOf('yellow', ['red', 'green', 'blue']) // false
 is.oneOf(2, [1, 2, 3])                       // true
@@ -1289,7 +1289,7 @@ is.oneOf(2, [1, 2, 3])                       // true
 
 ### Signature
 
-```javascript
+```js
 empty(value)
 ```
 
@@ -1311,7 +1311,7 @@ Check if a value is empty. A value is considered empty if it is `null`, `undefin
 
 ### Examples
 
-```javascript
+```js
 is.empty(null)      // true
 is.empty(undefined) // true
 is.empty('')        // true

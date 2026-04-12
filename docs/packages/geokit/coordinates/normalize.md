@@ -22,7 +22,8 @@ Normalizes geographic coordinates to valid ranges and truncates to specified pre
 |------|------|----------|-------------|
 | longitude | number | yes | Longitude value to normalize |
 | latitude | number | yes | Latitude value to normalize |
-| precision | number | no | Number of decimal places (0-8). Default: 7
+| precision | number | no | Number of decimal places (0-8). Default: 7 |
+
 - Precision levels correspond to approximate distances:
   - 0: ~111 km (country/region)
   - 1: ~11 km (large city)
@@ -32,7 +33,7 @@ Normalizes geographic coordinates to valid ranges and truncates to specified pre
   - 5: ~1.1 m (street/building)
   - 6: ~11 cm (GPS precision)
   - 7: ~1.1 cm (geodesy - default)
-  - 8: ~1.1 mm (topography) |
+  - 8: ~1.1 mm (topography)
 
 ### Returns
 
@@ -78,7 +79,5 @@ normalizeCoordinates(2.3522, 48.8566, 10)
 // null
 ```
 
-
----
 
 

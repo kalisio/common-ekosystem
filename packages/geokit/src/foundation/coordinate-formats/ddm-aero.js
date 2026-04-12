@@ -1,4 +1,4 @@
-import { is, conforms } from '@kalisio/check'
+import { is, conform } from '@kalisio/check'
 import { isDirection } from '../directions.js'
 import { DD } from './dd.js'
 
@@ -16,7 +16,7 @@ export function DDMAero (ddm) {
   let _minutes = null
   let _direction = null
 
-  if (is.plainObject(ddm) && conforms.schema(ddm, SCHEMA)) {
+  if (is.plainObject(ddm) && conform.schema(ddm, SCHEMA)) {
     _degrees = ddm.degrees
     _minutes = ddm.minutes
     _direction = ddm.direction

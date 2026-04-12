@@ -10,9 +10,9 @@ description: A minimalist conditional and assertion library for JavaScript
 **check** is organized around five focused modules:
 - `is` provides a set of boolean predicates to test the type and state of a value.
 - `has` checks for the presence and definition of keys in an object.
-- `conforms` validates an object against a schema, supporting nested structures and any `is` predicate as a validator.
-- `matches` tests strings against regular expressions.
-- `asserts` builds on top of `is` to throw a `TypeError` when a value fails validation, making it suitable for guarding function inputs.
+- `conform` validates an object against a schema, supporting nested structures and any `is` predicate as a validator.
+- `match` tests strings against regular expressions.
+- `assert` builds on top of `is` to throw a `TypeError` when a value fails validation, making it suitable for guarding function inputs.
 
 ## Installation
 
@@ -60,49 +60,49 @@ has.keyWithValue({ name: null }, 'name')
 // false
 ```
 
-### conforms
+### conform
 
 ```javascript
-conforms.schema(
+conform.schema(
   { name: 'Alice', age: 25, tags: [] },
   { name: is.string, age: is.number, tags: is.array }
 )
 // true
-conforms.schema(
+conform.schema(
   { name: 'Alice', age: '25' },
   { name: is.string, age: is.number }
 )
 // false
-conforms.schema(
+conform.schema(
   { address: { city: 'Paris' } },
   { address: { city: (v) => is.nonEmptyString(v) } }
 )
 // true
 ```
 
-### matches
+### match
 
 ```javascript
-matches.pattern('hello@example.com', /^[\w.-]+@[\w.-]+\.\w+$/)
+match.pattern('hello@example.com', /^[\w.-]+@[\w.-]+\.\w+$/)
 // true
-matches.pattern('not-an-email', /^[\w.-]+@[\w.-]+\.\w+$/)
+match.pattern('not-an-email', /^[\w.-]+@[\w.-]+\.\w+$/)
 // false
-matches.pattern('abc123', /^\w+$/)
+match.pattern('abc123', /^\w+$/)
 // true
-matches.pattern('abc 123', /^\w+$/)
+match.pattern('abc 123', /^\w+$/)
 // false
-matches.pattern('HELLO', /^[A-Z]+$/)
+match.pattern('HELLO', /^[A-Z]+$/)
 // true
 ```
 
-### asserts
+### assert
 
 ```javascript
-asserts.that('hello', (v) => is.nonEmptyString(v), 'name must be a non-empty string')
-asserts.that(42, is.positive, 'age must be positive')
-asserts.that(true, is.boolean, 'flag must be a boolean')
-asserts.that([1, 2], is.nonEmptyArray, 'items must be a non-empty array')
-asserts.all([
+assert.that('hello', (v) => is.nonEmptyString(v), 'name must be a non-empty string')
+assert.that(42, is.positive, 'age must be positive')
+assert.that(true, is.boolean, 'flag must be a boolean')
+assert.that([1, 2], is.nonEmptyArray, 'items must be a non-empty array')
+assert.all([
   { value: 'Alice', validator: (v) => is.nonEmptyString(v), message: 'name must be a non-empty string' },
   { value: 25, validator: is.positive, message: 'age must be positive' }
 ])

@@ -1,4 +1,4 @@
-import { asserts, is, conforms, optional } from '@kalisio/check'
+import { assert, is, conform, optional } from '@kalisio/check'
 import { isDirection } from '../directions.js'
 
 const SCHEMA = {
@@ -13,7 +13,7 @@ export function DD (dd) {
   let _degrees = null
   let _direction = null
 
-  if (is.plainObject(dd) && conforms.schema(dd, SCHEMA)) {
+  if (is.plainObject(dd) && conform.schema(dd, SCHEMA)) {
     if (is.defined(dd.direction)) {
       if (dd.degrees >= 0) {
         _degrees = dd.degrees
@@ -41,7 +41,7 @@ export function DD (dd) {
     },
 
     toString (decimalPlaces) {
-      asserts.that(decimalPlaces, is.positiveInteger, 'decimalPlaces must be a positive integer')
+      assert.that(decimalPlaces, is.positiveInteger, 'decimalPlaces must be a positive integer')
       if (!this.isValid()) return ''
       let str = `${_degrees.toFixed(decimalPlaces)}°`
       if (_direction) str += ` ${_direction}`

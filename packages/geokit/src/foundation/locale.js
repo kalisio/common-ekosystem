@@ -1,4 +1,4 @@
-import { asserts, is, has, conforms } from '@kalisio/check'
+import { assert, is, has, conform } from '@kalisio/check'
 import fr from './locales/fr.json'
 import en from './locales/en.json'
 
@@ -23,17 +23,17 @@ export function listLocales () {
 }
 
 export function registerLocale (code, content) {
-  asserts.all([
+  assert.all([
     { value: code, validator: is.string, message: 'code must be a string' },
     { value: code, validator: (v) => !has.key(LOCALES, v), message: 'locale already registered' },
     { value: content, validator: is.plainObject, message: 'content must be an object' },
-    { value: content, validator: (v) => conforms.schema(v, LOCALE_SCHEMA), message: 'content does not conform to schema' }
+    { value: content, validator: (v) => conform.schema(v, LOCALE_SCHEMA), message: 'content does not conform to schema' }
   ])
   LOCALES[code] = content
 }
 
 export function setLocale (code) {
-  asserts.all([
+  assert.all([
     { value: code, validator: is.string, message: 'code must be a string' },
     { value: code, validator: (v) => has.key(LOCALES, v), message: 'code is unknown' }
   ])

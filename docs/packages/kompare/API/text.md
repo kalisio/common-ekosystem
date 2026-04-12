@@ -112,7 +112,7 @@ Check if a string is equal to the content of a file after optional normalization
 
 | Type | Description |
 |------|-------------|
-| boolean | True if the string matches the file content |
+| boolean | True if the string match the file content |
 
 ### Examples
 

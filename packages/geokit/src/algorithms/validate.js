@@ -1,4 +1,4 @@
-import { asserts, is } from '@kalisio/check'
+import { assert, is } from '@kalisio/check'
 import { validatePosition } from '../foundation'
 
 function _validateArray (items, validator, path = '') {
@@ -187,7 +187,7 @@ function _validateFeature (feature, path = '') {
   }
 }
 
-export function validate (geojson) {
-  asserts.that(geojson, is.nonEmptyObject, 'geojson must be a non empty object')
-  return _validateFeature(geojson, '')
+export function validate (geoJson) {
+  assert.that(geoJson, is.nonEmptyObject, 'geojson must be a non empty object')
+  return _validateFeature(geoJson, '')
 }

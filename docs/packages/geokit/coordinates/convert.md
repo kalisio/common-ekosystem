@@ -1,14 +1,15 @@
 ---
 title: convert
+description: A utility function to converts Degrees, Minutes, Seconds to Decimal Degrees
 ---
 
 # convert
 
-
 ## convertFromSexagesimal
 
 ### Signature
-```javascript
+
+```js
 convertFromSexagesimal(deg, min, sec, dir)
 ```
 
@@ -31,7 +32,5 @@ Converts Degrees, Minutes, Seconds to Decimal Degrees
 |------|-------------|
 | number | decimal degrees, positive for N/E, negative for S/W |
 
-
----
 
 

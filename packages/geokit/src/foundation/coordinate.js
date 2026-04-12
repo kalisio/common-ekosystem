@@ -1,4 +1,4 @@
-import { asserts, is, has } from '@kalisio/check'
+import { assert, is, has } from '@kalisio/check'
 import { AXES, isLatitude, isLongitude } from './axes.js'
 import { isDirection, getDirectionAxis } from './directions.js'
 import { COORDINATE_FORMATS, COORDINATE_MODELS, converter } from './coordinate-formats'
@@ -7,9 +7,9 @@ export { COORDINATE_FORMATS, COORDINATE_MODELS } from './coordinate-formats'
 const COORDINATE_TRUNCATION_FACTORS = Array.from({ length: 9 }, (_, i) => 10 ** i)
 
 export function guessCoordinateAxis (coord, dir) {
-  asserts.that(coord, is.number, 'coord must be a number')
+  assert.that(coord, is.number, 'coord must be a number')
   if (is.defined(dir)) {
-    asserts.that(dir, isDirection, 'dir must be a direction')
+    assert.that(dir, isDirection, 'dir must be a direction')
     return getDirectionAxis(dir)
   }
   if (Math.abs(coord) > 90) return AXES.LONGITUDE
@@ -17,7 +17,7 @@ export function guessCoordinateAxis (coord, dir) {
 }
 
 export function getCoordinatePrecision (coord) {
-  asserts.that(coord, is.number, 'coord must be a number')
+  assert.that(coord, is.number, 'coord must be a number')
   const str = coord.toExponential()
   const [base, exp] = str.split('e').map(Number)
   const decimalsInBase = (base.toString().split('.')[1] || '').length
@@ -25,7 +25,7 @@ export function getCoordinatePrecision (coord) {
 }
 
 export function truncateCoordinate (coord, precision) {
-  asserts.all([
+  assert.all([
     { value: coord, validator: is.number, message: 'coord must be a number' },
     { value: precision, validator: (v) => is.inRange(v, 0, 8), message: 'precision must be in range [0, 8]' }
   ])
@@ -34,7 +34,7 @@ export function truncateCoordinate (coord, precision) {
 }
 
 export function normalizeCoordinate (coord, axis) {
-  asserts.all([
+  assert.all([
     { value: coord, validator: is.number, message: 'coord must be a number' },
     { value: axis, validator: (v) => isLongitude(v) || isLatitude(v), message: 'axis must be either a longitude or latitude' }
   ])
@@ -48,7 +48,7 @@ export function normalizeCoordinate (coord, axis) {
 }
 
 export function convertCoordinate (from, to) {
-  asserts.all([
+  assert.all([
     { value: from, validator: (v) => is.defined(v) && v.isValid(), message: 'from must be a valid coordinate' },
     { value: to, validator: (v) => has.key(converter, v), message: `unknown format: ${to}` }
   ])
@@ -61,7 +61,7 @@ export function convertCoordinate (from, to) {
 }
 
 export function parseCoordinate (pattern) {
-  asserts.that(pattern, is.nonEmptyString, 'pattern must be a non empty string')
+  assert.that(pattern, is.nonEmptyString, 'pattern must be a non empty string')
   for (const format of Object.keys(COORDINATE_FORMATS)) {
     const coord = COORDINATE_MODELS[format](pattern)
     if (coord.isValid()) return coord

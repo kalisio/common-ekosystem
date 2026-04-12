@@ -1,4 +1,4 @@
-import { asserts } from './asserts.js'
+import { assert } from './assert.js'
 
 export const is = {
 
@@ -62,22 +62,22 @@ export const is = {
   },
 
   inRange (value, min, max) {
-    asserts.that(max, (v) => v >= min, 'max must be greater than or equal to min')
+    assert.that(max, (v) => v >= min, 'max must be greater than or equal to min')
     return is.number(value) && value >= min && value <= max
   },
 
   inRangeExclusive (value, min, max) {
-    asserts.that(max, (v) => v > min, 'max must be greater than min')
+    assert.that(max, (v) => v > min, 'max must be greater than min')
     return is.number(value) && value > min && value < max
   },
 
   inRangeExclusiveMin (value, min, max) {
-    asserts.that(max, (v) => v > min, 'max must be greater than min')
+    assert.that(max, (v) => v > min, 'max must be greater than min')
     return is.number(value) && value > min && value <= max
   },
 
   inRangeExclusiveMax (value, min, max) {
-    asserts.that(max, (v) => v >= min, 'max must be greater than or equal to min')
+    assert.that(max, (v) => v >= min, 'max must be greater than or equal to min')
     return is.number(value) && value >= min && value < max
   },
 
@@ -113,22 +113,22 @@ export const is = {
   },
 
   arrayOfLength (value, length) {
-    asserts.that(length, is.nonNegativeInteger, 'length must be a non negative integer')
+    assert.that(length, is.nonNegativeInteger, 'length must be a non negative integer')
     return is.array(value) && value.length === length
   },
 
   arrayOfLengthAtLeast (value, minLength) {
-    asserts.that(minLength, is.nonNegativeInteger, 'minLength must be a non negative integer')
+    assert.that(minLength, is.nonNegativeInteger, 'minLength must be a non negative integer')
     return is.array(value) && value.length >= minLength
   },
 
   arrayOfLengthAtMost (value, maxLength) {
-    asserts.that(maxLength, is.nonNegativeInteger, 'maxLength must be a non negative integer')
+    assert.that(maxLength, is.nonNegativeInteger, 'maxLength must be a non negative integer')
     return is.array(value) && value.length <= maxLength
   },
 
   arrayOfLengthBetween (value, minLength, maxLength) {
-    asserts.all([
+    assert.all([
       { value: minLength, validator: is.nonNegativeInteger, message: 'minLength must be a non negative integer' },
       { value: maxLength, validator: is.nonNegativeInteger, message: 'maxLength must be a non negative integer' },
       { value: minLength, validator: (v) => v <= maxLength, message: 'minLength must be less than or equal to maxLength' }
@@ -169,7 +169,7 @@ export const is = {
   },
 
   oneOf (value, allowedValues) {
-    asserts.that(allowedValues, is.nonEmptyArray, 'allowed values must be a non empty array')
+    assert.that(allowedValues, is.nonEmptyArray, 'allowed values must be a non empty array')
     return allowedValues.includes(value)
   },
 
@@ -182,4 +182,5 @@ export const is = {
     if (is.set(value)) return is.emptySet(value)
     return false
   }
+
 }

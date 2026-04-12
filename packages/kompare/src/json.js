@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import _ from 'lodash'
-import { asserts, is } from '@kalisio/check'
+import { assert, is } from '@kalisio/check'
 import { normalizeString } from './text'
 
 // Helper function to normalize a content in order to be compared with _.isEqual
@@ -57,7 +57,7 @@ function diffObjects (object1, object2, path = '', diffs = { missing: [], extra:
 export const json = {
 
   isEqual (json1, json2, options = {}) {
-    asserts.all([
+    assert.all([
       { value: json1, validator: is.nonEmptyObject, message: 'json1 should be a non-empty object' },
       { value: json2, validator: is.nonEmptyObject, message: 'json2 should be a non-empty object' }
     ])
@@ -67,7 +67,7 @@ export const json = {
   },
 
   isEqualFile (json, jsonFilePath, options = {}) {
-    asserts.all([
+    assert.all([
       { value: json, validator: is.nonEmptyObject, message: 'json should be a non-empty object' },
       { value: jsonFilePath, validator: is.nonEmptyString, message: 'jsonFilePath should be a non-empty string' }
     ])
@@ -76,7 +76,7 @@ export const json = {
   },
 
   isEqualFiles (jsonFilePath1, jsonFilePath2, options = {}) {
-    asserts.all([
+    assert.all([
       { value: jsonFilePath1, validator: is.nonEmptyString, message: 'jsonFilePath1 should be a non-empty string' },
       { value: jsonFilePath2, validator: is.nonEmptyString, message: 'jsonFilePath2 should be a non-empty string' }
     ])
@@ -86,7 +86,7 @@ export const json = {
   },
 
   compare (json1, json2, options = {}) {
-    asserts.all([
+    assert.all([
       { value: json1, validator: is.nonEmptyObject, message: 'json1 should be a non-empty object' },
       { value: json2, validator: is.nonEmptyObject, message: 'json2 should be a non-empty object' }
     ])

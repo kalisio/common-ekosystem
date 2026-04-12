@@ -1,4 +1,4 @@
-import { asserts, is } from '@kalisio/check'
+import { assert, is } from '@kalisio/check'
 import { AXES } from './axes.js'
 import { isWest, isSouth } from './directions.js'
 import { guessCoordinateAxis, getCoordinatePrecision, parseCoordinate } from './coordinate.js'
@@ -47,7 +47,7 @@ import { guessCoordinateAxis, getCoordinatePrecision, parseCoordinate } from './
     },
 
     normalize () {
-      asserts.that(this, (v) => v.isValid(), 'this must be a valid Coord')
+      assert.that(this, (v) => v.isValid(), 'this must be a valid Coord')
       let lon = _value[0]
       let lat = _value[1]
       if (lat < -90 || lat > 90) {
@@ -71,7 +71,7 @@ import { guessCoordinateAxis, getCoordinatePrecision, parseCoordinate } from './
     },
 
     truncate (precision = 7) {
-      asserts.all([
+      assert.all([
         { value: precision, validator: (p) => is.inRange(p, 0, 8), message: 'precision must be in range [0, 8]' },
         { value: this, validator: (v) => v.isValid(), message: 'this must be valid' }
       ])
@@ -83,7 +83,7 @@ import { guessCoordinateAxis, getCoordinatePrecision, parseCoordinate } from './
 
 /*
     distanceTo (position, units) {
-      asserts.that(position, isPosition, 'position must be a Position')
+      assert.that(position, isPosition, 'position must be a Position')
       const dLon = degreesToRadians(position.longitude - _value[0])
       const dLat = degreesToRadians(position.latitude - _value[1])
       const lat1 = degreesToRadians(_value[1])
@@ -118,7 +118,7 @@ import { guessCoordinateAxis, getCoordinatePrecision, parseCoordinate } from './
     },
 
     toString (format, decimalPlaces = 5) {
-      asserts.all([
+      assert.all([
         { value: format, validator: is.nonEmptyString, message: 'format must be a non-empty string' },
         { value: decimalPlaces, validator: is.positiveInteger, message: 'options must be a positive integer' }
       ])
@@ -186,7 +186,7 @@ export function validatePosition (coordinates) {
 }
 
 export function parsePosition (pattern) {
-  asserts.that(pattern, (v) => is.nonEmptyString(v), 'pattern must be a non-empty string')
+  assert.that(pattern, (v) => is.nonEmptyString(v), 'pattern must be a non-empty string')
   const parts = pattern.split(/[,;|]/)
   if (parts.length !== 2) return null
   const [first, second] = parts.map(parseCoordinate)

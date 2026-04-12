@@ -536,7 +536,7 @@ describe('is.arrayOfLength', () => {
   it('returns true for [] with length 0', () => {
     expect(is.arrayOfLength([], 0)).toBe(true)
   })
-  it('returns true when length matches', () => {
+  it('returns true when length match', () => {
     expect(is.arrayOfLength([1, 2], 2)).toBe(true)
   })
   it('returns true for [null] with length 1', () => {
@@ -896,7 +896,7 @@ describe('is.inRange', () => {
   it('returns true for a negative range', () => {
     expect(is.inRange(-5, -10, -1)).toBe(true)
   })
-  it('returns true when min equals max and value matches', () => {
+  it('returns true when min equals max and value match', () => {
     expect(is.inRange(5, 5, 5)).toBe(true)
   })
   it('returns false when below range', () => {
