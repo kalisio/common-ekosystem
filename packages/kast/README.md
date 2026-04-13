@@ -6,7 +6,7 @@ _A JSON transformation utility_
 
 ## Documentation
 
-Refer to the [documentation](https://github.com/kalisio/common-ekosystem)
+Detailed documentation is available at the following [link](https://kalisio.github.io/common-ekosystem/packages/kast/).
 
 ## License
 
