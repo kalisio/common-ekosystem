@@ -25,12 +25,12 @@
     "posttest": "pnpm lcov-result-merger --prepend-source-files 'packages/*/coverage/lcov.info' coverage/lcov.info",
     "prepare": "husky",
     "pretest": "mkdir -p coverage",
-    "test": "pnpm -r test --coverage",
-    "test:check": "pnpm --filter @kalisio/check test --coverage",
-    "test:geokit": "pnpm --filter @kalisio/geokit test --coverage",
-    "test:graphiks": "pnpm --filter @kalisio/graphiks test --coverage",
-    "test:kast": "pnpm --filter @kalisio/kast test --coverage",
-    "test:kompare": "pnpm --filter @kalisio/kompare test --coverage"
+    "test": "pnpm -r test",
+    "test:check": "pnpm --filter @kalisio/check test",
+    "test:geokit": "pnpm --filter @kalisio/geokit test",
+    "test:graphiks": "pnpm --filter @kalisio/graphiks test",
+    "test:kast": "pnpm --filter @kalisio/kast test",
+    "test:kompare": "pnpm --filter @kalisio/kompare test"
   },
   "keywords": [
     "check",
