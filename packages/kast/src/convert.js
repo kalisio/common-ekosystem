@@ -19,6 +19,10 @@ export const convert = {
   },
 
   toValue (value, units) {
+    assert.all([
+      { value, validator: is.defined, message: 'value must be an array' },
+      { value: units, validator: is.plainObject, message: 'units must be a non empty array' }
+    ])
     if (units.asDate) {
       let date
       if (units.asDate === 'utc') {
