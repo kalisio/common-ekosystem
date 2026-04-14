@@ -5,6 +5,8 @@ description: A JSON transformation utility
 
 # kast
 
+**kast** is a lightweight JSON transformation library that offers a set of utilities to filter, reshape, and manipulate JSON objects and arrays.
+
 ## Installation
 
 Install with your preferred package manager:
@@ -25,106 +27,185 @@ yarn add @kalisio/check
 
 ### transform
 
-- Convert to array
+> [!NOTE]
+> `transform` is a small data transformation pipeline that:
+> 1. Converts data structures
+> 2. Filters data
+> 3. Applies field mappings
+> 4. Converts values (units, types, dates)
+> 5. Modifies object structure (pick / omit / merge)
+
+- Rename Fields (Simple Mapping)
 
 ```js
-transform(
-  { a: 1, b: 2 },
-  {
-    toArray: true
+const data = { first_name: 'John', age: 30 }
+
+const options = {
+  mapping: {
+    first_name: 'name'
   }
-)
+}
+
+// Result
+{ name: 'John', age: 30 }
 ```
 
-- Filter array
+- Filter Data
 
 ```js
-transform(
-  [
-    { age: 20 },
-    { age: 30 }
-  ],
-  {
-    filter: { age: { $gt: 25 } }
-  }
-)
+const data = [
+  { name: 'John', age: 17 },
+  { name: 'Jane', age: 25 }
+]
+
+const options = {
+  filter: { age: { $gte: 18 } }
+}
+
+// Result
+[
+  { name: 'Jane', age: 25 }
+]
 ```
 
-- Apply mapping
+- Convert String to Number
 
 ```js
-transform(
-  { name: "John" },
-  {
-    mapping: {
-      name: "firstName"
+const data = { age: '42' }
+
+const options = {
+  unitMapping: {
+    age: { asNumber: true }
+  }
+}
+
+// Result
+{ age: 42 }
+```
+
+- Format Dates
+
+```js
+const data = { date: '2024-01-01' }
+
+const options = {
+  unitMapping: {
+    date: {
+      asDate: true,
+      to: 'DD/MM/YYYY'
     }
   }
-)
+}
 
-transform(
-  { status: "A" },
-  {
-    mapping: {
-      status: {
-        path: "state",
-        values: {
-          A: "active"
-        }
+// Result
+{ date: '01/01/2024' }
+```
+
+- Map Values and rename field
+
+```js
+const data = { status: 1 }
+
+const options = {
+  mapping: {
+    status: {
+      path: 'statusLabel',
+      values: {
+        1: 'active',
+        0: 'inactive'
       }
     }
   }
-)
+}
+
+// Result
+{ statusLabel: 'active' }
 ```
 
-- Apply unit mapping
+- Remove or keep fields
 
 ```js
-transform(
-  { value: "42" },
-  {
-    unitMapping: {
-      value: { asNumber: true }
-    }
-  }
-)
-```
+const data = {
+  name: 'John',
+  age: 30,
+  password: 'secret'
+}
 
-- Apply modifiers
+const options = {
+  omit: ['password']
+}
+
+// Result
+{ name: 'John', age: 30 }
+```
 
 ```js
-// pick
-transform(
-  { name: "John", age: 30, password: "123" },
-  {
-    omit: ["name"]
-  }
-)
+const options = {
+  pick: ['name']
+}
 
-// omit
-transform(
-  { name: "John", password: "123" },
-  {
-    omit: ["password"]
-  }
-)
-
-// merge
-transform(
-  { name: "John" },
-  {
-    merge: {
-      source: "api"
-    }
-  }
-)
+// Result
+{ name: 'John' }
 ```
 
+- Merge additional data
 
+```js
+const data = { name: 'John' }
 
+const options = {
+  merge: { country: 'FR' }
+}
 
+// Result
+{ name: 'John', country: 'FR' }
+```
 
+- Convert array of arrays to objects
 
+```js
+const data = [
+  ['John', 30],
+  ['Jane', 25]
+]
 
+const options = {
+  toObjects: ['name', 'age']
+}
 
+// Result
+[
+  { name: 'John', age: 30 },
+  { name: 'Jane', age: 25 }
+]
+```
+
+- Full example
+
+```js
+const data = [
+  { first_name: 'John', age: '20', status: 1 },
+  { first_name: 'Jane', age: '17', status: 0 }
+]
+
+const options = {
+  filter: { age: { $gte: 18 } },
+  mapping: {
+    first_name: 'name',
+    status: {
+      path: 'statusLabel',
+      values: { 1: 'active', 0: 'inactive' }
+    }
+  },
+  unitMapping: {
+    age: { asNumber: true }
+  },
+  pick: ['name', 'age', 'statusLabel']
+}
+
+// Result
+[
+  { name: 'John', age: 20, statusLabel: 'active' }
+]
+```
 
