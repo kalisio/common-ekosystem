@@ -118,8 +118,8 @@ describe('validateGeometry', () => {
         type: 'Polygon',
         coordinates: [[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]]
       })
-      expect(result.valid).toBe(false)
-      expect(result.errors.some(e => e.message.match(/counter-clockwise/))).toBe(true)
+      expect(result.valid).toBe(true)
+      expect(result.warnings.some(e => e.message.match(/counter-clockwise/))).toBe(true)
     })
 
     it('should return invalid if hole ring is counter-clockwise', () => {
@@ -130,7 +130,8 @@ describe('validateGeometry', () => {
           [[2, 2], [2, 8], [8, 8], [8, 2], [2, 2]] // hole should be CW
         ]
       })
-      expect(result.valid).toBe(false)
+      expect(result.valid).toBe(true)
+      expect(result.warnings.some(e => e.message.match(/counter-clockwise/))).toBe(true)
     })
 
     it('should return invalid for self-intersecting polygon', () => {

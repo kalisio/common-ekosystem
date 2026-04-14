@@ -1,3 +1,5 @@
+import path from 'node:path'
+import fs from 'node:fs'
 import { describe, it, expect } from 'vitest'
 import { validateGeoJson } from '../../../src/algorithms/validate'
 
@@ -113,6 +115,20 @@ describe('validateGeoJson', () => {
         ],
         bbox: [-5, -5, 5, 5]
       })
+      expect(result.valid).toBe(true)
+    })
+
+    it('should validate a Feature file', () => {
+      const filePath = path.resolve(__dirname, './data/polygon.geojson')
+      const geojson = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
+      const result = validateGeoJson(geojson)
+      expect(result.valid).toBe(true)
+    })
+
+    it('should validate a FeatureCollection file', () => {
+      const filePath = path.resolve(__dirname, './data/collection.geojson')
+      const geojson = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
+      const result = validateGeoJson(geojson)
       expect(result.valid).toBe(true)
     })
   })

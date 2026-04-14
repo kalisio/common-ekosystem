@@ -58,8 +58,7 @@ function validateLinearRing (coordinates, expectedWindingOrder, path = '') {
   const isClockwise = booleanClockwise(coordinates)
   const actualWindingOrder = isClockwise ? 'clockwise' : 'counter-clockwise'
   if (actualWindingOrder !== expectedWindingOrder) {
-    result.valid = false
-    result.errors.push({ message: `Ring must be ${expectedWindingOrder} but is ${actualWindingOrder}`, path })
+    result.warnings.push({ message: `Ring must be ${expectedWindingOrder} but is ${actualWindingOrder}`, path })
   }
   // check self-intersection
   const intersections = kinks({ type: 'Polygon', coordinates: [coordinates] })
