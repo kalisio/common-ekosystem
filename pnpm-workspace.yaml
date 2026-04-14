@@ -41,6 +41,8 @@ catalog:
   "@quasar/app-vite": ~2.5.1
   "@quasar/extras": ~1.17.0
   "@thumbmarkjs/thumbmarkjs": ~1.7.5
+  "@turf/boolean-clockwise": ~7.3.4
+  "@turf/kinks": ~7.3.4
   "@vitejs/plugin-vue": ~6.0.4
   "@vitest/coverage-v8": ~4.1.4
   "@vue/eslint-config-prettier": " ^10.1.0"

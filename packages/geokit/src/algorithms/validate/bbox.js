@@ -1,7 +1,7 @@
 import { is } from '@kalisio/check'
 import { validatePosition } from './position.js'
 
-export function validateBoundingBox (bbox) {
+export function validateBBox (bbox) {
   // Must be array of 4 (2D) or 6 (3D) numbers
   if (!is.arrayOfLength(bbox, 4) && !is.arrayOfLength(bbox, 6)) {
     return {
@@ -13,19 +13,19 @@ export function validateBoundingBox (bbox) {
   const is2D = bbox.length === 4
   const min = is2D ? [bbox[0], bbox[1]] : [bbox[0], bbox[1], bbox[2]]
   const max = is2D ? [bbox[2], bbox[3]] : [bbox[3], bbox[4], bbox[5]]
-  const minValidator = validatePosition(min)
-  if (!minValidator.valid) {
+  const minResult = validatePosition(min)
+  if (!minResult.valid) {
     return {
       valid: false,
-      errors: minValidator.errors.map(e => ({ ...e, message: `Invalid bbox south-west: ${e.message}` })),
+      errors: minResult.errors.map(e => ({ ...e, message: `Invalid bbox south-west: ${e.message}` })),
       warnings: []
     }
   }
-  const maxValidator = validatePosition(max)
-  if (!maxValidator.valid) {
+  const maxResult = validatePosition(max)
+  if (!maxResult.valid) {
     return {
       valid: false,
-      errors: maxValidator.errors.map(e => ({ ...e, message: `Invalid bbox north-east: ${e.message}` })),
+      errors: maxResult.errors.map(e => ({ ...e, message: `Invalid bbox north-east: ${e.message}` })),
       warnings: []
     }
   }
@@ -43,7 +43,7 @@ export function validateBoundingBox (bbox) {
     response.warnings.push({ message: `bbox crosses the antimeridian (west: ${west} > east: ${east})` })
   }
   // Retrieve warnings from both points
-  response.warnings.push(...minValidator.warnings.map(w => ({ ...w, message: `south-west: ${w.message}` })))
-  response.warnings.push(...maxValidator.warnings.map(w => ({ ...w, message: `north-east: ${w.message}` })))
+  response.warnings.push(...minResult.warnings.map(w => ({ ...w, message: `south-west: ${w.message}` })))
+  response.warnings.push(...maxResult.warnings.map(w => ({ ...w, message: `north-east: ${w.message}` })))
   return response
 }

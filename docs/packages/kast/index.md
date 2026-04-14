@@ -23,41 +23,20 @@ yarn add @kalisio/check
 
 ## Examples
 
-### Basic field mapping
+### transform
+
+- Convert to array
 
 ```js
 transform(
-  { name: "John" },
+  { a: 1, b: 2 },
   {
-    mapping: {
-      name: "firstName"
-    }
+    toArray: true
   }
 )
 ```
 
-### Pick fields
-```js
-transform(
-  { name: "John", age: 30 },
-  {
-    pick: ["name"]
-  }
-)
-```
-
-### Omit fields
-
-```js
-transform(
-  { name: "John", password: "123" },
-  {
-    omit: ["password"]
-  }
-)
-```
-
-### Filter array
+- Filter array
 
 ```js
 transform(
@@ -71,22 +50,18 @@ transform(
 )
 ```
 
-### Type conversion
+- Apply mapping
 
 ```js
 transform(
-  { value: "42" },
+  { name: "John" },
   {
-    unitMapping: {
-      value: { asNumber: true }
+    mapping: {
+      name: "firstName"
     }
   }
 )
-```
 
-### Rename and value mapping
-
-```js
 transform(
   { status: "A" },
   {
@@ -102,9 +77,39 @@ transform(
 )
 ```
 
-### Merge data
+- Apply unit mapping
 
 ```js
+transform(
+  { value: "42" },
+  {
+    unitMapping: {
+      value: { asNumber: true }
+    }
+  }
+)
+```
+
+- Apply modifiers
+
+```js
+// pick
+transform(
+  { name: "John", age: 30, password: "123" },
+  {
+    omit: ["name"]
+  }
+)
+
+// omit
+transform(
+  { name: "John", password: "123" },
+  {
+    omit: ["password"]
+  }
+)
+
+// merge
 transform(
   { name: "John" },
   {
@@ -115,16 +120,10 @@ transform(
 )
 ```
 
-### Convert to array
 
-```js
-transform(
-  { a: 1, b: 2 },
-  {
-    toArray: true
-  }
-)
-```
+
+
+
 
 
 
