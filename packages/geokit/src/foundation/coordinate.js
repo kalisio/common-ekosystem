@@ -4,7 +4,7 @@ import { isDirection, getDirectionAxis } from './directions.js'
 import { COORDINATE_FORMATS, COORDINATE_MODELS, converter } from './coordinate-formats'
 export { COORDINATE_FORMATS, COORDINATE_MODELS } from './coordinate-formats'
 
-const COORDINATE_TRUNCATION_FACTORS = Array.from({ length: 9 }, (_, i) => 10 ** i)
+export const COORDINATE_TRUNCATION_FACTORS = Array.from({ length: 9 }, (_, i) => 10 ** i)
 
 export function guessCoordinateAxis (coord, dir) {
   assert.that(coord, is.number, 'coord must be a number')
@@ -24,7 +24,7 @@ export function getCoordinatePrecision (coord) {
   return Math.max(0, decimalsInBase - exp)
 }
 
-export function truncateCoordinate (coord, precision) {
+export function truncateCoordinate (coord, precision = 7) {
   assert.all([
     { value: coord, validator: is.number, message: 'coord must be a number' },
     { value: precision, validator: (v) => is.inRange(v, 0, 8), message: 'precision must be in range [0, 8]' }
