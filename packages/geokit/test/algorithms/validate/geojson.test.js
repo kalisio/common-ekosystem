@@ -16,7 +16,7 @@ describe('validateGeoJson', () => {
     it('should return invalid for unknown type', () => {
       const result = validateGeoJson({ type: 'Unknown' })
       expect(result.valid).toBe(false)
-      expect(result.errors[0].message).toMatch(/unknown type/)
+      expect(result.errors[0].message).toMatch(/Invalid GeoJson/)
     })
   })
 

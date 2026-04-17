@@ -1,6 +1,7 @@
 import booleanClockwise from '@turf/boolean-clockwise'
 import kinks from '@turf/kinks'
 import { is } from '@kalisio/check'
+import { GEOMETRY_TYPES } from '../is-like'
 import { validatePosition } from './position.js'
 import { validateOptionalBBox, validateArray } from './utils.js'
 
@@ -113,7 +114,7 @@ export function validateGeometry (geometry, path = '') {
   const coordsPath = `${path}/coordinates`
   let result
   switch (geometry.type) {
-    case 'Point': {
+    case GEOMETRY_TYPES.POINT: {
       const positionResult = validatePosition(geometry.coordinates, coordsPath)
       result = {
         valid: positionResult.valid,
@@ -122,27 +123,27 @@ export function validateGeometry (geometry, path = '') {
       }
       break
     }
-    case 'MultiPoint': {
+    case GEOMETRY_TYPES.MULTI_POINT: {
       result = validateCoordinatesArray(geometry.coordinates, 0, coordsPath)
       break
     }
-    case 'LineString': {
+    case GEOMETRY_TYPES.LINESTRING: {
       result = validateLineStringCoordinates(geometry.coordinates, coordsPath)
       break
     }
-    case 'MultiLineString': {
+    case GEOMETRY_TYPES.MULTI_LINESTRING: {
       result = validateMultiLineStringCoordinates(geometry.coordinates, coordsPath)
       break
     }
-    case 'Polygon': {
+    case GEOMETRY_TYPES.POLYGON: {
       result = validatePolygonCoordinates(geometry.coordinates, coordsPath)
       break
     }
-    case 'MultiPolygon': {
+    case GEOMETRY_TYPES.MULTI_POLYGON: {
       result = validateMultiPolygonCoordinates(geometry.coordinates, coordsPath)
       break
     }
-    case 'GeometryCollection': {
+    case GEOMETRY_TYPES.GEOMETRY_COLLECTION: {
       result = validateGeometryCollectionGeometries(geometry.geometries, `${path}/geometries`)
       break
     }
