@@ -1,15 +1,11 @@
 import { is } from '@kalisio/check'
+import { CRS_TYPES } from '../is-like'
 
-export const CRS_TYPES = {
-  NAME: 'name',
-  LINK: 'link'
-}
-
-export function validateCrs (crs, path = '/crs') {
+export function validateCRS (crs) {
   if (!is.plainObject(crs)) {
     return {
       valid: false,
-      errors: [{ message: 'Invalid crs: must be an object', path }],
+      errors: [{ message: 'Invalid crs: must be an object' }],
       warnings: []
     }
   }
@@ -18,7 +14,7 @@ export function validateCrs (crs, path = '/crs') {
       if (!is.nonEmptyString(crs.properties?.name)) {
         return {
           valid: false,
-          errors: [{ message: 'Invalid crs: linked crs must have a non-empty properties.name string', path }],
+          errors: [{ message: 'Invalid crs: linked crs must have a non-empty properties.name string' }],
           warnings: []
         }
       }
@@ -28,7 +24,7 @@ export function validateCrs (crs, path = '/crs') {
       if (!is.nonEmptyString(crs.properties?.href)) {
         return {
           valid: false,
-          errors: [{ message: 'Invalid crs: linked crs must have a non-empty properties.href string', path }],
+          errors: [{ message: 'Invalid crs: linked crs must have a non-empty properties.href string' }],
           warnings: []
         }
       }
@@ -37,7 +33,7 @@ export function validateCrs (crs, path = '/crs') {
     default:
       return {
         valid: false,
-        errors: [{ message: `Invalid crs: unknown type: ${crs.type}`, path }],
+        errors: [{ message: `Invalid crs: unknown type: ${crs.type}` }],
         warnings: []
       }
   }

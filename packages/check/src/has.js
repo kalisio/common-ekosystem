@@ -6,7 +6,7 @@ export const has = {
   key (obj, key) {
     assert.all([
       { value: obj, validator: is.plainObject, message: 'obj must be an object' },
-      { value: key, validator: is.string, message: 'key must be a string' }
+      { value: key, validator: is.nonEmptyString, message: 'key must be a non empty string' }
     ])
     return Object.hasOwn(obj, key)
   },
@@ -14,7 +14,7 @@ export const has = {
   keys (obj, keys) {
     assert.all([
       { value: obj, validator: is.plainObject, message: 'obj must be an object' },
-      { value: keys, validator: (v) => is.array(v) && v.length > 0 && v.every(is.string), message: 'keys must be an array of strings' }
+      { value: keys, validator: (v) => is.array(v) && v.length > 0 && v.every(is.nonEmptyString), message: 'keys must be an array of non empty strings' }
     ])
     return keys.every(key => Object.hasOwn(obj, key))
   },

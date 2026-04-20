@@ -1,6 +1,6 @@
 import { assert, is } from '@kalisio/check'
 import { FEATURE_TYPES, GEOMETRY_TYPES } from '../is-like'
-import { validateOptionalBBox, validateArray } from './utils.js'
+import { validateOptionalBBox, validateArray, validateOptionalCRS } from './utils.js'
 import { validateGeometry } from './geometry.js'
 
 function validateFeature (feature, path = '') {
@@ -43,7 +43,10 @@ function validateFeature (feature, path = '') {
 export function validateGeoJson (geoJson) {
   assert.that(geoJson, is.nonEmptyObject, 'geojson must be a non empty object')
   if (is.oneOf(geoJson.type, Object.values(GEOMETRY_TYPES))) return validateGeometry(geoJson, '')
-  if (geoJson.type === FEATURE_TYPES.FEATURE || geoJson.type === FEATURE_TYPES.FEATURE_COLLECTION) return validateFeature(geoJson, '')
+  if (geoJson.type === FEATURE_TYPES.FEATURE || geoJson.type === FEATURE_TYPES.FEATURE_COLLECTION) {
+    const result = validateFeature(geoJson, '')
+    return validateOptionalCRS(geoJson, result)
+  }
   return {
     valid: false,
     errors: [{ message: 'Invalid GeoJson: type must be either a Geometry, a Feature or a FeatureCollection' }],

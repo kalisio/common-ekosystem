@@ -1,5 +1,17 @@
 import { is } from '@kalisio/check'
 import { validateBBox } from './bbox.js'
+import { validateCRS } from './crs.js'
+
+export function validateOptionalCRS (obj, result) {
+  if (!is.defined(obj.crs)) return result
+  const crsResult = validateCRS(obj.crs)
+  if (!crsResult.valid) {
+    result.valid = false
+    result.errors.push(...crsResult.errors.map(e => ({ ...e, path: '/crs' })))
+  }
+  result.warnings.push(...crsResult.warnings.map(w => ({ ...w, path: '/crs' })))
+  return result
+}
 
 export function validateOptionalBBox (obj, result, path = '') {
   if (!is.defined(obj.bbox)) return result

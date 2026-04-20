@@ -1,9 +1,10 @@
 import { assert, is } from '@kalisio/check'
 import { COORDINATE_TRUNCATION_FACTORS } from '../../foundation'
+import { isLikeBBox } from '../is-like'
 
 export function truncateBBox (bbox, precision = 7) {
   assert.all([
-    { value: bbox, validator: (v) => is.arrayOfLengthBetween(v, 4) || is.arrayOfLength(v, 6), message: 'bbox must be an array of 4 or 6 numbers' },
+    { value: bbox, validator: isLikeBBox, message: 'bbox must be bounding box' },
     { value: precision, validator: (v) => is.inRange(v, 0, 8), message: 'precision must be in range [0, 8]' }
   ])
   const factor = COORDINATE_TRUNCATION_FACTORS[precision]

@@ -20,8 +20,8 @@ describe('has.key', () => {
   })
 
   it('should throw if key is not a string', () => {
-    expect(() => has.key({ a: 1 }, null)).toThrow('key must be a string')
-    expect(() => has.key({ a: 1 }, 123)).toThrow('key must be a string')
+    expect(() => has.key({ a: 1 }, null)).toThrow('key must be a non empty string')
+    expect(() => has.key({ a: 1 }, 123)).toThrow('key must be a non empty string')
   })
 })
 
@@ -43,11 +43,11 @@ describe('has.keys', () => {
     expect(() => has.keys(123, ['a'])).toThrow('obj must be an object')
   })
 
-  it('should throw if keys is not a non-empty array of strings', () => {
+  it('should throw if keys is not a non-empty array of non empty strings', () => {
     const obj = { a: 1 }
-    expect(() => has.keys(obj, [])).toThrow('keys must be an array of strings')
-    expect(() => has.keys(obj, [123])).toThrow('keys must be an array of strings')
-    expect(() => has.keys(obj, 'a')).toThrow('keys must be an array of strings')
+    expect(() => has.keys(obj, [])).toThrow('keys must be an array of non empty strings')
+    expect(() => has.keys(obj, [123])).toThrow('keys must be an array of non empty strings')
+    expect(() => has.keys(obj, 'a')).toThrow('keys must be an array of non empty strings')
   })
 })
 
@@ -73,6 +73,6 @@ describe('has.keyWithValue', () => {
   })
 
   it('should throw if key is not a string', () => {
-    expect(() => has.keyWithValue({ a: 1 }, 123)).toThrow('key must be a string')
+    expect(() => has.keyWithValue({ a: 1 }, 123)).toThrow('key must be a non empty string')
   })
 })
