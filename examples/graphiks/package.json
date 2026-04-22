@@ -18,9 +18,5 @@
     "url": "https://github.com/kalisio"
   },
   "contributors": [],
-  "license": "MIT",
-  "devDependencies": {
-    "@kalisio/graphiks": "workspace:*",
-    "vite": "catalog:"
-  }
+  "license": "MIT"
 }
