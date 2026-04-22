@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "build": "pnpm -r build",
-    "build:check": "pnpm --filter @kalisio/check build",
     "build:geokit": "pnpm --filter @kalisio/geokit build",
     "build:graphiks": "pnpm --filter @kalisio/graphiks build",
     "build:kast": "pnpm --filter @kalisio/kast build",
@@ -15,11 +14,9 @@
     "changeset:release": "pnpm build && changeset publish",
     "changeset:status": "changeset status",
     "changeset:version": "changeset version",
-    "check": "knip",
     "docs:build": "vitepress build docs",
     "docs:dev": "vitepress dev docs",
     "lint": "pnpm -r lint",
-    "lint:check": "pnpm --filter @kalisio/check lint",
     "lint:geokit": "pnpm --filter @kalisio/geokit lint",
     "lint:graphiks": "pnpm --filter @kalisio/graphiks lint",
     "lint:kast": "pnpm --filter @kalisio/kast lint",
@@ -29,7 +26,6 @@
     "prepare": "husky",
     "pretest": "mkdir -p coverage",
     "test": "pnpm -r test",
-    "test:check": "pnpm --filter @kalisio/check test",
     "test:geokit": "pnpm --filter @kalisio/geokit test",
     "test:graphiks": "pnpm --filter @kalisio/graphiks test",
     "test:kast": "pnpm --filter @kalisio/kast test",
@@ -37,7 +33,7 @@
     "test:kore": "pnpm --filter @kalisio/kore test"
   },
   "keywords": [
-    "check",
+    "kore",
     "graphiks",
     "geokit",
     "ekosystem",
@@ -81,8 +77,7 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild"
-    ],
-    "overrides": {}
+    ]
   },
   "metaCatalog": {
     "version": "0.7.0",
