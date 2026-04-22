@@ -1,4 +1,4 @@
-import { is } from '@kalisio/check'
+import { is } from '@kalisio/kore'
 import { CRS_TYPES } from '../is-like'
 
 export function validateCRS (crs) {

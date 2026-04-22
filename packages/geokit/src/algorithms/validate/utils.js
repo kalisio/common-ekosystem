@@ -1,4 +1,4 @@
-import { is } from '@kalisio/check'
+import { is } from '@kalisio/kore'
 import { validateBBox } from './bbox.js'
 import { validateCRS } from './crs.js'
 

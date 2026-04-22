@@ -1,4 +1,4 @@
-import { assert, is } from '@kalisio/check'
+import { assert, is } from '@kalisio/kore'
 import { COORDINATE_TRUNCATION_FACTORS } from '../../foundation'
 import { isLikePosition } from '../is-like'
 

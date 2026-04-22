@@ -14,7 +14,7 @@ export default mergeConfig(baseConfig, defineConfig({
       fileName: (format) => format === 'es' ? 'index.mjs' : 'index.cjs'
     },
     rollupOptions: {
-      external: ['@kalisio/check']
+      external: ['@kalisio/kore']
     }
   }
 }))

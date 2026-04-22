@@ -1,5 +1,5 @@
 import { getLogger } from '@logtape/logtape'
-import { is } from '@kalisio/check'
+import { is } from '@kalisio/kore'
 import { registry } from './utils/registry.js'
 import { Cache } from './utils/cache.js'
 import { toSVG } from './utils/svg.js'

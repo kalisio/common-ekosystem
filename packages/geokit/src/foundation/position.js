@@ -1,4 +1,4 @@
-import { assert, is } from '@kalisio/check'
+import { assert, is } from '@kalisio/kore'
 import { AXES } from './axes.js'
 import { isWest, isSouth } from './directions.js'
 import { guessCoordinateAxis, parseCoordinate } from './coordinate.js'

@@ -1,4 +1,4 @@
-import { assert, is, has, conform } from '@kalisio/check'
+import { assert, is, has, conform } from '@kalisio/kore'
 import fr from './locales/fr.json'
 import en from './locales/en.json'
 

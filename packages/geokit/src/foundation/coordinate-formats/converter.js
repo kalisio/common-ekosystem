@@ -1,4 +1,4 @@
-import { assert } from '@kalisio/check'
+import { assert } from '@kalisio/kore'
 import { DDM } from './ddm.js'
 import { DDMAero } from './ddm-aero.js'
 import { DMS } from './dms.js'

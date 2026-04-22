@@ -1,4 +1,4 @@
-import { assert, is } from '@kalisio/check'
+import { assert, is } from '@kalisio/kore'
 import { FEATURE_TYPES, GEOMETRY_TYPES } from '../is-like'
 import { validateOptionalBBox, validateArray, validateOptionalCRS } from './utils.js'
 import { validateGeometry } from './geometry.js'

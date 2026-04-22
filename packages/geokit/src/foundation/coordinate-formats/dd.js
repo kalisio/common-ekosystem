@@ -1,4 +1,4 @@
-import { assert, is, conform, optional } from '@kalisio/check'
+import { assert, is, conform, optional } from '@kalisio/kore'
 import { isDirection } from '../directions.js'
 
 const SCHEMA = {

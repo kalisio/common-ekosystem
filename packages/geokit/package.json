@@ -48,7 +48,7 @@
   },
   "homepage": "https://kalisio.github.io/common-ekosystem/packages/geokit",
   "dependencies": {
-    "@kalisio/check": "workspace:*",
+    "@kalisio/kore": "workspace:*",
     "@logtape/logtape": "catalog:",
     "@turf/boolean-clockwise": "catalog:",
     "@turf/kinks": "catalog:",

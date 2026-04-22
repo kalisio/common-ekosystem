@@ -1,4 +1,4 @@
-import { is } from '@kalisio/check'
+import { is } from '@kalisio/kore'
 import { getCoordinatePrecision } from '../../foundation'
 
 export function validatePosition (coordinates) {

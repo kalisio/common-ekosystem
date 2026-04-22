@@ -1,4 +1,4 @@
-import { is } from '@kalisio/check'
+import { is } from '@kalisio/kore'
 import { isLikeGeometry } from './geometry.js'
 
 export const FEATURE_TYPES = {

@@ -10,6 +10,7 @@
     "build:graphiks": "pnpm --filter @kalisio/graphiks build",
     "build:kast": "pnpm --filter @kalisio/kast build",
     "build:kompare": "pnpm --filter @kalisio/kompare build",
+    "build:kore": "pnpm --filter @kalisio/kore build",
     "changeset": "changeset",
     "changeset:release": "pnpm build && changeset publish",
     "changeset:status": "changeset status",
@@ -23,6 +24,7 @@
     "lint:graphiks": "pnpm --filter @kalisio/graphiks lint",
     "lint:kast": "pnpm --filter @kalisio/kast lint",
     "lint:kompare": "pnpm --filter @kalisio/kompare lint",
+    "lint:kore": "pnpm --filter @kalisio/kore lint",
     "posttest": "pnpm lcov-result-merger --prepend-source-files 'packages/*/coverage/lcov.info' coverage/lcov.info",
     "prepare": "husky",
     "pretest": "mkdir -p coverage",
@@ -31,7 +33,8 @@
     "test:geokit": "pnpm --filter @kalisio/geokit test",
     "test:graphiks": "pnpm --filter @kalisio/graphiks test",
     "test:kast": "pnpm --filter @kalisio/kast test",
-    "test:kompare": "pnpm --filter @kalisio/kompare test"
+    "test:kompare": "pnpm --filter @kalisio/kompare test",
+    "test:kore": "pnpm --filter @kalisio/kore test"
   },
   "keywords": [
     "check",

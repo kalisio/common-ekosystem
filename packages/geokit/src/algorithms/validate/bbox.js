@@ -1,4 +1,4 @@
-import { is } from '@kalisio/check'
+import { is } from '@kalisio/kore'
 import { validatePosition } from './position.js'
 
 export function validateBBox (bbox) {

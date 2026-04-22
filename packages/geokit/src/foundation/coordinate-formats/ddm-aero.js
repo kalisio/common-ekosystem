@@ -1,4 +1,4 @@
-import { is, conform } from '@kalisio/check'
+import { is, conform } from '@kalisio/kore'
 import { isDirection } from '../directions.js'
 import { DD } from './dd.js'
 

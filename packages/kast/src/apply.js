@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { assert, is } from '@kalisio/check'
+import { assert, is } from '@kalisio/kore'
 import { convert } from './convert.js'
 
 export const apply = {

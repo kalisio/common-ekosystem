@@ -1,5 +1,5 @@
 import sift from 'sift'
-import { assert, is } from '@kalisio/check'
+import { assert, is } from '@kalisio/kore'
 
 export function filter (array, query) {
   assert.all([

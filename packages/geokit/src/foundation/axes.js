@@ -1,4 +1,4 @@
-import { assert, is } from '@kalisio/check'
+import { assert, is } from '@kalisio/kore'
 
 export const AXES = {
   LATITUDE: 'LAT',

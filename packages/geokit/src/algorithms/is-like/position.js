@@ -1,4 +1,4 @@
-import { is } from '@kalisio/check'
+import { is } from '@kalisio/kore'
 
 export function isLikePosition (object) {
   if (!is.arrayOfLengthBetween(object, 2, 3)) return false

@@ -18,7 +18,7 @@ export default mergeConfig(baseConfig, defineConfig({
       external: [
         ...builtinModules,
         ...builtinModules.map(m => `node:${m}`),
-        '@kalisio/check',
+        '@kalisio/kore',
         'lodash',
         'mathjs',
         'moment',

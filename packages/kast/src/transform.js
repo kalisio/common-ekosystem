@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { assert, is } from '@kalisio/check'
+import { assert, is } from '@kalisio/kore'
 import { convert } from './convert.js'
 import { filter } from './filter.js'
 import { apply } from './apply.js'

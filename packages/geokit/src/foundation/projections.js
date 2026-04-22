@@ -1,4 +1,4 @@
-import { assert, is } from '@kalisio/check'
+import { assert, is } from '@kalisio/kore'
 import proj4 from 'proj4'
 
 export function listProjections () {

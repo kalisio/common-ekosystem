@@ -1,4 +1,4 @@
-import { assert, is, has } from '@kalisio/check'
+import { assert, is, has } from '@kalisio/kore'
 import { AXES, isLatitude, isLongitude } from './axes.js'
 import { isDirection, getDirectionAxis } from './directions.js'
 import { COORDINATE_FORMATS, COORDINATE_MODELS, converter } from './coordinate-formats'

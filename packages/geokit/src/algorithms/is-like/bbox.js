@@ -1,4 +1,4 @@
-import { is } from '@kalisio/check'
+import { is } from '@kalisio/kore'
 
 export function isLikeBBox (object) {
   if (!is.arrayOfLength(object, 4) && !is.arrayOfLength(object, 6)) return false

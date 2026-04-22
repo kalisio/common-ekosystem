@@ -1,4 +1,4 @@
-import { is } from '@kalisio/check'
+import { is } from '@kalisio/kore'
 
 export const CRS_TYPES = {
   NAME: 'name',
