@@ -6,16 +6,16 @@ import packages from './packages.json'
 export const meta = {
   name: 'common-ekosystem',
   description: 'Reusable utility libraries for the Kalisio ecosystem',
-  packagesPrefix: 'common'
+  prefix: 'common'
 }
 
 const sortedPackagesNavBar = packages.sort().map(pkgName => {
-  let fullpkgName = meta.packagesPrefix ? `${meta.packagesPrefix}-${pkgName}`: pkgName
-  return { text: fullpkgName, link: `/packages/${pkgName}/` }
+  let fullPkgName = meta.prefix ? `${meta.prefix}-${pkgName}`: pkgName
+  return { text: fullPkgName, link: `/packages/${pkgName}/` }
 })
 
 const sortedPackageSidebar = Object.fromEntries(
-  packages.sort().map(pkgName => [`/packages/${pkgName}/`, generateSideBar(pkgName, meta.packagesPrefix)])
+  packages.sort().map(pkgName => [`/packages/${pkgName}/`, generateSideBar(pkgName, meta.prefix)])
 )
 
 export default withMermaid(
