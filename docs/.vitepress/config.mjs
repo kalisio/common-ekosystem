@@ -3,19 +3,26 @@ import { withMermaid } from 'vitepress-plugin-mermaid'
 import { generateSideBar } from './sidebar.mjs'
 import packages from './packages.json'
 
-const sortePackagesNavBar = packages.sort().map(pkg => {
-  return { text: pkg, link: `/packages/${pkg}/` }
+export const meta = {
+  name: 'common-ekosystem',
+  description: 'Reusable utility libraries for the Kalisio ecosystem',
+  packagesPrefix: 'common'
+}
+
+const sortedPackagesNavBar = packages.sort().map(pkgName => {
+  let fullpkgName = meta.packagesPrefix ? `${meta.packagesPrefix}-${pkgName}`: pkgName
+  return { text: fullpkgName, link: `/packages/${pkgName}/` }
 })
 
 const sortedPackageSidebar = Object.fromEntries(
-  packages.sort().map(pkg => [`/packages/${pkg}/`, generateSideBar(pkg)])
+  packages.sort().map(pkgName => [`/packages/${pkgName}/`, generateSideBar(pkgName, meta.packagesPrefix)])
 )
 
 export default withMermaid(
   defineConfig({
-    base: '/common-ekosystem/',
-    title: 'common-ekosystem',
-    description: 'A common base of small, reusable utility libraries for the Kalisio ecosystem',
+    base: `/${meta.name}/`,
+    title: meta.name,
+    description: meta.description,
     ignoreDeadLinks: true,
     head: [
       ['link', { href: 'https://cdnjs.cloudflare.com/ajax/libs/line-awesome/1.3.0/line-awesome/css/line-awesome.min.css', rel: 'stylesheet' }],
@@ -23,12 +30,12 @@ export default withMermaid(
     ],
     themeConfig: {
       logo: 'https://kalisio.github.io/kalisioscope/kalisio/kalisio-icon-light-2048x2048.png',
-      socialLinks: [{ icon: 'github', link: 'https://github.com/kalisio/common-ekosystem' }],
+      socialLinks: [{ icon: 'github', link: `https://github.com/kalisio/${meta.name}` }],
       nav: [
         { text: 'Overview', link: '/overview/about' },
         {
           text: 'Packages',
-          items: sortePackagesNavBar
+          items: sortedPackagesNavBar
         }
       ],
       sidebar: {
