@@ -1,4 +1,4 @@
-# graphiks
+# graphics
 
 ## Running the example
 

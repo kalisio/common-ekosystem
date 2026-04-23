@@ -1,4 +1,4 @@
-import { Graphiks } from '@kalisio/graphiks'
+import { Graphiks } from '@kalisio/common-graphics'
 
 // logger.setLevel('debug')
 let graphiks

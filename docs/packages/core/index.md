@@ -5,9 +5,11 @@ description: Core utilities for Web development
 
 # common-core
 
-**common-core** is a lightweight library that provides core utilities for web development.
+_Core utilities for Web development_
 
 ## Overview
+
+**common-core** is a lightweight library that provides core utilities for web development.
 
 It is organized around two modules:
 - `predicates` — minimalist conditional and assertion functions

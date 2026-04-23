@@ -1,6 +1,6 @@
 {
-  "name": "graphiks",
-  "description": "Graphiks example",
+  "name": "graphics",
+  "description": "Graphics example",
   "packageManager": "pnpm@10.1.0",
   "type": "module",
   "standard": {
@@ -18,5 +18,8 @@
     "url": "https://github.com/kalisio"
   },
   "contributors": [],
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@kalisio/common-graphics": "workspace:*"
+  }
 }
