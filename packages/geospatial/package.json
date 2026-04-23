@@ -1,6 +1,6 @@
 {
   "name": "@kalisio/common-geospatial",
-  "description": "Geospatial utilities for Web development",
+  "description": "Geospatial utilities for the Kalisio ekosystem",
   "version": "0.0.0",
   "type": "module",
   "exports": {

@@ -1,15 +1,15 @@
 ---
 title: common-geospatial
-description: Geospatial utilities for Web development
+description: Geospatial utilities for the Kalisio ekosystem
 ---
 
 # common-geospatial
 
-**common-geospatial** is a lightweight library that provides geospatial utilities for web development.
+_Geospatial utilities for the Kalisio ekosystem_
 
 ## Overview
 
-It is organized around two modules:
+**common-geospatial** is organized around two modules:
 - `foundation` — fundamental definitions and utilities
 - `algorithms` — data processing functions
 

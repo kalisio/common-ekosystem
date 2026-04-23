@@ -1,6 +1,6 @@
-# geokit
+# common-geospatial
 
-> Geospatial utilities for Web development
+_Geospatial utilities for the Kalisio ekosystem_
 
 ---
 

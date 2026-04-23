@@ -1,6 +1,6 @@
 {
   "name": "@kalisio/common-graphics",
-  "description": "Graphics utilities for Web development",
+  "description": "Graphics utilities for the Kalisio ekosystem",
   "version": "0.0.0",
   "type": "module",
   "exports": {

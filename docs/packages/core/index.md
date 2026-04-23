@@ -1,11 +1,11 @@
 ---
 title: common-core
-description: Core utilities for Web development
+description: Core utilities for the Kalisio ekosystem
 ---
 
 # common-core
 
-_Core utilities for Web development_
+_Core utilities for the Kalisio ekosystem_
 
 ## Overview
 

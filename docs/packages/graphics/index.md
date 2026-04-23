@@ -1,11 +1,11 @@
 ---
 title: common-graphics
-description: Graphics utilities for Web development
+description: Graphiks utilities for the Kalisio ekosystem
 ---
 
 # common-graphics
 
-**common-core** is a lightweight library that provides graphics utilities for web development.
+_Graphiks utilities for the Kalisio ekosystem_
 
 ## Overview
 

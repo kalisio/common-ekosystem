@@ -1,6 +1,6 @@
-# graphiks
+# common-graphics
 
-> Graphics utilities for Web development
+_Graphiks utilities for the Kalisio ekosystem_
 
 ---
 

@@ -1,6 +1,6 @@
 # common-core
 
-_Core utilities for Web development_
+_Core utilities for the Kalisio ekosystem_
 
 ---
 
