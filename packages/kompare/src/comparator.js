@@ -1,5 +1,5 @@
 import fs from 'node:fs'
-import { assert, is } from '@kalisio/kore'
+import { assert, is } from '@kalisio/common-core'
 import { json } from './json.js'
 
 function createComparator (parse) {

@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import _ from 'lodash'
-import { assert, is } from '@kalisio/kore'
+import { assert, is } from '@kalisio/common-core'
 import { normalizeString } from './text'
 
 // Helper function to normalize a content in order to be compared with _.isEqual

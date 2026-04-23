@@ -1,6 +1,6 @@
 {
-  "name": "@kalisio/kast",
-  "description": "A JSON transformation utility",
+  "name": "@kalisio/common-core",
+  "description": "Core utilities for Web development",
   "version": "0.0.0",
   "type": "module",
   "exports": {
@@ -35,18 +35,12 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/kalisio/common-ekosystem.git",
-    "directory": "packages/kast"
+    "directory": "packages/kore"
   },
   "bugs": {
     "url": "https://github.com/kalisio/common-ekosystem/issues"
   },
-  "homepage": "https://github.com/kalisio/common-ekosystem/tree/main/packages/kast",
-  "dependencies": {
-    "@kalisio/common-core": "workspace:*",
-    "lodash": "catalog:",
-    "mathjs": "catalog:",
-    "moment": "catalog:",
-    "sift": "catalog:"
-  },
+  "homepage": "https://github.com/kalisio/common-ekosystem/tree/main/packages/kore",
+  "dependencies": {},
   "devDependencies": {}
 }

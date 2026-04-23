@@ -18,10 +18,7 @@ export default mergeConfig(baseConfig, defineConfig({
       external: [
         ...builtinModules,
         ...builtinModules.map(m => `node:${m}`),
-        '@kalisio/common-core',
-        'fast-xml-parser',
-        'lodash',
-        'yaml'
+        '@kalisio/common-core'
       ]
     }
   }

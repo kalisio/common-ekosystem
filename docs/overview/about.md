@@ -6,6 +6,6 @@ This repository contains the following packages:
 
 - **[@kalisio/geokit](../packages/geokit)**
 - **[@kalisio/graphiks](../packages/graphiks)**
-- **[@kalisio/kore](../packages/kore)**
+- **[@kalisio/common-core](../packages/kore)**
 - **[@kalisio/kast](../packages/kast)**
 - **[@kalisio/kompare](../packages/kompare)**

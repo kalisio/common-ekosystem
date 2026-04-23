@@ -1,6 +1,6 @@
 {
-  "name": "@kalisio/kast",
-  "description": "A JSON transformation utility",
+  "name": "@kalisio/common-geospatial",
+  "description": "Geospatial utilities for Web development",
   "version": "0.0.0",
   "type": "module",
   "exports": {
@@ -24,6 +24,12 @@
     "test": "vitest run --coverage"
   },
   "keywords": [
+    "geokit",
+    "coordinates",
+    "geometry",
+    "feature",
+    "geojson",
+    "processing",
     "kalisio"
   ],
   "author": {
@@ -35,18 +41,17 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/kalisio/common-ekosystem.git",
-    "directory": "packages/kast"
+    "directory": "packages/geokit"
   },
   "bugs": {
     "url": "https://github.com/kalisio/common-ekosystem/issues"
   },
-  "homepage": "https://github.com/kalisio/common-ekosystem/tree/main/packages/kast",
+  "homepage": "https://kalisio.github.io/common-ekosystem/packages/geokit",
   "dependencies": {
     "@kalisio/common-core": "workspace:*",
-    "lodash": "catalog:",
-    "mathjs": "catalog:",
-    "moment": "catalog:",
-    "sift": "catalog:"
-  },
-  "devDependencies": {}
+    "@logtape/logtape": "catalog:",
+    "@turf/boolean-clockwise": "catalog:",
+    "@turf/kinks": "catalog:",
+    "proj4": "catalog:"
+  }
 }

@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import { unit } from 'mathjs'
 import moment from 'moment'
-import { assert, is } from '@kalisio/kore'
+import { assert, is } from '@kalisio/common-core'
 
 export const convert = {
 

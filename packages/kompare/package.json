@@ -49,7 +49,7 @@
   },
   "homepage": "https://kalisio.github.io/common-ekosystem/packages/kompare",
   "dependencies": {
-    "@kalisio/kore": "workspace:",
+    "@kalisio/common-core": "workspace:",
     "fast-xml-parser": "catalog:",
     "lodash": "catalog:",
     "yaml": "catalog:"

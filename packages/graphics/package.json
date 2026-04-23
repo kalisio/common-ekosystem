@@ -1,6 +1,6 @@
 {
-  "name": "@kalisio/kast",
-  "description": "A JSON transformation utility",
+  "name": "@kalisio/common-graphics",
+  "description": "Graphics utilities for Web development",
   "version": "0.0.0",
   "type": "module",
   "exports": {
@@ -14,6 +14,9 @@
     "dist"
   ],
   "standard": {
+    "globals": [
+      "Image"
+    ],
     "ignore": [
       "dist/**"
     ]
@@ -24,10 +27,13 @@
     "test": "vitest run --coverage"
   },
   "keywords": [
-    "kalisio"
+    "graphics",
+    "SVG",
+    "shape",
+    "basik"
   ],
   "author": {
-    "name": "KALISIO <contact@kalisio.com>",
+    "name": "Kalisio contributors",
     "url": "https://github.com/kalisio"
   },
   "contributors": [],
@@ -35,18 +41,21 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/kalisio/common-ekosystem.git",
-    "directory": "packages/kast"
+    "directory": "packages/graphiks"
   },
   "bugs": {
     "url": "https://github.com/kalisio/common-ekosystem/issues"
   },
-  "homepage": "https://github.com/kalisio/common-ekosystem/tree/main/packages/kast",
+  "homepage": "https://kalisio.github.io/common-ekosystem/packages/graphiks",
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@kalisio/common-core": "workspace:*",
-    "lodash": "catalog:",
-    "mathjs": "catalog:",
-    "moment": "catalog:",
-    "sift": "catalog:"
+    "@logtape/logtape": "catalog:"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@napi-rs/canvas": "^0.1.88",
+    "happy-dom": "catalog:"
+  }
 }
