@@ -68,5 +68,16 @@ export const string = {
     return result
       .replace(/[^a-z0-9]+/gi, separator)
       .replace(new RegExp(`^${separator}|${separator}$`, 'g'), '')
+  },
+
+  initials (str, options = {}) {
+    assert.that(str, is.string, 'str must be a string')
+    const { max = undefined } = options
+    const result = str
+      .trim()
+      .split(/\s+/)
+      .map(word => word[0].toUpperCase())
+    return (max ? result.slice(0, max) : result).join('')
   }
+
 }

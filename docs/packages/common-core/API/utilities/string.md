@@ -20,8 +20,6 @@ string.DIACRITICS = {
 }
 ```
 
----
-
 ## normalize
 
 ### Signature
@@ -71,8 +69,6 @@ string.normalize('  Héllo  ', { ignoreSpaces: true, ignoreDiacritics: true, ign
 // 'hello'
 ```
 
----
-
 ## makeDiacriticPattern
 
 ### Signature
@@ -119,8 +115,6 @@ const pattern = string.makeDiacriticPattern('cafe')
 new RegExp(pattern, 'i').test('Café') // true
 ```
 
----
-
 ## slugify
 
 ### Signature
@@ -164,4 +158,43 @@ string.slugify('  Hello   World  ')
 
 string.slugify('Hello World', '_')
 // 'hello_world'
+```
+
+## initials
+
+### Signature
+
+```js
+string.initials(str, options = {})
+```
+
+### Description
+
+Extracts the initials of a string by taking the first character of each word, uppercased.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `str` | `string` | yes | The string to extract initials from |
+| `options` | `object` | no | Options |
+| `options.max` | `number` | no | Maximum number of initials to return |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `string` | The initials, uppercased and concatenated |
+
+### Throws
+
+Throws a `TypeError` if `str` is not a string.
+
+### Examples
+
+```js
+string.initials('John Doe')                        // 'JD'
+string.initials('Jean Pierre Dupont')              // 'JPD'
+string.initials('Jean Pierre Dupont', { max: 2 }) // 'JP'
+string.initials('john doe')                        // 'JD'
 ```

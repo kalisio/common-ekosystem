@@ -64,3 +64,38 @@ describe('string.slugify', () => {
     expect(() => string.slugify('hello', '--')).toThrow('separator must be a char')
   })
 })
+
+describe('string.initials', () => {
+  it('returns initials of a two word string', () => {
+    expect(string.initials('John Doe')).toBe('JD')
+  })
+
+  it('returns initials of a three word string', () => {
+    expect(string.initials('Jean Pierre Dupont')).toBe('JPD')
+  })
+
+  it('uppercases initials', () => {
+    expect(string.initials('john doe')).toBe('JD')
+  })
+
+  it('trims leading and trailing spaces', () => {
+    expect(string.initials('  John Doe  ')).toBe('JD')
+  })
+
+  it('handles multiple spaces between words', () => {
+    expect(string.initials('John   Doe')).toBe('JD')
+  })
+
+  it('limits initials with max option', () => {
+    expect(string.initials('Jean Pierre Dupont', { max: 2 })).toBe('JP')
+  })
+
+  it('returns a single initial for a single word', () => {
+    expect(string.initials('John')).toBe('J')
+  })
+
+  it('throws if str is not a string', () => {
+    expect(() => string.initials(null)).toThrow('str must be a string')
+    expect(() => string.initials(42)).toThrow('str must be a string')
+  })
+})

@@ -42,8 +42,6 @@ cloned.a.b = 99
 // original.a.b is still 1
 ```
 
----
-
 ## normalize
 
 ### Signature

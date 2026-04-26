@@ -36,8 +36,6 @@ math.square(3)  // 9
 math.square(-4) // 16
 ```
 
----
-
 ## cube
 
 ### Signature
@@ -68,8 +66,6 @@ Returns the cube of a number.
 math.cube(3)  // 27
 math.cube(-2) // -8
 ```
-
----
 
 ## clamp
 
@@ -105,78 +101,68 @@ math.clamp(-5, 0, 10) // 0
 math.clamp(15, 0, 10) // 10
 ```
 
----
-
-## easeIn
+## round
 
 ### Signature
 
 ```js
-math.easeIn(t, linearity = 0.5)
+math.round(value, precision = 2)
 ```
-
 ### Description
 
-Applies an ease-in curve to a normalized value `t`. The curve starts slow and accelerates. `linearity` controls the sharpness of the curve — lower values produce a sharper ease-in.
+Rounds a number to a given number of decimal places.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `t` | `number` | yes | Normalized progress value in `[0, 1]` |
-| `linearity` | `number` | no | Controls the sharpness of the curve. Defaults to `0.5` |
+| `value` | `number` | yes | The number to truncate |
+| `precision` | `number` | no | Number of decimal places. Defaults to `2` |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `number` | Eased value in `[0, 1]` |
+| `number` | The rounded number |
 
 ### Examples
 
 ```js
-math.easeIn(0)    // 0
-math.easeIn(0.5)  // 0.25
-math.easeIn(1)    // 1
-math.easeIn(0.5, 0.25) // sharper curve
+math.truncate(1.23456)       // 1.23
+math.truncate(1.23456789, 4) // 1.2346
+math.truncate(1.23456789, 7) // 1.2345679
 ```
 
----
-
-## easeOut
+## percentage
 
 ### Signature
 
 ```js
-math.easeOut(t, linearity = 0.5)
+math.percentage(value, total)
 ```
-
 ### Description
 
-Applies an ease-out curve to a normalized value `t`. The curve starts fast and decelerates. `linearity` controls the sharpness of the curve — lower values produce a sharper ease-out.
+Returns the percentage of `value` relative to `total`, truncated to 2 decimal places.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `t` | `number` | yes | Normalized progress value in `[0, 1]` |
-| `linearity` | `number` | no | Controls the sharpness of the curve. Defaults to `0.5` |
+| `value` | `number` | yes | The partial value |
+| `total` | `number` | yes | The total value |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `number` | Eased value in `[0, 1]` |
+| `number` | The percentage, truncated to 2 decimal places |
 
 ### Examples
 
 ```js
-math.easeOut(0)   // 0
-math.easeOut(0.5) // 0.75
-math.easeOut(1)   // 1
+math.percentage(1, 4) // 25
+math.percentage(1, 3) // 33.33
 ```
-
----
 
 ## linear
 
@@ -214,7 +200,72 @@ math.linear(0.5, 0, 100) // 50
 math.linear(0.5, 100, 200) // 150
 ```
 
----
+## easeIn
+
+### Signature
+
+```js
+math.easeIn(t, linearity = 0.5)
+```
+
+### Description
+
+Applies an ease-in curve to a normalized value `t`. The curve starts slow and accelerates. `linearity` controls the sharpness of the curve — lower values produce a sharper ease-in.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `t` | `number` | yes | Normalized progress value in `[0, 1]` |
+| `linearity` | `number` | no | Controls the sharpness of the curve. Defaults to `0.5` |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `number` | Eased value in `[0, 1]` |
+
+### Examples
+
+```js
+math.easeIn(0)    // 0
+math.easeIn(0.5)  // 0.25
+math.easeIn(1)    // 1
+math.easeIn(0.5, 0.25) // sharper curve
+```
+
+## easeOut
+
+### Signature
+
+```js
+math.easeOut(t, linearity = 0.5)
+```
+
+### Description
+
+Applies an ease-out curve to a normalized value `t`. The curve starts fast and decelerates. `linearity` controls the sharpness of the curve — lower values produce a sharper ease-out.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `t` | `number` | yes | Normalized progress value in `[0, 1]` |
+| `linearity` | `number` | no | Controls the sharpness of the curve. Defaults to `0.5` |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `number` | Eased value in `[0, 1]` |
+
+### Examples
+
+```js
+math.easeOut(0)   // 0
+math.easeOut(0.5) // 0.75
+math.easeOut(1)   // 1
+```
 
 ## cubicBezier
 
@@ -254,3 +305,98 @@ math.cubicBezier(1)   // 1
 // CSS ease equivalent
 math.cubicBezier(0.5, 0.25, 0.1, 0.25, 1)
 ```
+
+## sum
+
+### Signature
+
+```js
+math.sum(values)
+```
+
+### Description
+
+Returns the sum of an array of numbers.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `values` | `number[]` | yes | Array of numbers |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `number` | The sum of all values. Returns `0` for an empty array |
+
+### Examples
+
+```js
+math.sum([1, 2, 3, 4]) // 10
+math.sum([])            // 0
+```
+
+## average
+
+### Signature
+
+```js
+math.average(values)
+```
+### Description
+
+Returns the arithmetic mean of an array of numbers.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `values` | `number[]` | yes | Non-empty array of numbers |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `number` | The arithmetic mean |
+
+### Examples
+
+```js
+math.average([1, 2, 3, 4]) // 2.5
+math.average([5])           // 5
+```
+
+## median
+
+### Signature
+
+```js
+math.median(values)
+```
+### Description
+
+Returns the median of an array of numbers. For even-length arrays, returns the average of the two middle values.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `values` | `number[]` | yes | Non-empty array of numbers |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `number` | The median value |
+
+### Examples
+
+```js
+math.median([1, 2, 3, 4, 5]) // 3
+math.median([1, 2, 3, 4])    // 2.5
+math.median([5, 1, 3])       // 3
+```
+
+
+
