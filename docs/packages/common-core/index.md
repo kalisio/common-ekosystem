@@ -13,7 +13,7 @@ _Core utilities for the Kalisio ekosystem_
 
 It is organized around two modules:
 - [predicates](./API/predicates/assert.md) — minimalist conditional and assertion functions
-- [utilities](./API/utilities/) — general purpose utility functions
+- [utilities](./API/utilities/locale.md) — general purpose utility functions
 - [operators](./API/operators/compare.md) - higher-order functions that process data
 
 ## Installation
