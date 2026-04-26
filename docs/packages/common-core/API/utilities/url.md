@@ -44,7 +44,6 @@ url.buildUrl('https://api.example.com', { q: 'hello', filter: undefined })
 // 'https://api.example.com/?q=hello' — undefined values are ignored
 ```
 
----
 
 ## addQueryParam
 
@@ -85,8 +84,6 @@ url.addQueryParam('https://api.example.com?page=1', { page: 2 })
 // 'https://api.example.com/?page=2' — existing key is overwritten
 ```
 
----
-
 ## encode
 
 ### Signature
@@ -121,8 +118,6 @@ Throws a `TypeError` if `url` is not a valid URL.
 url.encode('https://example.com/path with spaces')
 // 'https://example.com/path%20with%20spaces'
 ```
-
----
 
 ## obfuscate
 

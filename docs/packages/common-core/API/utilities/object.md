@@ -112,3 +112,47 @@ object.normalize({ a: 'Héllo' }, { ignoreCase: true, ignoreDiacritics: true })
 object.normalize({ a: [3, 1, 2] })
 // { a: [1, 2, 3] }
 ```
+
+## dotify
+
+### Signature
+
+```js
+object.dotify(obj)
+```
+
+### Description
+
+Flattens a nested object into a single-level object using dot notation keys. Recursively traverses all nested objects and builds a flat key from the path to each leaf value.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `obj` | `object` | yes | The plain object to flatten |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `object` | A flat object with dot-notation keys |
+
+### Throws
+
+Throws a `TypeError` if `obj` is not a plain object.
+
+### Examples
+
+```js
+object.dotify({ a: { b: { c: 1 }, d: 2 }, e: 3 })
+// { 'a.b.c': 1, 'a.d': 2, 'e': 3 }
+
+object.dotify({ a: 1, b: 2 })
+// { a: 1, b: 2 }
+
+object.dotify({ a: { b: null } })
+// { 'a.b': null }
+
+object.dotify({})
+// {}
+```

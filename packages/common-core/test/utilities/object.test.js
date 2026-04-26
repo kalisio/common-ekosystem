@@ -140,4 +140,44 @@ describe('object', () => {
       })
     })
   })
+
+  describe('dotify', () => {
+    it('flattens a nested object', () => {
+      expect(object.dotify({ a: { b: { c: 1 }, d: 2 }, e: 3 })).toEqual({
+        'a.b.c': 1,
+        'a.d': 2,
+        e: 3
+      })
+    })
+
+    it('returns a flat object unchanged', () => {
+      expect(object.dotify({ a: 1, b: 2 })).toEqual({ a: 1, b: 2 })
+    })
+
+    it('handles empty object', () => {
+      expect(object.dotify({})).toEqual({})
+    })
+
+    it('handles null values', () => {
+      expect(object.dotify({ a: { b: null } })).toEqual({ 'a.b': null })
+    })
+
+    it('handles false values', () => {
+      expect(object.dotify({ a: { b: false } })).toEqual({ 'a.b': false })
+    })
+
+    it('handles zero values', () => {
+      expect(object.dotify({ a: { b: 0 } })).toEqual({ 'a.b': 0 })
+    })
+
+    it('handles string values', () => {
+      expect(object.dotify({ a: { b: 'hello' } })).toEqual({ 'a.b': 'hello' })
+    })
+
+    it('throws if obj is not a plain object', () => {
+      expect(() => object.dotify(null)).toThrow('obj must be a plain object')
+      expect(() => object.dotify([])).toThrow('obj must be a plain object')
+      expect(() => object.dotify('str')).toThrow('obj must be a plain object')
+    })
+  })
 })

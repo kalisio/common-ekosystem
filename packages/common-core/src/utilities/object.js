@@ -38,6 +38,23 @@ export const object = {
   normalize (obj, options = {}) {
     assert.that(obj, is.defined, 'obj must be defined')
     return normalizeObject(obj, options)
+  },
+
+  dotify (obj) {
+    assert.that(obj, is.plainObject, 'obj must be a plain object')
+    const result = {}
+    function recurse (object, current) {
+      for (const [key, value] of Object.entries(object)) {
+        const newKey = current ? `${current}.${key}` : key
+        if (value && typeof value === 'object') {
+          recurse(value, newKey)
+        } else {
+          result[newKey] = value
+        }
+      }
+    }
+    recurse(obj)
+    return result
   }
 
 }
