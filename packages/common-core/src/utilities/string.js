@@ -35,7 +35,7 @@ export const string = {
   },
 
   makeDiacriticPattern (pattern, options = {}) {
-    assert.that(pattern, is.string, 'str must be a string')
+    assert.that(pattern, is.string, 'pattern must be a string')
     const { reverse = false } = options ?? {}
     let result = ''
     for (const char of pattern) {
