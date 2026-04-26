@@ -1,10 +1,10 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-export function generateSideBar (pkgName, pkgPrefix) {
-  // Ensure the pkgName folder exists
-  const pkgNameDir = path.resolve(process.cwd(), `docs/packages/${pkgName}`)
-    if (!fs.existsSync(pkgNameDir)) {
+export function generateSideBar (pkg) {
+  // Ensure the pkg folder exists
+  const pkgDir = path.resolve(process.cwd(), `docs/packages/${pkg}`)
+    if (!fs.existsSync(pkgDir)) {
     return []
   }
   // Helper function to build the tree
@@ -37,16 +37,15 @@ export function generateSideBar (pkgName, pkgPrefix) {
         const name = relativePath.replace(/\.md$/, '').replace(/\\/g, '/')
         items.push({
           text: entry.name.replace('.md', ''),
-          link: `/packages/${pkgName}/${name}`
+          link: `/packages/${pkg}/${name}`
         })
       }
     }
     return items
   }
   // Build the sidebar tree
-  const fullPkgName = pkgPrefix ? `${pkgPrefix}-${pkgName}` : pkgName
   return [
-    { text: fullPkgName, link: `/packages/${pkgName}/index` },
-    ...buildTree(pkgNameDir)
+    { text: pkg, link: `/packages/${pkg}/index` },
+    ...buildTree(pkgDir)
   ]
 }

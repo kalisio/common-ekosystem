@@ -5,11 +5,10 @@
   "type": "module",
   "scripts": {
     "build": "pnpm -r build",
-    "build:core": "pnpm --filter @kalisio/commmon-core build",
-    "build:geospatial": "pnpm --filter @kalisio/common-geospatial build",
-    "build:graphics": "pnpm --filter @kalisio/common-graphics build",
+    "build:common-core": "pnpm --filter @kalisio/commmon-core build",
+    "build:common-geospatial": "pnpm --filter @kalisio/common-geospatial build",
+    "build:common-graphics": "pnpm --filter @kalisio/common-graphics build",
     "build:kast": "pnpm --filter @kalisio/kast build",
-    "build:kompare": "pnpm --filter @kalisio/kompare build",
     "clear": "pnpm -r exec rimraf node_modules dist coverage",
     "changeset": "changeset",
     "changeset:release": "pnpm build && changeset publish",
@@ -18,20 +17,18 @@
     "docs:build": "vitepress build docs",
     "docs:dev": "vitepress dev docs",
     "lint": "pnpm -r lint",
-    "lint:core": "pnpm --filter @kalisio/common-core lint",
-    "lint:geospatial": "pnpm --filter @kalisio/common-geospatial lint",
-    "lint:graphics": "pnpm --filter @kalisio/common-graphics lint",
+    "lint:common-core": "pnpm --filter @kalisio/common-core lint",
+    "lint:common-geospatial": "pnpm --filter @kalisio/common-geospatial lint",
+    "lint:common-graphics": "pnpm --filter @kalisio/common-graphics lint",
     "lint:kast": "pnpm --filter @kalisio/kast lint",
-    "lint:kompare": "pnpm --filter @kalisio/kompare lint",
     "posttest": "pnpm lcov-result-merger --prepend-source-files 'packages/*/coverage/lcov.info' coverage/lcov.info",
     "prepare": "husky",
     "pretest": "mkdir -p coverage",
     "test": "pnpm -r test",
-    "test:core": "pnpm --filter @kalisio/common-core test",
-    "test:geospatial": "pnpm --filter @kalisio/common-geospatial test",
-    "test:graphics": "pnpm --filter @kalisio/common-graphics test",
-    "test:kast": "pnpm --filter @kalisio/kast test",
-    "test:kompare": "pnpm --filter @kalisio/kompare test"
+    "test:common-core": "pnpm --filter @kalisio/common-core test",
+    "test:common-geospatial": "pnpm --filter @kalisio/common-geospatial test",
+    "test:common-graphics": "pnpm --filter @kalisio/common-graphics test",
+    "test:kast": "pnpm --filter @kalisio/kast test"
   },
   "keywords": [
     "core",
@@ -82,7 +79,7 @@
     ]
   },
   "metaCatalog": {
-    "version": "0.7.0",
-    "syncedAt": "2026-04-23T06:42:02.590Z"
+    "version": "0.8.0",
+    "syncedAt": "2026-04-26T12:08:51.868Z"
   }
 }

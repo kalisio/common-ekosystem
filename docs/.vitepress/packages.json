@@ -1,7 +1,5 @@
 [
-  "core",
-  "geospatial",
-  "graphics",
-  "kast",
-  "kompare"
+  "common-core",
+  "common-geospatial",
+  "common-graphics"
 ]

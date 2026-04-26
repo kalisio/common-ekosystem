@@ -1,0 +1,72 @@
+import { assert, is } from '../predicates'
+
+export const string = {
+
+  DIACRITICS: {
+    a: 'aáàäâã',
+    e: 'eéëèê',
+    i: 'iíïìî',
+    o: 'oóöòõô',
+    u: 'uüúùû',
+    c: 'cç'
+  },
+
+  normalize (str, options = {}) {
+    assert.that(str, is.string, 'str must be a string')
+    const {
+      ignoreSpaces = false,
+      ignoreDiacritics = false,
+      ignoreCase = false,
+      locale = undefined // 'fr-FR'
+    } = options
+    let result = str
+    if (ignoreSpaces) {
+      result = result.replace(/\s+/g, ' ').trim()
+    }
+    if (ignoreDiacritics) {
+      result = result
+        .normalize('NFKD')
+        .replace(/\p{M}/gu, '')
+    }
+    if (ignoreCase) {
+      result = result.toLocaleLowerCase(locale)
+    }
+    return result
+  },
+
+  makeDiacriticPattern (pattern, options = {}) {
+    assert.that(pattern, is.string, 'str must be a string')
+    const { reverse = false } = options ?? {}
+    let result = ''
+    for (const char of pattern) {
+      const lower = char.toLowerCase()
+      let family = null
+      for (const chars of Object.values(this.DIACRITICS)) {
+        if (
+          (reverse && chars.includes(lower)) ||
+          (!reverse && chars[0] === lower)
+        ) {
+          family = chars
+          break
+        }
+      }
+      if (!family) {
+        result += char
+      } else {
+        result += `[${family}]`
+      }
+    }
+    return result
+  },
+
+  slugify (str, separator = '-') {
+    assert.all([
+      { value: str, validator: is.string, message: 'str must be a string' },
+      { value: separator, validator: is.char, message: 'separator must be a char' }
+    ])
+    const result = string.normalize(str.trim(), { ignoreDiacritics: true }).toLowerCase()
+    return result
+      .replace(/[^a-z0-9]+/gi, separator)
+      .replace(new RegExp(`^${separator}|${separator}$`, 'g'), '')
+  }
+}
