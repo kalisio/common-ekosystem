@@ -27,7 +27,7 @@ describe('string.makeDiacriticPattern', () => {
   })
 
   it('throws if pattern is not a string', () => {
-    expect(() => string.makeDiacriticPattern(123)).toThrow('str must be a string')
+    expect(() => string.makeDiacriticPattern(123)).toThrow('pattern must be a string')
   })
 })
 
