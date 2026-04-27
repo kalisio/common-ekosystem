@@ -1,4 +1,10 @@
-export const baseConfig = {
+import { fileURLToPath } from 'node:url'
+import path from 'node:path'
+import { defineConfig } from 'vitest/config'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+export const baseConfig = defineConfig({
   test: {
     silent: false,
     testTimeout: 30000,
@@ -16,5 +22,10 @@ export const baseConfig = {
       reporter: ['text', 'html', 'lcov'],
       reportsDirectory: './coverage/'
     }
+  },
+  resolve: {
+    alias: {
+      '@kalisio/common-core': path.resolve(__dirname, 'packages/common-core/src/index.js')
+    }
   }
-}
+})

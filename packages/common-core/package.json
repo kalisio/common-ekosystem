@@ -5,17 +5,14 @@
   "type": "module",
   "exports": {
     ".": {
-      "development": "./src/index.js",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
     },
     "./predicates": {
-      "development": "./src/predicates/index.js",
       "import": "./dist/predicates/index.js",
       "require": "./dist/predicates/index.cjs"
     },
     "./utilities": {
-      "development": "./src/utilities/index.js",
       "import": "./dist/utilities/index.js",
       "require": "./dist/utilities/index.cjs"
     }

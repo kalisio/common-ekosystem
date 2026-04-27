@@ -22,7 +22,11 @@ export default mergeConfig(baseConfig, defineConfig({
     rollupOptions: {
       external: [
         ...builtinModules,
-        ...builtinModules.map(m => `node:${m}`)
+        ...builtinModules.map(m => `node:${m}`),
+        'lodash-es',
+        'mathjs',
+        'moment',
+        'sift'
       ]
     }
   }

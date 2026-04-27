@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'node:url'
+import { builtinModules } from 'node:module'
 import path from 'node:path'
 import { defineConfig, mergeConfig } from 'vite'
 import { baseConfig } from '../../vite.base-config'
@@ -14,7 +15,11 @@ export default mergeConfig(baseConfig, defineConfig({
       fileName: (format) => format === 'es' ? 'index.mjs' : 'index.cjs'
     },
     rollupOptions: {
-      external: ['@kalisio/common-core']
+      external: [
+        ...builtinModules,
+        ...builtinModules.map(m => `node:${m}`),
+        '@kalisio/common-core'
+      ]
     }
   }
 }))
