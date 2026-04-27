@@ -1,5 +1,11 @@
 # @kalisio/common-core
 
+## 0.1.2
+
+### Patch Changes
+
+- fix: compare does not handle if obj1 and obj2 are not of the same type
+
 ## 0.1.1
 
 ### Patch Changes
