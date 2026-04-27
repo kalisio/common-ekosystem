@@ -45,7 +45,7 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/kalisio/common-ekosystem.git",
-    "directory": "packages/kore"
+    "directory": "packages/common-core"
   },
   "bugs": {
     "url": "https://github.com/kalisio/common-ekosystem/issues"

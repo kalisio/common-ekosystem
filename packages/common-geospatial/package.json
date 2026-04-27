@@ -41,7 +41,7 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/kalisio/common-ekosystem.git",
-    "directory": "packages/geokit"
+    "directory": "packages/common-geospatial"
   },
   "bugs": {
     "url": "https://github.com/kalisio/common-ekosystem/issues"
