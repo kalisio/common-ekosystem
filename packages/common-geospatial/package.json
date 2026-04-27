@@ -23,7 +23,7 @@
     "test": "vitest run --coverage"
   },
   "keywords": [
-    "geokit",
+    "geospatial",
     "coordinates",
     "geometry",
     "feature",
