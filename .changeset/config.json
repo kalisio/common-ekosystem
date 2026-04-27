@@ -3,14 +3,10 @@
   "changelog": "@changesets/cli/changelog",
   "commit": false,
   "fixed": [
-    ["@kalisio/common-core"]
+    ["@kalisio/common-core", "@kalisio/common-geospatial", "@kalisio/common-graphics"]
   ],
   "linked": [],
   "access": "public",
   "baseBranch": "master",
-  "updateInternalDependencies": "patch",
-  "ignore": [
-    "@kalisio/common-geospatial",
-    "@kalisio/common-graphics"
-  ]
+  "updateInternalDependencies": "patch"
 }
