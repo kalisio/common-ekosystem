@@ -5,7 +5,6 @@
   "type": "module",
   "exports": {
     ".": {
-      "development": "./src/index.js",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
     }
@@ -46,7 +45,7 @@
   "bugs": {
     "url": "https://github.com/kalisio/common-ekosystem/issues"
   },
-  "homepage": "https://kalisio.github.io/common-ekosystem/packages/geokit",
+  "homepage": "https://github.com/kalisio/common-ekosystem/tree/master/packages/common-geospatial",
   "dependencies": {
     "@kalisio/common-core": "workspace:*",
     "@logtape/logtape": "catalog:",

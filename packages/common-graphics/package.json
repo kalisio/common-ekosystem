@@ -5,7 +5,6 @@
   "type": "module",
   "exports": {
     ".": {
-      "development": "./src/index.js",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
     }
@@ -46,7 +45,7 @@
   "bugs": {
     "url": "https://github.com/kalisio/common-ekosystem/issues"
   },
-  "homepage": "https://kalisio.github.io/common-ekosystem/packages/graphiks",
+  "homepage": "https://github.com/kalisio/common-ekosystem/tree/master/packages/common-graphikcs",
   "publishConfig": {
     "access": "public"
   },

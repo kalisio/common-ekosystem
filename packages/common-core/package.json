@@ -50,7 +50,7 @@
   "bugs": {
     "url": "https://github.com/kalisio/common-ekosystem/issues"
   },
-  "homepage": "https://github.com/kalisio/common-ekosystem/tree/main/packages/kore",
+  "homepage": "https://github.com/kalisio/common-ekosystem/tree/master/packages/common-core",
   "dependencies": {},
   "devDependencies": {},
   "peerDependencies": {
