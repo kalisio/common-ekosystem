@@ -3,6 +3,7 @@
   "description": "Graphics example",
   "packageManager": "pnpm@10.1.0",
   "type": "module",
+  "private": true,
   "standard": {
     "globals": [
       "Vue",
