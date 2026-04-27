@@ -1,5 +1,11 @@
 {
   "ignore": [
     "docs/.vitepress/**"
-  ]
+  ],
+  "exclude": ["catalog"],
+  "workspaces": {
+    "examples/graphics": {
+      "entry": ["src/index.html"]
+    }
+  }
 }

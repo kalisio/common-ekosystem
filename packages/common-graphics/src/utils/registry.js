@@ -1,6 +1,6 @@
 import { Cache } from './cache.js'
 
-export class Registry {
+class Registry {
   constructor () {
     this.cache = new Cache(0)
   }

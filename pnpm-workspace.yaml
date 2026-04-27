@@ -89,6 +89,7 @@ catalog:
   feathers-reactive: ~0.11.0
   fs-extra: ~8.1.0
   geotiff: ~3.0.5
+  glob: ~13.0.1
   globals: ~16.4.0
   happy-dom: ~20.3.1
   helmet: ~3.5.0
@@ -98,7 +99,7 @@ catalog:
   jsdap: ~8.1.0
   jwt-decode: ~3.1.2
   keycloak-js: ~23.0.4
-  knip: ~6.6.1
+  knip: ~6.7.0
   lcov-result-merger: ~5.0.1
   limiter: ~1.1.3
   lint-staged: ~16.4.0
