@@ -58,12 +58,15 @@ export function compare (obj1, obj2, options = {}) {
   const nObj1 = object.normalize(obj1, options)
   const nObj2 = object.normalize(obj2, options)
   const isSame = isEqual(nObj1, nObj2)
+  const getDifferences = () => {
+    if (!isSame) {
+      if (is.array(nObj1) && is.array(nObj2)) return diffArrays(nObj1, nObj2)
+      if (is.plainObject(nObj1) && is.plainObject(nObj2)) return diffObjects(nObj1, nObj2)
+    }
+    return { missing: [], extra: [], updated: [] }
+  }
   return {
     isEqual: isSame,
-    differences: isSame
-      ? { missing: [], extra: [], updated: [] }
-      : is.array(nObj1) && is.array(nObj2)
-        ? diffArrays(nObj1, nObj2)
-        : diffObjects(nObj1, nObj2)
+    differences: getDifferences()
   }
 }

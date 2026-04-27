@@ -188,4 +188,11 @@ describe('compare', () => {
       expect(result.isEqual).toBe(true)
     })
   })
+
+  it('should throw if obj1 and obj2 are not of the same type', () => {
+    let result = compare([], {})
+    expect(result.isEqual).toBe(false)
+    result = compare({}, [])
+    expect(result.isEqual).toBe(false)
+  })
 })
