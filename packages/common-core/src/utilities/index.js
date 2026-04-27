@@ -1,5 +1,6 @@
 export * from './locale.js'
 export * from './math.js'
 export * from './object.js'
+export * from './file.js'
 export * from './string.js'
 export * from './url.js'

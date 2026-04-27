@@ -1,23 +1,23 @@
 import { describe, it, expect } from 'vitest'
 import { url } from '../../src/utilities'
 
-describe('url.buildUrl', () => {
+describe('url.build', () => {
   it('builds a url with valid params', () => {
-    expect(url.buildUrl('https://example.com', { foo: 'bar', page: 1 }))
+    expect(url.build('https://example.com', { foo: 'bar', page: 1 }))
       .toBe('https://example.com/?foo=bar&page=1')
   })
 
   it('ignores undefined values', () => {
-    expect(url.buildUrl('https://example.com', { foo: 'bar', baz: undefined }))
+    expect(url.build('https://example.com', { foo: 'bar', baz: undefined }))
       .toBe('https://example.com/?foo=bar')
   })
 
   it('throws if baseUrl is invalid', () => {
-    expect(() => url.buildUrl('not-a-url', { foo: 'bar' })).toThrow('baseUrl must be an url')
+    expect(() => url.build('not-a-url', { foo: 'bar' })).toThrow('baseUrl must be an url')
   })
 
   it('throws if params is empty', () => {
-    expect(() => url.buildUrl('https://example.com', {})).toThrow('params must be a non empty object')
+    expect(() => url.build('https://example.com', {})).toThrow('params must be a non empty object')
   })
 })
 

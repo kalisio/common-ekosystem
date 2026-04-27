@@ -5,12 +5,12 @@ description: Utility functions for building, encoding, and manipulating URLs.
 
 # url
 
-## buildUrl
+## build
 
 ### Signature
 
 ```js
-url.buildUrl(baseUrl, params)
+url.build (baseUrl, params)
 ```
 
 ### Description
@@ -37,10 +37,10 @@ Throws a `TypeError` if `baseUrl` is not a valid URL or if `params` is not a non
 ### Examples
 
 ```js
-url.buildUrl('https://api.example.com/search', { q: 'hello', page: 1 })
+url.build('https://api.example.com/search', { q: 'hello', page: 1 })
 // 'https://api.example.com/search?q=hello&page=1'
 
-url.buildUrl('https://api.example.com', { q: 'hello', filter: undefined })
+url.build('https://api.example.com', { q: 'hello', filter: undefined })
 // 'https://api.example.com/?q=hello' — undefined values are ignored
 ```
 
@@ -50,7 +50,7 @@ url.buildUrl('https://api.example.com', { q: 'hello', filter: undefined })
 ### Signature
 
 ```js
-url.addQueryParam(url, params)
+url.addQueryParam (url, params)
 ```
 
 ### Description
@@ -89,7 +89,7 @@ url.addQueryParam('https://api.example.com?page=1', { page: 2 })
 ### Signature
 
 ```js
-url.encode(url)
+url.encode (url)
 ```
 
 ### Description
@@ -124,7 +124,7 @@ url.encode('https://example.com/path with spaces')
 ### Signature
 
 ```js
-url.obfuscate(url, mask = '*****')
+url.obfuscate (url, mask = '*****')
 ```
 
 ### Description

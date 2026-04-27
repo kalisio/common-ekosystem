@@ -9,11 +9,11 @@
       "require": "./dist/index.cjs"
     },
     "./predicates": {
-      "import": "./dist/predicates/index.js",
+      "import": "./dist/predicates/index.mjs",
       "require": "./dist/predicates/index.cjs"
     },
     "./utilities": {
-      "import": "./dist/utilities/index.js",
+      "import": "./dist/utilities/index.mjs",
       "require": "./dist/utilities/index.cjs"
     }
   },

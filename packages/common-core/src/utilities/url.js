@@ -2,7 +2,7 @@ import { assert, is } from '../predicates'
 
 export const url = {
 
-  buildUrl (baseUrl, params) {
+  build (baseUrl, params) {
     assert.all([
       { value: baseUrl, validator: is.url, message: 'baseUrl must be an url' },
       { value: params, validator: is.nonEmptyObject, message: 'params must be a non empty object' }
