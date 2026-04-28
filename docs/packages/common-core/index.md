@@ -9,9 +9,9 @@ _Core utilities for the Kalisio ekosystem_
 
 ## Overview
 
-**common-core** is a lightweight library that provides core utilities for web development.
+**common-core** is a lightweight library that provides core utilities that works in both **browsers** and **Node.js**.
 
-It is organized around two modules:
+It is organized around 3 modules:
 - [predicates](./API/predicates/assert.md) — minimalist conditional and assertion functions
 - [utilities](./API/utilities/bytes.md) — general purpose utility functions
 - [operators](./API/operators/compare.md) - higher-order functions that process data
