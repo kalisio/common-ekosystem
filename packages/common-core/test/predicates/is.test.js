@@ -1209,3 +1209,85 @@ describe('is.arrayOfLengthBetween', () => {
     expect(() => is.arrayOfLengthBetween([1], '1', 3)).toThrow()
   })
 })
+
+describe('is.url', () => {
+  it('returns true for a valid http URL', () => {
+    expect(is.url('http://example.com')).toBe(true)
+  })
+  it('returns true for a valid https URL', () => {
+    expect(is.url('https://example.com')).toBe(true)
+  })
+  it('returns true for a URL with a path', () => {
+    expect(is.url('https://example.com/foo/bar')).toBe(true)
+  })
+  it('returns true for a URL with query params', () => {
+    expect(is.url('https://example.com?foo=bar&baz=1')).toBe(true)
+  })
+  it('returns true for a URL with a hash', () => {
+    expect(is.url('https://example.com#section')).toBe(true)
+  })
+  it('returns true for a relative URL with a valid base', () => {
+    expect(is.url('/foo/bar', 'https://example.com')).toBe(true)
+  })
+  it('returns true for a relative URL with a path base', () => {
+    expect(is.url('../bar', 'https://example.com/foo/')).toBe(true)
+  })
+  it('returns false for a plain string with no protocol', () => {
+    expect(is.url('example.com')).toBe(false)
+  })
+  it('returns false for an empty string', () => {
+    expect(is.url('')).toBe(false)
+  })
+  it('returns false for a relative URL without a base', () => {
+    expect(is.url('/foo/bar')).toBe(false)
+  })
+  it('returns false for a random string', () => {
+    expect(is.url('not a url')).toBe(false)
+  })
+  it('throws if value is not a string', () => {
+    expect(() => is.url(123)).toThrow(TypeError)
+    expect(() => is.url(null)).toThrow(TypeError)
+    expect(() => is.url(undefined)).toThrow(TypeError)
+  })
+})
+
+describe('is.email', () => {
+  it('returns true for a simple valid email', () => {
+    expect(is.email('user@example.com')).toBe(true)
+  })
+  it('returns true for an email with subdomains', () => {
+    expect(is.email('user@mail.example.com')).toBe(true)
+  })
+  it('returns true for an email with special characters in local part', () => {
+    expect(is.email('user+tag@example.com')).toBe(true)
+  })
+  it('returns true for an email with dots in local part', () => {
+    expect(is.email('first.last@example.com')).toBe(true)
+  })
+  it('returns false for a missing @', () => {
+    expect(is.email('userexample.com')).toBe(false)
+  })
+  it('returns false for a missing domain', () => {
+    expect(is.email('user@')).toBe(false)
+  })
+  it('returns false for a missing local part', () => {
+    expect(is.email('@example.com')).toBe(false)
+  })
+  it('returns false for a local part exceeding 64 characters', () => {
+    expect(is.email(`${'a'.repeat(65)}@example.com`)).toBe(false)
+  })
+  it('returns false for a domain exceeding 255 characters', () => {
+    expect(is.email(`user@${'a'.repeat(250)}.com`)).toBe(false)
+  })
+  it('returns false for a domain label exceeding 63 characters', () => {
+    expect(is.email(`user@${'a'.repeat(64)}.com`)).toBe(false)
+  })
+  it('returns false for an empty string', () => {
+    expect(is.email('')).toBe(false)
+  })
+  it('throws if value is not a string', () => {
+    expect(() => is.email(123)).toThrow(TypeError)
+    expect(() => is.email(null)).toThrow(TypeError)
+    expect(() => is.email(undefined)).toThrow(TypeError)
+  })
+})

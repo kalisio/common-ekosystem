@@ -322,3 +322,109 @@ describe('assert integration with is', () => {
     }).toThrow('Must be positive integer')
   })
 })
+
+describe('assert.any', () => {
+  it('does not throw when the first validation passes', () => {
+    expect(() => {
+      assert.any([
+        { value: 'hello', validator: is.string, message: 'Must be string' },
+        { value: 'hello', validator: is.number, message: 'Must be number' }
+      ])
+    }).not.toThrow()
+  })
+
+  it('does not throw when the last validation passes', () => {
+    expect(() => {
+      assert.any([
+        { value: 5, validator: is.string, message: 'Must be string' },
+        { value: 5, validator: is.number, message: 'Must be number' }
+      ])
+    }).not.toThrow()
+  })
+
+  it('does not throw when all validations pass', () => {
+    expect(() => {
+      assert.any([
+        { value: 'hello', validator: is.string, message: 'Must be string' },
+        { value: 'hello', validator: is.nonEmptyString, message: 'Must be non-empty string' }
+      ])
+    }).not.toThrow()
+  })
+
+  it('throws when all validations fail', () => {
+    expect(() => {
+      assert.any([
+        { value: 5, validator: is.string, message: 'Must be string' },
+        { value: 5, validator: is.boolean, message: 'Must be boolean' }
+      ])
+    }).toThrow(TypeError)
+  })
+
+  it('throws a message combining all messages with "or"', () => {
+    expect(() => {
+      assert.any([
+        { value: 5, validator: is.string, message: 'Must be string' },
+        { value: 5, validator: is.boolean, message: 'Must be boolean' }
+      ])
+    }).toThrow('Must be string or Must be boolean')
+  })
+
+  it('combines three messages with "or"', () => {
+    expect(() => {
+      assert.any([
+        { value: null, validator: is.string, message: 'Must be string' },
+        { value: null, validator: is.number, message: 'Must be number' },
+        { value: null, validator: is.boolean, message: 'Must be boolean' }
+      ])
+    }).toThrow('Must be string or Must be number or Must be boolean')
+  })
+
+  it('works with custom validators', () => {
+    const isEven = (n) => n % 2 === 0
+    const isNegative = (n) => n < 0
+
+    expect(() => {
+      assert.any([
+        { value: 4, validator: isEven, message: 'Must be even' },
+        { value: 4, validator: isNegative, message: 'Must be negative' }
+      ])
+    }).not.toThrow()
+
+    expect(() => {
+      assert.any([
+        { value: 3, validator: isEven, message: 'Must be even' },
+        { value: 3, validator: isNegative, message: 'Must be negative' }
+      ])
+    }).toThrow('Must be even or Must be negative')
+  })
+
+  it('works with is.oneOf and is.inRange', () => {
+    expect(() => {
+      assert.any([
+        { value: 'admin', validator: (v) => is.oneOf(v, ['admin', 'user']), message: 'Must be a role' },
+        { value: 'admin', validator: is.number, message: 'Must be a number' }
+      ])
+    }).not.toThrow()
+
+    expect(() => {
+      assert.any([
+        { value: 'guest', validator: (v) => is.oneOf(v, ['admin', 'user']), message: 'Must be a role' },
+        { value: 'guest', validator: (v) => is.inRange(v, 1, 10), message: 'Must be in range' }
+      ])
+    }).toThrow('Must be a role or Must be in range')
+  })
+
+  it('handles a single validation', () => {
+    expect(() => {
+      assert.any([
+        { value: 'hello', validator: is.string, message: 'Must be string' }
+      ])
+    }).not.toThrow()
+
+    expect(() => {
+      assert.any([
+        { value: 5, validator: is.string, message: 'Must be string' }
+      ])
+    }).toThrow('Must be string')
+  })
+})

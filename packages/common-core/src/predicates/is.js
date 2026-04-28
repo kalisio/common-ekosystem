@@ -178,8 +178,19 @@ export const is = {
   },
 
   url (value, baseUrl) {
-    assert.that(value, is.defined, 'value must a string or any other object with a stringifier')
+    assert.that(value, is.string, 'value must be a string')
     return URL.canParse(value, baseUrl)
+  },
+
+  email (value) {
+    assert.that(value, is.string, 'value must be a string')
+    const regexp = /^[-!#$%&'*+/0-9=?A-Z^_a-z`{|}~](\.?[-!#$%&'*+/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-?\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/
+    const [account, address] = value.split('@')
+    if (!account || !address) return false
+    if (account.length > 64) return false
+    if (address.length > 255) return false
+    if (address.split('.').some(part => part.length > 63)) return false
+    return regexp.test(value)
   },
 
   empty (value) {
