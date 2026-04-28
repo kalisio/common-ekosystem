@@ -120,3 +120,36 @@ describe('bytes.fromHex', () => {
     expect(() => bytes.fromHex(undefined)).toThrow(TypeError)
   })
 })
+
+describe('bytes.dataUriToBlob', () => {
+  it('returns a Blob instance', () => {
+    const result = bytes.dataUriToBlob('data:text/plain;base64,aGVsbG8=')
+    expect(result instanceof Blob).toBe(true)
+  })
+  it('sets the correct mime type', () => {
+    const result = bytes.dataUriToBlob('data:text/plain;base64,aGVsbG8=')
+    expect(result.type).toBe('text/plain')
+  })
+  it('sets the correct mime type for an image', () => {
+    const result = bytes.dataUriToBlob('data:image/png;base64,iVBORw0KGgo=')
+    expect(result.type).toBe('image/png')
+  })
+  it('sets the correct size', () => {
+    const result = bytes.dataUriToBlob('data:text/plain;base64,aGVsbG8=')
+    expect(result.size).toBe(5) // 'hello' = 5 bytes
+  })
+  it('produces the correct content', async () => {
+    const result = bytes.dataUriToBlob('data:text/plain;base64,aGVsbG8=')
+    const text = await result.text()
+    expect(text).toBe('hello')
+  })
+  it('throws if value is not a valid data URI', () => {
+    expect(() => bytes.dataUriToBlob('hello')).toThrow(TypeError)
+    expect(() => bytes.dataUriToBlob('data:text/plain,hello')).toThrow(TypeError)
+  })
+  it('throws if value is not a string', () => {
+    expect(() => bytes.dataUriToBlob(null)).toThrow(TypeError)
+    expect(() => bytes.dataUriToBlob(undefined)).toThrow(TypeError)
+    expect(() => bytes.dataUriToBlob(123)).toThrow(TypeError)
+  })
+})

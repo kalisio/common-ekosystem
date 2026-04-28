@@ -51,6 +51,11 @@ export const is = {
       /^[0-9a-fA-F]*$/.test(value)
   },
 
+  dataUri (value) {
+    if (!is.string(value)) return false
+    return value.startsWith('data:') && value.includes(';base64,')
+  },
+
   url (value, baseUrl) {
     return URL.canParse(value, baseUrl)
   },

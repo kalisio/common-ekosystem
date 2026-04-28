@@ -191,3 +191,42 @@ bytes.fromHex('0001ff')
 bytes.fromHex('0001FF')
 // Uint8Array [ 0, 1, 255 ]
 ```
+
+## dataUriToBlob
+
+### Signature
+
+```js
+bytes.dataUriToBlob(value)
+```
+
+### Description
+
+Converts a base64-encoded data URI to a `Blob`. Automatically extracts the MIME type from the URI header.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `value` | `string` | yes | A valid base64 data URI (e.g. `data:image/png;base64,...`) |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `Blob` | A `Blob` instance with the correct MIME type |
+
+### Throws
+
+Throws a `TypeError` if `value` is not a valid base64 data URI.
+
+### Examples
+
+```js
+const blob = bytes.dataUriToBlob('data:text/plain;base64,aGVsbG8=')
+blob.type // 'text/plain'
+blob.size // 5
+
+const blob = bytes.dataUriToBlob('data:image/png;base64,iVBORw0KGgo=')
+blob.type // 'image/png'
+```

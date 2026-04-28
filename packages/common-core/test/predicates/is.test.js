@@ -1252,6 +1252,39 @@ describe('is.hex', () => {
   })
 })
 
+describe('is.dataUri', () => {
+  it('returns true for a valid base64 image data URI', () => {
+    expect(is.dataUri('data:image/png;base64,iVBORw0KGgo=')).toBe(true)
+  })
+  it('returns true for a valid base64 text data URI', () => {
+    expect(is.dataUri('data:text/plain;base64,aGVsbG8=')).toBe(true)
+  })
+  it('returns true for a valid base64 PDF data URI', () => {
+    expect(is.dataUri('data:application/pdf;base64,JVBERi0=')).toBe(true)
+  })
+  it('returns false for a data URI without base64', () => {
+    expect(is.dataUri('data:text/plain,hello')).toBe(false)
+  })
+  it('returns false for a plain URL', () => {
+    expect(is.dataUri('https://example.com/image.png')).toBe(false)
+  })
+  it('returns false for a string missing the data: prefix', () => {
+    expect(is.dataUri('image/png;base64,iVBORw0KGgo=')).toBe(false)
+  })
+  it('returns false for an empty string', () => {
+    expect(is.dataUri('')).toBe(false)
+  })
+  it('returns false for null', () => {
+    expect(is.dataUri(null)).toBe(false)
+  })
+  it('returns false for undefined', () => {
+    expect(is.dataUri(undefined)).toBe(false)
+  })
+  it('returns false for a number', () => {
+    expect(is.dataUri(123)).toBe(false)
+  })
+})
+
 describe('is.url', () => {
   it('returns true for a valid http URL', () => {
     expect(is.url('http://example.com')).toBe(true)

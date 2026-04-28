@@ -368,6 +368,41 @@ is.hex('')         // false — must be a non-empty string
 is.hex(null)       // false — value must be a string
 ```
 
+## dataUri
+
+### Signature
+
+```js
+is.dataUri(value)
+```
+
+### Description
+
+Returns `true` if `value` is a valid base64 data URI, i.e. a string starting with `data:` and containing `;base64,`.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `value` | `*` | yes | The value to test |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `boolean` | `true` if `value` is a valid base64 data URI, `false` otherwise |
+
+### Examples
+
+```js
+is.dataUri('data:image/png;base64,iVBORw0KGgo=') // true
+is.dataUri('data:text/plain;base64,aGVsbG8=')    // true
+is.dataUri('data:text/plain,hello')               // false
+is.dataUri('https://example.com/image.png')       // false
+is.dataUri('')                                    // false
+is.dataUri(null)                                  // false
+```
+
 ## url
 
 ### Signature
