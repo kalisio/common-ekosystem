@@ -32,7 +32,7 @@ Parses a file path into its components. Supports both Unix and Windows path sepa
 | Property | Type | Description |
 |----------|------|-------------|
 | `fileName` | `string` | The full file name including extension |
-| `extension` | `string` | The file extension including the dot, or `''` if none |
+| `extension` | `string` | The full extension including the dot (e.g. `.tar.gz`), or `''` if none |
 | `baseName` | `string` | The file name without extension |
 | `dir` | `string` | The directory path, `'.'` if no directory, or `''` if at root |
 
@@ -48,6 +48,9 @@ file.parse('/foo/bar/baz.txt')
 
 file.parse('C:\\foo\\bar\\baz.txt')
 // { fileName: 'baz.txt', extension: '.txt', baseName: 'baz', dir: 'C:/foo/bar' }
+
+file.parse('/foo/bar/archive.tar.gz')
+// { fileName: 'archive.tar.gz', extension: '.tar.gz', baseName: 'archive', dir: '/foo/bar' }
 
 file.parse('/foo/.bashrc')
 // { fileName: '.bashrc', extension: '', baseName: '.bashrc', dir: '/foo' }

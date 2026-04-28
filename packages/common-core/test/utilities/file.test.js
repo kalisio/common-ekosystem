@@ -56,6 +56,33 @@ describe('file.parse', () => {
     })
   })
 
+  it('returns the full extension for a .tar.gz file', () => {
+    expect(file.parse('/foo/bar/archive.tar.gz')).toEqual({
+      fileName: 'archive.tar.gz',
+      extension: '.tar.gz',
+      baseName: 'archive',
+      dir: '/foo/bar'
+    })
+  })
+
+  it('returns the full extension for a .d.ts file', () => {
+    expect(file.parse('/foo/bar/types.d.ts')).toEqual({
+      fileName: 'types.d.ts',
+      extension: '.d.ts',
+      baseName: 'types',
+      dir: '/foo/bar'
+    })
+  })
+
+  it('returns the full extension for a .min.js file', () => {
+    expect(file.parse('/foo/bar/bundle.min.js')).toEqual({
+      fileName: 'bundle.min.js',
+      extension: '.min.js',
+      baseName: 'bundle',
+      dir: '/foo/bar'
+    })
+  })
+
   it('throws if filePath is not a string', () => {
     expect(() => file.parse(123)).toThrow(TypeError)
     expect(() => file.parse(null)).toThrow(TypeError)

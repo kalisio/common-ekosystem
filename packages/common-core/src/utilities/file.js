@@ -11,13 +11,14 @@ export const file = {
 
   parse (filePath) {
     assert.that(filePath, is.string, 'filePath must be a string')
-    const fileName = filePath.split(/[\\/]/).pop()
-    const dotIndex = fileName.lastIndexOf('.')
-    const extension = dotIndex <= 0 ? '' : fileName.slice(dotIndex)
-    const baseName = extension ? fileName.slice(0, -extension.length) : fileName
     const normalized = filePath.replace(/\\/g, '/')
     const lastSlash = normalized.lastIndexOf('/')
     const dir = lastSlash === -1 ? '.' : normalized.substring(0, lastSlash)
+    const fileName = normalized.slice(lastSlash + 1)
+    const parts = fileName.split('.')
+    const isDotfile = parts[0] === '' && parts.length === 2
+    const extension = (parts.length <= 1 || isDotfile) ? '' : '.' + parts.slice(1).join('.')
+    const baseName = extension ? fileName.slice(0, -extension.length) : fileName
     return { fileName, extension, baseName, dir }
   },
 
