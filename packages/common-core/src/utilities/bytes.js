@@ -10,7 +10,7 @@ export const bytes = {
       'value must be a string, ArrayBuffer or ArrayBufferView'
     )
     if (typeof value === 'string') {
-      return btoa(unescape(encodeURIComponent(value)))
+      value = new TextEncoder().encode(value)
     }
     const raw = new Uint8Array(value)
     const CHUNK_SIZE = 0x8000
