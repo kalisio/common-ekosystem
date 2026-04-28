@@ -25,6 +25,10 @@ export const is = {
     return is.plainObject(value) && Object.keys(value).length > 0
   },
 
+  boolean (value) {
+    return typeof value === 'boolean'
+  },
+
   string (value) {
     return typeof value === 'string'
   },
@@ -39,6 +43,27 @@ export const is = {
 
   char (value) {
     return is.string(value) && /^.$/u.test(value)
+  },
+
+  hex (value) {
+    return is.nonEmptyString(value) &&
+      value.length % 2 === 0 &&
+      /^[0-9a-fA-F]*$/.test(value)
+  },
+
+  url (value, baseUrl) {
+    return URL.canParse(value, baseUrl)
+  },
+
+  email (value) {
+    if (!is.string(value)) return false
+    const regexp = /^[-!#$%&'*+/0-9=?A-Z^_a-z`{|}~](\.?[-!#$%&'*+/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-?\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/
+    const [account, address] = value.split('@')
+    if (!account || !address) return false
+    if (account.length > 64) return false
+    if (address.length > 255) return false
+    if (address.split('.').some(part => part.length > 63)) return false
+    return regexp.test(value)
   },
 
   regularExpression (value) {
@@ -168,29 +193,9 @@ export const is = {
     return typeof value === 'function'
   },
 
-  boolean (value) {
-    return typeof value === 'boolean'
-  },
-
   oneOf (value, allowedValues) {
     assert.that(allowedValues, is.nonEmptyArray, 'allowed values must be a non empty array')
     return allowedValues.includes(value)
-  },
-
-  url (value, baseUrl) {
-    assert.that(value, is.string, 'value must be a string')
-    return URL.canParse(value, baseUrl)
-  },
-
-  email (value) {
-    assert.that(value, is.string, 'value must be a string')
-    const regexp = /^[-!#$%&'*+/0-9=?A-Z^_a-z`{|}~](\.?[-!#$%&'*+/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-?\.?[a-zA-Z0-9])*\.[a-zA-Z](-?[a-zA-Z0-9])+$/
-    const [account, address] = value.split('@')
-    if (!account || !address) return false
-    if (account.length > 64) return false
-    if (address.length > 255) return false
-    if (address.split('.').some(part => part.length > 63)) return false
-    return regexp.test(value)
   },
 
   empty (value) {

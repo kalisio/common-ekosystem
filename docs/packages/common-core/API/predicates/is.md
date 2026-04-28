@@ -10,7 +10,7 @@ description: Functions that return a boolean for checking the type or state of a
 ### Signature
 
 ```js
-defined(value)
+is.defined (value)
 ```
 
 ### Description
@@ -43,7 +43,7 @@ is.defined(undefined) // false
 ### Signature
 
 ```js
-nil(value)
+is.nil (value)
 ```
 
 ### Description
@@ -76,7 +76,7 @@ is.nil('')        // false
 ### Signature
 
 ```js
-plainObject(value)
+is.plainObject (value)
 ```
 
 ### Description
@@ -110,7 +110,7 @@ is.plainObject(new Date())        // false
 ### Signature
 
 ```js
-emptyObject(value)
+is.emptyObject (value)
 ```
 
 ### Description
@@ -142,7 +142,7 @@ is.emptyObject([])                // false
 ### Signature
 
 ```js
-nonEmptyObject(value)
+is.nonEmptyObject (value)
 ```
 
 ### Description
@@ -169,12 +169,45 @@ is.nonEmptyObject({})                // false
 is.nonEmptyObject([])                // false
 ```
 
+## boolean
+
+### Signature
+
+```js
+is.boolean(value)
+```
+
+### Description
+
+Check if a value is a boolean.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `value` | * | yes | The value to check |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `boolean` | True if the value is a boolean |
+
+### Examples
+
+```js
+is.boolean(true)   // true
+is.boolean(false)  // true
+is.boolean(1)      // false
+is.boolean('true') // false
+```
+
 ## string
 
 ### Signature
 
 ```js
-string(value)
+is.string (value)
 ```
 
 ### Description
@@ -206,7 +239,7 @@ is.string(123)     // false
 ### Signature
 
 ```js
-emptyString(value)
+is.emptyString (value)
 ```
 
 ### Description
@@ -239,7 +272,7 @@ is.emptyString(null)    // false
 ### Signature
 
 ```js
-nonEmptyString(value)
+is.nonEmptyString (value)
 ```
 
 ### Description
@@ -272,7 +305,7 @@ is.nonEmptyString(null)    // false
 ### Signature
 
 ```js
-regularExpression(value)
+is.regularExpression (value)
 ```
 
 ### Description
@@ -298,6 +331,113 @@ is.regularExpression(/abc/)             // true
 is.regularExpression(new RegExp('abc')) // true
 is.regularExpression('abc')             // false
 is.regularExpression(null)              // false
+```
+## hex
+
+### Signature
+
+```js
+is.hex (value)
+```
+
+### Description
+
+Check if a value is a valid hexadecimal string (even length, only characters `0-9` and `a-f`/`A-F`).
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `value` | string | yes | The value to check |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `boolean` | True if the value is a non-empty string of even length containing only hex characters |
+
+### Examples
+
+```js
+is.hex('deadbeef') // true
+is.hex('DEADBEEF') // true
+is.hex('ff')       // true
+is.hex('abc')      // false — odd length
+is.hex('0xff')     // false — 0x prefix not allowed
+is.hex('')         // false — must be a non-empty string
+is.hex(null)       // false — value must be a string
+```
+
+## url
+
+### Signature
+
+```js
+is.url (value, baseUrl)
+```
+
+### Description
+
+Check if a value is a valid URL. Optionally accepts a base URL to resolve relative URLs against.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `value` | string | yes | The value to check |
+| `baseUrl` | string | no | Optional base URL for resolving relative URLs |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `boolean` | True if the value is a valid URL |
+
+### Examples
+
+```js
+is.url('https://example.com')              // true
+is.url('https://example.com/foo?bar=1')    // true
+is.url('/foo/bar', 'https://example.com')  // true
+is.url('example.com')                      // false — missing protocol
+is.url('/foo/bar')                         // false — relative URL without base
+is.url(null)                               // false — value must be a string
+```
+
+## email
+
+### Signature
+
+```js
+is.email(value)
+```
+
+### Description
+
+Check if a value is a valid email address.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `value` | string | yes | The value to check |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `boolean` | True if the value is a valid email address |
+
+### Examples
+
+```js
+is.email('user@example.com')       // true
+is.email('first.last@example.com') // true
+is.email('user+tag@example.com')   // true
+is.email('userexample.com')        // false — missing @
+is.email('user@')                  // false — missing domain
+is.email('@example.com')           // false — missing local part
+is.email(null)                     // false — must be a string
 ```
 
 ## number
@@ -339,7 +479,7 @@ is.number('42')     // false
 ### Signature
 
 ```js
-positive(value)
+is.positive (value)
 ```
 
 ### Description
@@ -372,7 +512,7 @@ is.positive(-5)  // false
 ### Signature
 
 ```js
-nonPositive(value)
+is.nonPositive (value)
 ```
 
 ### Description
@@ -404,7 +544,7 @@ is.nonPositive(1)  // false
 ### Signature
 
 ```js
-negative(value)
+is.negative (value)
 ```
 
 ### Description
@@ -437,7 +577,7 @@ is.negative(5)    // false
 ### Signature
 
 ```js
-nonNegative(value)
+is.nonNegative (value)
 ```
 
 ### Description
@@ -469,7 +609,7 @@ is.nonNegative(-1) // false
 ### Signature
 
 ```js
-inRange(value, min, max)
+is.inRange (value, min, max)
 ```
 
 ### Description
@@ -505,7 +645,7 @@ is.inRange(11, 1, 10) // false
 ### Signature
 
 ```js
-inRangeExclusive(value, min, max)
+is.inRangeExclusive (value, min, max)
 ```
 
 ### Description
@@ -539,7 +679,7 @@ is.inRangeExclusive(10, 1, 10) // false
 ### Signature
 
 ```js
-inRangeExclusiveMin(value, min, max)
+is.inRangeExclusiveMin (value, min, max)
 ```
 
 ### Description
@@ -573,7 +713,7 @@ is.inRangeExclusiveMin(5, 1, 10)  // true
 ### Signature
 
 ```js
-inRangeExclusiveMax(value, min, max)
+is.inRangeExclusiveMax (value, min, max)
 ```
 
 ### Description
@@ -607,7 +747,7 @@ is.inRangeExclusiveMax(5, 1, 10)  // true
 ### Signature
 
 ```js
-integer(value)
+is.integer (value)
 ```
 
 ### Description
@@ -640,7 +780,7 @@ is.integer('42') // false
 ### Signature
 
 ```js
-positiveInteger(value)
+is.positiveInteger (value)
 ```
 
 ### Description
@@ -674,7 +814,7 @@ is.positiveInteger(3.14) // false
 ### Signature
 
 ```js
-nonPositiveInteger(value)
+is.nonPositiveInteger (value)
 ```
 
 ### Description
@@ -706,7 +846,7 @@ is.nonPositiveInteger(1)  // false
 ### Signature
 
 ```js
-negativeInteger(value)
+is.negativeInteger (value)
 ```
 
 ### Description
@@ -739,7 +879,7 @@ is.negativeInteger(1)   // false
 ### Signature
 
 ```js
-nonNegativeInteger(value)
+is.nonNegativeInteger (value)
 ```
 
 ### Description
@@ -771,7 +911,7 @@ is.nonNegativeInteger(-1) // false
 ### Signature
 
 ```js
-array(value)
+is.array (value)
 ```
 
 ### Description
@@ -804,7 +944,7 @@ is.array('hello')   // false
 ### Signature
 
 ```js
-emptyArray(value)
+is.emptyArray (value)
 ```
 
 ### Description
@@ -836,7 +976,7 @@ is.emptyArray({})     // false
 ### Signature
 
 ```js
-nonEmptyArray(value)
+is.nonEmptyArray (value)
 ```
 
 ### Description
@@ -867,7 +1007,7 @@ is.nonEmptyArray([])     // false
 ### Signature
 
 ```js
-arrayOfLength(value, length)
+is.arrayOfLength (value, length)
 ```
 
 ### Description
@@ -900,7 +1040,7 @@ is.arrayOfLength([], 0)        // true
 ### Signature
 
 ```js
-arrayOfLengthAtLeast(value, minLength)
+is.arrayOfLengthAtLeast (value, minLength)
 ```
 
 ### Description
@@ -933,7 +1073,7 @@ is.arrayOfLengthAtLeast([1], 2)        // false
 ### Signature
 
 ```js
-arrayOfLengthAtMost(value, maxLength)
+is.arrayOfLengthAtMost (value, maxLength)
 ```
 
 ### Description
@@ -966,7 +1106,7 @@ is.arrayOfLengthAtMost([1, 2, 3], 2) // false
 ### Signature
 
 ```js
-arrayOfLengthBetween(value, minLength, maxLength)
+is.arrayOfLengthBetween (value, minLength, maxLength)
 ```
 
 ### Description
@@ -1001,7 +1141,7 @@ is.arrayOfLengthBetween([1, 2, 3, 4], 1, 3) // false
 ### Signature
 
 ```js
-map(value)
+is.map (value)
 ```
 
 ### Description
@@ -1034,7 +1174,7 @@ is.map(null)                // false
 ### Signature
 
 ```js
-emptyMap(value)
+is.emptyMap (value)
 ```
 
 ### Description
@@ -1065,7 +1205,7 @@ is.emptyMap(new Map([['a', 1]])) // false
 ### Signature
 
 ```js
-nonEmptyMap(value)
+is.nonEmptyMap (value)
 ```
 
 ### Description
@@ -1096,7 +1236,7 @@ is.nonEmptyMap(new Map())           // false
 ### Signature
 
 ```js
-set(value)
+is.set (value)
 ```
 
 ### Description
@@ -1129,7 +1269,7 @@ is.set(null)            // false
 ### Signature
 
 ```js
-emptySet(value)
+is.emptySet (value)
 ```
 
 ### Description
@@ -1160,7 +1300,7 @@ is.emptySet(new Set([1, 2])) // false
 ### Signature
 
 ```js
-nonEmptySet(value)
+is.nonEmptySet (value)
 ```
 
 ### Description
@@ -1191,7 +1331,7 @@ is.nonEmptySet(new Set())       // false
 ### Signature
 
 ```js
-function(value)
+is.function (value)
 ```
 
 ### Description
@@ -1219,45 +1359,12 @@ is.function(Array.isArray) // true
 is.function({})            // false
 ```
 
-## boolean
-
-### Signature
-
-```js
-boolean(value)
-```
-
-### Description
-
-Check if a value is a boolean.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is a boolean |
-
-### Examples
-
-```js
-is.boolean(true)   // true
-is.boolean(false)  // true
-is.boolean(1)      // false
-is.boolean('true') // false
-```
-
 ## oneOf
 
 ### Signature
 
 ```js
-oneOf(value, allowedValues)
+is.oneOf(value, allowedValues)
 ```
 
 ### Description
@@ -1290,7 +1397,7 @@ is.oneOf(2, [1, 2, 3])                       // true
 ### Signature
 
 ```js
-empty(value)
+is.empty (value)
 ```
 
 ### Description

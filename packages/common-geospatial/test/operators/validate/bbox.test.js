@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { validateBBox } from '../../../src/algorithms/validate'
+import { validateBBox } from '../../../src/operators'
 
 describe('validateBBox', () => {
   describe('invalid inputs', () => {

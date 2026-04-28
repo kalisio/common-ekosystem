@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { validateGeometry } from '../../../src/algorithms/validate'
+import { validateGeometry } from '../../../src/operators'
 
 describe('validateGeometry', () => {
   describe('invalid inputs', () => {

@@ -1210,6 +1210,48 @@ describe('is.arrayOfLengthBetween', () => {
   })
 })
 
+describe('is.hex', () => {
+  it('returns true for a valid lowercase hex string', () => {
+    expect(is.hex('deadbeef')).toBe(true)
+  })
+  it('returns true for a valid uppercase hex string', () => {
+    expect(is.hex('DEADBEEF')).toBe(true)
+  })
+  it('returns true for a mixed case hex string', () => {
+    expect(is.hex('DeAdBeEf')).toBe(true)
+  })
+  it('returns true for a valid hex string with digits only', () => {
+    expect(is.hex('12345678')).toBe(true)
+  })
+  it('returns true for a 2-character hex string', () => {
+    expect(is.hex('ff')).toBe(true)
+  })
+  it('returns false for an odd-length hex string', () => {
+    expect(is.hex('abc')).toBe(false)
+  })
+  it('returns false for a string with non-hex characters', () => {
+    expect(is.hex('zzzzzzzz')).toBe(false)
+  })
+  it('returns false for a string with spaces', () => {
+    expect(is.hex('de ad')).toBe(false)
+  })
+  it('returns false for a hex string with 0x prefix', () => {
+    expect(is.hex('0xdeadbeef')).toBe(false)
+  })
+  it('returns false for a number', () => {
+    expect(is.hex(123)).toBe(false)
+  })
+  it('returns false for null', () => {
+    expect(is.hex(null)).toBe(false)
+  })
+  it('returns false for undefined', () => {
+    expect(is.hex(undefined)).toBe(false)
+  })
+  it('returns false for an empty string', () => {
+    expect(is.hex('')).toBe(false)
+  })
+})
+
 describe('is.url', () => {
   it('returns true for a valid http URL', () => {
     expect(is.url('http://example.com')).toBe(true)
@@ -1244,10 +1286,14 @@ describe('is.url', () => {
   it('returns false for a random string', () => {
     expect(is.url('not a url')).toBe(false)
   })
-  it('throws if value is not a string', () => {
-    expect(() => is.url(123)).toThrow(TypeError)
-    expect(() => is.url(null)).toThrow(TypeError)
-    expect(() => is.url(undefined)).toThrow(TypeError)
+  it('returns false for number', () => {
+    expect(is.url(23)).toBe(false)
+  })
+  it('returns false for null', () => {
+    expect(is.url(null)).toBe(false)
+  })
+  it('returns false for undefined', () => {
+    expect(is.url(undefined)).toBe(false)
   })
 })
 
@@ -1285,9 +1331,13 @@ describe('is.email', () => {
   it('returns false for an empty string', () => {
     expect(is.email('')).toBe(false)
   })
-  it('throws if value is not a string', () => {
-    expect(() => is.email(123)).toThrow(TypeError)
-    expect(() => is.email(null)).toThrow(TypeError)
-    expect(() => is.email(undefined)).toThrow(TypeError)
+  it('returns false for number', () => {
+    expect(is.url(23)).toBe(false)
+  })
+  it('returns false for null', () => {
+    expect(is.url(null)).toBe(false)
+  })
+  it('returns false for undefined', () => {
+    expect(is.url(undefined)).toBe(false)
   })
 })

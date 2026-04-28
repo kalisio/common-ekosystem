@@ -5,7 +5,7 @@ import {
   CRS_TYPES, isLikeCRS,
   GEOMETRY_TYPES, isLikeGeometry,
   FEATURE_TYPES, isLikeFeature, isLikeFeatureCollection, isLikeGeoJson
-} from '../../src/algorithms/is-like'
+} from '../../src/operators'
 
 // isLikeBBox
 describe('isLikeBBox', () => {

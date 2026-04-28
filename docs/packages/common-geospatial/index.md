@@ -10,7 +10,7 @@ _Geospatial utilities for the Kalisio ekosystem_
 ## Overview
 
 **common-geospatial** is organized around two modules:
-- `foundation` — fundamental definitions and utilities
+- [foundation](.) — fundamental definitions and utilities
 - `algorithms` — data processing functions
 
 ## Installation

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { validatePosition } from '../../../src/algorithms/validate'
+import { validatePosition } from '../../../src/operators'
 
 describe('validatePosition', () => {
   describe('invalid inputs', () => {

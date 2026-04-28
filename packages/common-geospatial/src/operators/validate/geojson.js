@@ -1,5 +1,5 @@
 import { assert, is } from '@kalisio/common-core'
-import { FEATURE_TYPES, GEOMETRY_TYPES } from '../is-like'
+import { FEATURE_TYPES, GEOMETRY_TYPES } from '../is-like/index.js'
 import { validateOptionalBBox, validateArray, validateOptionalCRS } from './utils.js'
 import { validateGeometry } from './geometry.js'
 

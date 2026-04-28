@@ -1,2 +1,2 @@
 export * from './foundation'
-export * from './algorithms'
+export * from './operators'
