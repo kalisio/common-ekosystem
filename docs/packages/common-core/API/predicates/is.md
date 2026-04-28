@@ -373,7 +373,7 @@ is.hex(null)       // false — value must be a string
 ### Signature
 
 ```js
-is.dataUri(value)
+is.dataUri value)
 ```
 
 ### Description
