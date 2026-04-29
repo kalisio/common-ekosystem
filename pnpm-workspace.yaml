@@ -33,6 +33,9 @@ catalog:
   "@feathersjs/schema": ~5.0.44
   "@feathersjs/socketio": ~5.0.44
   "@feathersjs/socketio-client": ~5.0.44
+  "@kalisio/common-core": ~0.2.0
+  "@kalisio/common-geospatial": ~0.2.0
+  "@kalisio/common-graphics": ~0.2.0
   "@kalisio/feathers-automerge": ~0.3.8
   "@kalisio/feathers-distributed": ~2.4.0
   "@kalisio/feathers-import-export": ~1.4.1
@@ -45,10 +48,11 @@ catalog:
   "@quasar/extras": ~1.17.0
   "@quasar/quasar-app-extension-testing-unit-vitest": ~1.2.4
   "@thumbmarkjs/thumbmarkjs": ~1.7.5
-  "@turf/bbox": ~7.3.4
-  "@turf/boolean-clockwise": ~7.3.4
+  "@turf/bbox": ~7.3.5
+  "@turf/boolean-clockwise": ~7.3.5
   "@turf/intersect": ~7.3.5
-  "@turf/kinks": ~7.3.4
+  "@turf/kinks": ~7.3.5
+  "@turf/truncate": ~7.3.5
   "@vitejs/plugin-vue": ~6.0.4
   "@vitest/coverage-v8": ~4.1.4
   "@vue/eslint-config-prettier": " ^10.1.0"

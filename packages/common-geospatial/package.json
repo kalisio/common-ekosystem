@@ -52,6 +52,7 @@
     "@logtape/logtape": "catalog:",
     "@turf/boolean-clockwise": "catalog:",
     "@turf/kinks": "catalog:",
+    "@turf/truncate": "catalog:",
     "proj4": "catalog:"
   }
 }
