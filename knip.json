@@ -1,7 +1,4 @@
 {
-  "ignore": [
-    "docs/.vitepress/**"
-  ],
   "exclude": ["catalog"],
   "workspaces": {
     "examples/graphics": {
