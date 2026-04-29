@@ -27,6 +27,9 @@ catalogs:
     happy-dom:
       specifier: ~20.3.1
       version: 20.3.9
+    heap-js:
+      specifier: ~2.7.1
+      version: 2.7.1
     husky:
       specifier: ~9.1.7
       version: 9.1.7
@@ -194,6 +197,9 @@ importers:
       '@turf/truncate':
         specifier: 'catalog:'
         version: 7.3.5
+      heap-js:
+        specifier: 'catalog:'
+        version: 2.7.1
       proj4:
         specifier: 'catalog:'
         version: 2.20.8
@@ -2377,6 +2383,10 @@ packages:
 
   hast-util-whitespace@3.0.0:
     resolution: {integrity: sha512-88JUN06ipLwsnv+dVn+OIYOvAuvBMy/Qoi6O7mQHxdPXpjy+Cd6xRkWwux7DKO+4sYILtLBRIKgsdpS2gQc7qw==}
+
+  heap-js@2.7.1:
+    resolution: {integrity: sha512-EQfezRg0NCZGNlhlDR3Evrw1FVL2G3LhU7EgPoxufQKruNBSYA8MiRPHeWbU+36o+Fhel0wMwM+sLEiBAlNLJA==}
+    engines: {node: '>=10.0.0'}
 
   hookable@5.5.3:
     resolution: {integrity: sha512-Yc+BQe8SvoXH1643Qez1zqLRmbA5rCL+sSmk6TVos0LWVfNIB7PGncdlId77WzLGSIB5KaWgTaNTs2lNVEI6VQ==}
@@ -6105,6 +6115,8 @@ snapshots:
   hast-util-whitespace@3.0.0:
     dependencies:
       '@types/hast': 3.0.4
+
+  heap-js@2.7.1: {}
 
   hookable@5.5.3: {}
 

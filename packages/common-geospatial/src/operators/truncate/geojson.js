@@ -1,14 +1,18 @@
+import { getLogger } from '@logtape/logtape'
 import { assert, is } from '@kalisio/common-core'
 import { FEATURE_TYPES, GEOMETRY_TYPES, isLikeGeoJson } from '../is-like'
 import { truncateBBox } from './bbox.js'
 import { truncateGeometry } from './geometry.js'
 
+const logger = getLogger(['common-ekosystem', 'truncate', 'geojson'])
+
 function truncateFeature (feature, precision) {
   if (feature.type === FEATURE_TYPES.FEATURE) {
     if (feature.geometry) truncateGeometry(feature.geometry, precision)
-  }
-  if (feature.type === FEATURE_TYPES.FEATURE_COLLECTION) {
+  } else if (feature.type === FEATURE_TYPES.FEATURE_COLLECTION) {
     for (const feat of feature.features) truncateFeature(feat, precision)
+  } else {
+    logger.warn('Unknown feature type "{type}", skipping.', { type: feature.type })
   }
   if (feature.bbox) truncateBBox(feature.bbox, precision)
   return feature
