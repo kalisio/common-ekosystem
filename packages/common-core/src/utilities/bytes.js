@@ -21,14 +21,14 @@ export const bytes = {
     return btoa(chunks.join(''))
   },
 
-  fromBase64 (value) {
-    assert.that(value, is.string, 'value must be a string')
-    return decodeURIComponent(escape(atob(value)))
-  },
-
   fromBase64Bytes (value) {
     assert.that(value, is.string, 'value must be a string')
     return Uint8Array.from(atob(value), c => c.charCodeAt(0))
+  },
+
+  fromBase64 (value) {
+    assert.that(value, is.string, 'value must be a string')
+    return new TextDecoder().decode(bytes.fromBase64Bytes(value))
   },
 
   toHex (value) {
