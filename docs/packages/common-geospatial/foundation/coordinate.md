@@ -118,6 +118,19 @@ Truncates a coordinate value to the given number of decimal digits.
 | `coord` | `number` | yes | Coordinate value |
 | `precision` | `number` | no | Number of decimal digits to keep, between 0 and 8 (default: `7`) |
 
+The `precision`, i.e. number of decimal digits, in GPS coordinates directly determines location precision:
+
+| Decimal digits | Precision in meters |
+|---|---|
+| 0 | ~111 km |
+| 1 | ~11.1 km |
+| 2 | ~1.1 km |
+| 3 | ~111 m |
+| 4 | ~11.1 m |
+| 5 | ~1.11 m |
+| 6 | ~0.11 m (11 cm) |
+| 7 | ~1.1 cm |
+
 ### Returns
 
 | Type | Description |
