@@ -2,6 +2,48 @@ import { is } from '@kalisio/common-core'
 import { validateBBox } from './bbox.js'
 import { validateCRS } from './crs.js'
 
+export function emptyStatistics () {
+  return { Feature: 0, FeatureCollection: 0, geometries: {} }
+}
+
+export function mergeStatistics (...results) {
+  const statistics = emptyStatistics()
+  for (const result of results) {
+    const s = result.statistics
+    if (!s) continue
+    statistics.Feature += s.Feature ?? 0
+    statistics.FeatureCollection += s.FeatureCollection ?? 0
+    for (const [type, count] of Object.entries(s.geometries ?? {})) {
+      statistics.geometries[type] = (statistics.geometries[type] ?? 0) + count
+    }
+  }
+  return statistics
+}
+
+export function validateArray (items, validator, path = '') {
+  const response = {
+    valid: true,
+    errors: [],
+    warnings: []
+  }
+  for (let i = 0; i < items.length; i++) {
+    const itemPath = `${path}/${i}`
+    const result = validator(items[i], itemPath, i)
+    if (!result.valid) {
+      response.valid = false
+      response.errors = response.errors.concat(result.errors.map(e => ({ ...e, path: e.path || itemPath, index: i })))
+      continue
+    }
+    if (!is.empty(result.warnings)) {
+      response.warnings = response.warnings.concat(result.warnings.map(w => ({ ...w, path: w.path || itemPath, index: i })))
+    }
+    if (result.statistics) {
+      response.statistics = mergeStatistics(response, result)
+    }
+  }
+  return response
+}
+
 export function validateOptionalCRS (obj, result) {
   if (!is.defined(obj.crs)) return result
   const crsResult = validateCRS(obj.crs)
@@ -22,25 +64,4 @@ export function validateOptionalBBox (obj, result, path = '') {
   }
   result.warnings.push(...bboxResult.warnings.map(w => ({ ...w, path: `${path}/bbox` })))
   return result
-}
-
-export function validateArray (items, validator, path = '') {
-  const response = {
-    valid: true,
-    errors: [],
-    warnings: []
-  }
-  for (let i = 0; i < items.length; i++) {
-    const itemPath = `${path}/${i}`
-    const result = validator(items[i], itemPath, i)
-    if (!result.valid) {
-      response.valid = false
-      response.errors = response.errors.concat(result.errors.map(e => ({ ...e, path: e.path || itemPath, index: i })))
-      continue
-    }
-    if (!is.empty(result.warnings)) {
-      response.warnings = response.warnings.concat(result.warnings.map(w => ({ ...w, path: w.path || itemPath, index: i })))
-    }
-  }
-  return response
 }
