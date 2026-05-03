@@ -1,5 +1,17 @@
 # @kalisio/common-core
 
+## 0.3.0
+
+### Minor Changes
+
+- 208684e: feat: Add is.email predicate
+- 51485f5: feat: Add is.hex predicate
+- 7261f88: feat: Provide bytes encoding/decoding utilities
+
+### Patch Changes
+
+- 894467d: fix: parse filePath return the full extension, not just the last segment
+
 ## 0.2.0
 
 ### Minor Changes

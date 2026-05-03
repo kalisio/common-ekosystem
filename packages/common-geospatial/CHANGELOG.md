@@ -1,5 +1,19 @@
 # @kalisio/geokit
 
+## 0.3.0
+
+### Minor Changes
+
+- 91e2781: feat: Provide promise utilities
+
+### Patch Changes
+
+- Updated dependencies [208684e]
+- Updated dependencies [894467d]
+- Updated dependencies [51485f5]
+- Updated dependencies [7261f88]
+  - @kalisio/common-core@0.3.0
+
 ## 0.2.0
 
 ### Patch Changes
