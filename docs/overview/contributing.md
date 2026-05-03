@@ -180,7 +180,7 @@ Each **changeset** represents one contribution to the next release. Multiple cha
 When preparing a release, run:
 
 ```bash
-pnpm version
+pnpm bump
 ```
 
 **Changesets** then automatically:
@@ -192,7 +192,7 @@ Finally, commit the updated versions and changelogs:
 
 ```bash
 git add .
-git commit -m "chore: bump <new version>"
+git commit -m "chore: bump to <new version>"
 git push
 ```
 
@@ -201,7 +201,7 @@ git push
 To publish the packages to [NPM](https://www.npmjs.com/), use:
 
 ```bash
-pnpm publish
+pnpm release
 git push --follow-tags
 ```
 
