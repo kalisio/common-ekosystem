@@ -11,7 +11,6 @@
     "build:kast": "pnpm --filter @kalisio/kast build",
     "clear": "pnpm -r exec rimraf node_modules dist coverage",
     "change": "changeset",
-
     "docs:build": "pnpm --filter docs run build",
     "docs:dev": "pnpm --filter docs run dev",
     "inspect": "pnpm knip",
