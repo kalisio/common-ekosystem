@@ -10,10 +10,8 @@
     "build:common-graphics": "pnpm --filter @kalisio/common-graphics build",
     "build:kast": "pnpm --filter @kalisio/kast build",
     "clear": "pnpm -r exec rimraf node_modules dist coverage",
-    "changeset": "changeset",
-    "changeset:publish": "pnpm build && changeset publish",
-    "changeset:status": "changeset status",
-    "changeset:version": "changeset version",
+    "change": "changeset",
+
     "docs:build": "pnpm --filter docs run build",
     "docs:dev": "pnpm --filter docs run dev",
     "inspect": "pnpm knip",
@@ -24,12 +22,15 @@
     "lint:kast": "pnpm --filter @kalisio/kast lint",
     "posttest": "pnpm lcov-result-merger --prepend-source-files 'packages/*/coverage/lcov.info' coverage/lcov.info",
     "prepare": "husky",
+    "prepublish": "pnpm build",
     "pretest": "mkdir -p coverage",
+    "publish": "changeset publish",
     "test": "pnpm -r test",
     "test:common-core": "pnpm --filter @kalisio/common-core test",
     "test:common-geospatial": "pnpm --filter @kalisio/common-geospatial test",
     "test:common-graphics": "pnpm --filter @kalisio/common-graphics test",
-    "test:kast": "pnpm --filter @kalisio/kast test"
+    "test:kast": "pnpm --filter @kalisio/kast test",
+    "version": "changeset version"
   },
   "keywords": [
     "core",
