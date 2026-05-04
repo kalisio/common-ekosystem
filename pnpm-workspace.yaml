@@ -33,9 +33,9 @@ catalog:
   "@feathersjs/schema": ~5.0.44
   "@feathersjs/socketio": ~5.0.44
   "@feathersjs/socketio-client": ~5.0.44
-  "@kalisio/common-core": ~0.2.0
-  "@kalisio/common-geospatial": ~0.2.0
-  "@kalisio/common-graphics": ~0.2.0
+  "@kalisio/common-core": ~0.3.0
+  "@kalisio/common-geospatial": ~0.3.0
+  "@kalisio/common-graphics": ~0.3.0
   "@kalisio/feathers-automerge": ~0.3.8
   "@kalisio/feathers-distributed": ~2.4.0
   "@kalisio/feathers-import-export": ~1.4.1
@@ -84,7 +84,6 @@ catalog:
   eslint: ~9.14.0
   eslint-plugin-vue: ~10.4.0
   express-rate-limit: ^5.1.0
-  fast-xml-parser: ~5.5.10
   feathers-authentication-management: ^4.0.0
   feathers-hooks-common: ~8.2.1
   feathers-mailer: ^3.0.0
@@ -96,7 +95,7 @@ catalog:
   geotiff: ~3.0.5
   glob: ~13.0.1
   globals: ~16.4.0
-  happy-dom: ~20.3.1
+  happy-dom: ~20.9.0
   heap-js: ~2.7.1
   helmet: ~3.5.0
   husky: ~9.1.7
@@ -141,6 +140,7 @@ catalog:
   standard: ~17.1.2
   superagent: ~10.3.0
   tar: ~7.5.13
+  typescript: ~6.0.3
   unzipper: ~0.12.3
   vite: ~7.3.1
   vite-bundle-visualizer: ~1.2.1
@@ -164,4 +164,3 @@ catalog:
   workbox-routing: ~7.0.0
   workbox-strategies: ~7.0.0
   xml2js: ~0.6.2
-  yaml: ~2.8.2
