@@ -24,6 +24,9 @@ catalogs:
     '@vitest/coverage-v8':
       specifier: ~4.1.4
       version: 4.1.5
+    chroma-js:
+      specifier: ~3.2.0
+      version: 3.2.0
     happy-dom:
       specifier: ~20.9.0
       version: 20.9.0
@@ -212,6 +215,9 @@ importers:
       '@logtape/logtape':
         specifier: 'catalog:'
         version: 0.7.2
+      chroma-js:
+        specifier: 'catalog:'
+        version: 3.2.0
     devDependencies:
       '@napi-rs/canvas':
         specifier: ^0.1.88
@@ -1640,6 +1646,9 @@ packages:
 
   chardet@2.1.1:
     resolution: {integrity: sha512-PsezH1rqdV9VvyNhxxOW32/d75r01NY7TQCmOqomRo15ZSOKbpTFVsfjghxo6JloQUCGnH4k1LGu0R4yCLlWQQ==}
+
+  chroma-js@3.2.0:
+    resolution: {integrity: sha512-os/OippSlX1RlWWr+QDPcGUZs0uoqr32urfxESG9U93lhUfbnlyckte84Q8P1UQY/qth983AS1JONKmLS4T0nw==}
 
   cli-cursor@5.0.0:
     resolution: {integrity: sha512-aCj4O5wKyszjMmDT4tZj93kxyydN/K5zPWSCe6/0AV/AA1pqe5ZBIw0a2ZfPQV7lL5/yb5HsUreJ6UFAF1tEQw==}
@@ -5161,6 +5170,8 @@ snapshots:
   character-entities@2.0.2: {}
 
   chardet@2.1.1: {}
+
+  chroma-js@3.2.0: {}
 
   cli-cursor@5.0.0:
     dependencies:
