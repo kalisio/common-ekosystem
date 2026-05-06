@@ -108,3 +108,39 @@ has.keyWithValue({ name: undefined }, 'name') // false
 has.keyWithValue({ age: 25 }, 'name')         // false
 ```
 
+## path
+
+### Signature
+
+```js
+has.path (obj, path)
+```
+
+### Description
+
+Check if an object has a nested property at the given dot-notation path.
+Uses the `in` operator instead of `Object.hasOwn` to safely handle Vue proxy objects.
+Throws a `TypeError` if `obj` is not a plain object or `path` is not a non-empty string.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `obj` | `object` | yes | The object to check |
+| `path` | `string` | yes | Dot-notation path to the property (e.g. `'a.b.c'`) |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `boolean` | True if the property exists at the given path, regardless of its value |
+
+### Examples
+
+```js
+has.path({ a: { b: { c: 42 } } }, 'a.b.c') // true
+has.path({ a: { b: 1 } }, 'a.b.c')          // false
+has.path({ a: null }, 'a.b')                 // false
+has.path({ a: undefined }, 'a')              // true
+has.path({ a: false }, 'a')                  // true
+```
