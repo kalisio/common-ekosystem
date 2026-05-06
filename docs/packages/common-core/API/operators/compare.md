@@ -8,7 +8,7 @@ description: Deep comparison of two objects or arrays, with optional normalizati
 ## Signature
 
 ```js
-compare(obj1, obj2, options = {})
+compare (obj1, obj2, options = {})
 ```
 
 ## Description

@@ -1,6 +1,6 @@
 // test/utilities/bytes.test.js
 import { describe, it, expect } from 'vitest'
-import { bytes } from '../../src/utilities/bytes'
+import { bytes } from '../../src/utilities'
 
 describe('bytes.toBase64', () => {
   it('encodes a simple ASCII string', () => {

@@ -8,7 +8,7 @@ description: Transform an object or array through a pipeline of mapping, filteri
 ## Signature
 
 ```js
-transform(obj, options)
+transform (obj, options)
 ```
 
 ## Description

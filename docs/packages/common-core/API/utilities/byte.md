@@ -1,16 +1,16 @@
 ---
-title: bytes
+title: byte
 description: Utility functions for encoding and decoding binary data.
 ---
 
-# bytes
+# byte
 
 ## toBase64
 
 ### Signature
 
 ```js
-bytes.toBase64 (value)
+byte.toBase64 (value)
 ```
 
 ### Description
@@ -36,13 +36,13 @@ Throws a `TypeError` if `value` is not a string, `ArrayBuffer`, or `ArrayBufferV
 ### Examples
 
 ```js
-bytes.toBase64('hello')
+byte.toBase64('hello')
 // 'aGVsbG8='
 
-bytes.toBase64('café')
+byte.toBase64('café')
 // 'Y2Fmw6k='
 
-bytes.toBase64(new Uint8Array([104, 101, 108, 108, 111]))
+byte.toBase64(new Uint8Array([104, 101, 108, 108, 111]))
 // 'aGVsbG8='
 ```
 
@@ -51,7 +51,7 @@ bytes.toBase64(new Uint8Array([104, 101, 108, 108, 111]))
 ### Signature
 
 ```js
-bytes.fromBase64 (value)
+byte.fromBase64 (value)
 ```
 
 ### Description
@@ -77,10 +77,10 @@ Throws a `TypeError` if `value` is not a string.
 ### Examples
 
 ```js
-bytes.fromBase64('aGVsbG8=')
+byte.fromBase64('aGVsbG8=')
 // 'hello'
 
-bytes.fromBase64('Y2Fmw6k=')
+byte.fromBase64('Y2Fmw6k=')
 // 'café'
 ```
 
@@ -89,7 +89,7 @@ bytes.fromBase64('Y2Fmw6k=')
 ### Signature
 
 ```js
-bytes.fromBase64Bytes (value)
+byte.fromBase64Bytes (value)
 ```
 
 ### Description
@@ -115,7 +115,7 @@ Throws a `TypeError` if `value` is not a string.
 ### Examples
 
 ```js
-bytes.fromBase64Bytes ('aGVsbG8=')
+byte.fromBase64Bytes ('aGVsbG8=')
 // Uint8Array [ 104, 101, 108, 108, 111 ]
 ```
 
@@ -124,7 +124,7 @@ bytes.fromBase64Bytes ('aGVsbG8=')
 ### Signature
 
 ```js
-bytes.toHex (value)
+byte.toHex (value)
 ```
 
 ### Description
@@ -150,7 +150,7 @@ Throws a `TypeError` if `value` is not an `ArrayBuffer` or `ArrayBufferView`.
 ### Examples
 
 ```js
-bytes.toHex(new Uint8Array([0, 1, 255]))
+byte.toHex(new Uint8Array([0, 1, 255]))
 // '0001ff'
 ```
 
@@ -159,7 +159,7 @@ bytes.toHex(new Uint8Array([0, 1, 255]))
 ### Signature
 
 ```js
-bytes.fromHex (value)
+byte.fromHex (value)
 ```
 
 ### Description
@@ -185,10 +185,10 @@ Throws a `TypeError` if `value` is not a string, has an odd length, or contains 
 ### Examples
 
 ```js
-bytes.fromHex('0001ff')
+byte.fromHex('0001ff')
 // Uint8Array [ 0, 1, 255 ]
 
-bytes.fromHex('0001FF')
+byte.fromHex('0001FF')
 // Uint8Array [ 0, 1, 255 ]
 ```
 
@@ -197,7 +197,7 @@ bytes.fromHex('0001FF')
 ### Signature
 
 ```js
-bytes.dataUriToBlob(value)
+byte.dataUriToBlob(value)
 ```
 
 ### Description
@@ -223,10 +223,10 @@ Throws a `TypeError` if `value` is not a valid base64 data URI.
 ### Examples
 
 ```js
-const blob = bytes.dataUriToBlob('data:text/plain;base64,aGVsbG8=')
+const blob = byte.dataUriToBlob('data:text/plain;base64,aGVsbG8=')
 blob.type // 'text/plain'
 blob.size // 5
 
-const blob = bytes.dataUriToBlob('data:image/png;base64,iVBORw0KGgo=')
+const blob = byte.dataUriToBlob('data:image/png;base64,iVBORw0KGgo=')
 blob.type // 'image/png'
 ```
