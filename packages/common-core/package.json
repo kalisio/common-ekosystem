@@ -5,16 +5,35 @@
   "type": "module",
   "exports": {
     ".": {
+      "development": "./src/index.js",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
     },
     "./predicates": {
+      "development": "./src/predicates/index.js",
       "import": "./dist/predicates/index.mjs",
       "require": "./dist/predicates/index.cjs"
     },
     "./utilities": {
+      "development": "./src/utilities/index.js",
       "import": "./dist/utilities/index.mjs",
       "require": "./dist/utilities/index.cjs"
+    }
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "import": "./dist/index.mjs",
+        "require": "./dist/index.cjs"
+      },
+      "./predicates": {
+        "import": "./dist/predicates/index.mjs",
+        "require": "./dist/predicates/index.cjs"
+      },
+      "./utilities": {
+        "import": "./dist/utilities/index.mjs",
+        "require": "./dist/utilities/index.cjs"
+      }
     }
   },
   "files": [
@@ -41,7 +60,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/kalisio/common-ekosystem.git",
+    "url": "git+https://github.com/kalisio/common-ekosystem.git",
     "directory": "packages/common-core"
   },
   "bugs": {
@@ -54,6 +73,7 @@
     "lodash-es": "catalog:",
     "mathjs": "catalog:",
     "moment": "catalog:",
+    "sanitize-html": "catalog:",
     "sift": "catalog:"
   },
   "peerDependenciesMeta": {
@@ -64,6 +84,9 @@
       "optional": true
     },
     "moment": {
+      "optional": true
+    },
+    "sanitize-html": {
       "optional": true
     },
     "sift": {

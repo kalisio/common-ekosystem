@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "pnpm -r build",
-    "build:common-core": "pnpm --filter @kalisio/commmon-core build",
+    "build:common-core": "pnpm --filter @kalisio/common-core build",
     "build:common-geospatial": "pnpm --filter @kalisio/common-geospatial build",
     "build:common-graphics": "pnpm --filter @kalisio/common-graphics build",
     "bump": "changeset version",
@@ -44,12 +44,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/kalisio/common-ekosystem.git"
+    "url": "https://github.com/kalisio/common-ekosystem.git"
   },
   "bugs": {
     "url": "https://github.com/kalisio/common-ekosystem/issues"
   },
-  "homepage": "git://github.com/kalisio/common-ekosystem#readme",
+  "homepage": "https://github.com/kalisio/common-ekosystem#readme",
   "devDependencies": {
     "@changesets/cli": "catalog:",
     "@vitest/coverage-v8": "catalog:",
