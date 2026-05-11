@@ -60,7 +60,6 @@
     "rimraf": "catalog:",
     "standard": "catalog:",
     "vite": "catalog:",
-    "vite-bundle-visualizer": "catalog:",
     "vitest": "catalog:"
   },
   "pnpm": {

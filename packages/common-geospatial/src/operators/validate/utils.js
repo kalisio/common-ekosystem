@@ -6,7 +6,7 @@ export function emptyStatistics () {
   return { Feature: 0, FeatureCollection: 0, geometries: {} }
 }
 
-export function mergeStatistics (...results) {
+function mergeStatistics (...results) {
   const statistics = emptyStatistics()
   for (const result of results) {
     const s = result.statistics
