@@ -12,17 +12,15 @@ export const color = {
   },
 
   scale (options) {
-    let result = chroma.scale(options.colors) // const colors inutilisée supprimée
+    let result = chroma.scale(options.colors)
     if (options.classes) {
       if (is.array(options.classes)) {
-        result = result.classes(options.classes) // result. pas scale.
+        result = result.classes(options.classes)
       } else {
-        if (options.domain) result = result.domain(options.domain).classes(options.classes) // idem
-        else result = result.classes(options.classes) // idem
+        if (options.domain) result = result.domain(options.domain).classes(options.classes)
+        else result = result.classes(options.classes)
       }
-    } else {
-      if (options.domain) result = result.domain(options.domain) // idem
-    }
+    } else if (options.domain) result = result.domain(options.domain)
     return result
   }
 
