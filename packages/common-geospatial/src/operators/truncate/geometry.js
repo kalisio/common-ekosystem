@@ -1,5 +1,5 @@
-import { assert, is } from '@kalisio/common-core'
 import truncate from '@turf/truncate'
+import { assert, is } from '@kalisio/common-core'
 import { isLikeGeometry } from '../is-like'
 import { truncateBBox } from './bbox.js'
 

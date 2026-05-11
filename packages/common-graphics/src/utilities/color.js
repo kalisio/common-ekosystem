@@ -1,5 +1,5 @@
-import { is } from '@kalisio/common-core'
 import chroma from 'chroma-js'
+import { is } from '@kalisio/common-core'
 
 export const color = {
 
