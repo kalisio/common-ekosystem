@@ -23,9 +23,11 @@ export default mergeConfig(baseConfig, defineConfig({
       external: [
         ...builtinModules,
         ...builtinModules.map(m => `node:${m}`),
+        'chroma-js',
         'lodash-es',
         'mathjs',
         'moment',
+        'sanitize-html',
         'sift'
       ]
     }
