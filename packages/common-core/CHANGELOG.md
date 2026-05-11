@@ -24,7 +24,7 @@
 
 ### Patch Changes
 
-- 894467d: fix: parse filePath return the full extension, not just the last segment
+- fix: parse filePath return the full extension, not just the last segment
 
 ## 0.2.0
 
