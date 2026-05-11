@@ -49,7 +49,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/kalisio/common-ekosystem.git",
+    "url": "git+https://github.com/kalisio/common-ekosystem.git",
     "directory": "packages/common-geospatial"
   },
   "bugs": {

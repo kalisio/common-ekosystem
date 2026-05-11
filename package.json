@@ -44,7 +44,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kalisio/common-ekosystem.git"
+    "url": "git+https://github.com/kalisio/common-ekosystem.git"
   },
   "bugs": {
     "url": "https://github.com/kalisio/common-ekosystem/issues"
