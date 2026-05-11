@@ -20,6 +20,9 @@
       "require": "./dist/utilities/index.cjs"
     }
   },
+  "files": [
+    "dist"
+  ],
   "publishConfig": {
     "exports": {
       ".": {
@@ -36,9 +39,6 @@
       }
     }
   },
-  "files": [
-    "dist"
-  ],
   "standard": {
     "ignore": [
       "dist/**"

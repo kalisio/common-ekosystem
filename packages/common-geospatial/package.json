@@ -6,6 +6,7 @@
   "private": false,
   "exports": {
     ".": {
+      "development": "./src/index.js",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
     }
@@ -13,6 +14,14 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "import": "./dist/index.mjs",
+        "require": "./dist/index.cjs"
+      }
+    }
+  },
   "standard": {
     "ignore": [
       "dist/**"
