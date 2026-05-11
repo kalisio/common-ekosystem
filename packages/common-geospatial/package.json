@@ -57,12 +57,14 @@
   },
   "homepage": "https://github.com/kalisio/common-ekosystem/tree/master/packages/common-geospatial",
   "dependencies": {
+    "heap-js": "catalog:"
+  },
+  "peerDependencies": {
     "@kalisio/common-core": "workspace:*",
     "@logtape/logtape": "catalog:",
     "@turf/boolean-clockwise": "catalog:",
     "@turf/kinks": "catalog:",
     "@turf/truncate": "catalog:",
-    "heap-js": "catalog:",
     "proj4": "catalog:"
   },
   "devDependencies": {

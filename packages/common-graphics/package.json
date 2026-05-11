@@ -56,7 +56,8 @@
     "url": "https://github.com/kalisio/common-ekosystem/issues"
   },
   "homepage": "https://github.com/kalisio/common-ekosystem/tree/master/packages/common-graphikcs",
-  "dependencies": {
+  "dependencies": {},
+  "peerDependencies": {
     "@kalisio/common-core": "workspace:*",
     "@logtape/logtape": "catalog:",
     "chroma-js": "catalog:"
