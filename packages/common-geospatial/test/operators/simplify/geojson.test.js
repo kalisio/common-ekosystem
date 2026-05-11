@@ -1,4 +1,3 @@
-// geojson.test.js
 import { describe, it, expect } from 'vitest'
 import { simplifyGeoJson } from '../../../src/operators'
 import {

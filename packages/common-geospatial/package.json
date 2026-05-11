@@ -55,5 +55,8 @@
     "@turf/truncate": "catalog:",
     "heap-js": "catalog:",
     "proj4": "catalog:"
+  },
+  "devDependencies": {
+    "chroma-js": "catalog:"
   }
 }
