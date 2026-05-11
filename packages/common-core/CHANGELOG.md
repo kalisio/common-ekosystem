@@ -1,5 +1,11 @@
 # @kalisio/common-core
 
+## 0.4.1
+
+### Patch Changes
+
+- fix: Bundle size is too large
+
 ## 0.4.0
 
 ### Minor Changes
