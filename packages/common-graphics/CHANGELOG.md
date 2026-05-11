@@ -1,5 +1,12 @@
 # @kalisio/common-graphics
 
+## 0.4.0
+
+### Patch Changes
+
+- Updated dependencies
+  - @kalisio/common-core@0.4.0
+
 ## 0.3.0
 
 ### Patch Changes

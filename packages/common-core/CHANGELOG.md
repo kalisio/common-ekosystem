@@ -1,5 +1,13 @@
 # @kalisio/common-core
 
+## 0.4.0
+
+### Minor Changes
+
+- feat: Provide a has.path predicate
+- feat: Renamed bytes namespace to byte namespace
+- feat: Provide a sanitize operator
+
 ## 0.3.0
 
 ### Minor Changes
