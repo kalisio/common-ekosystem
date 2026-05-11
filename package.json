@@ -18,16 +18,16 @@
     "lint:common-core": "pnpm --filter @kalisio/common-core lint",
     "lint:common-geospatial": "pnpm --filter @kalisio/common-geospatial lint",
     "lint:common-graphics": "pnpm --filter @kalisio/common-graphics lint",
-    "posttest": "pnpm lcov-result-merger --prepend-source-files 'packages/*/coverage/lcov.info' coverage/lcov.info",
     "prepare": "husky",
     "prerelease": "pnpm build",
-    "pretest": "mkdir -p coverage",
     "release": "changeset publish",
+    "postrelease": "git push --follow-tags",
+    "pretest": "mkdir -p coverage",
+    "posttest": "pnpm lcov-result-merger --prepend-source-files 'packages/*/coverage/lcov.info' coverage/lcov.info",
     "test": "pnpm -r test",
     "test:common-core": "pnpm --filter @kalisio/common-core test",
     "test:common-geospatial": "pnpm --filter @kalisio/common-geospatial test",
-    "test:common-graphics": "pnpm --filter @kalisio/common-graphics test",
-    "test:kast": "pnpm --filter @kalisio/kast test"
+    "test:common-graphics": "pnpm --filter @kalisio/common-graphics test"
   },
   "keywords": [
     "core",
