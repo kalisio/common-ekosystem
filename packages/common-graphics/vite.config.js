@@ -18,7 +18,9 @@ export default mergeConfig(baseConfig, defineConfig({
       external: [
         ...builtinModules,
         ...builtinModules.map(m => `node:${m}`),
-        '@kalisio/common-core'
+        '@kalisio/common-core',
+        '@logtape/logtape',
+        'chroma-js'
       ]
     }
   }
