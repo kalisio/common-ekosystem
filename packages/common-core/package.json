@@ -81,7 +81,7 @@
     "node": ">=20"
   },
   "devDependencies": {},
-    "publishConfig": {
+  "publishConfig": {
     "exports": {
       ".": {
         "import": "./dist/index.mjs",
