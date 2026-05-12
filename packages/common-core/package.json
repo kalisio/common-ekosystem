@@ -77,10 +77,10 @@
       "optional": true
     }
   },
+  "devDependencies": {},
   "engines": {
     "node": ">=20"
   },
-  "devDependencies": {},
   "publishConfig": {
     "exports": {
       ".": {
