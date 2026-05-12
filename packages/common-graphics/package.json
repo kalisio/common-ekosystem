@@ -14,14 +14,6 @@
   "files": [
     "dist"
   ],
-  "publishConfig": {
-    "exports": {
-      ".": {
-        "import": "./dist/index.mjs",
-        "require": "./dist/index.cjs"
-      }
-    }
-  },
   "standard": {
     "globals": [
       "Image"
@@ -32,6 +24,7 @@
   },
   "scripts": {
     "build": "vite build",
+    "postbuild": "publint",
     "lint": "standard --fix",
     "test": "vitest run --coverage"
   },
@@ -65,5 +58,16 @@
   "devDependencies": {
     "@napi-rs/canvas": "^0.1.88",
     "happy-dom": "catalog:"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "import": "./dist/index.mjs",
+        "require": "./dist/index.cjs"
+      }
+    }
   }
 }

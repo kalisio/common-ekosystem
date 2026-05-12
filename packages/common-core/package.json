@@ -23,22 +23,6 @@
   "files": [
     "dist"
   ],
-  "publishConfig": {
-    "exports": {
-      ".": {
-        "import": "./dist/index.mjs",
-        "require": "./dist/index.cjs"
-      },
-      "./predicates": {
-        "import": "./dist/predicates/index.mjs",
-        "require": "./dist/predicates/index.cjs"
-      },
-      "./utilities": {
-        "import": "./dist/utilities/index.mjs",
-        "require": "./dist/utilities/index.cjs"
-      }
-    }
-  },
   "standard": {
     "ignore": [
       "dist/**"
@@ -46,6 +30,7 @@
   },
   "scripts": {
     "build": "vite build",
+    "postbuild": "publint",
     "lint": "standard --fix",
     "test": "vitest run --coverage"
   },
@@ -92,5 +77,24 @@
       "optional": true
     }
   },
-  "devDependencies": {}
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {},
+    "publishConfig": {
+    "exports": {
+      ".": {
+        "import": "./dist/index.mjs",
+        "require": "./dist/index.cjs"
+      },
+      "./predicates": {
+        "import": "./dist/predicates/index.mjs",
+        "require": "./dist/predicates/index.cjs"
+      },
+      "./utilities": {
+        "import": "./dist/utilities/index.mjs",
+        "require": "./dist/utilities/index.cjs"
+      }
+    }
+  }
 }
