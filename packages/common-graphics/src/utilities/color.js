@@ -16,7 +16,7 @@ export const color = {
       return chroma.distance(value, current) < chroma.distance(value, nearest)
         ? current
         : nearest
-    })
+    }, colors[0])
   },
 
   farthest (value, colors = Object.keys(chroma.colors)) {
@@ -28,7 +28,7 @@ export const color = {
       return chroma.contrast(value, current) > chroma.contrast(value, farthest)
         ? current
         : farthest
-    })
+    }, colors[0])
   },
 
   contrast (value, light = 'white', dark = 'black') {

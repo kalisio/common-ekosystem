@@ -44,7 +44,7 @@ export const string = {
       for (const chars of Object.values(this.DIACRITICS)) {
         if (
           (reverse && chars.includes(lower)) ||
-          (!reverse && chars[0] === lower)
+          (!reverse && chars.startsWith(lower))
         ) {
           family = chars
           break
