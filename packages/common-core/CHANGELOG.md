@@ -1,5 +1,11 @@
 # @kalisio/common-core
 
+## 0.4.2
+
+### Patch Changes
+
+- fix: The namespace bytes is misspelled
+
 ## 0.4.1
 
 ### Patch Changes
