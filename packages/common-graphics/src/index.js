@@ -1,2 +1,2 @@
 export * from './utilities'
-export * from './graphiks.js'
+export * from './shapes'
