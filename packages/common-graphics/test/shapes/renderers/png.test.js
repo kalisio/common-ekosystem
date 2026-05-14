@@ -1,10 +1,10 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
-import { join, dirname } from 'path'
-import { fileURLToPath } from 'url'
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs'
+import { join, dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { LRUCache } from 'lru-cache'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { createCanvas, Image } from '@napi-rs/canvas'
-import { Cache } from '../src/utils/cache'
-import { toPNG } from '../src/utils/png'
+import { toPNG } from '../../../src/shapes/renderers'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const pngDir = join(__dirname, 'data', 'reference', 'png')
@@ -90,8 +90,8 @@ describe('toPNG', () => {
   let mockParams
 
   beforeEach(() => {
-    pngCache = new Cache()
-    svgCache = new Cache()
+    pngCache = new LRUCache({ max: 100 })
+    svgCache = new LRUCache({ max: 100 })
     mockParams = {
       shape: '<circle cx="50" cy="50" r="50" fill="red"></circle>',
       width: 100,

@@ -54,6 +54,9 @@ catalogs:
     lodash-es:
       specifier: ~4.18.1
       version: 4.18.1
+    lru-cache:
+      specifier: ~11.3.5
+      version: 11.3.5
     mathjs:
       specifier: ~15.1.1
       version: 15.1.1
@@ -231,6 +234,9 @@ importers:
       chroma-js:
         specifier: 'catalog:'
         version: 3.2.0
+      lru-cache:
+        specifier: 'catalog:'
+        version: 11.3.5
       sharp:
         specifier: 'catalog:'
         version: 0.34.5

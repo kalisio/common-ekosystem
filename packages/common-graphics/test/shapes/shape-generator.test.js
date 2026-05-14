@@ -1,14 +1,14 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
-import { join, dirname } from 'path'
-import { fileURLToPath } from 'url'
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs'
+import { join, dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { describe, it, expect } from 'vitest'
-import { Graphiks } from '../src/graphiks.js'
+import { ShapeGenerator } from '../../src/shapes'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const svgDir = join(__dirname, 'data', 'reference', 'svg')
 
 describe('shapes', () => {
-  const graphiks = new Graphiks()
+  const shapeGenerator = new ShapeGenerator()
 
   const BasicShapes = [
     { shape: 'circle', color: 'red' },
@@ -48,17 +48,17 @@ describe('shapes', () => {
   ]
 
   it('should list the shapes', () => {
-    const shapes = graphiks.listShapeTypes()
+    const shapes = shapeGenerator.listShapeTypes()
     expect(Array.isArray(shapes)).toBe(true)
   })
 
   it('should have the circle shape registered', () => {
-    const hasCircle = graphiks.hasShapeType('circle')
+    const hasCircle = shapeGenerator.hasShapeType('circle')
     expect(hasCircle).toBe(true)
   })
 
   it('should not have the dummy shape registered', () => {
-    const hasDummy = graphiks.hasShapeType('dummy')
+    const hasDummy = shapeGenerator.hasShapeType('dummy')
     expect(hasDummy).toBe(false)
   })
 
@@ -67,7 +67,7 @@ describe('shapes', () => {
       mkdirSync(svgDir, { recursive: true })
     }
     for (const shape of BasicShapes) {
-      const graphic = graphiks.renderShape(shape)
+      const graphic = shapeGenerator.renderShape(shape)
       expect(graphic).not.toBeNull()
       const svg = graphic.toSVG()
       const svgFile = join(svgDir, `${shape.shape}.svg`)

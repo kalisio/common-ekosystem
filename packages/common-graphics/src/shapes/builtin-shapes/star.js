@@ -1,17 +1,17 @@
-import { toSVGStyleAttributes, toSVGTitleElement, toSVGTransformAttribute } from '../utils/svg.js'
+import { toSVGStyleAttributes, toSVGTitleElement, toSVGTransformAttribute } from '../renderers/to-svg.js'
 
 function getSize (params) {
   if (params.size) return { width: params.size[0], height: params.size[1] }
-  if (params.radius) return { width: params.radius * 2, height: params.radius * 2 }
+  if (params.radius) return { width: params.radius * 2.1, height: params.radius * 2.1 }
   return { width: 50, height: 50 }
 }
 
-export function pentagon (params) {
+export function star4 (params) {
   return {
     ...getSize(params),
     margin: params.stroke ? params.stroke.width ?? 1 : 0,
     shape:
-      `<path d="M50 0 L100 38 L81 100 L19 100 L0 38 Z"
+      `<path d="M50 0 L65 40 L100 50 L65 60 L50 100 L35 60 L0 50 L35 40 Z"
         ${toSVGStyleAttributes(params)}
         ${toSVGTransformAttribute(params.transform)}
       >${toSVGTitleElement(params)}</path>`,
@@ -31,12 +31,12 @@ export function pentagon (params) {
   }
 }
 
-export function hexagon (params) {
+export function star5 (params) {
   return {
     ...getSize(params),
     margin: params.stroke ? params.stroke.width ?? 1 : 0,
     shape:
-      `<path d="M50 0 L100 25 L100 75 L50 100 L0 75 L0 25 Z"
+      `<path d="M50 0 L63 37 L100 37 L70 60 L83 97 L50 74 L17 97 L30 60 L0 37 L37 37 Z"
         ${toSVGStyleAttributes(params)}
         ${toSVGTransformAttribute(params.transform)}
       >${toSVGTitleElement(params)}</path>`,
@@ -56,12 +56,12 @@ export function hexagon (params) {
   }
 }
 
-export function polygon (params) {
+export function star6 (params) {
   return {
     ...getSize(params),
     margin: params.stroke ? params.stroke.width ?? 1 : 0,
     shape:
-      `<path d="M50 0 L90 20 L100 55 L75 95 L20 100 L0 60 L15 10 Z"
+      `<path d="M50 0 L58 40 L93 25 L65 50 L93 75 L58 60 L50 100 L42 60 L7 75 L35 50 L7 25 L42 40 Z"
         ${toSVGStyleAttributes(params)}
         ${toSVGTransformAttribute(params.transform)}
       >${toSVGTitleElement(params)}</path>`,
@@ -77,6 +77,7 @@ export function polygon (params) {
       },
       ...params.text
     },
-    style: params.style
+    style: params.style,
+    zoom: params.zoom
   }
 }

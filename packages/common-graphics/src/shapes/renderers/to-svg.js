@@ -1,7 +1,7 @@
 import { getLogger } from '@logtape/logtape'
 import { is } from '@kalisio/common-core'
 
-const logger = getLogger(['graphiks', 'svg'])
+const logger = getLogger(['common-graphics', 'to-svg'])
 
 export function toSVG (params, context) {
   if (!is.defined(params)) {

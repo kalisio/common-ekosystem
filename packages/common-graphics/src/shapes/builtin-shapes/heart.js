@@ -1,4 +1,4 @@
-import { toSVGStyleAttributes, toSVGTitleElement, toSVGTransformAttribute } from '../utils/svg.js'
+import { toSVGStyleAttributes, toSVGTitleElement, toSVGTransformAttribute } from '../renderers/to-svg.js'
 
 function getSize (params) {
   if (params.size) return { width: params.size[0], height: params.size[1] }
@@ -6,12 +6,12 @@ function getSize (params) {
   return { width: 50, height: 50 }
 }
 
-export function cross (params) {
+export function heart (params) {
   return {
     ...getSize(params),
     margin: params.stroke ? params.stroke.width ?? 1 : 0,
     shape:
-      `<path d="M35 0 L65 0 L65 35 L100 35 L100 65 L65 65 L65 100 L35 100 L35 65 L0 65 L0 35 L35 35 Z"
+      `<path d="M50 100 C50 100 0 65 0 35 C0 15 10 0 25 0 C37 0 50 10 50 10 C50 10 63 0 75 0 C90 0 100 15 100 35 C100 65 50 100 50 100 Z"
         ${toSVGStyleAttributes(params)}
         ${toSVGTransformAttribute(params.transform)}
       >${toSVGTitleElement(params)}</path>`,

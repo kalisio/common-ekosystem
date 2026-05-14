@@ -1,5 +1,5 @@
+import { LRUCache } from 'lru-cache'
 import { describe, it, expect, beforeEach } from 'vitest'
-import { Cache } from '../src/utils/cache'
 import {
   toSVG,
   toSVGStyleElement,
@@ -8,14 +8,14 @@ import {
   toSVGTitleElement,
   toSVGStyleAttributes,
   toSVGTransformAttribute
-} from '../src/utils/svg'
+} from '../../../src/shapes/renderers'
 
 describe('SVG', () => {
   let svgCache
   let mockParams
 
   beforeEach(() => {
-    svgCache = new Cache()
+    svgCache = new LRUCache({ max: 100 })
     mockParams = {
       width: 100,
       height: 100,
