@@ -68,21 +68,6 @@ export const image = {
     return { ...meta, size: meta.size ?? buffer.byteLength }
   },
 
-  async toDataURL (img) {
-    if (IS_BROWSER) {
-      const blob = await resolveBrowserImage(img)
-      const buffer = await blob.arrayBuffer()
-      const base64 = bytes.toBase64(buffer)
-      return `data:${blob.type};base64,${base64}`
-    }
-    // Node implementation
-    const { default: sharp } = await sharpPromise
-    const buffer = await resolveNodeImage(img)
-    const { format } = await sharp(buffer).metadata()
-    const base64 = buffer.toString('base64')
-    return `data:image/${format};base64,${base64}`
-  },
-
   async resize (img, width, height, quality = 0.8) {
     assert.all([
       { value: width, validator: is.positiveInteger, message: 'width must be a positive integer' },
@@ -114,6 +99,38 @@ export const image = {
     const { format } = await sharp(buffer).metadata()
     return sharp(buffer)
       .resize(width, height)
+      .toFormat(format, getSharpFormatOptions(format, quality))
+      .toBuffer()
+  },
+
+  async toDataURL (img) {
+    if (IS_BROWSER) {
+      const blob = await resolveBrowserImage(img)
+      const buffer = await blob.arrayBuffer()
+      const base64 = bytes.toBase64(buffer)
+      return `data:${blob.type};base64,${base64}`
+    }
+    // Node implementation
+    const { default: sharp } = await sharpPromise
+    const buffer = await resolveNodeImage(img)
+    const { format } = await sharp(buffer).metadata()
+    const base64 = buffer.toString('base64')
+    return `data:image/${format};base64,${base64}`
+  },
+
+  async fromSVG (svg, { format = 'png', quality = 1 } = {}) {
+    if (IS_BROWSER) {
+      const mimeType = `image/${format}`
+      const blob = new Blob([svg], { type: 'image/svg+xml' })
+      const bitmap = await createImageBitmap(blob)
+      const canvas = new OffscreenCanvas(bitmap.width, bitmap.height)
+      canvas.getContext('2d').drawImage(bitmap, 0, 0)
+      bitmap.close()
+      return canvas.convertToBlob({ type: mimeType, quality })
+    }
+    // Node implementation
+    const { default: sharp } = await sharpPromise
+    return sharp(Buffer.from(svg))
       .toFormat(format, getSharpFormatOptions(format, quality))
       .toBuffer()
   }

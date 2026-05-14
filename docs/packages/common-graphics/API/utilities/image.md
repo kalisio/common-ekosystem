@@ -5,18 +5,16 @@ description: Utility functions for processing and transforming images, running i
 
 # image
 
-Utility functions for processing and transforming images, running in both browser and Node.js environments.
-
 > Inputs accept a `Blob` or a URL/data URL string in the browser, and a `Buffer`, a file path, or a data URL string in Node.js.
 > Outputs are a `Blob` in the browser and a `Buffer` in Node.js.
-> Node.js usage requires [`sharp`](https://sharp.pixelplumbing.com/) as a peer dependency.
+> Node.js usage requires [`sharp`](https://sharp.pixelplumbing.com/) as a peer dependency (`npm install sharp`).
 
 ## metadata
 
 ### Signature
 
 ```js
-image.metadata (img)
+image.metadata(img)
 ```
 
 ### Description
@@ -60,51 +58,12 @@ const meta = await image.metadata('data:image/png;base64,...')
 // { width: 800, height: 600, format: 'png', size: 12043, ... }
 ```
 
-## toDataURL
-
-### Signature
-
-```js
-image.toDataURL (img)
-```
-
-### Description
-
-Converts an image to a base64-encoded data URL. The MIME type is inferred from the source image.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `img` | `Blob \| string` (browser) or `Buffer \| string` (Node) | yes | The source image |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `string` | A base64 data URL of the form `data:<mime>;base64,<data>` |
-
-### Examples
-
-```js
-// Browser
-const url = await image.toDataURL(blob)
-// 'data:image/jpeg;base64,/9j/4AAQSkZJRg...'
-
-// Node.js — from a file path
-const url = await image.toDataURL('/path/to/photo.png')
-// 'data:image/png;base64,iVBORw0KGgo...'
-
-// Useful for injecting into an <img> tag
-img.src = await image.toDataURL(blob)
-```
-
 ## resize
 
 ### Signature
 
 ```js
-image.resize (img, width, height, quality = 0.8)
+image.resize(img, width, height, quality = 0.8)
 ```
 
 ### Description
@@ -149,4 +108,93 @@ await image.resize(blob, -1, 240)
 
 await image.resize(blob, 320, 240, 1.5)
 // Error: quality must be a number within the range [0,1]
+```
+
+## toDataURL
+
+### Signature
+
+```js
+image.toDataURL(img)
+```
+
+### Description
+
+Converts an image to a base64-encoded data URL. The MIME type is inferred from the source image.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `img` | `Blob \| string` (browser) or `Buffer \| string` (Node) | yes | The source image |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `string` | A base64 data URL of the form `data:<mime>;base64,<data>` |
+
+### Examples
+
+```js
+// Browser
+const url = await image.toDataURL(blob)
+// 'data:image/jpeg;base64,/9j/4AAQSkZJRg...'
+
+// Node.js — from a file path
+const url = await image.toDataURL('/path/to/photo.png')
+// 'data:image/png;base64,iVBORw0KGgo...'
+
+// Useful for injecting into an <img> tag
+img.src = await image.toDataURL(blob)
+```
+
+## fromSVG
+
+### Signature
+
+```js
+image.fromSVG(svg, options = {})
+```
+
+### Description
+
+Converts an SVG string to a raster image. Uses `createImageBitmap` and `OffscreenCanvas` in the browser, and `sharp` in Node.js.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `svg` | `string` | yes | The SVG markup to convert |
+| `options` | `object` | no | Conversion options |
+| `options.format` | `string` | no | Output format (`'png'`, `'jpeg'`, `'webp'`, etc.). Defaults to `'png'` |
+| `options.quality` | `number` | no | Compression quality between `0` and `1`. Defaults to `1`. Ignored for PNG in the browser |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `Blob` (browser) | Rasterized image as a Blob |
+| `Buffer` (Node.js) | Rasterized image as a Buffer |
+
+### Examples
+
+```js
+// Browser — default PNG output
+const blob = await image.fromSVG('<svg .../>')
+// Blob { type: 'image/png', size: ... }
+
+// Browser — JPEG output
+const blob = await image.fromSVG('<svg .../>', { format: 'jpeg', quality: 0.9 })
+// Blob { type: 'image/jpeg', size: ... }
+
+// Node.js — default PNG output
+const buffer = await image.fromSVG('<svg .../>')
+
+// Node.js — WebP output
+const buffer = await image.fromSVG('<svg .../>', { format: 'webp', quality: 0.8 })
+
+// Combined with toDataURL
+const url = await image.toDataURL(await image.fromSVG('<svg .../>'))
+// 'data:image/png;base64,iVBORw0KGgo...'
 ```

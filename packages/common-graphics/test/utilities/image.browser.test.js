@@ -31,15 +31,13 @@ describe('image – Browser', () => {
     ;({ image } = await import('../../src/utilities'))
   })
 
+  afterAll(() => vi.unstubAllGlobals())
+
   beforeEach(async () => {
     vi.clearAllMocks()
     createImageBitmap.mockResolvedValue(mockBitmap)
     mockCanvas.convertToBlob.mockResolvedValue(mockOutputBlob)
     mockCanvas.getContext.mockReturnValue(mockCtx)
-  })
-
-  afterAll(() => {
-    vi.unstubAllGlobals()
   })
 
   // ── resolveBrowserImage() (via metadata) ────────────────────────────────────
@@ -84,21 +82,6 @@ describe('image – Browser', () => {
     it('extracts format from blob.type', async () => {
       const result = await image.metadata(PNG_BLOB)
       expect(result.format).toBe('png')
-    })
-  })
-
-  // ── toDataURL() ─────────────────────────────────────────────────────────────
-
-  describe('toDataURL()', () => {
-    it('returns a data URL with the correct mime type', async () => {
-      const result = await image.toDataURL(JPEG_BLOB)
-      expect(result.startsWith('data:image/jpeg;base64,')).toBe(true)
-    })
-
-    it('returns a valid base64 string', async () => {
-      const result = await image.toDataURL(JPEG_BLOB)
-      const base64Part = result.split(',')[1]
-      expect(() => atob(base64Part)).not.toThrow()
     })
   })
 
@@ -148,6 +131,49 @@ describe('image – Browser', () => {
 
     it('throws when quality is out of range', async () => {
       await expect(image.resize(JPEG_BLOB, 320, 240, 2)).rejects.toThrow('quality')
+    })
+  })
+
+  // ── toDataURL() ─────────────────────────────────────────────────────────────
+
+  describe('toDataURL()', () => {
+    it('returns a data URL with the correct mime type', async () => {
+      const result = await image.toDataURL(JPEG_BLOB)
+      expect(result.startsWith('data:image/jpeg;base64,')).toBe(true)
+    })
+
+    it('returns a valid base64 string', async () => {
+      const result = await image.toDataURL(JPEG_BLOB)
+      const base64Part = result.split(',')[1]
+      expect(() => atob(base64Part)).not.toThrow()
+    })
+  })
+
+  // ── fromSVG() ─────────────────────────────────────────────────────────────
+
+  describe('fromSVG()', () => {
+    const SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"/>'
+
+    it('converts SVG to PNG blob by default', async () => {
+      const result = await image.fromSVG(SVG)
+      expect(mockCanvas.convertToBlob).toHaveBeenCalledWith({ type: 'image/png', quality: 1 })
+      expect(result).toBe(mockOutputBlob)
+    })
+
+    it('converts SVG to jpeg when format is specified', async () => {
+      await image.fromSVG(SVG, { format: 'jpeg', quality: 0.8 })
+      expect(mockCanvas.convertToBlob).toHaveBeenCalledWith({ type: 'image/jpeg', quality: 0.8 })
+    })
+
+    it('creates the bitmap from an SVG blob', async () => {
+      await image.fromSVG(SVG)
+      const [blob] = createImageBitmap.mock.calls[0]
+      expect(blob.type).toBe('image/svg+xml')
+    })
+
+    it('closes the bitmap after drawing', async () => {
+      await image.fromSVG(SVG)
+      expect(mockBitmap.close).toHaveBeenCalled()
     })
   })
 })
