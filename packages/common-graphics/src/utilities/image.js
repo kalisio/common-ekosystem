@@ -1,5 +1,5 @@
 import { is, assert } from '@kalisio/common-core/predicates'
-import { bytes } from '@kalisio/common-core/utilities'
+import { byte } from '@kalisio/common-core/utilities'
 
 const IS_BROWSER = typeof window !== 'undefined'
 const fsPromise = IS_BROWSER ? null : import('node:fs/promises')
@@ -19,7 +19,7 @@ async function resolveNodeImage (img) {
   if (is.string(img)) {
     if (img.startsWith('data:')) {
       const base64 = img.split(',')[1]
-      return Buffer.from(bytes.fromBase64Bytes(base64))
+      return Buffer.from(byte.fromBase64Bytes(base64))
     }
     const { readFile } = await fsPromise
     return readFile(img)
@@ -107,7 +107,7 @@ export const image = {
     if (IS_BROWSER) {
       const blob = await resolveBrowserImage(img)
       const buffer = await blob.arrayBuffer()
-      const base64 = bytes.toBase64(buffer)
+      const base64 = byte.toBase64(buffer)
       return `data:${blob.type};base64,${base64}`
     }
     // Node implementation

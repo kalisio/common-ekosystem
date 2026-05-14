@@ -1,7 +1,7 @@
-// src/utilities/bytes.js
+// src/utilities/byte.js
 import { assert, is } from '../predicates'
 
-export const bytes = {
+export const byte = {
 
   toBase64 (value) {
     assert.that(
@@ -30,7 +30,7 @@ export const bytes = {
 
   fromBase64 (value) {
     assert.that(value, is.string, 'value must be a string')
-    return new TextDecoder().decode(bytes.fromBase64Bytes(value))
+    return new TextDecoder().decode(byte.fromBase64Bytes(value))
   },
 
   toHex (value) {
