@@ -9,6 +9,9 @@ export default mergeConfig(baseConfig, defineConfig({
   root: __dirname,
   test: {
     name: 'common-graphics',
-    environment: 'happy-dom'
+    environment: 'node',
+    environmentMatchGlobs: [
+      ['**/*.browser.test.js', 'happy-dom']
+    ]
   }
 }))

@@ -16,7 +16,9 @@
   ],
   "standard": {
     "globals": [
-      "Image"
+      "Image",
+      "createImageBitmap",
+      "OffscreenCanvas"
     ],
     "ignore": [
       "dist/**"
@@ -53,7 +55,13 @@
   "peerDependencies": {
     "@kalisio/common-core": "workspace:*",
     "@logtape/logtape": "catalog:",
-    "chroma-js": "catalog:"
+    "chroma-js": "catalog:",
+    "sharp": "catalog:"
+  },
+  "peerDependenciesMeta": {
+    "sharp": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@napi-rs/canvas": "^0.1.88",

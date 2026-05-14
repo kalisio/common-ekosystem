@@ -9,10 +9,12 @@ export const bytes = {
       (v) => typeof v === 'string' || v instanceof ArrayBuffer || ArrayBuffer.isView(v),
       'value must be a string, ArrayBuffer or ArrayBufferView'
     )
-    if (typeof value === 'string') {
-      value = new TextEncoder().encode(value)
-    }
-    const raw = new Uint8Array(value)
+    const bytes = typeof value === 'string'
+      ? new TextEncoder().encode(value)
+      : value
+    const raw = ArrayBuffer.isView(bytes)
+      ? new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+      : new Uint8Array(bytes)
     const CHUNK_SIZE = 0x8000
     const chunks = []
     for (let i = 0; i < raw.length; i += CHUNK_SIZE) {
