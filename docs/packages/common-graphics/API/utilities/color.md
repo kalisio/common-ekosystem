@@ -5,6 +5,8 @@ description: Utility functions for working with colors.
 
 # color
 
+Utility functions for working with colors.
+
 ## is
 
 ### Signature

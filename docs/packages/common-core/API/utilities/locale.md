@@ -5,6 +5,8 @@ description: Utilities to retrieve the current locale and its components.
 
 # locale
 
+Utilities to retrieve the current locale and its components.
+
 ## get
 
 ### Signature

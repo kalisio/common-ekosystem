@@ -5,6 +5,8 @@ description: Functions to test string values against patterns.
 
 # match
 
+Functions to test string values against patterns.
+
 ## pattern
 
 ### Signature

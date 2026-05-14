@@ -5,6 +5,8 @@ description: Utility functions for normalizing, pattern matching, and transformi
 
 # string
 
+ Utility functions for normalizing, pattern matching, and transforming strings.
+
 ## DIACRITICS
 
 A map of base characters to their diacritic variants, used by `makeDiacriticPattern`.

@@ -5,6 +5,8 @@ description: Mathematical utility functions for common numeric operations and in
 
 # math
 
+Mathematical utility functions for common numeric operations and interpolation.
+
 ## square
 
 ### Signature

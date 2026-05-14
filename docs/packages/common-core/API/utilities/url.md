@@ -5,6 +5,8 @@ description: Utility functions for building, encoding, and manipulating URLs.
 
 # url
 
+Utility functions for building, encoding, and manipulating URLs.
+
 ## build
 
 ### Signature

@@ -5,6 +5,8 @@ description: Utility functions for parsing file paths and formatting file sizes.
 
 # file
 
+Utility functions for parsing file paths and formatting file sizes.
+
 ## parse
 
 ### Signature

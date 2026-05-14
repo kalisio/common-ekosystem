@@ -5,6 +5,8 @@ description: Utility functions for encoding and decoding binary data.
 
 # byte
 
+Utility functions for encoding and decoding binary data.
+
 ## toBase64
 
 ### Signature

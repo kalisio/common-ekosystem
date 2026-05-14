@@ -1,10 +1,11 @@
 ---
 title: has
-desciption: Functions to check the presence of keys in an object.
+description: Functions to check the presence of keys in an object.
 ---
 
-
 # has
+
+Functions to check the presence of keys in an object.
 
 ## key
 

@@ -5,6 +5,8 @@ description: Utility functions for creating and inspecting queryable promises.
 
 # promise
 
+Utility functions for creating and inspecting queryable promises.
+
 ## createQueryable
 
 ### Signature

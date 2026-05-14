@@ -5,6 +5,8 @@ description: Functions to validate an object against a schema
 
 # conform
 
+Functions to validate an object against a schema.
+
 ## schema
 
 ### Signature

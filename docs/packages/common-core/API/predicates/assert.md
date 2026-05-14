@@ -5,6 +5,8 @@ description: Functions that throw a TypeError if validation fails. Used to guard
 
 # assert
 
+Functions that throw a TypeError if validation fails. Used to guard function inputs.
+
 ## that
 
 ### Signature

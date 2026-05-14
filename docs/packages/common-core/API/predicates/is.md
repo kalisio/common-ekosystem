@@ -5,6 +5,8 @@ description: Functions that return a boolean for checking the type or state of a
 
 # is
 
+Functions that return a boolean for checking the type or state of a value.
+
 ## defined
 
 ### Signature

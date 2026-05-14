@@ -5,16 +5,18 @@ description: Utility functions for processing and transforming images, running i
 
 # image
 
+Utility functions for processing and transforming images, running in both browser and Node.js environments.
+
 > Inputs accept a `Blob` or a URL/data URL string in the browser, and a `Buffer`, a file path, or a data URL string in Node.js.
 > Outputs are a `Blob` in the browser and a `Buffer` in Node.js.
-> Node.js usage requires [`sharp`](https://sharp.pixelplumbing.com/) as a peer dependency (`npm install sharp`).
+> Node.js usage requires [`sharp`](https://sharp.pixelplumbing.com/) as a peer dependency.
 
 ## metadata
 
 ### Signature
 
 ```js
-image.metadata(img)
+image.metadata (img)
 ```
 
 ### Description
@@ -63,7 +65,7 @@ const meta = await image.metadata('data:image/png;base64,...')
 ### Signature
 
 ```js
-image.toDataURL(img)
+image.toDataURL (img)
 ```
 
 ### Description
@@ -102,7 +104,7 @@ img.src = await image.toDataURL(blob)
 ### Signature
 
 ```js
-image.resize(img, width, height, quality = 0.8)
+image.resize (img, width, height, quality = 0.8)
 ```
 
 ### Description

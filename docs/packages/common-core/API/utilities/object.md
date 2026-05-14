@@ -5,6 +5,8 @@ description: Utility functions for cloning and normalizing plain objects and arr
 
 # object
 
+Utility functions for cloning and normalizing plain objects and arrays.
+
 ## clone
 
 ### Signature
