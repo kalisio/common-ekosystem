@@ -84,4 +84,61 @@ describe('color.scale', () => {
     const scale = color.scale({ colors: ['white', 'red'], domain: [0, 100], classes: 5 })
     expect(typeof scale).toBe('function')
   })
+
+  it('ignores domain when classes is an array', () => {
+    const withDomain = color.scale({ colors: ['white', 'red'], domain: [0, 200], classes: [0, 50, 100] })
+    const withoutDomain = color.scale({ colors: ['white', 'red'], classes: [0, 50, 100] })
+    expect(withDomain(50).hex()).toBe(withoutDomain(50).hex())
+  })
+})
+
+// ─── nearest ─────────────────────────────────────────────────────────────────
+
+describe('color.nearest', () => {
+  it('returns the nearest color from a list', () => {
+    expect(color.nearest('#ff0000', ['red', 'green', 'blue'])).toBe('red')
+  })
+
+  it('returns the nearest color from a list of hex colors', () => {
+    expect(color.nearest('#ff0000', ['#ff0001', '#00ff00', '#0000ff'])).toBe('#ff0001')
+  })
+
+  it('defaults to the HTML color palette', () => {
+    const result = color.nearest('#ff0000')
+    expect(color.is(result)).toBe(true)
+  })
+
+  it('throws for an invalid color', () => {
+    expect(() => color.nearest('notacolor', ['red', 'blue'])).toThrow()
+  })
+
+  it('throws for an empty array', () => {
+    expect(() => color.nearest('#ff0000', [])).toThrow()
+  })
+})
+
+// ─── farthest ────────────────────────────────────────────────────────────────
+
+describe('color.farthest', () => {
+  it('returns the most contrasting color from a list', () => {
+    expect(color.farthest('#ffffff', ['white', 'black', 'gray'])).toBe('black')
+    expect(color.farthest('#000000', ['white', 'black', 'gray'])).toBe('white')
+  })
+
+  it('returns the most contrasting color from a list of hex colors', () => {
+    expect(color.farthest('#ffffff', ['#ffffff', '#000000', '#888888'])).toBe('#000000')
+  })
+
+  it('defaults to the HTML color palette', () => {
+    const result = color.farthest('#ff0000')
+    expect(color.is(result)).toBe(true)
+  })
+
+  it('throws for an invalid color', () => {
+    expect(() => color.farthest('notacolor', ['red', 'blue'])).toThrow()
+  })
+
+  it('throws for an empty array', () => {
+    expect(() => color.farthest('#ff0000', [])).toThrow()
+  })
 })

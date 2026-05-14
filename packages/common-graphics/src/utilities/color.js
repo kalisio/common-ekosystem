@@ -7,13 +7,37 @@ export const color = {
     return chroma.valid(value)
   },
 
+  nearest (value, colors = Object.keys(chroma.colors)) {
+    assert.all([
+      { value, validator: color.is, message: 'value must be a color' },
+      { value: colors, validator: is.nonEmptyArray, message: 'colors must be a non empty array' }
+    ])
+    return colors.reduce((nearest, current) => {
+      return chroma.distance(value, current) < chroma.distance(value, nearest)
+        ? current
+        : nearest
+    })
+  },
+
+  farthest (value, colors = Object.keys(chroma.colors)) {
+    assert.all([
+      { value, validator: color.is, message: 'value must be a color' },
+      { value: colors, validator: is.nonEmptyArray, message: 'colors must be a non empty array' }
+    ])
+    return colors.reduce((farthest, current) => {
+      return chroma.contrast(value, current) > chroma.contrast(value, farthest)
+        ? current
+        : farthest
+    })
+  },
+
   contrast (value, light = 'white', dark = 'black') {
     assert.all([
       { value, validator: color.is, message: 'value must be a color' },
       { value: light, validator: color.is, message: 'light must be a color' },
       { value: dark, validator: color.is, message: 'dark must be a color' }
     ])
-    return chroma.contrast(value, light) < chroma.contrast(value, dark) ? dark : light
+    return color.farthest(value, [light, dark])
   },
 
   scale (options) {

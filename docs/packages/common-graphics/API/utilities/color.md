@@ -62,6 +62,8 @@ color.contrast (value, light = 'white', dark = 'black')
 
 Returns either `light` or `dark` depending on which provides the better contrast ratio against `value`. Useful for picking a readable foreground color on a given background.
 
+Shorthand for `color.farthest(value, [light, dark])`.
+
 Throws if any of `value`, `light`, or `dark` is not a valid color.
 
 ### Parameters
@@ -89,6 +91,92 @@ color.contrast('#000000')
 
 color.contrast('#1976d2', '#e3f2fd', '#0d47a1')
 // '#e3f2fd'
+```
+
+## nearest
+
+### Signature
+
+```js
+color.nearest (value, colors = Object.keys(chroma.colors))
+```
+
+### Description
+
+Returns the color from `colors` that is perceptually closest to `value`, using the Delta-E distance in Lab color space.
+
+When `colors` is omitted, the search is performed across the full HTML/CSS named color palette.
+
+Throws if `value` is not a valid color or if `colors` is empty.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `value` | `string` | yes | The reference color |
+| `colors` | `string[]` | no | The pool of colors to search. Defaults to all HTML named colors |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `string` | The color from `colors` closest to `value` |
+
+### Examples
+
+```js
+color.nearest('#ff0000', ['red', 'green', 'blue'])
+// 'red'
+
+color.nearest('#ff0001', ['#ff0000', '#00ff00', '#0000ff'])
+// '#ff0000'
+
+// Without a list, searches the full HTML palette
+color.nearest('#ff0000')
+// 'red'
+```
+
+## farthest
+
+### Signature
+
+```js
+color.farthest (value, colors = Object.keys(chroma.colors))
+```
+
+### Description
+
+Returns the color from `colors` that has the highest contrast ratio against `value`, as defined by the WCAG contrast formula.
+
+When `colors` is omitted, the search is performed across the full HTML/CSS named color palette.
+
+Throws if `value` is not a valid color or if `colors` is empty.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `value` | `string` | yes | The reference color |
+| `colors` | `string[]` | no | The pool of colors to search. Defaults to all HTML named colors |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `string` | The color from `colors` with the highest contrast against `value` |
+
+### Examples
+
+```js
+color.farthest('#ffffff', ['white', 'gray', 'black'])
+// 'black'
+
+color.farthest('#000000', ['white', 'gray', 'black'])
+// 'white'
+
+// Without a list, searches the full HTML palette
+color.farthest('#1976d2')
+// 'white' (or similar high-contrast result)
 ```
 
 ## scale
