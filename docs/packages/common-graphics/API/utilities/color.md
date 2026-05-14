@@ -62,6 +62,8 @@ color.contrast (value, light = 'white', dark = 'black')
 
 Returns either `light` or `dark` depending on which provides the better contrast ratio against `value`. Useful for picking a readable foreground color on a given background.
 
+Throws if any of `value`, `light`, or `dark` is not a valid color.
+
 ### Parameters
 
 | Name | Type | Required | Description |
@@ -101,14 +103,18 @@ color.scale (options)
 
 Creates a chroma.js color scale from a set of colors, optionally constrained by a domain and/or class boundaries. Returns a chroma scale function that maps numeric values to colors.
 
+Throws if `options.colors` is not provided.
+
+When `options.classes` is an array of breakpoints, `options.domain` is ignored — the breakpoints already define the domain boundaries explicitly. When `options.classes` is a number, `options.domain` is used to set the range over which the classes are distributed.
+
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
 | `options` | `object` | yes | Scale configuration |
 | `options.colors` | `string[]` | yes | Array of colors defining the scale |
-| `options.domain` | `number[]` | no | The `[min, max]` range of input values |
-| `options.classes` | `number \| number[]` | no | Number of discrete classes, or an array of class breakpoints |
+| `options.domain` | `number[]` | no | The `[min, max]` range of input values. Ignored when `options.classes` is an array |
+| `options.classes` | `number \| number[]` | no | Number of discrete classes, or an array of explicit class breakpoints. When an array, also defines the domain |
 
 ### Returns
 
@@ -129,9 +135,9 @@ const scale = color.scale({ colors: ['blue', 'red'], domain: [0, 100] })
 scale(75).hex()
 // '#bf0040'
 
-// Scale with a fixed number of discrete classes
+// Scale with a fixed number of discrete classes over a domain
 const scale = color.scale({ colors: ['yellow', 'red'], domain: [0, 100], classes: 5 })
 
-// Scale with explicit class breakpoints
+// Scale with explicit class breakpoints (domain is inferred from the breakpoints)
 const scale = color.scale({ colors: ['green', 'yellow', 'red'], classes: [0, 30, 70, 100] })
 ```
