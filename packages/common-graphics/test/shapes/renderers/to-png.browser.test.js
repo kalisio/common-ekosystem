@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeAll, afterAll, beforeEach } from 'vitest'
 
-const mockBitmap = { width: 200, height: 100, close: vi.fn() }
 const mockOutputBlob = new Blob(['fake-output'], { type: 'image/png' })
 const mockCtx = { drawImage: vi.fn() }
 const mockCanvas = {
@@ -12,20 +11,38 @@ describe('toPNG – Browser', () => {
   let toPNG
 
   beforeAll(async () => {
+    // Inject window/document for browser mode
     vi.stubGlobal('window', globalThis)
-    vi.stubGlobal('createImageBitmap', vi.fn().mockResolvedValue(mockBitmap))
+    vi.stubGlobal('document', {})
+    // Stubs missing browser APIs
     vi.stubGlobal('OffscreenCanvas', vi.fn(function () { return mockCanvas }))
+    vi.stubGlobal('Image', vi.fn(function () {
+      const img = this
+      img.naturalWidth = 200
+      img.naturalHeight = 100
+      Object.defineProperty(img, 'src', {
+        get () { return img._src },
+        set (value) { img._src = value; setTimeout(() => img.onload?.(), 0) }
+      })
+    }))
+    // Patch URL
+    URL.createObjectURL = vi.fn(() => 'blob:fake-url')
+    URL.revokeObjectURL = vi.fn()
+    // Reset modules after stubs
     vi.resetModules()
     ;({ toPNG } = await import('../../../src/shapes/renderers'))
   })
 
-  afterAll(() => vi.unstubAllGlobals())
+  afterAll(() => {
+    vi.restoreAllMocks()
+    vi.unstubAllGlobals()
+  })
 
   beforeEach(() => {
     vi.clearAllMocks()
-    createImageBitmap.mockResolvedValue(mockBitmap)
     mockCanvas.convertToBlob.mockResolvedValue(mockOutputBlob)
     mockCanvas.getContext.mockReturnValue(mockCtx)
+    URL.createObjectURL.mockReturnValue('blob:fake-url')
   })
 
   const makeContext = () => ({ pngCache: new Map(), svgCache: new Map() })
@@ -41,7 +58,7 @@ describe('toPNG – Browser', () => {
       svgCache: new Map()
     }
     const result = await toPNG({ key: 'my-key' }, context)
-    expect(createImageBitmap).not.toHaveBeenCalled()
+    expect(URL.createObjectURL).not.toHaveBeenCalled()
     expect(result).toBe('data:image/png;base64,cached')
   })
 

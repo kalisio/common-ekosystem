@@ -1,9 +1,8 @@
 import { is, assert } from '@kalisio/common-core/predicates'
-import { byte } from '@kalisio/common-core/utilities'
+import { byte, env } from '@kalisio/common-core/utilities'
 
-const IS_BROWSER = typeof window !== 'undefined'
-const fsPromise = IS_BROWSER ? null : import('node:fs/promises')
-const sharpPromise = IS_BROWSER ? null : import('sharp')
+const fsPromise = env.browser ? null : import('node:fs/promises')
+const sharpPromise = env.browser ? null : import('sharp')
 
 async function resolveBrowserImage (img) {
   if (img instanceof Blob) return img
@@ -49,7 +48,7 @@ function getSharpFormatOptions (format, quality) {
 export const image = {
 
   async metadata (img) {
-    if (IS_BROWSER) {
+    if (env.browser) {
       const blob = await resolveBrowserImage(img)
       const bitmap = await createImageBitmap(blob)
       const result = {
@@ -74,7 +73,7 @@ export const image = {
       { value: height, validator: is.positiveInteger, message: 'height must be a positive integer' },
       { value: quality, validator: (v) => is.inRange(v, 0, 1), message: 'quality must be a number within the range [0,1]' }
     ])
-    if (IS_BROWSER) {
+    if (env.browser) {
       const blob = await resolveBrowserImage(img)
       const bitmap = await createImageBitmap(blob, {
         resizeWidth: width,
@@ -104,7 +103,7 @@ export const image = {
   },
 
   async toDataURL (img) {
-    if (IS_BROWSER) {
+    if (env.browser) {
       const blob = await resolveBrowserImage(img)
       const buffer = await blob.arrayBuffer()
       const base64 = byte.toBase64(buffer)
@@ -119,13 +118,19 @@ export const image = {
   },
 
   async fromSVG (svg, { format = 'png', quality = 1 } = {}) {
-    if (IS_BROWSER) {
+    if (env.browser) {
       const mimeType = `image/${format}`
       const blob = new Blob([svg], { type: 'image/svg+xml' })
-      const bitmap = await createImageBitmap(blob)
-      const canvas = new OffscreenCanvas(bitmap.width, bitmap.height)
-      canvas.getContext('2d').drawImage(bitmap, 0, 0)
-      bitmap.close()
+      const url = URL.createObjectURL(blob)
+      const img = new Image()
+      await new Promise((resolve, reject) => {
+        img.onload = resolve
+        img.onerror = reject
+        img.src = url
+      })
+      const canvas = new OffscreenCanvas(img.naturalWidth, img.naturalHeight)
+      canvas.getContext('2d').drawImage(img, 0, 0)
+      URL.revokeObjectURL(url)
       return canvas.convertToBlob({ type: mimeType, quality })
     }
     // Node implementation

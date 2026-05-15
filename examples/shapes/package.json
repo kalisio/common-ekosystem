@@ -1,6 +1,6 @@
 {
-  "name": "graphics",
-  "description": "Graphics example",
+  "name": "shapes",
+  "description": "Shapes example",
   "packageManager": "pnpm@10.1.0",
   "type": "module",
   "private": true,
@@ -21,6 +21,7 @@
   "contributors": [],
   "license": "MIT",
   "dependencies": {
+    "@kalisio/common-core": "workspace:*",
     "@kalisio/common-graphics": "workspace:*"
   }
 }

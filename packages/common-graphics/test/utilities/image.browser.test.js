@@ -1,18 +1,5 @@
 import { describe, it, expect, vi, beforeEach, beforeAll, afterAll } from 'vitest'
 
-// ─── Browser API mocks (not provided by happy-dom) ───────────────────────────
-
-const mockBitmap = { width: 200, height: 100, close: vi.fn() }
-const mockOutputBlob = new Blob(['fake-output'], { type: 'image/jpeg' })
-const mockCtx = { drawImage: vi.fn() }
-const mockCanvas = {
-  getContext: vi.fn(() => mockCtx),
-  convertToBlob: vi.fn().mockResolvedValue(mockOutputBlob)
-}
-
-global.createImageBitmap = vi.fn().mockResolvedValue(mockBitmap)
-global.OffscreenCanvas = vi.fn(() => mockCanvas)
-
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
 const JPEG_BLOB = new Blob(['fake-jpeg'], { type: 'image/jpeg' })
@@ -23,21 +10,50 @@ const PNG_BLOB = new Blob(['fake-png'], { type: 'image/png' })
 describe('image – Browser', () => {
   let image
 
+  const mockBitmap = { width: 200, height: 100, close: vi.fn() }
+  const mockOutputBlob = new Blob(['fake-output'], { type: 'image/jpeg' })
+  const mockCtx = { drawImage: vi.fn() }
+  const mockCanvas = {
+    getContext: vi.fn(() => mockCtx),
+    convertToBlob: vi.fn().mockResolvedValue(mockOutputBlob)
+  }
+
   beforeAll(async () => {
+    // Inject window/document for browser mode
     vi.stubGlobal('window', globalThis)
+    vi.stubGlobal('document', {})
+    // Stubs missing browser APIs
     vi.stubGlobal('createImageBitmap', vi.fn().mockResolvedValue(mockBitmap))
     vi.stubGlobal('OffscreenCanvas', vi.fn(function () { return mockCanvas }))
+    vi.stubGlobal('Image', vi.fn(function () {
+      const img = this
+      img.naturalWidth = 200
+      img.naturalHeight = 100
+      Object.defineProperty(img, 'src', {
+        get () { return img._src },
+        set (value) { img._src = value; setTimeout(() => img.onload?.(), 0) }
+      })
+    }))
+    // Patch URL
+    URL.createObjectURL = vi.fn(() => 'blob:fake-url')
+    URL.revokeObjectURL = vi.fn()
+    // Reset modules after stubs
     vi.resetModules()
     ;({ image } = await import('../../src/utilities'))
   })
 
-  afterAll(() => vi.unstubAllGlobals())
+  afterAll(() => {
+    delete URL.createObjectURL
+    delete URL.revokeObjectURL
+    vi.unstubAllGlobals()
+  })
 
-  beforeEach(async () => {
+  beforeEach(() => {
     vi.clearAllMocks()
     createImageBitmap.mockResolvedValue(mockBitmap)
     mockCanvas.convertToBlob.mockResolvedValue(mockOutputBlob)
     mockCanvas.getContext.mockReturnValue(mockCtx)
+    URL.createObjectURL.mockReturnValue('blob:fake-url')
   })
 
   // ── resolveBrowserImage() (via metadata) ────────────────────────────────────
@@ -50,7 +66,7 @@ describe('image – Browser', () => {
 
     it('fetches a URL and returns its blob', async () => {
       const fetchBlob = new Blob(['fetched'], { type: 'image/png' })
-      global.fetch = vi.fn().mockResolvedValue({ blob: () => Promise.resolve(fetchBlob) })
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ blob: () => Promise.resolve(fetchBlob) }))
       await image.metadata('https://example.com/img.png')
       expect(fetch).toHaveBeenCalledWith('https://example.com/img.png')
       expect(createImageBitmap).toHaveBeenCalledWith(fetchBlob)
@@ -165,15 +181,16 @@ describe('image – Browser', () => {
       expect(mockCanvas.convertToBlob).toHaveBeenCalledWith({ type: 'image/jpeg', quality: 0.8 })
     })
 
-    it('creates the bitmap from an SVG blob', async () => {
+    it('creates a blob URL from the SVG and revokes it', async () => {
       await image.fromSVG(SVG)
-      const [blob] = createImageBitmap.mock.calls[0]
-      expect(blob.type).toBe('image/svg+xml')
+      expect(URL.createObjectURL).toHaveBeenCalled()
+      expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:fake-url')
     })
 
-    it('closes the bitmap after drawing', async () => {
+    it('draws onto an OffscreenCanvas with natural dimensions', async () => {
       await image.fromSVG(SVG)
-      expect(mockBitmap.close).toHaveBeenCalled()
+      expect(OffscreenCanvas).toHaveBeenCalledWith(200, 100)
+      expect(mockCtx.drawImage).toHaveBeenCalled()
     })
   })
 })

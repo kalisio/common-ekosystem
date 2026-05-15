@@ -24,6 +24,11 @@
     "dist"
   ],
   "standard": {
+    "globals": [
+      "self",
+      "WorkerGlobalScope",
+      "ServiceWorkerGlobalScope"
+    ],
     "ignore": [
       "dist/**"
     ]

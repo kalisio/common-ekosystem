@@ -1,5 +1,5 @@
 import chroma from 'chroma-js'
-import { assert, is, has } from '@kalisio/common-core'
+import { assert, is, has } from '@kalisio/common-core/predicates'
 
 export const color = {
 

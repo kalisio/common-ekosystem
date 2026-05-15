@@ -1,2 +1,1 @@
-export * from './shape-generator.js'
-export * from './shape-registry.js'
+export * from './shape-factory.js'

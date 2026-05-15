@@ -1,4 +1,4 @@
-import { graphiks } from '../graphiks.js'
+import { shapeFactory } from '../shape-factory.js'
 import ShapeRenderer from './shape-renderer.js'
 import ColorPicker from './color-picker.js'
 import OpacitySlider from './opacity-slider.js'
@@ -59,7 +59,7 @@ export default {
       opacity: 1.0,
       stroke: { color: 'black', width: 2 }
     })
-    const types = graphiks.listShapeTypes()
+    const types = shapeFactory.list()
     const color = ref('orange')
     const opacity = ref(1.0)
     const slices = ref([
@@ -116,7 +116,7 @@ export default {
     }
 
     async function downloadAsPNG () {
-      const shape = graphiks.renderShape(params.value)
+      const shape = shapeFactory.build(params.value)
       if (!shape) return
       const pngDataUrl = await shape.toPNG()
       const response = await fetch(pngDataUrl)
