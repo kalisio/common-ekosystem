@@ -12,7 +12,7 @@ Factory class for registering shape builders and producing shape objects that ca
 ### Signature
 
 ```js
-new ShapeFactory(options)
+new ShapeFactory (options)
 ```
 
 ### Description
@@ -59,10 +59,11 @@ Returns an array of all registered shape type keys.
 ### Examples
 
 ```js
-factory.register('my-shape', buildMyShape)
+factory.register('circle', buildCircle)
+factory.register('rect', buildRect)
 
 factory.list()
-// [ ... built-in shapes..., 'my-shape']
+// ['circle', 'rect']
 ```
 
 ## has
@@ -97,8 +98,8 @@ Throws if `type` is not a string.
 factory.has('circle')
 // false
 
-factory.register ('my-shape', buildMyShape)
-factory.has ('my-shape')
+factory.register('circle', buildCircle)
+factory.has('circle')
 // true
 ```
 
@@ -126,7 +127,11 @@ Throws if `type` is not a string or if `buildFn` is not a function.
 ### Examples
 
 ```js
-factory.register ('my-shape', buildMyShape)
+factory.register('circle', (params) => ({
+  width: params.size ?? 32,
+  height: params.size ?? 32,
+  margin: 4
+}))
 ```
 
 ## build
@@ -153,8 +158,52 @@ Throws if:
 |------|------|----------|-------------|
 | `params` | `object` | yes | Build parameters |
 | `params.shape` | `string` | yes | The registered shape type to build |
-| `params.zoom` | `number` | no | Zoom factor. Must be a positive number. Defaults to `1` |
-| `...rest` | `any` | no | Any additional properties are passed through to the builder function and merged into the returned shape |
+| `params.size` | `number[]` | no | Size of the shape as `[width, height]`. Defaults to `[24, 24]` |
+| `params.radius` | `number` | no | Alternate way to define size. Each shape converts a radius into a size |
+| `params.color` | `string` | no | Fill color. Any valid HTML color. Defaults to `'black'` |
+| `params.opacity` | `number` | no | Fill opacity, from `0.0` (transparent) to `1.0` (opaque). Defaults to `1.0` |
+| `params.stroke` | `object` | no | Stroke properties. See [stroke sub-object](#stroke-sub-object) below |
+| `params.icon` | `object` | no | Icon element to group with the shape. See [icon sub-object](#icon-sub-object) below |
+| `params.text` | `object` | no | Text element to group with the shape. See [text sub-object](#text-sub-object) below |
+| `params.style` | `string` | no | A SVG `style` element to assign to the shape |
+| `params.zoom` | `number` | no | Overall zoom factor. Must be a positive number. Defaults to `1` |
+
+#### stroke sub-object
+
+| Property | Description | Default |
+|----------|-------------|---------|
+| **width** | Width of the stroke | |
+| **color** | Stroke color. Any valid HTML color. If set to `transparent`, all stroke properties are ignored | `'black'` |
+| **opacity** | Stroke opacity, from `0.0` to `1.0` | `1.0` |
+| **cap** | [Line cap style](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-linecap) at the end of open subpaths | `'round'` |
+| **join** | [Line join style](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-linejoin) at path corners | `'round'` |
+| **dashArray** | [Dash pattern](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-dasharray) of dashes and gaps | `none` |
+| **dashOffset** | [Offset](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-dashoffset) on the dash array rendering | `0` |
+| **miterLimit** | [Miter limit](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/stroke-miterlimit) on the miter length to stroke width ratio | `4` |
+
+#### icon sub-object
+
+| Property | Description | Default |
+|----------|-------------|---------|
+| **classes** | Icon classes to display. If `undefined` or empty, all icon properties are ignored | `undefined` |
+| **color** | Icon color. Any valid HTML color | `'black'` |
+| **opacity** | Icon opacity, from `0.0` to `1.0` | `1.0` |
+| **size** | [Font size](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/font-size) used to render the icon | `'1em'` |
+| **transform** | [SVG transform](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/transform) applied to the icon | `undefined` |
+
+#### text sub-object
+
+| Property | Description | Default |
+|----------|-------------|---------|
+| **label** | Text to display. If `undefined` or empty, all text properties are ignored | `undefined` |
+| **color** | Text color. Any valid HTML color | `'black'` |
+| **opacity** | Text opacity, from `0.0` to `1.0` | `1.0` |
+| **size** | [Font size](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/font-size) | `'1em'` |
+| **font** | [Font family](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/font-family) | depends on user agent |
+| **face** | [Font style](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/font-style) | `'normal'` |
+| **weight** | [Font weight](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/font-weight) | `'normal'` |
+| **variant** | [Font variant](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/font-variant) | `'normal'` |
+| **transform** | [SVG transform](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/transform) applied to the text | `undefined` |
 
 ### Returns
 
