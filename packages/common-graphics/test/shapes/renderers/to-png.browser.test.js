@@ -34,7 +34,8 @@ describe('toPNG – Browser', () => {
   })
 
   afterAll(() => {
-    vi.restoreAllMocks()
+    delete URL.createObjectURL
+    delete URL.revokeObjectURL
     vi.unstubAllGlobals()
   })
 
