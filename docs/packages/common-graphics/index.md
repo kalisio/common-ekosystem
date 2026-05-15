@@ -13,7 +13,7 @@ _Graphics utilities for the Kalisio ekosystem_
 
 It is organized around 2 modules:
 - [utilities](./API/utilities/color.md) — general purpose utility functions
-- [shapes](./API/shapes/shape-factory.md) — factory producing shape objects that can be rendered as SVG or PNG.
+- [shapes](./API/shapes/shape-factory.md) — build marker shapes and render them as SVG or PNG.
 
 ## Installation
 
