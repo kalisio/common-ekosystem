@@ -2,6 +2,7 @@
   "name": "@kalisio/common-graphics",
   "description": "Graphics utilities for the Kalisio ekosystem",
   "version": "0.4.2",
+  "packageManager": "pnpm@10.1.0",
   "type": "module",
   "private": false,
   "exports": {

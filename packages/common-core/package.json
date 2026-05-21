@@ -2,6 +2,7 @@
   "name": "@kalisio/common-core",
   "description": "Core utilities for the Kalisio ekosystem",
   "version": "0.4.2",
+  "packageManager": "pnpm@10.1.0",
   "type": "module",
   "exports": {
     ".": {
