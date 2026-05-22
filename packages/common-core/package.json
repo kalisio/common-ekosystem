@@ -44,10 +44,10 @@
     "kalisio"
   ],
   "author": {
-    "name": "KALISIO <contact@kalisio.com>",
+    "name": "Kalisio",
+    "email": "contact@kalisio.com",
     "url": "https://github.com/kalisio"
   },
-  "contributors": [],
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -58,7 +58,6 @@
     "url": "https://github.com/kalisio/common-ekosystem/issues"
   },
   "homepage": "https://github.com/kalisio/common-ekosystem/tree/master/packages/common-core",
-  "dependencies": {},
   "peerDependencies": {
     "lodash-es": "catalog:",
     "mathjs": "catalog:",
@@ -83,7 +82,6 @@
       "optional": true
     }
   },
-  "devDependencies": {},
   "engines": {
     "node": ">=20"
   },
