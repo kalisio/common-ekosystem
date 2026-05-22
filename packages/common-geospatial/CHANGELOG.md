@@ -1,5 +1,12 @@
 # @kalisio/common-geospatial
 
+## 0.5.0
+
+### Patch Changes
+
+- Updated dependencies [be24974]
+  - @kalisio/common-core@0.5.0
+
 ## 0.4.2
 
 ### Patch Changes
