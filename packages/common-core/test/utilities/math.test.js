@@ -33,6 +33,17 @@ describe('math', () => {
     it('throws if precision is not a positive integer', () => expect(() => math.round(1.234, -1)).toThrow('precision must be a positive integer'))
   })
 
+  describe('exponential', () => {
+    it('formats a positive number', () => expect(math.exponential(1000, 2)).toBe('1.00e+3'))
+    it('formats a decimal number', () => expect(math.exponential(0.005, 2)).toBe('5.00e-3'))
+    it('formats a negative number', () => expect(math.exponential(-1000, 2)).toBe('-1.00e+3'))
+    it('formats zero', () => expect(math.exponential(0, 2)).toBe('0.00e+0'))
+    it('formats with 0 decimals', () => expect(math.exponential(1000, 0)).toBe('1e+3'))
+    it('throws if value is not a number', () => expect(() => math.exponential('1', 2)).toThrow('value must be a number'))
+    it('throws if decimals is not a positive integer', () => expect(() => math.exponential(1000, -1)).toThrow('decimals must be a positive integer'))
+    it('throws if decimals is a float', () => expect(() => math.exponential(1000, 2.5)).toThrow('decimals must be a positive integer'))
+  })
+
   describe('linear', () => {
     it('returns initial at t=0', () => expect(math.linear(0, 100, 200)).toBe(100))
     it('returns final at t=1', () => expect(math.linear(1, 100, 200)).toBe(200))

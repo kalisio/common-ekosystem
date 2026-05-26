@@ -12,7 +12,7 @@ Mathematical utility functions for common numeric operations and interpolation.
 ### Signature
 
 ```js
-math.square(value)
+math.square (value)
 ```
 
 ### Description
@@ -43,7 +43,7 @@ math.square(-4) // 16
 ### Signature
 
 ```js
-math.cube(value)
+math.cube (value)
 ```
 
 ### Description
@@ -74,7 +74,7 @@ math.cube(-2) // -8
 ### Signature
 
 ```js
-math.clamp(value, min, max)
+math.clamp (value, min, max)
 ```
 
 ### Description
@@ -108,7 +108,7 @@ math.clamp(15, 0, 10) // 10
 ### Signature
 
 ```js
-math.round(value, precision = 2)
+math.round (value, precision = 2)
 ```
 ### Description
 
@@ -130,9 +130,9 @@ Rounds a number to a given number of decimal places.
 ### Examples
 
 ```js
-math.truncate(1.23456)       // 1.23
-math.truncate(1.23456789, 4) // 1.2346
-math.truncate(1.23456789, 7) // 1.2345679
+math.round(1.23456)       // 1.23
+math.round(1.23456789, 4) // 1.2346
+math.round(1.23456789, 7) // 1.2345679
 ```
 
 ## percentage
@@ -140,7 +140,7 @@ math.truncate(1.23456789, 7) // 1.2345679
 ### Signature
 
 ```js
-math.percentage(value, total)
+math.percentage (value, total)
 ```
 ### Description
 
@@ -166,12 +166,47 @@ math.percentage(1, 4) // 25
 math.percentage(1, 3) // 33.33
 ```
 
+## exponential
+
+### Signature
+
+```js
+math.exponential(value, decimals = 2)
+```
+
+### Description
+
+Formats a number in exponential notation with a given number of decimal places in the mantissa.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `value` | `number` | yes | The number to format |
+| `decimals` | `number` | no | Number of decimal places in the mantissa. Defaults to `2` |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `string` | The number formatted in exponential notation |
+
+### Examples
+
+```js
+math.exponential(1000, 2)   // "1.00e+3"
+math.exponential(0.005, 2)  // "5.00e-3"
+math.exponential(-1000, 2)  // "-1.00e+3"
+math.exponential(0, 2)      // "0.00e+0"
+math.exponential(1000, 0)   // "1e+3"
+```
+
 ## linear
 
 ### Signature
 
 ```js
-math.linear(t, initial = 0, final = 1)
+math.linear (t, initial = 0, final = 1)
 ```
 
 ### Description
@@ -207,7 +242,7 @@ math.linear(0.5, 100, 200) // 150
 ### Signature
 
 ```js
-math.easeIn(t, linearity = 0.5)
+math.easeIn (t, linearity = 0.5)
 ```
 
 ### Description
@@ -241,7 +276,7 @@ math.easeIn(0.5, 0.25) // sharper curve
 ### Signature
 
 ```js
-math.easeOut(t, linearity = 0.5)
+math.easeOut (t, linearity = 0.5)
 ```
 
 ### Description
@@ -274,7 +309,7 @@ math.easeOut(1)   // 1
 ### Signature
 
 ```js
-math.cubicBezier(t, x1 = 0.42, y1 = 0, x2 = 0.58, y2 = 1)
+math.cubicBezier (t, x1 = 0.42, y1 = 0, x2 = 0.58, y2 = 1)
 ```
 
 ### Description
@@ -313,7 +348,7 @@ math.cubicBezier(0.5, 0.25, 0.1, 0.25, 1)
 ### Signature
 
 ```js
-math.sum(values)
+math.sum (values)
 ```
 
 ### Description
@@ -344,7 +379,7 @@ math.sum([])            // 0
 ### Signature
 
 ```js
-math.average(values)
+math.average (values)
 ```
 ### Description
 
@@ -374,7 +409,7 @@ math.average([5])           // 5
 ### Signature
 
 ```js
-math.median(values)
+math.median (values)
 ```
 ### Description
 

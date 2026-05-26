@@ -38,6 +38,18 @@ export const math = {
     return math.round(value / total * 100, 2)
   },
 
+  exponential (value, decimals) {
+    assert.all([
+      { value, validator: is.number, message: 'value must be a number' },
+      { value: decimals, validator: is.positiveInteger, message: 'decimals must be a positive integer' }
+    ])
+    if (value === 0) return `0.${'0'.repeat(decimals)}e+0`
+    const exp = Math.floor(Math.log10(Math.abs(value)))
+    const mantissa = value / Math.pow(10, exp)
+    const fixed = mantissa.toFixed(decimals)
+    return `${fixed}e${exp >= 0 ? '+' : ''}${exp}`
+  },
+
   linear (t, initial = 0, final = 1) {
     assert.all([
       { value: t, validator: (v) => is.inRange(v, 0, 1), message: 't must be in range [0, 1]' },
