@@ -69,10 +69,9 @@ function createBinaryPrefixes ({ long = false, iec = false } = {}) {
   return new Map([
     EMPTY_PREFIX,
     ...BINARY_PREFIXES.map(([siLong, siShort, iecLong, iecShort, exponent]) => {
-      const key = long
-        ? (iec ? iecLong : siLong)
-        : (iec ? iecShort : siShort)
-
+      let key
+      if (long) key = iec ? iecLong : siLong
+      else key = iec ? iecShort : siShort
       const symbol = iec ? iecShort : siShort
       return [
         key,
