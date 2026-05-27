@@ -41,7 +41,7 @@ export const math = {
   exponential (value, decimals) {
     assert.all([
       { value, validator: is.number, message: 'value must be a number' },
-      { value: decimals, validator: is.positiveInteger, message: 'decimals must be a positive integer' }
+      { value: decimals, validator: is.nonNegativeInteger, message: 'decimals must be a positive integer' }
     ])
     if (value === 0) return `0.${'0'.repeat(decimals)}e+0`
     const exp = Math.floor(Math.log10(Math.abs(value)))

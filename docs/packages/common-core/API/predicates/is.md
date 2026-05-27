@@ -203,6 +203,69 @@ is.boolean(false)  // true
 is.boolean(1)      // false
 is.boolean('true') // false
 ```
+## booleanTrue
+
+### Signature
+
+```js
+is.booleanTrue(value)
+```
+
+### Description
+
+Check if a value is strictly `true`.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `value` | * | yes | The value to check |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `boolean` | True if the value is strictly `true` |
+
+### Examples
+
+```js
+is.booleanTrue(true)  // true
+is.booleanTrue(false) // false
+is.booleanTrue(1)     // false
+```
+
+## booleanFalse
+
+### Signature
+
+```js
+is.booleanFalse(value)
+```
+
+### Description
+
+Check if a value is strictly `false`.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `value` | * | yes | The value to check |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `boolean` | True if the value is strictly `false` |
+
+### Examples
+
+```js
+is.booleanFalse(false) // true
+is.booleanFalse(true)  // false
+is.booleanFalse(0)     // false
+```
 
 ## string
 

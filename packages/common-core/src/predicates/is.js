@@ -29,6 +29,14 @@ export const is = {
     return typeof value === 'boolean'
   },
 
+  booleanTrue (value) {
+    return value === true
+  },
+
+  booleanFalse (value) {
+    return value === false
+  },
+
   string (value) {
     return typeof value === 'string'
   },

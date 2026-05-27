@@ -739,6 +739,48 @@ describe('is.boolean', () => {
   })
 })
 
+describe('is.booleanTrue', () => {
+  it('returns true for true', () => {
+    expect(is.booleanTrue(true)).toBe(true)
+  })
+  it('returns false for false', () => {
+    expect(is.booleanTrue(false)).toBe(false)
+  })
+  it('returns false for 1', () => {
+    expect(is.booleanTrue(1)).toBe(false)
+  })
+  it('returns false for "true"', () => {
+    expect(is.booleanTrue('true')).toBe(false)
+  })
+  it('returns false for null', () => {
+    expect(is.booleanTrue(null)).toBe(false)
+  })
+  it('returns false for undefined', () => {
+    expect(is.booleanTrue(undefined)).toBe(false)
+  })
+})
+
+describe('is.booleanFalse', () => {
+  it('returns true for false', () => {
+    expect(is.booleanFalse(false)).toBe(true)
+  })
+  it('returns false for true', () => {
+    expect(is.booleanFalse(true)).toBe(false)
+  })
+  it('returns false for 0', () => {
+    expect(is.booleanFalse(0)).toBe(false)
+  })
+  it('returns false for "false"', () => {
+    expect(is.booleanFalse('false')).toBe(false)
+  })
+  it('returns false for null', () => {
+    expect(is.booleanFalse(null)).toBe(false)
+  })
+  it('returns false for undefined', () => {
+    expect(is.booleanFalse(undefined)).toBe(false)
+  })
+})
+
 describe('is.oneOf', () => {
   it('returns true when value is in the list', () => {
     expect(is.oneOf('b', ['a', 'b', 'c'])).toBe(true)
