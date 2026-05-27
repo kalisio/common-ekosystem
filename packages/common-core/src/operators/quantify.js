@@ -1,173 +1,108 @@
 import { assert, is } from '../predicates'
 import { math } from '../utilities'
 
+const EMPTY_PREFIX = ['', { value: 1, scientific: true, symbol: '' }]
+
+const METRIC_PREFIXES = [
+  ['deca', 'da', 1, false],
+  ['hecto', 'h', 2, false],
+  ['kilo', 'k', 3, true],
+  ['mega', 'M', 6, true],
+  ['giga', 'G', 9, true],
+  ['tera', 'T', 12, true],
+  ['peta', 'P', 15, true],
+  ['exa', 'E', 18, true],
+  ['zetta', 'Z', 21, true],
+  ['yotta', 'Y', 24, true],
+  ['ronna', 'R', 27, true],
+  ['quetta', 'Q', 30, true],
+
+  ['deci', 'd', -1, false],
+  ['centi', 'c', -2, false],
+  ['milli', 'm', -3, true],
+  ['micro', 'u', -6, true],
+  ['nano', 'n', -9, true],
+  ['pico', 'p', -12, true],
+  ['femto', 'f', -15, true],
+  ['atto', 'a', -18, true],
+  ['zepto', 'z', -21, true],
+  ['yocto', 'y', -24, true],
+  ['ronto', 'r', -27, true],
+  ['quecto', 'q', -30, true]
+]
+
+function powerSymbol (power) {
+  if (power === 2) return '²'
+  if (power === 3) return '³'
+  return ''
+}
+
+function createMetricPrefixes ({ long = false, power = 1 } = {}) {
+  return new Map([
+    EMPTY_PREFIX,
+    ...METRIC_PREFIXES.map(([longName, shortName, exponent, scientific]) => {
+      const key = long ? longName : shortName
+      return [
+        key,
+        {
+          value: 10 ** (exponent * power),
+          scientific,
+          symbol: `${shortName}${powerSymbol(power)}`
+        }
+      ]
+    })
+  ])
+}
+
+const BINARY_PREFIXES = [
+  ['kilo', 'k', 'kibi', 'Ki', 1],
+  ['mega', 'M', 'mebi', 'Mi', 2],
+  ['giga', 'G', 'gibi', 'Gi', 3],
+  ['tera', 'T', 'tebi', 'Ti', 4],
+  ['peta', 'P', 'pebi', 'Pi', 5],
+  ['exa', 'E', 'exbi', 'Ei', 6],
+  ['zetta', 'Z', 'zebi', 'Zi', 7],
+  ['yotta', 'Y', 'yobi', 'Yi', 8]
+]
+
+function createBinaryPrefixes ({ long = false, iec = false } = {}) {
+  return new Map([
+    EMPTY_PREFIX,
+    ...BINARY_PREFIXES.map(([siLong, siShort, iecLong, iecShort, exponent]) => {
+      const key = long
+        ? (iec ? iecLong : siLong)
+        : (iec ? iecShort : siShort)
+
+      const symbol = iec ? iecShort : siShort
+      return [
+        key,
+        {
+          value: (iec ? 1024 : 1000) ** exponent,
+          scientific: true,
+          symbol
+        }
+      ]
+    })
+  ])
+}
+
 const PREFIXES = {
-  NONE: new Map([
-    ['', { value: 1, scientific: true, symbol: '' }]
-  ]),
+  NONE: new Map([EMPTY_PREFIX]),
 
-  SHORT: new Map([
-    ['', { value: 1, scientific: true, symbol: '' }],
-    ['da', { value: 1e1, scientific: false, symbol: 'da' }],
-    ['h', { value: 1e2, scientific: false, symbol: 'h' }],
-    ['k', { value: 1e3, scientific: true, symbol: 'k' }],
-    ['M', { value: 1e6, scientific: true, symbol: 'M' }],
-    ['G', { value: 1e9, scientific: true, symbol: 'G' }],
-    ['T', { value: 1e12, scientific: true, symbol: 'T' }],
-    ['P', { value: 1e15, scientific: true, symbol: 'P' }],
-    ['E', { value: 1e18, scientific: true, symbol: 'E' }],
-    ['Z', { value: 1e21, scientific: true, symbol: 'Z' }],
-    ['Y', { value: 1e24, scientific: true, symbol: 'Y' }],
-    ['R', { value: 1e27, scientific: true, symbol: 'R' }],
-    ['Q', { value: 1e30, scientific: true, symbol: 'Q' }],
-    ['d', { value: 1e-1, scientific: false, symbol: 'd' }],
-    ['c', { value: 1e-2, scientific: false, symbol: 'c' }],
-    ['m', { value: 1e-3, scientific: true, symbol: 'm' }],
-    ['u', { value: 1e-6, scientific: true, symbol: 'u' }],
-    ['n', { value: 1e-9, scientific: true, symbol: 'n' }],
-    ['p', { value: 1e-12, scientific: true, symbol: 'p' }],
-    ['f', { value: 1e-15, scientific: true, symbol: 'f' }],
-    ['a', { value: 1e-18, scientific: true, symbol: 'a' }],
-    ['z', { value: 1e-21, scientific: true, symbol: 'z' }],
-    ['y', { value: 1e-24, scientific: true, symbol: 'y' }],
-    ['r', { value: 1e-27, scientific: true, symbol: 'r' }],
-    ['q', { value: 1e-30, scientific: true, symbol: 'q' }]
-  ]),
+  SHORT: createMetricPrefixes(),
+  LONG: createMetricPrefixes({ long: true }),
 
-  LONG: new Map([
-    ['', { value: 1, scientific: true, symbol: '' }],
-    ['deca', { value: 1e1, scientific: false, symbol: 'da' }],
-    ['hecto', { value: 1e2, scientific: false, symbol: 'h' }],
-    ['kilo', { value: 1e3, scientific: true, symbol: 'k' }],
-    ['mega', { value: 1e6, scientific: true, symbol: 'M' }],
-    ['giga', { value: 1e9, scientific: true, symbol: 'G' }],
-    ['tera', { value: 1e12, scientific: true, symbol: 'T' }],
-    ['peta', { value: 1e15, scientific: true, symbol: 'P' }],
-    ['exa', { value: 1e18, scientific: true, symbol: 'E' }],
-    ['zetta', { value: 1e21, scientific: true, symbol: 'Z' }],
-    ['yotta', { value: 1e24, scientific: true, symbol: 'Y' }],
-    ['ronna', { value: 1e27, scientific: true, symbol: 'R' }],
-    ['quetta', { value: 1e30, scientific: true, symbol: 'Q' }],
-    ['deci', { value: 1e-1, scientific: false, symbol: 'd' }],
-    ['centi', { value: 1e-2, scientific: false, symbol: 'c' }],
-    ['milli', { value: 1e-3, scientific: true, symbol: 'm' }],
-    ['micro', { value: 1e-6, scientific: true, symbol: 'u' }],
-    ['nano', { value: 1e-9, scientific: true, symbol: 'n' }],
-    ['pico', { value: 1e-12, scientific: true, symbol: 'p' }],
-    ['femto', { value: 1e-15, scientific: true, symbol: 'f' }],
-    ['atto', { value: 1e-18, scientific: true, symbol: 'a' }],
-    ['zepto', { value: 1e-21, scientific: true, symbol: 'z' }],
-    ['yocto', { value: 1e-24, scientific: true, symbol: 'y' }],
-    ['ronto', { value: 1e-27, scientific: true, symbol: 'r' }],
-    ['quecto', { value: 1e-30, scientific: true, symbol: 'q' }]
-  ]),
+  SQUARED: createMetricPrefixes({ power: 2 }),
+  CUBIC: createMetricPrefixes({ power: 3 }),
 
-  SQUARED: new Map([
-    ['', { value: 1, scientific: true, symbol: '' }],
-    ['da', { value: 1e2, scientific: false, symbol: 'da²' }],
-    ['h', { value: 1e4, scientific: false, symbol: 'h²' }],
-    ['k', { value: 1e6, scientific: true, symbol: 'k²' }],
-    ['M', { value: 1e12, scientific: true, symbol: 'M²' }],
-    ['G', { value: 1e18, scientific: true, symbol: 'G²' }],
-    ['T', { value: 1e24, scientific: true, symbol: 'T²' }],
-    ['P', { value: 1e30, scientific: true, symbol: 'P²' }],
-    ['E', { value: 1e36, scientific: true, symbol: 'E²' }],
-    ['Z', { value: 1e42, scientific: true, symbol: 'Z²' }],
-    ['Y', { value: 1e48, scientific: true, symbol: 'Y²' }],
-    ['R', { value: 1e54, scientific: true, symbol: 'R²' }],
-    ['Q', { value: 1e60, scientific: true, symbol: 'Q²' }],
-    ['d', { value: 1e-2, scientific: false, symbol: 'd²' }],
-    ['c', { value: 1e-4, scientific: false, symbol: 'c²' }],
-    ['m', { value: 1e-6, scientific: true, symbol: 'm²' }],
-    ['u', { value: 1e-12, scientific: true, symbol: 'u²' }],
-    ['n', { value: 1e-18, scientific: true, symbol: 'n²' }],
-    ['p', { value: 1e-24, scientific: true, symbol: 'p²' }],
-    ['f', { value: 1e-30, scientific: true, symbol: 'f²' }],
-    ['a', { value: 1e-36, scientific: true, symbol: 'a²' }],
-    ['z', { value: 1e-42, scientific: true, symbol: 'z²' }],
-    ['y', { value: 1e-48, scientific: true, symbol: 'y²' }],
-    ['r', { value: 1e-54, scientific: true, symbol: 'r²' }],
-    ['q', { value: 1e-60, scientific: true, symbol: 'q²' }]
-  ]),
+  BINARY_SHORT_SI: createBinaryPrefixes(),
+  BINARY_SHORT_IEC: createBinaryPrefixes({ iec: true }),
 
-  CUBIC: new Map([
-    ['', { value: 1, scientific: true, symbol: '' }],
-    ['da', { value: 1e3, scientific: false, symbol: 'da³' }],
-    ['h', { value: 1e6, scientific: false, symbol: 'h³' }],
-    ['k', { value: 1e9, scientific: true, symbol: 'k³' }],
-    ['M', { value: 1e18, scientific: true, symbol: 'M³' }],
-    ['G', { value: 1e27, scientific: true, symbol: 'G³' }],
-    ['T', { value: 1e36, scientific: true, symbol: 'T³' }],
-    ['P', { value: 1e45, scientific: true, symbol: 'P³' }],
-    ['E', { value: 1e54, scientific: true, symbol: 'E³' }],
-    ['Z', { value: 1e63, scientific: true, symbol: 'Z³' }],
-    ['Y', { value: 1e72, scientific: true, symbol: 'Y³' }],
-    ['R', { value: 1e81, scientific: true, symbol: 'R³' }],
-    ['Q', { value: 1e90, scientific: true, symbol: 'Q³' }],
-    ['d', { value: 1e-3, scientific: false, symbol: 'd³' }],
-    ['c', { value: 1e-6, scientific: false, symbol: 'c³' }],
-    ['m', { value: 1e-9, scientific: true, symbol: 'm³' }],
-    ['u', { value: 1e-18, scientific: true, symbol: 'u³' }],
-    ['n', { value: 1e-27, scientific: true, symbol: 'n³' }],
-    ['p', { value: 1e-36, scientific: true, symbol: 'p³' }],
-    ['f', { value: 1e-45, scientific: true, symbol: 'f³' }],
-    ['a', { value: 1e-54, scientific: true, symbol: 'a³' }],
-    ['z', { value: 1e-63, scientific: true, symbol: 'z³' }],
-    ['y', { value: 1e-72, scientific: true, symbol: 'y³' }],
-    ['r', { value: 1e-81, scientific: true, symbol: 'r³' }],
-    ['q', { value: 1e-90, scientific: true, symbol: 'q³' }]
-  ]),
-
-  BINARY_SHORT_SI: new Map([
-    ['', { value: 1, scientific: true, symbol: '' }],
-    ['k', { value: 1e3, scientific: true, symbol: 'k' }],
-    ['M', { value: 1e6, scientific: true, symbol: 'M' }],
-    ['G', { value: 1e9, scientific: true, symbol: 'G' }],
-    ['T', { value: 1e12, scientific: true, symbol: 'T' }],
-    ['P', { value: 1e15, scientific: true, symbol: 'P' }],
-    ['E', { value: 1e18, scientific: true, symbol: 'E' }],
-    ['Z', { value: 1e21, scientific: true, symbol: 'Z' }],
-    ['Y', { value: 1e24, scientific: true, symbol: 'Y' }]
-  ]),
-
-  BINARY_SHORT_IEC: new Map([
-    ['', { value: 1, scientific: true, symbol: '' }],
-    ['Ki', { value: 1024, scientific: true, symbol: 'Ki' }],
-    ['Mi', { value: 1024 ** 2, scientific: true, symbol: 'Mi' }],
-    ['Gi', { value: 1024 ** 3, scientific: true, symbol: 'Gi' }],
-    ['Ti', { value: 1024 ** 4, scientific: true, symbol: 'Ti' }],
-    ['Pi', { value: 1024 ** 5, scientific: true, symbol: 'Pi' }],
-    ['Ei', { value: 1024 ** 6, scientific: true, symbol: 'Ei' }],
-    ['Zi', { value: 1024 ** 7, scientific: true, symbol: 'Zi' }],
-    ['Yi', { value: 1024 ** 8, scientific: true, symbol: 'Yi' }]
-  ]),
-
-  BINARY_LONG_SI: new Map([
-    ['', { value: 1, scientific: true, symbol: '' }],
-    ['kilo', { value: 1e3, scientific: true, symbol: 'k' }],
-    ['mega', { value: 1e6, scientific: true, symbol: 'M' }],
-    ['giga', { value: 1e9, scientific: true, symbol: 'G' }],
-    ['tera', { value: 1e12, scientific: true, symbol: 'T' }],
-    ['peta', { value: 1e15, scientific: true, symbol: 'P' }],
-    ['exa', { value: 1e18, scientific: true, symbol: 'E' }],
-    ['zetta', { value: 1e21, scientific: true, symbol: 'Z' }],
-    ['yotta', { value: 1e24, scientific: true, symbol: 'Y' }]
-  ]),
-
-  BINARY_LONG_IEC: new Map([
-    ['', { value: 1, scientific: true, symbol: '' }],
-    ['kibi', { value: 1024, scientific: true, symbol: 'Ki' }],
-    ['mebi', { value: 1024 ** 2, scientific: true, symbol: 'Mi' }],
-    ['gibi', { value: 1024 ** 3, scientific: true, symbol: 'Gi' }],
-    ['tebi', { value: 1024 ** 4, scientific: true, symbol: 'Ti' }],
-    ['pebi', { value: 1024 ** 5, scientific: true, symbol: 'Pi' }],
-    ['exbi', { value: 1024 ** 6, scientific: true, symbol: 'Ei' }],
-    ['zebi', { value: 1024 ** 7, scientific: true, symbol: 'Zi' }],
-    ['yobi', { value: 1024 ** 8, scientific: true, symbol: 'Yi' }]
-  ]),
+  BINARY_LONG_SI: createBinaryPrefixes({ long: true }),
+  BINARY_LONG_IEC: createBinaryPrefixes({ long: true, iec: true }),
 
   BTU: new Map([
-    ['', { value: 1, scientific: true, symbol: '' }],
+    EMPTY_PREFIX,
     ['MM', { value: 1e6, scientific: true, symbol: 'MM' }]
   ])
 }
@@ -212,7 +147,11 @@ export function quantify (value, unitCode, unitSystem) {
       assert.that(dstUnitCode, is.nonEmptyString, 'dstUnitCode must be a non empty string')
       const dstUnit = resolveUnit(dstUnitCode, unitSystem)
       assert.that(dstUnit, is.defined, `Unknown unit: ${dstUnitCode}`)
-      assert.that(unit.type === dstUnit.type, is.booleanTrue, `Incompatible unit types: "${unit.type}" → "${dstUnit.type}"`)
+      assert.that(
+        unit.type === dstUnit.type,
+        is.booleanTrue,
+        `Incompatible unit types: "${unit.type}" → "${dstUnit.type}"`
+      )
       const base = value * unit.factor
       return quantify(base / dstUnit.factor, dstUnitCode, unitSystem)
     },
