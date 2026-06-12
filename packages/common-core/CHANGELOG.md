@@ -1,5 +1,13 @@
 # @kalisio/common-core
 
+## 0.6.0
+
+### Minor Changes
+
+- Provide a parse url function
+- Add a new exponential function to the math module that formats a number in exponential notation
+- Add a quantify operator to convert values between units of the same type
+
 ## 0.5.0
 
 ### Minor Changes
