@@ -51,7 +51,7 @@ url.build('https://api.example.com', { q: 'hello', filter: undefined })
 ### Signature
 
 ```js
-url.parse(url, defaultPort?)
+url.parse (url, defaultPort)
 ```
 
 ### Description
