@@ -21,6 +21,35 @@ describe('url.build', () => {
   })
 })
 
+describe('url.parse', () => {
+  it('parses host, port and path from a url with explicit port', () => {
+    expect(url.parse('https://example.com:3000/api/users'))
+      .toEqual({ host: 'example.com', port: 3000, path: '/api/users' })
+  })
+
+  it('uses defaultPort when no port is specified', () => {
+    expect(url.parse('https://example.com/api/users'))
+      .toEqual({ host: 'example.com', port: 80, path: '/api/users' })
+  })
+
+  it('accepts a custom defaultPort', () => {
+    expect(url.parse('https://example.com/api/users', 443))
+      .toEqual({ host: 'example.com', port: 443, path: '/api/users' })
+  })
+
+  it('returns / as path when there is no path', () => {
+    expect(url.parse('https://example.com')).toMatchObject({ path: '/' })
+  })
+
+  it('throws if url is invalid', () => {
+    expect(() => url.parse('not-a-url')).toThrow('url must be an url')
+  })
+
+  it('throws if defaultPort is not a number', () => {
+    expect(() => url.parse('https://example.com', '80')).toThrow('defaultPort must be a number')
+  })
+})
+
 describe('url.addQueryParam', () => {
   it('appends query params to an existing url', () => {
     expect(url.addQueryParam('https://example.com/?foo=bar', { baz: 'qux' }))

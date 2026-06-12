@@ -46,6 +46,47 @@ url.build('https://api.example.com', { q: 'hello', filter: undefined })
 // 'https://api.example.com/?q=hello' — undefined values are ignored
 ```
 
+## parse
+
+### Signature
+
+```js
+url.parse(url, defaultPort?)
+```
+
+### Description
+
+Parses a URL and extracts its host, port and path. If no port is present in the URL, `defaultPort` is used as fallback.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `url` | `string` | yes | The URL to parse |
+| `defaultPort` | `number` | no | Fallback port when none is specified in the URL (default: `80`) |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `{ host: string, port: number, path: string }` | The parsed URL components |
+
+### Throws
+
+Throws a `TypeError` if `url` is not a valid URL or if `defaultPort` is not a number.
+
+### Examples
+
+```js
+url.parse('https://example.com:3000/api/users')
+// { host: 'example.com', port: 3000, path: '/api/users' }
+
+url.parse('https://example.com/api/users')
+// { host: 'example.com', port: 80, path: '/api/users' } — defaultPort used as fallback
+
+url.parse('https://example.com/api/users', 443)
+// { host: 'example.com', port: 443, path: '/api/users' }
+```
 
 ## addQueryParam
 

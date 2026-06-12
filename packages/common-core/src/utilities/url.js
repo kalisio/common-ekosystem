@@ -14,6 +14,19 @@ export const url = {
     return url.toString()
   },
 
+  parse (url, defaultPort = 80) {
+    assert.all([
+      { value: url, validator: is.url, message: 'url must be an url' },
+      { value: defaultPort, validator: is.number, message: 'defaultPort must be a number' }
+    ])
+    const u = new URL(url)
+    return {
+      host: u.hostname,
+      port: u.port ? Number(u.port) : defaultPort,
+      path: u.pathname
+    }
+  },
+
   addQueryParam (url, params) {
     assert.all([
       { value: url, validator: is.url, message: 'url must be an url' },
