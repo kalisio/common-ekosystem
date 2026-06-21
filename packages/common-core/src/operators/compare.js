@@ -1,6 +1,6 @@
 import { isEqual } from 'lodash-es'
-import { assert, is, has } from '../predicates'
-import { object } from '../utilities'
+import { assert, is, has } from '../predicates/index.js'
+import { object } from '../utilities/index.js'
 
 function diffArrays (arr1, arr2, path = '', diffs = { missing: [], extra: [], updated: [] }) {
   const maxLen = Math.max(arr1.length, arr2.length)

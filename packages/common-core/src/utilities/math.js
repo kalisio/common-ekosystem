@@ -1,4 +1,4 @@
-import { assert, is } from '../predicates'
+import { assert, is } from '../predicates/index.js'
 
 export const math = {
 

@@ -2,8 +2,8 @@ import { isNumber, toNumber, has, get, set, unset, pick, omit, merge, camelCase,
 import { unit } from 'mathjs'
 import moment from 'moment'
 import sift from 'sift'
-import { assert, is } from '../predicates'
-import { object } from '../utilities'
+import { assert, is } from '../predicates/index.js'
+import { object } from '../utilities/index.js'
 
 const CASE_FUNCTIONS = {
   camelCase,

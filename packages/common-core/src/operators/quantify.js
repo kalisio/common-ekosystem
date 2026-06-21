@@ -1,5 +1,5 @@
-import { assert, is } from '../predicates'
-import { math } from '../utilities'
+import { assert, is } from '../predicates/index.js'
+import { math } from '../utilities/index.js'
 
 const EMPTY_PREFIX = ['', { value: 1, scientific: true, symbol: '' }]
 

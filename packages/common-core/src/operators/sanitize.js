@@ -1,5 +1,5 @@
-import { assert, is, has } from '../predicates'
 import sanitizeHtml from 'sanitize-html'
+import { assert, is, has } from '../predicates/index.js'
 
 const SAFE_LINK_CONFIG = {
   allowedSchemes: ['http', 'https', 'mailto'],

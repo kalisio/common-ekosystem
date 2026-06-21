@@ -1,5 +1,5 @@
 // src/utilities/byte.js
-import { assert, is } from '../predicates'
+import { assert, is } from '../predicates/index.js'
 
 export const byte = {
 

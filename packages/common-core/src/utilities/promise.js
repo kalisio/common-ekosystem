@@ -1,4 +1,4 @@
-import { assert } from '../predicates'
+import { assert } from '../predicates/index.js'
 
 export const promise = {
 

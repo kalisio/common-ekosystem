@@ -1,3 +1,3 @@
-export * from './operators'
-export * from './predicates'
-export * from './utilities'
+export * from './operators/index.js'
+export * from './predicates/index.js'
+export * from './utilities/index.js'

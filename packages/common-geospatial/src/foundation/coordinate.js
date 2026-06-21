@@ -1,8 +1,8 @@
 import { assert, is, has } from '@kalisio/common-core'
 import { AXES, isLatitude, isLongitude } from './axes.js'
 import { isDirection, getDirectionAxis } from './directions.js'
-import { COORDINATE_FORMATS, COORDINATE_MODELS, converter } from './coordinate-formats'
-export { COORDINATE_FORMATS, COORDINATE_MODELS } from './coordinate-formats'
+import { COORDINATE_FORMATS, COORDINATE_MODELS, converter } from './coordinate-formats/index.js'
+export { COORDINATE_FORMATS, COORDINATE_MODELS } from './coordinate-formats/index.js'
 
 export const COORDINATE_TRUNCATION_FACTORS = Array.from({ length: 9 }, (_, i) => 10 ** i)
 

@@ -1,4 +1,4 @@
-import { assert, is } from '../predicates'
+import { assert, is } from '../predicates/index.js'
 import { string } from './string.js'
 
 function normalizeObject (obj, options = {}) {

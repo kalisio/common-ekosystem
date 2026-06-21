@@ -1,8 +1,7 @@
 import { LRUCache } from 'lru-cache'
 import { assert, is, has } from '@kalisio/common-core/predicates'
-import { BUILTIN_SHAPES } from './builtin-shapes'
-import { toSVG } from './renderers/to-svg.js'
-import { toPNG } from './renderers/to-png.js'
+import { BUILTIN_SHAPES } from './builtin-shapes/index.js'
+import { toSVG, toPNG } from './renderers/index.js'
 
 export class ShapeFactory {
   constructor (options) {

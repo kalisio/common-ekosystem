@@ -1,2 +1,2 @@
-export * from './utilities'
-export * from './shapes'
+export * from './utilities/index.js'
+export * from './shapes/index.js'
