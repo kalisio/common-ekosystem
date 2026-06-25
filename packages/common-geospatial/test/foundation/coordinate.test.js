@@ -9,7 +9,7 @@ import {
   COORDINATE_MODELS
 } from '../../src/foundation/coordinate.js'
 import { AXES } from '../../src/foundation/axes.js'
-import { setLocale } from '../../src/foundation/locale.js'
+import { setLocale } from '../../src/foundation/localization.js'
 
 const { DD, DDM, DMS /*, /*DDM_AERO: DDMAero */ } = COORDINATE_MODELS
 

@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
+import { setLocale } from '../../../src/foundation/index.js'
 import { DMS } from '../../../src/foundation/coordinate-formats/dms.js'
 
 describe('DMS', () => {
@@ -69,6 +70,10 @@ describe('DMS', () => {
   })
 
   describe('from string', () => {
+    beforeEach(() => {
+      setLocale('fr')
+    })
+
     it('should parse a signed value', () => {
       const dms = DMS("-48°51'23.76\"")
       expect(dms.isValid()).toBe(true)
@@ -97,6 +102,10 @@ describe('DMS', () => {
 
     it('should parse a value with W direction', () => {
       expect(DMS("48°51'23.76\"W").direction).toBe('W')
+    })
+
+    it('should parse a value with O direction', () => {
+      expect(DMS("48°51'23.76\"O").direction).toBe('O')
     })
 
     it('should parse without the second symbol', () => {
@@ -187,9 +196,9 @@ describe('DMS', () => {
     })
 
     it('should return value and direction', () => {
-      const result = DMS({ degrees: 48, minutes: 30, seconds: 0, direction: 'N' }).toDecimal()
+      const result = DMS({ degrees: 48, minutes: 30, seconds: 0, direction: 'O' }).toDecimal()
       expect(result.degrees).toBe(48.5)
-      expect(result.direction).toBe('N')
+      expect(result.direction).toBe('O')
     })
 
     it('should correctly compute decimal from degrees minutes seconds', () => {

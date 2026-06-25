@@ -1,16 +1,19 @@
 import { assert, is } from '@kalisio/common-core'
-import { getLocale } from './locale.js'
+import { getLocale, getLocaleByCode, getActiveLocales } from './localization.js'
 import { AXES, isLatitude, isLongitude, isAxis } from './axes.js'
 
 function getAll () {
-  return getLocale().content.DIRECTIONS
+  return getLocaleByCode(getLocale()).DIRECTIONS
 }
 
+// A direction matches a type if it equals its label or its symbol, in any of
+// the active locales (current + fallback), case-insensitively.
 function isDirectionOf (type, dir) {
-  const all = getAll()
-  const label = all[type].label.toUpperCase()
-  const symbol = all[type].symbol.toUpperCase()
-  return dir.toUpperCase() === label || dir.toUpperCase() === symbol
+  const value = dir.toUpperCase()
+  return getActiveLocales().some((code) => {
+    const { label, symbol } = getLocaleByCode(code).DIRECTIONS[type]
+    return value === label.toUpperCase() || value === symbol.toUpperCase()
+  })
 }
 
 export function getDirections (axis = null) {

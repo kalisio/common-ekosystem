@@ -1,5 +1,6 @@
 import { is, conform } from '@kalisio/common-core'
-import { isDirection } from '../directions.js'
+import { getLatitudeSymbols, getLongitudeSymbols } from '../localization.js'
+import { isDirection, isEast, isWest } from '../directions.js'
 import { DD } from './dd.js'
 
 const SCHEMA = {
@@ -8,8 +9,13 @@ const SCHEMA = {
   direction: isDirection
 }
 
-const REGEX_LAT = /^(\d{2})(\d{3})([NS])$/
-const REGEX_LON = /^(\d{3})(\d{3})([EW])$/
+function latRegex () {
+  return new RegExp(`^(\\d{2})(\\d{3})([${getLatitudeSymbols().join('')}])$`, 'i')
+}
+
+function lonRegex () {
+  return new RegExp(`^(\\d{3})(\\d{3})([${getLongitudeSymbols().join('')}])$`, 'i')
+}
 
 export function DDMAero (ddm) {
   let _degrees = null
@@ -22,7 +28,7 @@ export function DDMAero (ddm) {
     _direction = ddm.direction
   } else if (is.string(ddm)) {
     const pattern = ddm.trim()
-    const match = pattern.match(REGEX_LAT) ?? pattern.match(REGEX_LON)
+    const match = pattern.match(latRegex()) ?? pattern.match(lonRegex())
     if (match) {
       _degrees = parseFloat(match[1])
       _minutes = parseFloat(match[2]) / 10
@@ -44,7 +50,7 @@ export function DDMAero (ddm) {
 
     toString () {
       if (!this.isValid()) return ''
-      const isLon = _direction === 'E' || _direction === 'W'
+      const isLon = isEast(_direction) || isWest(_direction)
       const deg = String(_degrees).padStart(isLon ? 3 : 2, '0')
       const min = Math.floor(_minutes * 10).toString().padStart(3, '0')
       return `${deg}${min}${_direction}`

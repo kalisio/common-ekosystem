@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import proj4 from 'proj4'
-import { listProjections, registerProjection, hasProjection, getProjection } from '../../src/foundation/projections'
+import { listProjections, registerProjection, hasProjection, getProjection } from '../../src/foundation/projections.js'
 
 const EPSG_3857_DEF = '+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs'
 

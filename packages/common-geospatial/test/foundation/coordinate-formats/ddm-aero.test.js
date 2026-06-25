@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
+import { setLocale } from '../../../src/foundation/index.js'
 import { DDMAero } from '../../../src/foundation/coordinate-formats/ddm-aero.js'
 
 describe('DDMAero', () => {
@@ -64,6 +65,10 @@ describe('DDMAero', () => {
   })
 
   describe('from string', () => {
+    beforeEach(() => {
+      setLocale('fr')
+    })
+
     it('should parse a latitude string', () => {
       const ddm = DDMAero('48510N')
       expect(ddm.isValid()).toBe(true)

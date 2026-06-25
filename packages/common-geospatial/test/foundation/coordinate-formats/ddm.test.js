@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
+import { setLocale } from '../../../src/foundation/index.js'
 import { DDM } from '../../../src/foundation/coordinate-formats/ddm.js'
 
 describe('DDM', () => {
@@ -68,6 +69,10 @@ describe('DDM', () => {
   })
 
   describe('from string', () => {
+    beforeEach(() => {
+      setLocale('fr')
+    })
+
     it('should parse a signed value', () => {
       const ddm = DDM("-48°51.396'")
       expect(ddm.isValid()).toBe(true)
@@ -100,6 +105,12 @@ describe('DDM', () => {
       const ddm = DDM("48°51.396'W")
       expect(ddm.isValid()).toBe(true)
       expect(ddm.direction).toBe('W')
+    })
+
+    it('should parse a value with O direction', () => {
+      const ddm = DDM("48°51.396'O")
+      expect(ddm.isValid()).toBe(true)
+      expect(ddm.direction).toBe('O')
     })
 
     it('should parse without the minute symbol', () => {
@@ -190,9 +201,9 @@ describe('DDM', () => {
     })
 
     it('should return value and direction', () => {
-      const result = DDM({ degrees: 48, minutes: 30, direction: 'N' }).toDecimal()
+      const result = DDM({ degrees: 48, minutes: 30, direction: 'O' }).toDecimal()
       expect(result.degrees).toBe(48.5)
-      expect(result.direction).toBe('N')
+      expect(result.direction).toBe('O')
     })
 
     it('should return value 0 for degrees 0 minutes 0', () => {

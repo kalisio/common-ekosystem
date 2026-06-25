@@ -13,7 +13,7 @@ import {
   getDirectionAxis
 } from '../../src/foundation/directions.js'
 import { AXES } from '../../src/foundation/axes.js'
-import { setLocale } from '../../src/foundation/locale.js'
+import { setLocale } from '../../src/foundation/localization.js'
 
 beforeEach(() => {
   setLocale('en')
@@ -132,9 +132,9 @@ describe('isDirection', () => {
     expect(isDirection('Ouest')).toBe(true)
   })
 
-  it('should return false for W in french locale', () => {
+  it('should still accept W in french locale via the en fallback', () => {
     setLocale('fr')
-    expect(isDirection('W')).toBe(false)
+    expect(isDirection('W')).toBe(true)
   })
 
   it('should return false for an unknown direction', () => {
@@ -248,9 +248,9 @@ describe('isWest', () => {
     expect(isWest('Ouest')).toBe(true)
   })
 
-  it('should return false for W in french locale', () => {
+  it('should still accept W in french locale via the en fallback', () => {
     setLocale('fr')
-    expect(isWest('W')).toBe(false)
+    expect(isWest('W')).toBe(true)
   })
 
   it('should return false for other directions', () => {

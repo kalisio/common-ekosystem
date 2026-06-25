@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
+import { setLocale } from '../../../src/foundation/index.js'
 import { DD } from '../../../src/foundation/coordinate-formats/dd.js'
 
 describe('DD', () => {
@@ -62,6 +63,10 @@ describe('DD', () => {
   })
 
   describe('from string', () => {
+    beforeEach(() => {
+      setLocale('fr')
+    })
+
     it('should parse a signed negative value', () => {
       const dd = DD('-48.8566')
       expect(dd.isValid()).toBe(true)
@@ -102,6 +107,13 @@ describe('DD', () => {
       expect(dd.isValid()).toBe(true)
       expect(dd.degrees).toBe(48.8566)
       expect(dd.direction).toBe('W')
+    })
+
+    it('should parse a value with O direction', () => {
+      const dd = DD('48.8566 O')
+      expect(dd.isValid()).toBe(true)
+      expect(dd.degrees).toBe(48.8566)
+      expect(dd.direction).toBe('O')
     })
 
     it('should parse a value with degree symbol and direction', () => {
