@@ -154,5 +154,10 @@ export function validateGeometry (geometry, path = '') {
         warnings: []
       }
   }
-  return validateOptionalBBox(geometry, result, path)
+  result = validateOptionalBBox(geometry, result, path)
+  // Count this geometry by its own type. A GeometryCollection counts as one
+  // and its members are NOT decomposed, so we overwrite any statistics that
+  // bubbled up from the members.
+  result.statistics = { geometries: { [geometry.type]: 1 } }
+  return result
 }

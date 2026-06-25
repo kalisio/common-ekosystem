@@ -21,7 +21,8 @@ function validateFeature (feature, path = '') {
         statistics: {
           Feature: 1,
           FeatureCollection: 0,
-          geometries: { [feature.geometry.type]: 1 }
+          // Geometry counting is owned by validateGeometry.
+          geometries: { ...result.statistics.geometries }
         }
       }
     }
@@ -60,9 +61,12 @@ export function validateGeoJson (geoJson) {
   assert.that(geoJson, is.nonEmptyObject, 'geojson must be a non empty object')
   if (is.oneOf(geoJson.type, Object.values(GEOMETRY_TYPES))) {
     const result = validateGeometry(geoJson, '')
+    const withBBox = validateOptionalBBox(geoJson, result, '')
+    const withCRS = validateOptionalCRS(geoJson, withBBox)
     return {
-      ...result,
-      statistics: { Feature: 0, FeatureCollection: 0, geometries: { [geoJson.type]: 1 } }
+      ...withCRS,
+      // Geometry counting is owned by validateGeometry.
+      statistics: { Feature: 0, FeatureCollection: 0, geometries: { ...result.statistics.geometries } }
     }
   }
   if (geoJson.type === FEATURE_TYPES.FEATURE || geoJson.type === FEATURE_TYPES.FEATURE_COLLECTION) {
@@ -71,7 +75,7 @@ export function validateGeoJson (geoJson) {
   }
   return {
     valid: false,
-    errors: [{ message: 'Invalid GeoJson: type must be either a Geometry, a Feature or a FeatureCollection' }],
+    errors: [{ message: 'Invalid GeoJson: type must be either a Geometry, a Feature or a FeatureCollection', path: '' }],
     warnings: [],
     statistics: emptyStatistics()
   }

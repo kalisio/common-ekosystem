@@ -38,6 +38,17 @@ export function validateBBox (bbox) {
       warnings: []
     }
   }
+  if (!is2D) {
+    const minAlt = bbox[2]
+    const maxAlt = bbox[5]
+    if (minAlt > maxAlt) {
+      return {
+        valid: false,
+        errors: [{ message: `Invalid bbox: min altitude (${minAlt}) must be <= max altitude (${maxAlt})` }],
+        warnings: []
+      }
+    }
+  }
   const response = { valid: true, errors: [], warnings: [] }
   if (west > east) {
     response.warnings.push({ message: `bbox crosses the antimeridian (west: ${west} > east: ${east})` })

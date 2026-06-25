@@ -9,6 +9,13 @@ export function validatePosition (coordinates) {
       warnings: []
     }
   }
+  if (!is.number(coordinates[0]) || !is.number(coordinates[1])) {
+    return {
+      valid: false,
+      errors: [{ message: 'Invalid coordinates: longitude and latitude must be numbers' }],
+      warnings: []
+    }
+  }
   if (!is.inRange(coordinates[0], -180, 180)) {
     return {
       valid: false,
