@@ -5,19 +5,24 @@ description: Locale-aware cardinal direction helpers for geographic coordinates.
 
 # directions
 
-Direction labels and symbols are locale-aware — they depend on the current locale set via [`setLocale`](./locale.md). Each direction has a `label` (full name) and a `symbol` (abbreviated form), and comparisons are case-insensitive.
+Direction labels and symbols are locale-aware — they depend on the current locale set via [`setLocale`](./localization.md). Each direction has a `label` (full name) and a `symbol` (abbreviated form), and comparisons are case-insensitive.
+
+Two behaviours differ across this module:
+
+- **Display helpers** (`getDirections`, `getNorth`, `getSouth`, `getEast`, `getWest`) use the **current locale only**.
+- **Validation predicates** (`isDirection`, `isNorth`, `isSouth`, `isEast`, `isWest`, `getDirectionAxis`) accept the current locale **plus** the fallback (`en`). A hard-coded `'W'` is therefore a valid direction even under the `fr` locale (where West is displayed as `'O'`). See [`getActiveLocales`](./localization.md) for the exact set considered.
 
 ## getDirections
 
 ### Signature
 
 ```js
-getDirections(axis = null)
+getDirections (axis = null)
 ```
 
 ### Description
 
-Returns the list of cardinal directions for a given axis, or all four directions if no axis is provided.
+Returns the list of cardinal directions for a given axis, or all four directions if no axis is provided. Uses the current locale.
 
 ### Parameters
 
@@ -56,10 +61,10 @@ getDirections(AXES.LONGITUDE)
 ### Signature
 
 ```js
-getNorth()
-getSouth()
-getEast()
-getWest()
+getNorth ()
+getSouth ()
+getEast ()
+getWest ()
 ```
 
 ### Description
@@ -79,6 +84,9 @@ getNorth()   // { label: 'North', symbol: 'N' }
 getSouth()   // { label: 'South', symbol: 'S' }
 getEast()    // { label: 'East', symbol: 'E' }
 getWest()    // { label: 'West', symbol: 'W' }
+
+setLocale('fr')
+getWest()    // { label: 'Ouest', symbol: 'O' }
 ```
 
 ## isDirection
@@ -86,12 +94,12 @@ getWest()    // { label: 'West', symbol: 'W' }
 ### Signature
 
 ```js
-isDirection(dir)
+isDirection (dir)
 ```
 
 ### Description
 
-Returns `true` if `dir` matches any cardinal direction (North, South, East, or West) in the current locale, either by label or symbol. The comparison is case-insensitive.
+Returns `true` if `dir` matches any cardinal direction (North, South, East, or West), either by label or symbol, in the current locale **or** the fallback (`en`). The comparison is case-insensitive.
 
 ### Parameters
 
@@ -116,6 +124,10 @@ isDirection('N')      // true
 isDirection('North')  // true
 isDirection('north')  // true
 isDirection('X')      // false
+
+setLocale('fr')
+isDirection('O')      // true — current locale (Ouest)
+isDirection('W')      // true — en fallback
 ```
 
 ## isNorth / isSouth / isEast / isWest
@@ -123,15 +135,15 @@ isDirection('X')      // false
 ### Signature
 
 ```js
-isNorth(dir)
-isSouth(dir)
-isEast(dir)
-isWest(dir)
+isNorth (dir)
+isSouth (dir)
+isEast (dir)
+isWest (dir)
 ```
 
 ### Description
 
-Returns `true` if `dir` matches the corresponding cardinal direction in the current locale, either by label or symbol. The comparison is case-insensitive.
+Returns `true` if `dir` matches the corresponding cardinal direction, either by label or symbol, in the current locale **or** the fallback (`en`). The comparison is case-insensitive.
 
 ### Parameters
 
@@ -160,6 +172,10 @@ isNorth('S')       // false
 isSouth('S')       // true
 isEast('E')        // true
 isWest('W')        // true
+
+setLocale('fr')
+isWest('O')        // true — current locale (Ouest)
+isWest('W')        // true — en fallback
 ```
 
 ## getDirectionAxis
@@ -167,12 +183,12 @@ isWest('W')        // true
 ### Signature
 
 ```js
-getDirectionAxis(dir)
+getDirectionAxis (dir)
 ```
 
 ### Description
 
-Returns the axis associated with a cardinal direction. East and West map to `AXES.LONGITUDE`, North and South map to `AXES.LATITUDE`.
+Returns the axis associated with a cardinal direction. East and West map to `AXES.LONGITUDE`, North and South map to `AXES.LATITUDE`. Recognizes directions from the current locale or the fallback (`en`).
 
 ### Parameters
 
@@ -197,4 +213,7 @@ getDirectionAxis('N')   // 'LAT'
 getDirectionAxis('S')   // 'LAT'
 getDirectionAxis('E')   // 'LON'
 getDirectionAxis('W')   // 'LON'
+
+setLocale('fr')
+getDirectionAxis('O')   // 'LON' — Ouest
 ```
