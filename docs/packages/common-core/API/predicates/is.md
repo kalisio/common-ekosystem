@@ -473,19 +473,19 @@ is.dataUri(null)                                  // false
 ### Signature
 
 ```js
-is.url (value, baseUrl)
+is.url (value)
 ```
 
 ### Description
 
-Check if a value is a valid URL. Optionally accepts a base URL to resolve relative URLs against.
+Check if a value is a valid URL. Also accepts multi-host authorities (e.g. MongoDB replica set connection strings), 
+where several comma-separated hosts share a single scheme, path and query.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
 | `value` | string | yes | The value to check |
-| `baseUrl` | string | no | Optional base URL for resolving relative URLs |
 
 ### Returns
 
@@ -496,12 +496,15 @@ Check if a value is a valid URL. Optionally accepts a base URL to resolve relati
 ### Examples
 
 ```js
-is.url('https://example.com')              // true
-is.url('https://example.com/foo?bar=1')    // true
-is.url('/foo/bar', 'https://example.com')  // true
-is.url('example.com')                      // false — missing protocol
-is.url('/foo/bar')                         // false — relative URL without base
-is.url(null)                               // false — value must be a string
+is.url('https://example.com')                                  // true
+is.url('https://example.com/foo?bar=1')                        // true
+is.url('mongodb://h1:27017,h2:27017,h3:27017/db?replicaSet=rs0') // true — multi-host
+is.url('mongodb://user:pass@h1:27017,h2:27017/db')             // true — userinfo on the first host
+is.url('example.com')                                          // false — missing protocol
+is.url('/foo/bar')                                             // false — relative URL
+is.url('mongodb://h1:27017,,h2:27017/db')                      // false — empty host
+is.url('mongodb://h1:27017,user:pass@h2:27017/db')             // false — userinfo only allowed on the first host
+is.url(null)                                                   // false — value must be a string
 ```
 
 ## email

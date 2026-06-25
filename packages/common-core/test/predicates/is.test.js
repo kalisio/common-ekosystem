@@ -1343,12 +1343,6 @@ describe('is.url', () => {
   it('returns true for a URL with a hash', () => {
     expect(is.url('https://example.com#section')).toBe(true)
   })
-  it('returns true for a relative URL with a valid base', () => {
-    expect(is.url('/foo/bar', 'https://example.com')).toBe(true)
-  })
-  it('returns true for a relative URL with a path base', () => {
-    expect(is.url('../bar', 'https://example.com/foo/')).toBe(true)
-  })
   it('returns false for a plain string with no protocol', () => {
     expect(is.url('example.com')).toBe(false)
   })
@@ -1369,6 +1363,31 @@ describe('is.url', () => {
   })
   it('returns false for undefined', () => {
     expect(is.url(undefined)).toBe(false)
+  })
+})
+
+describe('is.url — multi-host', () => {
+  it('accepts a MongoDB replica set', () => {
+    expect(is.url('mongodb://h1:27017,h2:27017,h3:27017/db?replicaSet=rs0')).toBe(true)
+  })
+  it('accepts userinfo on the first host', () => {
+    expect(is.url('mongodb://user:pass@h1:27017,h2:27017/db')).toBe(true)
+  })
+  it('keeps the fast path for standard URLs', () => {
+    expect(is.url('https://example.com')).toBe(true)
+    expect(is.url('mongodb+srv://cluster.example.com/db')).toBe(true)
+  })
+  it('rejects empty hosts', () => {
+    expect(is.url('mongodb://h1:27017,,h2:27017/db')).toBe(false)
+  })
+  it('rejects userinfo on a non-initial host', () => {
+    expect(is.url('mongodb://h1:27017,user:pass@h2:27017/db')).toBe(false)
+  })
+  it('rejects an invalid port in a host', () => {
+    expect(is.url('mongodb://h1:27017,h2:abc/db')).toBe(false)
+  })
+  it('rejects a non-URL', () => {
+    expect(is.url('not-a-url')).toBe(false)
   })
 })
 

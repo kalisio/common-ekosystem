@@ -64,8 +64,20 @@ export const is = {
     return value.startsWith('data:') && value.includes(';base64,')
   },
 
-  url (value, baseUrl) {
-    return URL.canParse(value, baseUrl)
+  url (value) {
+    if (typeof value !== 'string') return false
+    // Multi-host authority: scheme://[userinfo@]h1,h2,.../path?query#frag
+    const match = value.match(/^([a-z][a-z0-9+.-]*:\/\/)([^/?#]+)(\/[^?#]*)?(\?[^#]*)?(#.*)?$/i)
+    // No comma in the authority (or no match): delegate to the standard parser
+    if (!match || !match[2].includes(',')) return URL.canParse(value)
+    const [, prefix, authority, path = '', query = '', frag = ''] = match
+    const hosts = authority.split(',')
+    return hosts.every((host, i) => {
+      host = host.trim()
+      if (!host) return false // reject empty hosts (h1,,h2)
+      if (i > 0 && host.includes('@')) return false // userinfo only allowed on the first host
+      return URL.canParse(`${prefix}${host}${path}${query}${frag}`)
+    })
   },
 
   email (value) {
