@@ -1,5 +1,11 @@
 # @kalisio/common-core
 
+## 0.7.0
+
+### Minor Changes
+
+- Support multi-host authorities in is.url
+
 ## 0.6.0
 
 ### Minor Changes
