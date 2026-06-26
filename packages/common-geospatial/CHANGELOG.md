@@ -50,7 +50,7 @@
 
 ### Minor Changes
 
-- feat: Provide promise utilities
+- Provide promise utilities
 
 ### Patch Changes
 
