@@ -66,10 +66,11 @@ export const is = {
 
   url (value) {
     if (typeof value !== 'string') return false
+    const regexp = /^([a-z][a-z0-9+.-]*:\/\/)([^/?#]+)(\/[^?#]*)?(\?[^#]*)?(#.*)?$/i
     // Multi-host authority: scheme://[userinfo@]h1,h2,.../path?query#frag
-    const match = value.match(/^([a-z][a-z0-9+.-]*:\/\/)([^/?#]+)(\/[^?#]*)?(\?[^#]*)?(#.*)?$/i)
+    const match = regexp.exec(value)
     // No comma in the authority (or no match): delegate to the standard parser
-    if (!match || !match[2].includes(',')) return URL.canParse(value)
+    if (!match?.[2].includes(',')) return URL.canParse(value)
     const [, prefix, authority, path = '', query = '', frag = ''] = match
     const hosts = authority.split(',')
     return hosts.every((host, i) => {

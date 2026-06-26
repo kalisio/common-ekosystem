@@ -97,7 +97,8 @@ export const url = {
       if (existing) existing[1] = encodedValue // replace, like the former .set
       else pairs.push([encodedKey, encodedValue])
     }
-    const query = pairs.length ? `?${pairs.map(([k, v]) => `${k}=${v}`).join('&')}` : ''
+    const queryString = pairs.map(([key, value]) => `${key}=${value}`).join('&')
+    const query = pairs.length ? `?${queryString}` : ''
     return buildUrl({ ...parsed, query })
   },
 
