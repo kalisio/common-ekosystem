@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { validateCRS } from '../../../src/operators'
+import { crsObjects } from './data/fixtures.js'
 
 describe('validateCRS', () => {
   describe('invalid inputs', () => {
@@ -15,70 +16,104 @@ describe('validateCRS', () => {
       expect(result.errors[0].message).toMatch(/object/)
     })
 
-    it('should return invalid for unknown type', () => {
-      const result = validateCRS({ type: 'unknown' })
+    it('should return invalid for an array', () => {
+      const result = validateCRS([])
       expect(result.valid).toBe(false)
-      expect(result.errors[0].message).toMatch(/unknown type/)
+      expect(result.errors[0].message).toMatch(/object/)
     })
 
     it('should return invalid for missing type', () => {
-      const result = validateCRS({ properties: { name: 'EPSG:4326' } })
+      const result = validateCRS(crsObjects.missingType)
       expect(result.valid).toBe(false)
+    })
+
+    it('should return invalid for unknown type', () => {
+      const result = validateCRS(crsObjects.unknownType)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0].message).toMatch(/unknown type/)
+      expect(result.errors[0].message).toMatch(/unknown/)
     })
   })
 
   describe('name CRS', () => {
     it('should accept a valid name CRS', () => {
-      const result = validateCRS({ type: 'name', properties: { name: 'urn:ogc:def:crs:OGC:1.3:CRS84' } })
+      const result = validateCRS(crsObjects.validName)
       expect(result.valid).toBe(true)
       expect(result.errors).toHaveLength(0)
-    })
-
-    it('should return invalid if properties.name is missing', () => {
-      const result = validateCRS({ type: 'name', properties: {} })
-      expect(result.valid).toBe(false)
-      expect(result.errors[0].message).toMatch(/name/)
-    })
-
-    it('should return invalid if properties.name is empty string', () => {
-      const result = validateCRS({ type: 'name', properties: { name: '' } })
-      expect(result.valid).toBe(false)
-      expect(result.errors[0].message).toMatch(/name/)
+      expect(result.warnings).toHaveLength(0)
     })
 
     it('should return invalid if properties is missing', () => {
-      const result = validateCRS({ type: 'name' })
+      const result = validateCRS(crsObjects.nameMissingProperties)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0].message).toMatch(/name/)
+    })
+
+    it('should return invalid if properties is null', () => {
+      const result = validateCRS(crsObjects.nameNullProperties)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0].message).toMatch(/name/)
+    })
+
+    it('should return invalid if properties.name is missing', () => {
+      const result = validateCRS(crsObjects.nameEmptyProperties)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0].message).toMatch(/name/)
+    })
+
+    it('should return invalid if properties.name is an empty string', () => {
+      const result = validateCRS(crsObjects.nameEmptyString)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0].message).toMatch(/name/)
+    })
+
+    it('should return invalid if properties.name is not a string', () => {
+      const result = validateCRS({ type: 'name', properties: { name: 42 } })
       expect(result.valid).toBe(false)
       expect(result.errors[0].message).toMatch(/name/)
     })
   })
 
   describe('link CRS', () => {
-    it('should accept a valid link CRS', () => {
-      const result = validateCRS({ type: 'link', properties: { href: 'https://example.com/crs', type: 'proj4' } })
+    it('should accept a valid link CRS with type property', () => {
+      const result = validateCRS(crsObjects.validLink)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toHaveLength(0)
+      expect(result.warnings).toHaveLength(0)
+    })
+
+    it('should accept a valid link CRS without type property', () => {
+      const result = validateCRS(crsObjects.validLinkNoType)
       expect(result.valid).toBe(true)
       expect(result.errors).toHaveLength(0)
     })
 
-    it('should accept a link CRS without type property', () => {
-      const result = validateCRS({ type: 'link', properties: { href: 'https://example.com/crs' } })
-      expect(result.valid).toBe(true)
+    it('should return invalid if properties is missing', () => {
+      const result = validateCRS(crsObjects.linkMissingProperties)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0].message).toMatch(/href/)
+    })
+
+    it('should return invalid if properties is null', () => {
+      const result = validateCRS(crsObjects.linkNullProperties)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0].message).toMatch(/href/)
     })
 
     it('should return invalid if properties.href is missing', () => {
-      const result = validateCRS({ type: 'link', properties: {} })
+      const result = validateCRS(crsObjects.linkMissingHref)
       expect(result.valid).toBe(false)
       expect(result.errors[0].message).toMatch(/href/)
     })
 
-    it('should return invalid if properties.href is empty string', () => {
-      const result = validateCRS({ type: 'link', properties: { href: '' } })
+    it('should return invalid if properties.href is an empty string', () => {
+      const result = validateCRS(crsObjects.linkEmptyHref)
       expect(result.valid).toBe(false)
       expect(result.errors[0].message).toMatch(/href/)
     })
 
-    it('should return invalid if properties is missing', () => {
-      const result = validateCRS({ type: 'link' })
+    it('should return invalid if properties.href is not a string', () => {
+      const result = validateCRS({ type: 'link', properties: { href: 42 } })
       expect(result.valid).toBe(false)
       expect(result.errors[0].message).toMatch(/href/)
     })

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { validatePosition } from '../../../src/operators'
+import { positions } from './data/fixtures.js'
 
 describe('validatePosition', () => {
   describe('invalid inputs', () => {
@@ -9,78 +10,138 @@ describe('validatePosition', () => {
       expect(result.errors[0].message).toMatch(/array/)
     })
 
-    it('should return invalid for empty array', () => {
-      const result = validatePosition([])
+    it('should return invalid for a string', () => {
+      const result = validatePosition('0,0')
       expect(result.valid).toBe(false)
+      expect(result.errors[0].message).toMatch(/array/)
+    })
+
+    it('should return invalid for an object', () => {
+      const result = validatePosition({ lon: 0, lat: 0 })
+      expect(result.valid).toBe(false)
+      expect(result.errors[0].message).toMatch(/array/)
+    })
+
+    it('should return invalid for an empty array', () => {
+      const result = validatePosition(positions.empty)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0].message).toMatch(/2 or 3/)
     })
 
     it('should return invalid for array of length 1', () => {
-      const result = validatePosition([1])
+      const result = validatePosition(positions.tooShort)
       expect(result.valid).toBe(false)
+      expect(result.errors[0].message).toMatch(/2 or 3/)
     })
 
     it('should return invalid for array of length 4', () => {
-      const result = validatePosition([1, 2, 3, 4])
+      const result = validatePosition(positions.tooLong)
       expect(result.valid).toBe(false)
+      expect(result.errors[0].message).toMatch(/2 or 3/)
+    })
+
+    it('should return invalid if longitude is NaN', () => {
+      const result = validatePosition(positions.withNaNLon)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0].message).toMatch(/longitude/)
+    })
+
+    it('should return invalid if latitude is NaN', () => {
+      const result = validatePosition(positions.withNaNLat)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0].message).toMatch(/latitude/)
+    })
+
+    it('should return invalid if longitude is Infinity', () => {
+      const result = validatePosition(positions.withInfinityLon)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0].message).toMatch(/longitude/)
+    })
+
+    it('should return invalid if an element is null', () => {
+      const result = validatePosition(positions.withNullInArray)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0].message).toMatch(/longitude/)
+    })
+
+    it('should return invalid if an element is a string', () => {
+      const result = validatePosition(positions.withStringInArray)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0].message).toMatch(/longitude/)
     })
   })
 
   describe('longitude validation', () => {
     it('should return invalid for longitude < -180', () => {
-      const result = validatePosition([-181, 0])
+      const result = validatePosition(positions.invalidLonLow)
       expect(result.valid).toBe(false)
       expect(result.errors[0].message).toMatch(/longitude/)
+      expect(result.errors[0].message).toMatch(/-180/)
     })
 
     it('should return invalid for longitude > 180', () => {
-      const result = validatePosition([181, 0])
+      const result = validatePosition(positions.invalidLonHigh)
       expect(result.valid).toBe(false)
       expect(result.errors[0].message).toMatch(/longitude/)
+      expect(result.errors[0].message).toMatch(/180/)
     })
 
     it('should accept longitude = -180', () => {
-      const result = validatePosition([-180, 0])
+      const result = validatePosition(positions.atLonMin)
       expect(result.valid).toBe(true)
+      expect(result.errors).toHaveLength(0)
     })
 
     it('should accept longitude = 180', () => {
-      const result = validatePosition([180, 0])
+      const result = validatePosition(positions.atLonMax)
       expect(result.valid).toBe(true)
+      expect(result.errors).toHaveLength(0)
     })
   })
 
   describe('latitude validation', () => {
     it('should return invalid for latitude < -90', () => {
-      const result = validatePosition([0, -91])
+      const result = validatePosition(positions.invalidLatLow)
       expect(result.valid).toBe(false)
       expect(result.errors[0].message).toMatch(/latitude/)
+      expect(result.errors[0].message).toMatch(/-90/)
     })
 
     it('should return invalid for latitude > 90', () => {
-      const result = validatePosition([0, 91])
+      const result = validatePosition(positions.invalidLatHigh)
       expect(result.valid).toBe(false)
       expect(result.errors[0].message).toMatch(/latitude/)
+      expect(result.errors[0].message).toMatch(/90/)
     })
 
     it('should accept latitude = -90', () => {
-      const result = validatePosition([0, -90])
+      const result = validatePosition(positions.atLatMin)
       expect(result.valid).toBe(true)
+      expect(result.errors).toHaveLength(0)
     })
 
     it('should accept latitude = 90', () => {
-      const result = validatePosition([0, 90])
+      const result = validatePosition(positions.atLatMax)
       expect(result.valid).toBe(true)
+      expect(result.errors).toHaveLength(0)
     })
   })
 
   describe('altitude validation', () => {
-    it('should accept valid 3D position', () => {
-      const result = validatePosition([0, 0, 100])
+    it('should accept a valid 3D position', () => {
+      const result = validatePosition(positions.valid3D)
       expect(result.valid).toBe(true)
+      expect(result.errors).toHaveLength(0)
     })
 
     it('should return invalid if altitude is not a number', () => {
-      const result = validatePosition([0, 0, 'high'])
+      const result = validatePosition(positions.invalidAltitude)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0].message).toMatch(/altitude/)
+    })
+
+    it('should return invalid if altitude is NaN', () => {
+      const result = validatePosition([0, 0, NaN])
       expect(result.valid).toBe(false)
       expect(result.errors[0].message).toMatch(/altitude/)
     })
@@ -88,15 +149,21 @@ describe('validatePosition', () => {
 
   describe('precision warnings', () => {
     it('should warn if longitude precision > 6 decimals', () => {
-      const result = validatePosition([2.1234567, 48])
+      const result = validatePosition(positions.highPrecisionLon)
       expect(result.valid).toBe(true)
       expect(result.warnings.some(w => w.message.match(/longitude precision/))).toBe(true)
     })
 
     it('should warn if latitude precision > 6 decimals', () => {
-      const result = validatePosition([2, 48.1234567])
+      const result = validatePosition(positions.highPrecisionLat)
       expect(result.valid).toBe(true)
       expect(result.warnings.some(w => w.message.match(/latitude precision/))).toBe(true)
+    })
+
+    it('should warn for both if both exceed 6 decimals', () => {
+      const result = validatePosition(positions.highPrecisionBoth)
+      expect(result.valid).toBe(true)
+      expect(result.warnings).toHaveLength(2)
     })
 
     it('should not warn for precision <= 6 decimals', () => {
@@ -104,19 +171,32 @@ describe('validatePosition', () => {
       expect(result.valid).toBe(true)
       expect(result.warnings).toHaveLength(0)
     })
+
+    it('should not warn for integer coordinates', () => {
+      const result = validatePosition([2, 48])
+      expect(result.valid).toBe(true)
+      expect(result.warnings).toHaveLength(0)
+    })
   })
 
   describe('valid positions', () => {
     it('should accept a standard 2D position', () => {
-      const result = validatePosition([2.3522, 48.8566])
+      const result = validatePosition(positions.valid2D)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toHaveLength(0)
+      expect(result.warnings).toHaveLength(0)
+    })
+
+    it('should accept a standard 3D position', () => {
+      const result = validatePosition(positions.valid3D)
       expect(result.valid).toBe(true)
       expect(result.errors).toHaveLength(0)
     })
 
-    it('should accept a standard 3D position', () => {
-      const result = validatePosition([2.3522, 48.8566, 35])
-      expect(result.valid).toBe(true)
-      expect(result.errors).toHaveLength(0)
+    it('should accept extreme valid coordinates (corners of the world)', () => {
+      expect(validatePosition([-180, -90]).valid).toBe(true)
+      expect(validatePosition([180, 90]).valid).toBe(true)
+      expect(validatePosition([0, 0]).valid).toBe(true)
     })
   })
 })
