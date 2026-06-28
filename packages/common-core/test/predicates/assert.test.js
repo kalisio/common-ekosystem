@@ -1,5 +1,41 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, afterEach } from 'vitest'
 import { assert, is } from '../../src/predicates'
+
+describe('assert.isEnabled', () => {
+  afterEach(() => {
+    assert.isEnabled = true
+  })
+
+  it('is true by default in test environment', () => {
+    expect(assert.isEnabled).toBe(true)
+  })
+
+  it('that does not throw when disabled', () => {
+    assert.isEnabled = false
+    expect(() => assert.that(-1, (v) => v > 0, 'must be positive')).not.toThrow()
+  })
+
+  it('all does not throw when disabled', () => {
+    assert.isEnabled = false
+    expect(() => assert.all([
+      { value: -1, validator: (v) => v > 0, message: 'must be positive' }
+    ])).not.toThrow()
+  })
+
+  it('any does not throw when disabled', () => {
+    assert.isEnabled = false
+    expect(() => assert.any([
+      { value: -1, validator: (v) => v > 0, message: 'must be positive' },
+      { value: -1, validator: (v) => v > 0, message: 'must be positive' }
+    ])).not.toThrow()
+  })
+
+  it('that throws again when re-enabled', () => {
+    assert.isEnabled = false
+    assert.isEnabled = true
+    expect(() => assert.that(-1, (v) => v > 0, 'must be positive')).toThrow(TypeError)
+  })
+})
 
 describe('assert.that', () => {
   it('should not throw when validator returns true', () => {
