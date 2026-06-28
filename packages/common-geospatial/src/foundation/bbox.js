@@ -1,5 +1,5 @@
-import { assert, is } from '@kalisio/common-core'
-import { isValidPosition } from './position.js'
+import { assert, is, conform, optional } from '@kalisio/common-core'
+import { isValidPosition, is3DPosition } from './position.js'
 
 export function isValidBBox (bbox) {
   if (!is.arrayOfLength(bbox, 4) && !is.arrayOfLength(bbox, 6)) return false
@@ -41,4 +41,46 @@ export function mergeBBox (bbox1, bbox2) {
     Math.max(bbox1[2], bbox2[2]),
     Math.max(bbox1[3], bbox2[3])
   ]
+}
+
+const COMPUTE_BBOX_OPTIONS_SCHEMA = {
+  ignore3D: optional(is.boolean)
+}
+
+export function computeBBox (positions, options = {}) {
+  assert.all([
+    {
+      value: positions,
+      validator: is.nonEmptyArray,
+      message: 'positions must be a non-empty array'
+    },
+    {
+      value: positions,
+      validator: (v) => v.every(isValidPosition),
+      message: 'positions must be an array of valid positions'
+    },
+    {
+      value: options,
+      validator: (v) => conform.schema(v, COMPUTE_BBOX_OPTIONS_SCHEMA),
+      message: 'options must be a valid options object'
+    }
+  ])
+  const { ignore3D = false } = options
+  const has3D = !ignore3D && positions.some(is3DPosition)
+  if (has3D) {
+    return positions.reduce((acc, pos) => [
+      Math.min(acc[0], pos[0]),
+      Math.min(acc[1], pos[1]),
+      Math.min(acc[2], pos[2] ?? 0),
+      Math.max(acc[3], pos[0]),
+      Math.max(acc[4], pos[1]),
+      Math.max(acc[5], pos[2] ?? 0)
+    ], [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity])
+  }
+  return positions.reduce((acc, pos) => [
+    Math.min(acc[0], pos[0]),
+    Math.min(acc[1], pos[1]),
+    Math.max(acc[2], pos[0]),
+    Math.max(acc[3], pos[1])
+  ], [Infinity, Infinity, -Infinity, -Infinity])
 }

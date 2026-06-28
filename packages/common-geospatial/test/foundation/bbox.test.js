@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isValidBBox, is3DBBox, mergeBBox } from '../../src/foundation'
+import { isValidBBox, is3DBBox, mergeBBox, computeBBox } from '../../src/foundation'
 
 describe('isValidBBox', () => {
   it('returns true for a valid 2D bbox', () => {
@@ -113,5 +113,62 @@ describe('mergeBBox', () => {
 
   it('merges 3D bboxes where one has zero altitude range', () => {
     expect(mergeBBox([-10, -20, 0, 10, 20, 0], [-5, -15, -100, 15, 25, 100])).toEqual([-10, -20, -100, 15, 25, 100])
+  })
+})
+
+describe('computeBBox', () => {
+  it('throws for empty array', () => {
+    expect(() => computeBBox([])).toThrow()
+  })
+
+  it('throws for invalid positions', () => {
+    expect(() => computeBBox([[999, 999]])).toThrow()
+    expect(() => computeBBox([null])).toThrow()
+  })
+
+  it('throws for invalid options', () => {
+    expect(() => computeBBox([[2.3522, 48.8566]], { ignore3D: 'bad' })).toThrow()
+  })
+
+  it('computes bbox for a single 2D position', () => {
+    expect(computeBBox([[2.3522, 48.8566]])).toEqual([2.3522, 48.8566, 2.3522, 48.8566])
+  })
+
+  it('computes bbox for multiple 2D positions', () => {
+    expect(computeBBox([
+      [-10, -20],
+      [10, 20],
+      [0, 0]
+    ])).toEqual([-10, -20, 10, 20])
+  })
+
+  it('computes 3D bbox when at least one position has altitude', () => {
+    expect(computeBBox([
+      [-10, -20, -100],
+      [10, 20, 100],
+      [0, 0]
+    ])).toEqual([-10, -20, -100, 10, 20, 100])
+  })
+
+  it('uses 0 for missing altitude in 3D mode', () => {
+    expect(computeBBox([
+      [-10, -20],
+      [10, 20, 100]
+    ])).toEqual([-10, -20, 0, 10, 20, 100])
+  })
+
+  it('ignores altitude with ignore3D: true', () => {
+    expect(computeBBox([
+      [-10, -20, -100],
+      [10, 20, 100]
+    ], { ignore3D: true })).toEqual([-10, -20, 10, 20])
+  })
+
+  it('computes bbox for a single 3D position', () => {
+    expect(computeBBox([[2.3522, 48.8566, 100]])).toEqual([2.3522, 48.8566, 100, 2.3522, 48.8566, 100])
+  })
+
+  it('computes bbox at extreme coordinates', () => {
+    expect(computeBBox([[-180, -90], [180, 90]])).toEqual([-180, -90, 180, 90])
   })
 })

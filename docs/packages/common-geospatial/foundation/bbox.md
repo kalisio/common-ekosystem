@@ -119,3 +119,49 @@ mergeBBox([-180, -90, 0, 0], [0, 0, 180, 90])
 mergeBBox([2.3522, 48.8566, 2.3522, 48.8566], [2.3600, 48.8600, 2.3600, 48.8600])
 // [2.3522, 48.8566, 2.3600, 48.8600]
 ```
+
+## computeBBox
+
+### Signature
+
+```js
+computeBBox (positions, options)
+```
+
+### Description
+
+Computes the bounding box of an array of positions. If any position has an altitude coordinate, the result is a 3D bbox `[minX, minY, minZ, maxX, maxY, maxZ]`. Otherwise a 2D bbox `[minX, minY, maxX, maxY]` is returned. This behavior can be overridden with `ignore3D`.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `positions` | `number[][]` | yes | A non-empty array of valid GeoJSON positions |
+| `options` | `object` | no | Options |
+| `options.ignore3D` | `boolean` | no | If `true`, altitude is ignored and a 2D bbox is always returned (default: `false`) |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `number[]` | A 2D `[minX, minY, maxX, maxY]` or 3D `[minX, minY, minZ, maxX, maxY, maxZ]` bounding box |
+
+### Throws
+
+Throws if `positions` is empty, contains invalid positions, or if `options` is invalid.
+
+### Examples
+
+```js
+computeBBox([[2.3522, 48.8566]])
+// [2.3522, 48.8566, 2.3522, 48.8566]
+
+computeBBox([[-10, -20], [10, 20], [0, 0]])
+// [-10, -20, 10, 20]
+
+computeBBox([[-10, -20, -100], [10, 20, 100]])
+// [-10, -20, -100, 10, 20, 100]
+
+computeBBox([[-10, -20, -100], [10, 20, 100]], { ignore3D: true })
+// [-10, -20, 10, 20]
+```
