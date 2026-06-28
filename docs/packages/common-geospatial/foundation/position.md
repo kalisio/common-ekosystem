@@ -1,6 +1,6 @@
 ---
-title: parsePosition
-description: Parse a coordinate pair string into a GeoJSON position.
+title: position
+description: Helper functions for working with positions.
 ---
 
 # parsePosition
@@ -91,4 +91,126 @@ parsePosition('48.8566')
 // Invalid — unparseable coordinate
 parsePosition('abc, def')
 // null
+```
+
+# isValidPosition
+
+## Signature
+
+```js
+isValidPosition (value)
+```
+
+## Description
+
+Returns `true` if `value` is a valid GeoJSON position: an array of 2 or 3 finite numbers where longitude is in `[-180, 180]` and latitude is in `[-90, 90]`. Altitude, if present, must be a finite number.
+
+## Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `value` | `*` | yes | The value to check |
+
+## Returns
+
+| Type | Description |
+|------|-------------|
+| `boolean` | `true` if the value is a valid GeoJSON position |
+
+## Examples
+
+```js
+isValidPosition([2.3522, 48.8566])        // true
+isValidPosition([2.3522, 48.8566, 100])   // true
+isValidPosition([181, 48.8566])           // false — longitude out of range
+isValidPosition([2.3522, 91])             // false — latitude out of range
+isValidPosition([2.3522])                 // false — too few elements
+isValidPosition(null)                     // false
+```
+
+# is3DPosition
+
+## Signature
+
+```js
+is3DPosition (position)
+```
+
+## Description
+
+Returns `true` if `position` is a valid GeoJSON position with an altitude coordinate (3 elements).
+
+## Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `position` | `number[]` | yes | A valid GeoJSON position |
+
+## Returns
+
+| Type | Description |
+|------|-------------|
+| `boolean` | `true` if the position has 3 coordinates |
+
+## Throws
+
+Throws if `position` is not a valid GeoJSON position.
+
+## Examples
+
+```js
+is3DPosition([2.3522, 48.8566, 100])  // true
+is3DPosition([2.3522, 48.8566])       // false
+is3DPosition(null)                    // throws
+```
+
+# isSamePosition
+
+## Signature
+
+```js
+isSamePosition (position1, position2, options)
+```
+
+## Description
+
+Returns `true` if two GeoJSON positions are equal within the given decimal precision. By default only longitude and latitude are compared; altitude comparison can be enabled via `consider3D`.
+
+## Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `position1` | `number[]` | yes | A valid GeoJSON position |
+| `position2` | `number[]` | yes | A valid GeoJSON position |
+| `options` | `object` | no | Comparison options |
+| `options.precision` | `number` | no | Decimal places for comparison (default: `10`) |
+| `options.consider3D` | `boolean` | no | Whether to include altitude in comparison (default: `false`) |
+
+## Returns
+
+| Type | Description |
+|------|-------------|
+| `boolean` | `true` if the positions are equal within the given precision |
+
+## Throws
+
+Throws if either position is not a valid GeoJSON position, or if `options` is invalid.
+
+## Examples
+
+```js
+isSamePosition([2.3522, 48.8566], [2.3522, 48.8566])
+// true
+
+isSamePosition([2.3522, 48.8566, 100], [2.3522, 48.8566, 200])
+// true — altitude ignored by default
+
+isSamePosition([2.3522, 48.8566, 100], [2.3522, 48.8566, 200], { consider3D: true })
+// false — altitudes differ
+
+isSamePosition([2.352, 48.856], [2.353, 48.857], { precision: 2 })
+// true — equal at 2 decimal places
+
+isSamePosition([2.352, 48.856], [2.353, 48.857], { precision: 3 })
+// false — differ at 3 decimal places
 ```

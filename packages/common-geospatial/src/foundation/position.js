@@ -1,4 +1,4 @@
-import { assert, is } from '@kalisio/common-core'
+import { assert, is, conform, optional } from '@kalisio/common-core'
 import { AXES } from './axes.js'
 import { isWest, isSouth } from './directions.js'
 import { guessCoordinateAxis, parseCoordinate } from './coordinate.js'
@@ -31,4 +31,48 @@ export function parsePosition (pattern) {
       [signedDegrees(secondDD), signedDegrees(firstDD)]
     ]
   }
+}
+
+export function isValidPosition (coordinates) {
+  if (!is.arrayOfLengthBetween(coordinates, 2, 3)) return false
+  if (!is.number(coordinates[0]) || !is.number(coordinates[1])) return false
+  if (!is.inRange(coordinates[0], -180, 180)) return false
+  if (!is.inRange(coordinates[1], -90, 90)) return false
+  if (coordinates.length === 3 && !is.number(coordinates[2])) return false
+  return true
+}
+
+export function is3DPosition (position) {
+  assert.that(position, isValidPosition, 'position must be a valid position')
+  return is.arrayOfLength(position, 3)
+}
+
+const IS_SAME_POSITION_OPTIONS = {
+  precision: optional(is.number),
+  consider3D: optional(is.boolean)
+}
+
+export function isSamePosition (position1, position2, options = {}) {
+  assert.all([
+    {
+      value: position1,
+      validator: isValidPosition,
+      message: 'position1 must be a valid position'
+    },
+    {
+      value: position2,
+      validator: isValidPosition,
+      message: 'position2 must be a valid position'
+    },
+    {
+      value: options,
+      validator: (v) => conform.schema(v, IS_SAME_POSITION_OPTIONS),
+      message: 'options must be a valid options object'
+    }
+  ])
+  const { precision = 10, consider3D = false } = options
+  const length = consider3D ? Math.max(position1.length, position2.length) : 2
+  return Array.from({ length }, (_, i) =>
+    (position1[i] ?? 0).toFixed(precision) === (position2[i] ?? 0).toFixed(precision)
+  ).every(Boolean)
 }

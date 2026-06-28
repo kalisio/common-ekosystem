@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parsePosition } from '../../src/foundation'
+import { parsePosition, isValidPosition, is3DPosition, isSamePosition } from '../../src/foundation'
 
 describe('parsePosition — invalid input', () => {
   it('throws on null', () => {
@@ -71,5 +71,124 @@ describe('parsePosition — ambiguous input', () => {
     expect(result).not.toBeNull()
     expect(result).not.toBeUndefined()
     expect(Array.isArray(result[0])).toBe(false)
+  })
+})
+
+describe('isValidPosition', () => {
+  it('returns true for a valid 2D position', () => {
+    expect(isValidPosition([2.3522, 48.8566])).toBe(true)
+  })
+
+  it('returns true for a valid 3D position', () => {
+    expect(isValidPosition([2.3522, 48.8566, 100])).toBe(true)
+  })
+
+  it('returns false for wrong length', () => {
+    expect(isValidPosition([])).toBe(false)
+    expect(isValidPosition([2.3522])).toBe(false)
+    expect(isValidPosition([2.3522, 48.8566, 100, 0])).toBe(false)
+  })
+
+  it('returns false for non-numbers', () => {
+    expect(isValidPosition(['2.3522', 48.8566])).toBe(false)
+    expect(isValidPosition([null, 48.8566])).toBe(false)
+    expect(isValidPosition([2.3522, undefined])).toBe(false)
+  })
+
+  it('returns false for out of range longitude', () => {
+    expect(isValidPosition([-181, 48.8566])).toBe(false)
+    expect(isValidPosition([181, 48.8566])).toBe(false)
+  })
+
+  it('returns false for out of range latitude', () => {
+    expect(isValidPosition([2.3522, -91])).toBe(false)
+    expect(isValidPosition([2.3522, 91])).toBe(false)
+  })
+
+  it('returns false for invalid altitude', () => {
+    expect(isValidPosition([2.3522, 48.8566, NaN])).toBe(false)
+    expect(isValidPosition([2.3522, 48.8566, '100'])).toBe(false)
+  })
+
+  it('returns false for non-array', () => {
+    expect(isValidPosition(null)).toBe(false)
+    expect(isValidPosition({})).toBe(false)
+    expect(isValidPosition('2.3522,48.8566')).toBe(false)
+  })
+})
+
+describe('is3DPosition', () => {
+  it('returns true for a 3D position', () => {
+    expect(is3DPosition([2.3522, 48.8566, 100])).toBe(true)
+  })
+
+  it('returns false for a 2D position', () => {
+    expect(is3DPosition([2.3522, 48.8566])).toBe(false)
+  })
+
+  it('throws for wrong length', () => {
+    expect(() => is3DPosition([])).toThrow()
+    expect(() => is3DPosition([2.3522])).toThrow()
+    expect(() => is3DPosition([2.3522, 48.8566, 100, 0])).toThrow()
+  })
+
+  it('throws for non-array', () => {
+    expect(() => is3DPosition(null)).toThrow()
+    expect(() => is3DPosition({})).toThrow()
+  })
+})
+
+describe('isSamePosition', () => {
+  it('throws for invalid position1', () => {
+    expect(() => isSamePosition(null, [2.3522, 48.8566])).toThrow()
+    expect(() => isSamePosition([999, 999], [2.3522, 48.8566])).toThrow()
+  })
+
+  it('throws for invalid position2', () => {
+    expect(() => isSamePosition([2.3522, 48.8566], null)).toThrow()
+    expect(() => isSamePosition([2.3522, 48.8566], [999, 999])).toThrow()
+  })
+
+  it('throws for invalid options', () => {
+    expect(() => isSamePosition([2.3522, 48.8566], [2.3522, 48.8566], { precision: 'bad' })).toThrow()
+    expect(() => isSamePosition([2.3522, 48.8566], [2.3522, 48.8566], { consider3D: 'bad' })).toThrow()
+  })
+
+  it('returns true for two identical 2D positions', () => {
+    expect(isSamePosition([2.3522, 48.8566], [2.3522, 48.8566])).toBe(true)
+  })
+
+  it('returns true for two identical 3D positions', () => {
+    expect(isSamePosition([2.3522, 48.8566, 100], [2.3522, 48.8566, 100], { consider3D: true })).toBe(true)
+  })
+
+  it('returns true for positions equal within default precision', () => {
+    expect(isSamePosition([2.35220000001, 48.8566], [2.3522, 48.8566])).toBe(true)
+  })
+
+  it('returns false for positions differing beyond default precision', () => {
+    expect(isSamePosition([2.3522000001, 48.8566], [2.3522, 48.8566])).toBe(false)
+  })
+
+  it('ignores altitude by default (consider3D: false)', () => {
+    expect(isSamePosition([2.3522, 48.8566, 100], [2.3522, 48.8566, 200])).toBe(true)
+  })
+
+  it('returns false when altitudes differ with consider3D: true', () => {
+    expect(isSamePosition([2.3522, 48.8566, 100], [2.3522, 48.8566, 200], { consider3D: true })).toBe(false)
+  })
+
+  it('returns true when altitudes are equal with consider3D: true', () => {
+    expect(isSamePosition([2.3522, 48.8566, 100], [2.3522, 48.8566, 100], { consider3D: true })).toBe(true)
+  })
+
+  it('uses ?? 0 when one position has no altitude and consider3D: true', () => {
+    expect(isSamePosition([2.3522, 48.8566], [2.3522, 48.8566, 0], { consider3D: true })).toBe(true)
+    expect(isSamePosition([2.3522, 48.8566], [2.3522, 48.8566, 100], { consider3D: true })).toBe(false)
+  })
+
+  it('respects custom precision', () => {
+    expect(isSamePosition([2.352, 48.856], [2.353, 48.857], { precision: 2 })).toBe(true)
+    expect(isSamePosition([2.352, 48.856], [2.353, 48.857], { precision: 3 })).toBe(false)
   })
 })

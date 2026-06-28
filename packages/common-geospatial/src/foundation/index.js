@@ -1,4 +1,5 @@
 export * from './axes.js'
+export * from './bbox.js'
 export * from './coordinate.js'
 export * from './directions.js'
 export * from './localization.js'
