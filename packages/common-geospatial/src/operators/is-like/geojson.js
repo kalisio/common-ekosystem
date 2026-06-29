@@ -7,19 +7,20 @@ export const FEATURE_TYPES = {
 }
 
 export function isLikeFeature (object) {
-  if (!is.plainObject(object)) return false
-  return FEATURE_TYPES.FEATURE === object.type
+  return is.plainObject(object) &&
+    object.type === FEATURE_TYPES.FEATURE
 }
 
 export function isLikeFeatureCollection (object) {
-  if (!is.plainObject(object)) return false
-  if (object.type !== FEATURE_TYPES.FEATURE_COLLECTION) return false
-  return is.array(object.features)
+  return is.plainObject(object) &&
+    object.type === FEATURE_TYPES.FEATURE_COLLECTION &&
+    is.array(object.features)
+}
+
+export function isLikeFeatureOrFeatureCollection (object) {
+  return isLikeFeature(object) || isLikeFeatureCollection(object)
 }
 
 export function isLikeGeoJson (object) {
-  if (!is.plainObject(object)) return false
-  if (isLikeGeometry(object)) return true
-  if (isLikeFeature(object)) return true
-  return isLikeFeatureCollection(object)
+  return isLikeFeatureOrFeatureCollection(object) || isLikeGeometry(object)
 }

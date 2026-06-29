@@ -54,6 +54,8 @@
     "@kalisio/common-core": "workspace:*",
     "@logtape/logtape": "catalog:",
     "@turf/boolean-clockwise": "catalog:",
+    "@turf/convex": "catalog:",
+    "@turf/helpers": "catalog:",
     "@turf/kinks": "catalog:",
     "@turf/meta": "catalog:",
     "@turf/truncate": "catalog:",

@@ -11,7 +11,7 @@ import {
   fcEmpty,
   fc3DAlpineRoute,
   fcWithNullGeometry
-} from './fixtures.js'
+} from '../fixtures.js'
 
 describe('computeGeoJsonBoundingBox', () => {
   it('computes bbox of a Geometry directly', () => {

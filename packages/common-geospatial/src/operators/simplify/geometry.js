@@ -1,10 +1,24 @@
-import { assert } from '@kalisio/common-core'
+import { assert, is, optional, conform } from '@kalisio/common-core'
 import { GEOMETRY_TYPES, isLikeGeometry } from '../is-like'
 import { simplify } from './visvalingam-whyatt.js'
 
+export const SIMPLIFY_OPTIONS_SCHEMA = {
+  tolerance: optional(is.number),
+  getWeight: optional(is.function)
+}
+
 export function simplifyGeometry (geometry, options) {
   assert.all([
-    { value: geometry, validator: isLikeGeometry, message: 'geometry must be a GeoJson geometry' }
+    {
+      value: geometry,
+      validator: isLikeGeometry,
+      message: 'geometry must be a GeoJson geometry'
+    },
+    {
+      value: options,
+      validator: (v) => conform.schema(v, SIMPLIFY_OPTIONS_SCHEMA),
+      message: 'options must be a valid options object'
+    }
   ])
   switch (geometry.type) {
     case GEOMETRY_TYPES.LINESTRING:

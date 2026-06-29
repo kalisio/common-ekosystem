@@ -4,7 +4,8 @@ import {
   isLikeBBox,
   CRS_TYPES, isLikeCRS,
   GEOMETRY_TYPES, isLikeGeometry,
-  FEATURE_TYPES, isLikeFeature, isLikeFeatureCollection, isLikeGeoJson
+  FEATURE_TYPES, isLikeFeature, isLikeFeatureCollection,
+  isLikeFeatureOrFeatureCollection, isLikeGeoJson
 } from '../../src/operators'
 
 // isLikeBBox
@@ -241,6 +242,27 @@ describe('isLikeFeatureCollection', () => {
   it('returns false for non-object', () => {
     expect(isLikeFeatureCollection(null)).toBe(false)
     expect(isLikeFeatureCollection('FeatureCollection')).toBe(false)
+  })
+})
+
+// isLikeFeatureOrFeatureCollection
+describe('isLikeFeatureOrFeatureCollection', () => {
+  it('returns true for a Feature', () => {
+    expect(isLikeFeatureOrFeatureCollection({ type: 'Feature' })).toBe(true)
+  })
+
+  it('returns true for a FeatureCollection', () => {
+    expect(isLikeFeatureOrFeatureCollection({ type: 'FeatureCollection', features: [] })).toBe(true)
+  })
+
+  it('returns false for a Geometry', () => {
+    expect(isLikeFeatureOrFeatureCollection({ type: 'Point', coordinates: [] })).toBe(false)
+  })
+
+  it('returns false for non-object', () => {
+    expect(isLikeFeatureOrFeatureCollection(null)).toBe(false)
+    expect(isLikeFeatureOrFeatureCollection('Feature')).toBe(false)
+    expect(isLikeFeatureOrFeatureCollection([])).toBe(false)
   })
 })
 
