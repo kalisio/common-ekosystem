@@ -18,6 +18,9 @@ catalogs:
     '@turf/kinks':
       specifier: ~7.3.5
       version: 7.3.5
+    '@turf/meta':
+      specifier: ~7.3.5
+      version: 7.3.5
     '@turf/truncate':
       specifier: ~7.3.5
       version: 7.3.5
@@ -210,6 +213,9 @@ importers:
         specifier: 'catalog:'
         version: 7.3.5
       '@turf/kinks':
+        specifier: 'catalog:'
+        version: 7.3.5
+      '@turf/meta':
         specifier: 'catalog:'
         version: 7.3.5
       '@turf/truncate':

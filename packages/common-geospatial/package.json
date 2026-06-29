@@ -55,6 +55,7 @@
     "@logtape/logtape": "catalog:",
     "@turf/boolean-clockwise": "catalog:",
     "@turf/kinks": "catalog:",
+    "@turf/meta": "catalog:",
     "@turf/truncate": "catalog:",
     "heap-js": "catalog:",
     "proj4": "catalog:"
