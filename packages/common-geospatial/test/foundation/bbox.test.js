@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { isValidBBox, is3DBBox, mergeBBox, computeBBox } from '../../src/foundation'
+import {
+  isValidBBox,
+  is3DBBox,
+  mergeBBox,
+  computeBBox,
+  truncateBBox
+} from '../../src/foundation'
 
 describe('isValidBBox', () => {
   it('returns true for a valid 2D bbox', () => {
@@ -170,5 +176,43 @@ describe('computeBBox', () => {
 
   it('computes bbox at extreme coordinates', () => {
     expect(computeBBox([[-180, -90], [180, 90]])).toEqual([-180, -90, 180, 90])
+  })
+})
+
+describe('truncateBBox', () => {
+  it('truncates a 2D bbox with default precision', () => {
+    expect(truncateBBox([-10.123456789, -20.987654321, 10.123456789, 20.987654321]))
+      .toEqual([-10.1234568, -20.9876543, 10.1234568, 20.9876543])
+  })
+
+  it('truncates a 3D bbox with default precision', () => {
+    expect(truncateBBox([-10.123456789, -20.987654321, -100.123456789, 10.123456789, 20.987654321, 100.123456789]))
+      .toEqual([-10.1234568, -20.9876543, -100.1234568, 10.1234568, 20.9876543, 100.1234568])
+  })
+
+  it('truncates with custom precision', () => {
+    expect(truncateBBox([-10.123456789, -20.987654321, 10.123456789, 20.987654321], 3))
+      .toEqual([-10.123, -20.988, 10.123, 20.988])
+  })
+
+  it('truncates with precision 0', () => {
+    expect(truncateBBox([-10.123456789, -20.987654321, 10.123456789, 20.987654321], 0))
+      .toEqual([-10, -21, 10, 21])
+  })
+
+  it('mutates in place and returns the same object', () => {
+    const bbox = [-10.123456789, -20.987654321, 10.123456789, 20.987654321]
+    expect(truncateBBox(bbox)).toBe(bbox)
+  })
+
+  it('throws if bbox is invalid', () => {
+    expect(() => truncateBBox(null)).toThrow()
+    expect(() => truncateBBox([])).toThrow()
+    expect(() => truncateBBox([-181, -20, 10, 20])).toThrow()
+  })
+
+  it('throws if precision is out of range', () => {
+    expect(() => truncateBBox([-10, -20, 10, 20], -1)).toThrow()
+    expect(() => truncateBBox([-10, -20, 10, 20], 9)).toThrow()
   })
 })

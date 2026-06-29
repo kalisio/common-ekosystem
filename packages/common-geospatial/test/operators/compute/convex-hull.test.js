@@ -25,7 +25,7 @@ import {
   fcWithNullGeometry,
   fcCollinear,
   fc3DAlpineRoute
-} from './fixtures.js'
+} from './data/fixtures.js'
 
 describe('computeConvexHull', () => {
   // Geometries

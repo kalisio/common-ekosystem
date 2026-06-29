@@ -1,4 +1,6 @@
 import { Heap } from 'heap-js'
+import { assert, is, optional, conform } from '@kalisio/common-core'
+import { FEATURE_TYPES, GEOMETRY_TYPES, isLikeGeoJson } from './is-like.js'
 
 function triangleArea (a, b, c) {
   return Math.abs(
@@ -8,7 +10,8 @@ function triangleArea (a, b, c) {
   )
 }
 
-export function simplify (coords, { tolerance = 0, getWeight = () => 1 } = {}) {
+// visvalingam-whyatt simplification algorithm
+function visvalingam (coords, { tolerance = 0, getWeight = () => 1 } = {}) {
   if (coords.length <= 2) return coords
 
   const pts = coords.map((coord, i) => ({ coord, i, area: Infinity, removed: false, prev: null, next: null }))
@@ -64,4 +67,41 @@ export function simplify (coords, { tolerance = 0, getWeight = () => 1 } = {}) {
     cur = cur.next
   }
   return result
+}
+
+const SIMPLIFY_OPTIONS_SCHEMA = {
+  tolerance: optional(is.number),
+  getWeight: optional(is.function)
+}
+
+export function simplify (geoJson, options = {}) {
+  assert.all([
+    { value: geoJson, validator: isLikeGeoJson, message: 'geoJson must be a GeoJson object' },
+    { value: options, validator: (v) => conform.schema(v, SIMPLIFY_OPTIONS_SCHEMA), message: 'options must be a valid options object' }
+  ])
+  if (geoJson.type === FEATURE_TYPES.FEATURE) {
+    if (geoJson.geometry) simplify(geoJson.geometry, options)
+    return geoJson
+  }
+  if (geoJson.type === FEATURE_TYPES.FEATURE_COLLECTION) {
+    for (const feature of geoJson.features) simplify(feature, options)
+    return geoJson
+  }
+  // Geometry
+  switch (geoJson.type) {
+    case GEOMETRY_TYPES.LINESTRING:
+      geoJson.coordinates = visvalingam(geoJson.coordinates, options)
+      break
+    case GEOMETRY_TYPES.POLYGON:
+    case GEOMETRY_TYPES.MULTI_LINESTRING:
+      geoJson.coordinates = geoJson.coordinates.map(ring => visvalingam(ring, options))
+      break
+    case GEOMETRY_TYPES.MULTI_POLYGON:
+      geoJson.coordinates = geoJson.coordinates.map(poly => poly.map(ring => visvalingam(ring, options)))
+      break
+    case GEOMETRY_TYPES.GEOMETRY_COLLECTION:
+      geoJson.geometries.forEach(g => simplify(g, options))
+      break
+  }
+  return geoJson
 }

@@ -1,7 +1,7 @@
 import booleanClockwise from '@turf/boolean-clockwise'
 import kinks from '@turf/kinks'
 import { is } from '@kalisio/common-core'
-import { GEOMETRY_TYPES } from '../is-like/index.js'
+import { GEOMETRY_TYPES } from '../is-like.js'
 import { validatePosition } from './position.js'
 import { validateOptionalBBox, validateArray } from './utils.js'
 

@@ -1,5 +1,5 @@
 import { is } from '@kalisio/common-core'
-import { CRS_TYPES } from '../is-like'
+import { CRS_TYPES } from '../is-like.js'
 
 export function validateCRS (crs) {
   if (!is.plainObject(crs)) {

@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { parsePosition, isValidPosition, is3DPosition, isSamePosition } from '../../src/foundation'
+import {
+  parsePosition,
+  isValidPosition,
+  is3DPosition,
+  isSamePosition,
+  truncatePosition
+} from '../../src/foundation'
 
 describe('parsePosition — invalid input', () => {
   it('throws on null', () => {
@@ -190,5 +196,39 @@ describe('isSamePosition', () => {
   it('respects custom precision', () => {
     expect(isSamePosition([2.352, 48.856], [2.353, 48.857], { precision: 2 })).toBe(true)
     expect(isSamePosition([2.352, 48.856], [2.353, 48.857], { precision: 3 })).toBe(false)
+  })
+})
+
+describe('truncatePosition', () => {
+  it('truncates a 2D position with default precision', () => {
+    expect(truncatePosition([2.352212345, 48.856612345])).toEqual([2.3522123, 48.8566123])
+  })
+
+  it('truncates a 3D position with default precision', () => {
+    expect(truncatePosition([2.352212345, 48.856612345, 100.123456789])).toEqual([2.3522123, 48.8566123, 100.1234568])
+  })
+
+  it('truncates with custom precision', () => {
+    expect(truncatePosition([2.352212345, 48.856612345], 3)).toEqual([2.352, 48.857])
+  })
+
+  it('truncates with precision 0', () => {
+    expect(truncatePosition([2.352212345, 48.856612345], 0)).toEqual([2, 49])
+  })
+
+  it('mutates in place and returns the same object', () => {
+    const position = [2.352212345, 48.856612345]
+    expect(truncatePosition(position)).toBe(position)
+  })
+
+  it('throws if position is invalid', () => {
+    expect(() => truncatePosition(null)).toThrow()
+    expect(() => truncatePosition([999, 48.8566])).toThrow()
+    expect(() => truncatePosition('not a position')).toThrow()
+  })
+
+  it('throws if precision is out of range', () => {
+    expect(() => truncatePosition([2.3522, 48.8566], -1)).toThrow()
+    expect(() => truncatePosition([2.3522, 48.8566], 9)).toThrow()
   })
 })

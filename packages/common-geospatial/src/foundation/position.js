@@ -1,7 +1,7 @@
 import { assert, is, conform, optional } from '@kalisio/common-core'
 import { AXES } from './axes.js'
 import { isWest, isSouth } from './directions.js'
-import { guessCoordinateAxis, parseCoordinate } from './coordinate.js'
+import { guessCoordinateAxis, parseCoordinate, COORDINATE_TRUNCATION_FACTORS } from './coordinate.js'
 
 export function parsePosition (pattern) {
   assert.that(pattern, (v) => is.nonEmptyString(v), 'pattern must be a non-empty string')
@@ -75,4 +75,16 @@ export function isSamePosition (position1, position2, options = {}) {
   return Array.from({ length }, (_, i) =>
     (position1[i] ?? 0).toFixed(precision) === (position2[i] ?? 0).toFixed(precision)
   ).every(Boolean)
+}
+
+export function truncatePosition (position, precision = 7) {
+  assert.all([
+    { value: position, validator: isValidPosition, message: 'position must be a position' },
+    { value: precision, validator: (v) => is.inRange(v, 0, 8), message: 'precision must be in range [0, 8]' }
+  ])
+  const factor = COORDINATE_TRUNCATION_FACTORS[precision]
+  for (let i = 0; i < position.length; i++) {
+    position[i] = Math.round(position[i] * factor) / factor
+  }
+  return position
 }

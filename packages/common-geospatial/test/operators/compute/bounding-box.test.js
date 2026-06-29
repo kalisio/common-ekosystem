@@ -20,7 +20,7 @@ import {
   fcEmpty,
   fc3DAlpineRoute,
   fcWithNullGeometry
-} from './fixtures.js'
+} from './data/fixtures.js'
 
 describe('computeBoundingBox', () => {
   // Geometries

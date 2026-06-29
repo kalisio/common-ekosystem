@@ -1,16 +1,29 @@
 import { describe, it, expect } from 'vitest'
-import { truncateGeoJson } from '../../../src/operators/truncate'
+import { truncate } from '../../src/operators/index.js'
 
-describe('truncateGeoJson', () => {
-  describe('plain geometry', () => {
-    it('truncates a Point directly', () => {
-      const geoJson = { type: 'Point', coordinates: [10.123456789, 20.987654321] }
-      const result = truncateGeoJson(geoJson)
+describe('truncate', () => {
+  describe('Geometry', () => {
+    it('truncates a Point geometry', () => {
+      const geometry = { type: 'Point', coordinates: [10.123456789, 20.987654321] }
+      const result = truncate(geometry)
       expect(result.coordinates).toEqual([10.1234568, 20.9876543])
     })
 
-    it('truncates a Polygon directly', () => {
-      const geoJson = {
+    it('truncates a LineString geometry', () => {
+      const geometry = {
+        type: 'LineString',
+        coordinates: [
+          [10.123456789, 20.987654321],
+          [30.111111111, 40.999999999]
+        ]
+      }
+      const result = truncate(geometry)
+      expect(result.coordinates[0]).toEqual([10.1234568, 20.9876543])
+      expect(result.coordinates[1]).toEqual([30.1111111, 41])
+    })
+
+    it('truncates a Polygon geometry', () => {
+      const geometry = {
         type: 'Polygon',
         coordinates: [[
           [0.123456789, 0.987654321],
@@ -19,18 +32,54 @@ describe('truncateGeoJson', () => {
           [0.123456789, 0.987654321]
         ]]
       }
-      const result = truncateGeoJson(geoJson)
+      const result = truncate(geometry)
       expect(result.coordinates[0][0]).toEqual([0.1234568, 0.9876543])
     })
 
-    it('truncates bbox of a plain geometry', () => {
-      const geoJson = {
+    it('truncates a GeometryCollection', () => {
+      const geometry = {
+        type: 'GeometryCollection',
+        geometries: [
+          { type: 'Point', coordinates: [10.123456789, 20.987654321] },
+          { type: 'Point', coordinates: [30.111111111, 40.999999999] }
+        ]
+      }
+      const result = truncate(geometry)
+      expect(result.geometries[0].coordinates).toEqual([10.1234568, 20.9876543])
+    })
+
+    it('truncates bbox if present', () => {
+      const geometry = {
         type: 'Point',
         coordinates: [10.123456789, 20.987654321],
         bbox: [10.123456789, 20.987654321, 10.123456789, 20.987654321]
       }
-      const result = truncateGeoJson(geoJson)
+      const result = truncate(geometry)
       expect(result.bbox).toEqual([10.1234568, 20.9876543, 10.1234568, 20.9876543])
+    })
+
+    it('mutates the original geometry', () => {
+      const geometry = { type: 'Point', coordinates: [10.123456789, 20.987654321] }
+      const result = truncate(geometry)
+      expect(result).toBe(geometry)
+    })
+
+    it('applies custom precision', () => {
+      const geometry = { type: 'Point', coordinates: [10.123456789, 20.987654321] }
+      const result = truncate(geometry, 3)
+      expect(result.coordinates).toEqual([10.123, 20.988])
+    })
+
+    it('throws if geometry is invalid', () => {
+      expect(() => truncate(null)).toThrow()
+      expect(() => truncate({ type: 'Invalid' })).toThrow()
+      expect(() => truncate('not a geometry')).toThrow()
+    })
+
+    it('throws if precision is out of range', () => {
+      const geometry = { type: 'Point', coordinates: [1, 2] }
+      expect(() => truncate(geometry, -1)).toThrow()
+      expect(() => truncate(geometry, 9)).toThrow()
     })
   })
 
@@ -41,7 +90,7 @@ describe('truncateGeoJson', () => {
         geometry: { type: 'Point', coordinates: [10.123456789, 20.987654321] },
         properties: {}
       }
-      const result = truncateGeoJson(geoJson)
+      const result = truncate(geoJson)
       expect(result.geometry.coordinates).toEqual([10.1234568, 20.9876543])
     })
 
@@ -52,13 +101,13 @@ describe('truncateGeoJson', () => {
         properties: {},
         bbox: [10.123456789, 20.987654321, 10.123456789, 20.987654321]
       }
-      const result = truncateGeoJson(geoJson)
+      const result = truncate(geoJson)
       expect(result.bbox).toEqual([10.1234568, 20.9876543, 10.1234568, 20.9876543])
     })
 
     it('handles Feature with null geometry', () => {
       const geoJson = { type: 'Feature', geometry: null, properties: {} }
-      expect(() => truncateGeoJson(geoJson)).not.toThrow()
+      expect(() => truncate(geoJson)).not.toThrow()
     })
   })
 
@@ -71,7 +120,7 @@ describe('truncateGeoJson', () => {
           { type: 'Feature', geometry: { type: 'Point', coordinates: [30.111111111, 40.999999999] }, properties: {} }
         ]
       }
-      const result = truncateGeoJson(geoJson)
+      const result = truncate(geoJson)
       expect(result.features[0].geometry.coordinates).toEqual([10.1234568, 20.9876543])
       expect(result.features[1].geometry.coordinates).toEqual([30.1111111, 41])
     })
@@ -82,7 +131,7 @@ describe('truncateGeoJson', () => {
         features: [],
         bbox: [10.123456789, 20.987654321, 30.111111111, 40.999999999]
       }
-      const result = truncateGeoJson(geoJson)
+      const result = truncate(geoJson)
       expect(result.bbox).toEqual([10.1234568, 20.9876543, 30.1111111, 41])
     })
 
@@ -98,7 +147,7 @@ describe('truncateGeoJson', () => {
           }
         ]
       }
-      const result = truncateGeoJson(geoJson)
+      const result = truncate(geoJson)
       expect(result.features[0].bbox).toEqual([10.1234568, 20.9876543, 10.1234568, 20.9876543])
     })
   })
@@ -109,7 +158,7 @@ describe('truncateGeoJson', () => {
       geometry: { type: 'Point', coordinates: [10.123456789, 20.987654321] },
       properties: {}
     }
-    const result = truncateGeoJson(geoJson)
+    const result = truncate(geoJson)
     expect(result).toBe(geoJson)
   })
 
@@ -119,19 +168,19 @@ describe('truncateGeoJson', () => {
       geometry: { type: 'Point', coordinates: [10.123456789, 20.987654321] },
       properties: {}
     }
-    const result = truncateGeoJson(geoJson, 3)
+    const result = truncate(geoJson, 3)
     expect(result.geometry.coordinates).toEqual([10.123, 20.988])
   })
 
   it('throws if geoJson is invalid', () => {
-    expect(() => truncateGeoJson(null)).toThrow()
-    expect(() => truncateGeoJson('not a geojson')).toThrow()
-    expect(() => truncateGeoJson({ type: 'Invalid' })).toThrow()
+    expect(() => truncate(null)).toThrow()
+    expect(() => truncate('not a geojson')).toThrow()
+    expect(() => truncate({ type: 'Invalid' })).toThrow()
   })
 
   it('throws if precision is out of range', () => {
     const geoJson = { type: 'Feature', geometry: { type: 'Point', coordinates: [1, 2] }, properties: {} }
-    expect(() => truncateGeoJson(geoJson, -1)).toThrow()
-    expect(() => truncateGeoJson(geoJson, 9)).toThrow()
+    expect(() => truncate(geoJson, -1)).toThrow()
+    expect(() => truncate(geoJson, 9)).toThrow()
   })
 })

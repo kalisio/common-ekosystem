@@ -214,3 +214,61 @@ isSamePosition([2.352, 48.856], [2.353, 48.857], { precision: 2 })
 isSamePosition([2.352, 48.856], [2.353, 48.857], { precision: 3 })
 // false — differ at 3 decimal places
 ```
+
+## truncatePosition
+
+### Signature
+
+```js
+truncatePosition (position, precision)
+```
+
+### Description
+
+Truncates each coordinate of a position to the given number of decimal places. Supports both 2D and 3D positions.
+The operation is performed **in place** — the original array is mutated and returned.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `position` | `number[]` | yes | A valid GeoJSON position `[lon, lat]` or `[lon, lat, alt]` |
+| `precision` | `number` | no | Number of decimal places to keep, in range `[0, 8]` (default: `7`) |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `number[]` | The mutated position |
+
+### Throws
+
+Throws if `position` is not a valid position.
+Throws if `precision` is not in range `[0, 8]`.
+
+### Examples
+
+```js
+// Default precision (7)
+truncatePosition([2.352212345, 48.856612345])
+// [2.3522123, 48.8566123]
+```
+
+```js
+// Custom precision
+truncatePosition([2.352212345, 48.856612345], 3)
+// [2.352, 48.857]
+```
+
+```js
+// 3D position
+truncatePosition([2.352212345, 48.856612345, 100.123456789])
+// [2.3522123, 48.8566123, 100.1234568]
+```
+
+```js
+// Mutates in place
+const position = [2.352212345, 48.856612345]
+const result = truncatePosition(position, 3)
+result === position // true
+```

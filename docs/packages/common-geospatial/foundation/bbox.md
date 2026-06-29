@@ -165,3 +165,62 @@ computeBBox([[-10, -20, -100], [10, 20, 100]])
 computeBBox([[-10, -20, -100], [10, 20, 100]], { ignore3D: true })
 // [-10, -20, 10, 20]
 ```
+
+## truncateBBox
+
+### Signature
+
+```js
+truncateBBox (bbox, precision)
+```
+
+### Description
+
+Truncates each coordinate of a bounding box to the given number of decimal places. Supports both 2D `[west, south, east, north]`
+and 3D `[west, south, minAlt, east, north, maxAlt]` bounding boxes. The operation is performed **in place** — the original
+array is mutated and returned.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `bbox` | `number[]` | yes | A valid bounding box array |
+| `precision` | `number` | no | Number of decimal places to keep, in range `[0, 8]` (default: `7`) |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `number[]` | The mutated bounding box |
+
+### Throws
+
+Throws if `bbox` is not a valid bounding box.
+Throws if `precision` is not in range `[0, 8]`.
+
+### Examples
+
+```js
+// Default precision (7)
+truncateBBox([-10.123456789, -20.987654321, 10.123456789, 20.987654321])
+// [-10.1234568, -20.9876543, 10.1234568, 20.9876543]
+```
+
+```js
+// Custom precision
+truncateBBox([-10.123456789, -20.987654321, 10.123456789, 20.987654321], 3)
+// [-10.123, -20.988, 10.123, 20.988]
+```
+
+```js
+// 3D bbox
+truncateBBox([-10.123456789, -20.987654321, -100.123456789, 10.123456789, 20.987654321, 100.123456789])
+// [-10.1234568, -20.9876543, -100.1234568, 10.1234568, 20.9876543, 100.1234568]
+```
+
+```js
+// Mutates in place
+const bbox = [-10.123456789, -20.987654321, 10.123456789, 20.987654321]
+const result = truncateBBox(bbox, 3)
+result === bbox // true
+```

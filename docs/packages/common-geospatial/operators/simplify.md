@@ -5,23 +5,23 @@ description: Simplify the coordinates of GeoJSON objects using the Visvalingam-W
 
 # simplify
 
-## simplifyGeometry
+## simplify
 
 ### Signature
 
 ```js
-simplifyGeometry (geometry, options)
+simplify (geoJson, options)
 ```
 
 ### Description
 
-Simplifies all coordinate sequences of a GeoJSON geometry using the Visvalingam-Whyatt algorithm. Supports `LineString`, `Polygon`, `MultiLineString`, `MultiPolygon`, and `GeometryCollection`. `Point` and `MultiPoint` geometries are returned unchanged. The operation is performed **in place** — the original object is mutated and returned.
+Simplifies all coordinate sequences of any GeoJSON object using the Visvalingam-Whyatt algorithm. Accepts a plain geometry, a `Feature`, or a `FeatureCollection`. Supports `LineString`, `Polygon`, `MultiLineString`, `MultiPolygon`, and `GeometryCollection`. `Point` and `MultiPoint` geometries are left unchanged. Features with a `null` geometry are skipped silently. The operation is performed **in place** — the original object is mutated and returned.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `geometry` | `object` | yes | A GeoJSON geometry object |
+| `geoJson` | `object` | yes | Any valid GeoJSON object (geometry, Feature, or FeatureCollection) |
 | `options.tolerance` | `number` | no | Minimum triangle area threshold below which a point is removed (default: `0`) |
 | `options.getWeight` | `function` | no | A function `(coord, index) => number` that returns a weight multiplied by the triangle area of each point. Defaults to `() => 1` (no weighting) |
 
@@ -29,17 +29,18 @@ Simplifies all coordinate sequences of a GeoJSON geometry using the Visvalingam-
 
 | Type | Description |
 |------|-------------|
-| `object` | The mutated geometry |
+| `object` | The mutated GeoJSON object |
 
 ### Throws
 
-Throws if `geometry` is not a valid GeoJSON geometry.
+Throws if `geoJson` is not a valid GeoJSON object.
+Throws if `options` does not match the expected schema.
 
 ### Examples
 
 ```js
 // LineString
-simplifyGeometry(
+simplify(
   { type: 'LineString', coordinates: [[0,0],[1,0.01],[2,0.02],[3,0.01],[4,0]] },
   { tolerance: 1e-4 }
 )
@@ -48,7 +49,7 @@ simplifyGeometry(
 
 ```js
 // Polygon — each ring is simplified independently
-simplifyGeometry(
+simplify(
   { type: 'Polygon', coordinates: [[[0,0],[1,0.01],[2,0],[3,0.01],[4,0],[2,-1],[0,0]]] },
   { tolerance: 1e-4 }
 )
@@ -57,7 +58,7 @@ simplifyGeometry(
 
 ```js
 // GeometryCollection — recurses into each geometry
-simplifyGeometry(
+simplify(
   {
     type: 'GeometryCollection',
     geometries: [
@@ -78,75 +79,13 @@ simplifyGeometry(
 
 ```js
 // Point — returned unchanged
-simplifyGeometry({ type: 'Point', coordinates: [2.3522, 48.8566] }, { tolerance: 1e-4 })
+simplify({ type: 'Point', coordinates: [2.3522, 48.8566] }, { tolerance: 1e-4 })
 // { type: 'Point', coordinates: [2.3522, 48.8566] }
 ```
 
 ```js
-// Custom weight — preserve points of interest regardless of their area
-simplifyGeometry(
-  { type: 'LineString', coordinates: [[0,0],[1,0.01],[2,0.01],[3,0.01],[4,0]] },
-  {
-    tolerance: 1e-4,
-    getWeight: (coord) => coord[0] === 2 ? 1e10 : 1
-  }
-)
-// { type: 'LineString', coordinates: [[0,0],[2,0.01],[4,0]] }
-```
-
-```js
-// Mutates in place
-const geometry = { type: 'LineString', coordinates: [[0,0],[1,0.01],[2,0]] }
-const result = simplifyGeometry(geometry, { tolerance: 1e-4 })
-result === geometry // true
-```
-
----
-
-## simplifyGeoJson
-
-### Signature
-
-```js
-simplifyGeoJson (geoJson, options)
-```
-
-### Description
-
-Simplifies all coordinate sequences of any GeoJSON object using the Visvalingam-Whyatt algorithm. Accepts a plain geometry, a `Feature`, or a `FeatureCollection`. Features with a `null` geometry are skipped silently. The operation is performed **in place** — the original object is mutated and returned.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `geoJson` | `object` | yes | Any valid GeoJSON object (geometry, Feature, or FeatureCollection) |
-| `options.tolerance` | `number` | no | Minimum triangle area threshold below which a point is removed (default: `0`) |
-| `options.getWeight` | `function` | no | A function `(coord, index) => number` that returns a weight multiplied by the triangle area of each point. Defaults to `() => 1` (no weighting) |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `object` | The mutated GeoJSON object |
-
-### Throws
-
-Throws if `geoJson` is not a valid GeoJSON object.
-
-### Examples
-
-```js
-// Plain geometry
-simplifyGeoJson(
-  { type: 'LineString', coordinates: [[0,0],[1,0.01],[2,0.02],[3,0.01],[4,0]] },
-  { tolerance: 1e-4 }
-)
-// { type: 'LineString', coordinates: [[0,0],[4,0]] }
-```
-
-```js
 // Feature
-simplifyGeoJson(
+simplify(
   {
     type: 'Feature',
     properties: { name: 'Route' },
@@ -163,16 +102,13 @@ simplifyGeoJson(
 
 ```js
 // Feature with null geometry — skipped silently
-simplifyGeoJson(
-  { type: 'Feature', geometry: null, properties: {} },
-  { tolerance: 1e-4 }
-)
+simplify({ type: 'Feature', geometry: null, properties: {} }, { tolerance: 1e-4 })
 // { type: 'Feature', geometry: null, properties: {} }
 ```
 
 ```js
 // FeatureCollection
-simplifyGeoJson(
+simplify(
   {
     type: 'FeatureCollection',
     features: [
@@ -192,12 +128,24 @@ simplifyGeoJson(
 ```
 
 ```js
+// Custom weight — preserve points of interest regardless of their area
+simplify(
+  { type: 'LineString', coordinates: [[0,0],[1,0.01],[2,0.01],[3,0.01],[4,0]] },
+  {
+    tolerance: 1e-4,
+    getWeight: (coord) => coord[0] === 2 ? 1e10 : 1
+  }
+)
+// { type: 'LineString', coordinates: [[0,0],[2,0.01],[4,0]] }
+```
+
+```js
 // Mutates in place
 const geoJson = {
   type: 'Feature',
   geometry: { type: 'LineString', coordinates: [[0,0],[1,0.01],[2,0]] },
   properties: {}
 }
-const result = simplifyGeoJson(geoJson, { tolerance: 1e-4 })
+const result = simplify(geoJson, { tolerance: 1e-4 })
 result === geoJson // true
 ```
