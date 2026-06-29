@@ -74,17 +74,17 @@ const SIMPLIFY_OPTIONS_SCHEMA = {
   getWeight: optional(is.function)
 }
 
-export function simplify (geoJson, options = {}) {
+export function simplifyGeoJson (geoJson, options = {}) {
   assert.all([
     { value: geoJson, validator: isLikeGeoJson, message: 'geoJson must be a GeoJson object' },
     { value: options, validator: (v) => conform.schema(v, SIMPLIFY_OPTIONS_SCHEMA), message: 'options must be a valid options object' }
   ])
   if (geoJson.type === FEATURE_TYPES.FEATURE) {
-    if (geoJson.geometry) simplify(geoJson.geometry, options)
+    if (geoJson.geometry) simplifyGeoJson(geoJson.geometry, options)
     return geoJson
   }
   if (geoJson.type === FEATURE_TYPES.FEATURE_COLLECTION) {
-    for (const feature of geoJson.features) simplify(feature, options)
+    for (const feature of geoJson.features) simplifyGeoJson(feature, options)
     return geoJson
   }
   // Geometry
@@ -100,7 +100,7 @@ export function simplify (geoJson, options = {}) {
       geoJson.coordinates = geoJson.coordinates.map(poly => poly.map(ring => visvalingam(ring, options)))
       break
     case GEOMETRY_TYPES.GEOMETRY_COLLECTION:
-      geoJson.geometries.forEach(g => simplify(g, options))
+      geoJson.geometries.forEach(g => simplifyGeoJson(g, options))
       break
   }
   return geoJson

@@ -5,12 +5,12 @@ description: Simplify the coordinates of GeoJSON objects using the Visvalingam-W
 
 # simplify
 
-## simplify
+## simplifyGeoJson
 
 ### Signature
 
 ```js
-simplify (geoJson, options)
+simplifyGeoJson (geoJson, options)
 ```
 
 ### Description
@@ -40,7 +40,7 @@ Throws if `options` does not match the expected schema.
 
 ```js
 // LineString
-simplify(
+simplifyGeoJson(
   { type: 'LineString', coordinates: [[0,0],[1,0.01],[2,0.02],[3,0.01],[4,0]] },
   { tolerance: 1e-4 }
 )
@@ -49,7 +49,7 @@ simplify(
 
 ```js
 // Polygon — each ring is simplified independently
-simplify(
+simplifyGeoJson(
   { type: 'Polygon', coordinates: [[[0,0],[1,0.01],[2,0],[3,0.01],[4,0],[2,-1],[0,0]]] },
   { tolerance: 1e-4 }
 )
@@ -58,7 +58,7 @@ simplify(
 
 ```js
 // GeometryCollection — recurses into each geometry
-simplify(
+simplifyGeoJson(
   {
     type: 'GeometryCollection',
     geometries: [
@@ -79,13 +79,13 @@ simplify(
 
 ```js
 // Point — returned unchanged
-simplify({ type: 'Point', coordinates: [2.3522, 48.8566] }, { tolerance: 1e-4 })
+simplifyGeoJson({ type: 'Point', coordinates: [2.3522, 48.8566] }, { tolerance: 1e-4 })
 // { type: 'Point', coordinates: [2.3522, 48.8566] }
 ```
 
 ```js
 // Feature
-simplify(
+simplifyGeoJson(
   {
     type: 'Feature',
     properties: { name: 'Route' },
@@ -102,13 +102,13 @@ simplify(
 
 ```js
 // Feature with null geometry — skipped silently
-simplify({ type: 'Feature', geometry: null, properties: {} }, { tolerance: 1e-4 })
+simplifyGeoJson({ type: 'Feature', geometry: null, properties: {} }, { tolerance: 1e-4 })
 // { type: 'Feature', geometry: null, properties: {} }
 ```
 
 ```js
 // FeatureCollection
-simplify(
+simplifyGeoJson(
   {
     type: 'FeatureCollection',
     features: [
@@ -129,7 +129,7 @@ simplify(
 
 ```js
 // Custom weight — preserve points of interest regardless of their area
-simplify(
+simplifyGeoJson(
   { type: 'LineString', coordinates: [[0,0],[1,0.01],[2,0.01],[3,0.01],[4,0]] },
   {
     tolerance: 1e-4,
@@ -146,6 +146,6 @@ const geoJson = {
   geometry: { type: 'LineString', coordinates: [[0,0],[1,0.01],[2,0]] },
   properties: {}
 }
-const result = simplify(geoJson, { tolerance: 1e-4 })
+const result = simplifyGeoJson(geoJson, { tolerance: 1e-4 })
 result === geoJson // true
 ```

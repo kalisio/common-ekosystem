@@ -1,7 +1,7 @@
 import path from 'node:path'
 import fs from 'node:fs'
 import { describe, it, expect } from 'vitest'
-import { simplify } from '../../../src/operators/index.js'
+import { simplifyGeoJson } from '../../../src/operators/index.js'
 import chroma from 'chroma-js'
 
 let geojsonPath
@@ -16,7 +16,7 @@ describe('simplifyPath', () => {
   })
 
   it('simplifies the path with a tolerance of 1e-6 without vertex weights', () => {
-    const simplifiedPath = simplify(geojsonPath, {
+    const simplifiedPath = simplifyGeoJson(geojsonPath, {
       tolerance: 1e-6
     })
     const geometry = simplifiedPath.geometry
@@ -26,7 +26,7 @@ describe('simplifyPath', () => {
 
   it('simplifies the path with a tolerance of 1e-6 with vertex weights', () => {
     const { gradient } = geojsonPath.properties
-    const simplifiedPath = simplify(geojsonPath, {
+    const simplifiedPath = simplifyGeoJson(geojsonPath, {
       tolerance: 1e-6,
       getWeight: (coord, index) => {
         if (index === 0 || index === gradient.length - 1) return 1
@@ -43,7 +43,7 @@ describe('simplifyPath', () => {
 
   it('simplifies the path with a tolerance of 1e-4 with vertex weights', () => {
     const { gradient } = geojsonPath.properties
-    const simplifiedPath = simplify(geojsonPath, {
+    const simplifiedPath = simplifyGeoJson(geojsonPath, {
       tolerance: 1e-4,
       getWeight: (coord, index) => {
         if (index === 0 || index === gradient.length - 1) return 1
