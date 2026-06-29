@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { computeConvexHull } from '../../../src/operators/index.js'
+import { computeGeoJsonConvexHull } from '../../../src/operators/index.js'
 import {
   pointParis,
   lineStringTwoPoints,
@@ -27,130 +27,130 @@ import {
   fc3DAlpineRoute
 } from './data/fixtures.js'
 
-describe('computeConvexHull', () => {
+describe('computeGeoJsonConvexHull', () => {
   // Geometries
   it('returns a Point for a Point geometry', () => {
-    const result = computeConvexHull(pointParis)
+    const result = computeGeoJsonConvexHull(pointParis)
     expect(result.type).toBe('Point')
     expect(result.coordinates).toEqual([2.349, 48.864])
   })
 
   it('returns a LineString for a 2-point LineString', () => {
-    const result = computeConvexHull(lineStringTwoPoints)
+    const result = computeGeoJsonConvexHull(lineStringTwoPoints)
     expect(result.type).toBe('LineString')
     expect(result.coordinates).toEqual([[2.349, 48.864], [12.496, 41.902]])
   })
 
   it('returns a LineString for a MultiPoint with a single unique location', () => {
-    const result = computeConvexHull(multiPointSingleLocation)
+    const result = computeGeoJsonConvexHull(multiPointSingleLocation)
     expect(result.type).toBe('LineString')
     expect(result.coordinates).toEqual([[2.349, 48.864], [2.349, 48.864]])
   })
 
   it('returns a LineString for collinear MultiPoint', () => {
-    const result = computeConvexHull(multiPointCollinear)
+    const result = computeGeoJsonConvexHull(multiPointCollinear)
     expect(result.type).toBe('LineString')
     expect(result.coordinates).toEqual([[0, 0], [3, 3]])
   })
 
   it('returns a LineString for a collinear LineString', () => {
-    const result = computeConvexHull(lineStringCollinear)
+    const result = computeGeoJsonConvexHull(lineStringCollinear)
     expect(result.type).toBe('LineString')
     expect(result.coordinates).toEqual([[0, 0], [3, 3]])
   })
 
   it('returns a Polygon for a non-degenerate LineString', () => {
-    expect(computeConvexHull(lineStringCoastline).type).toBe('Polygon')
+    expect(computeGeoJsonConvexHull(lineStringCoastline).type).toBe('Polygon')
   })
 
   it('returns a Polygon for a Polygon', () => {
-    expect(computeConvexHull(polygonFrance).type).toBe('Polygon')
+    expect(computeGeoJsonConvexHull(polygonFrance).type).toBe('Polygon')
   })
 
   it('returns a Polygon for a Polygon with a hole', () => {
-    expect(computeConvexHull(polygonWithHole).type).toBe('Polygon')
+    expect(computeGeoJsonConvexHull(polygonWithHole).type).toBe('Polygon')
   })
 
   it('returns a Polygon for a MultiPoint', () => {
-    expect(computeConvexHull(multiPointScattered).type).toBe('Polygon')
+    expect(computeGeoJsonConvexHull(multiPointScattered).type).toBe('Polygon')
   })
 
   it('returns a Polygon for a MultiLineString', () => {
-    expect(computeConvexHull(multiLineStringRoads).type).toBe('Polygon')
+    expect(computeGeoJsonConvexHull(multiLineStringRoads).type).toBe('Polygon')
   })
 
   it('returns a Polygon for a MultiPolygon', () => {
-    expect(computeConvexHull(multiPolygonCountries).type).toBe('Polygon')
+    expect(computeGeoJsonConvexHull(multiPolygonCountries).type).toBe('Polygon')
   })
 
   it('returns a Polygon for a GeometryCollection with mixed types', () => {
-    expect(computeConvexHull(geometryCollectionMixed).type).toBe('Polygon')
+    expect(computeGeoJsonConvexHull(geometryCollectionMixed).type).toBe('Polygon')
   })
 
   it('strips altitude — always returns 2D geometry', () => {
-    const result = computeConvexHull(lineString3D)
+    const result = computeGeoJsonConvexHull(lineString3D)
     expect(result.type).toBe('Polygon')
     result.coordinates[0].forEach(pos => expect(pos.length).toBe(2))
   })
 
   // Features
   it('returns a Polygon for a Feature with a Polygon', () => {
-    expect(computeConvexHull(featurePolygonFrance).type).toBe('Polygon')
+    expect(computeGeoJsonConvexHull(featurePolygonFrance).type).toBe('Polygon')
   })
 
   it('returns a Polygon for a Feature with a MultiPolygon', () => {
-    expect(computeConvexHull(featureMultiPolygon).type).toBe('Polygon')
+    expect(computeGeoJsonConvexHull(featureMultiPolygon).type).toBe('Polygon')
   })
 
   it('returns null for a Feature with no geometry', () => {
-    expect(computeConvexHull(featureNoGeometry)).toBeNull()
+    expect(computeGeoJsonConvexHull(featureNoGeometry)).toBeNull()
   })
 
   it('returns a LineString for a Feature with collinear geometry', () => {
-    const result = computeConvexHull(featureCollinear)
+    const result = computeGeoJsonConvexHull(featureCollinear)
     expect(result.type).toBe('LineString')
     expect(result.coordinates).toEqual([[0, 0], [3, 3]])
   })
 
   // FeatureCollections
   it('returns a Polygon for a FeatureCollection of points', () => {
-    expect(computeConvexHull(fcEuropeanCities).type).toBe('Polygon')
+    expect(computeGeoJsonConvexHull(fcEuropeanCities).type).toBe('Polygon')
   })
 
   it('returns a Polygon for a FeatureCollection with mixed geometry types', () => {
-    expect(computeConvexHull(fcMixedGeometries).type).toBe('Polygon')
+    expect(computeGeoJsonConvexHull(fcMixedGeometries).type).toBe('Polygon')
   })
 
   it('returns null for an empty FeatureCollection', () => {
-    expect(computeConvexHull(fcEmpty)).toBeNull()
+    expect(computeGeoJsonConvexHull(fcEmpty)).toBeNull()
   })
 
   it('returns null for a FeatureCollection with only null geometries', () => {
-    expect(computeConvexHull(fcNoGeometries)).toBeNull()
+    expect(computeGeoJsonConvexHull(fcNoGeometries)).toBeNull()
   })
 
   it('returns a LineString for a FeatureCollection ignoring null geometries', () => {
-    const result = computeConvexHull(fcWithNullGeometry)
+    const result = computeGeoJsonConvexHull(fcWithNullGeometry)
     expect(result.type).toBe('LineString')
     expect(result.coordinates).toEqual([[2.349, 48.864], [12.496, 41.902]])
   })
 
   it('returns a LineString for a FeatureCollection with collinear points', () => {
-    const result = computeConvexHull(fcCollinear)
+    const result = computeGeoJsonConvexHull(fcCollinear)
     expect(result.type).toBe('LineString')
     expect(result.coordinates).toEqual([[0, 0], [2, 2]])
   })
 
   it('strips altitude for a 3D FeatureCollection — always returns 2D geometry', () => {
-    const result = computeConvexHull(fc3DAlpineRoute)
+    const result = computeGeoJsonConvexHull(fc3DAlpineRoute)
     expect(result.type).toBe('Polygon')
     result.coordinates[0].forEach(pos => expect(pos.length).toBe(2))
   })
 
   // Errors
   it('throws if geoJson is invalid', () => {
-    expect(() => computeConvexHull(null)).toThrow()
-    expect(() => computeConvexHull({ type: 'Invalid' })).toThrow()
-    expect(() => computeConvexHull('not geojson')).toThrow()
+    expect(() => computeGeoJsonConvexHull(null)).toThrow()
+    expect(() => computeGeoJsonConvexHull({ type: 'Invalid' })).toThrow()
+    expect(() => computeGeoJsonConvexHull('not geojson')).toThrow()
   })
 })

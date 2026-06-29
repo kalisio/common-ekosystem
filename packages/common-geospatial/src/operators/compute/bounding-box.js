@@ -7,7 +7,7 @@ const BOUNDING_BOX_OPTIONS_SCHEMA = {
   ignore3D: optional(is.boolean)
 }
 
-export function computeBoundingBox (geoJson, options = {}) {
+export function computeGeoJsonBoundingBox (geoJson, options = {}) {
   assert.all([
     { value: geoJson, validator: isLikeGeoJson, message: 'geoJson must be a GeoJson object' },
     { value: options, validator: (v) => conform.schema(v, BOUNDING_BOX_OPTIONS_SCHEMA), message: 'options must be a valid options object' }

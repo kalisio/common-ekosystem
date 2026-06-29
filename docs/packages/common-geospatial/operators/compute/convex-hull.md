@@ -5,12 +5,12 @@ description: Compute the convex hull of GeoJSON objects.
 
 # convex-hull
 
-## computeConvexHull
+## computeGeoJsonConvexHull
 
 ### Signature
 
 ```js
-computeConvexHull (geoJson)
+computeGeoJsonConvexHull (geoJson)
 ```
 
 ### Description
@@ -45,13 +45,13 @@ Throws if `geoJson` is not a valid GeoJSON object.
 
 ```js
 // Point — returns the point itself
-computeConvexHull({ type: 'Point', coordinates: [2.349, 48.864] })
+computeGeoJsonConvexHull({ type: 'Point', coordinates: [2.349, 48.864] })
 // { type: 'Point', coordinates: [2.349, 48.864] }
 ```
 
 ```js
 // LineString with 2 points
-computeConvexHull({
+computeGeoJsonConvexHull({
   type: 'LineString',
   coordinates: [[2.349, 48.864], [12.496, 41.902]]
 })
@@ -60,7 +60,7 @@ computeConvexHull({
 
 ```js
 // Collinear points — fallback to LineString between first and last
-computeConvexHull({
+computeGeoJsonConvexHull({
   type: 'MultiPoint',
   coordinates: [[0, 0], [1, 1], [2, 2], [3, 3]]
 })
@@ -69,7 +69,7 @@ computeConvexHull({
 
 ```js
 // Polygon — returns convex hull as a Polygon
-computeConvexHull({
+computeGeoJsonConvexHull({
   type: 'Polygon',
   coordinates: [[
     [-4.795, 48.376], [2.551, 51.089], [8.233, 48.978],
@@ -81,7 +81,7 @@ computeConvexHull({
 
 ```js
 // 3D geometry — altitude is stripped, hull computed in 2D
-computeConvexHull({
+computeGeoJsonConvexHull({
   type: 'LineString',
   coordinates: [[6.865, 45.832, 1034], [7.265, 45.923, 1224], [7.742, 45.921, 672], [7.315, 45.074, 250]]
 })
@@ -90,7 +90,7 @@ computeConvexHull({
 
 ```js
 // Feature
-computeConvexHull({
+computeGeoJsonConvexHull({
   type: 'Feature',
   geometry: { type: 'Point', coordinates: [2.349, 48.864] },
   properties: { name: 'Paris' }
@@ -100,13 +100,13 @@ computeConvexHull({
 
 ```js
 // Feature with null geometry — returns null
-computeConvexHull({ type: 'Feature', geometry: null, properties: {} })
+computeGeoJsonConvexHull({ type: 'Feature', geometry: null, properties: {} })
 // null
 ```
 
 ```js
 // FeatureCollection — all positions aggregated
-computeConvexHull({
+computeGeoJsonConvexHull({
   type: 'FeatureCollection',
   features: [
     { type: 'Feature', geometry: { type: 'Point', coordinates: [2.349, 48.864] }, properties: {} },
@@ -119,7 +119,7 @@ computeConvexHull({
 
 ```js
 // FeatureCollection with null geometries — ignored silently
-computeConvexHull({
+computeGeoJsonConvexHull({
   type: 'FeatureCollection',
   features: [
     { type: 'Feature', geometry: { type: 'Point', coordinates: [2.349, 48.864] }, properties: {} },
@@ -132,13 +132,13 @@ computeConvexHull({
 
 ```js
 // Empty FeatureCollection — returns null
-computeConvexHull({ type: 'FeatureCollection', features: [] })
+computeGeoJsonConvexHull({ type: 'FeatureCollection', features: [] })
 // null
 ```
 
 ```js
 // FeatureCollection with collinear points — fallback to LineString
-computeConvexHull({
+computeGeoJsonConvexHull({
   type: 'FeatureCollection',
   features: [
     { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] }, properties: {} },

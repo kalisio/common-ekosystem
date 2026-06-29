@@ -5,12 +5,12 @@ description: Compute the bounding box of GeoJSON objects.
 
 # bounding-box
 
-## computeBoundingBox
+## computeGeoJsonBoundingBox
 
 ### Signature
 
 ```js
-computeBoundingBox (geoJson, options)
+computeGeoJsonBoundingBox (geoJson, options)
 ```
 
 ### Description
@@ -39,13 +39,13 @@ Throws if `options` does not match the expected schema.
 
 ```js
 // Point
-computeBoundingBox({ type: 'Point', coordinates: [2.349, 48.864] })
+computeGeoJsonBoundingBox({ type: 'Point', coordinates: [2.349, 48.864] })
 // [2.349, 48.864, 2.349, 48.864]
 ```
 
 ```js
 // LineString
-computeBoundingBox({
+computeGeoJsonBoundingBox({
   type: 'LineString',
   coordinates: [[-73.985, 40.748], [-87.623, 41.881], [-118.243, 34.052]]
 })
@@ -54,7 +54,7 @@ computeBoundingBox({
 
 ```js
 // Polygon with hole — hole coordinates are included in the bbox
-computeBoundingBox({
+computeGeoJsonBoundingBox({
   type: 'Polygon',
   coordinates: [
     [[-10, -10], [10, -10], [10, 10], [-10, 10], [-10, -10]],
@@ -66,7 +66,7 @@ computeBoundingBox({
 
 ```js
 // 3D LineString — altitude range included automatically
-computeBoundingBox({
+computeGeoJsonBoundingBox({
   type: 'LineString',
   coordinates: [[6.865, 45.832, 1034], [7.742, 45.921, 672], [7.315, 45.074, 250]]
 })
@@ -75,7 +75,7 @@ computeBoundingBox({
 
 ```js
 // Ignore altitude
-computeBoundingBox(
+computeGeoJsonBoundingBox(
   {
     type: 'LineString',
     coordinates: [[6.865, 45.832, 1034], [7.742, 45.921, 672], [7.315, 45.074, 250]]
@@ -87,7 +87,7 @@ computeBoundingBox(
 
 ```js
 // Feature
-computeBoundingBox({
+computeGeoJsonBoundingBox({
   type: 'Feature',
   geometry: { type: 'Point', coordinates: [2.349, 48.864] },
   properties: { name: 'Paris' }
@@ -97,13 +97,13 @@ computeBoundingBox({
 
 ```js
 // Feature with null geometry — returns null
-computeBoundingBox({ type: 'Feature', geometry: null, properties: {} })
+computeGeoJsonBoundingBox({ type: 'Feature', geometry: null, properties: {} })
 // null
 ```
 
 ```js
 // FeatureCollection
-computeBoundingBox({
+computeGeoJsonBoundingBox({
   type: 'FeatureCollection',
   features: [
     { type: 'Feature', geometry: { type: 'Point', coordinates: [2.349, 48.864] }, properties: {} },
@@ -115,7 +115,7 @@ computeBoundingBox({
 
 ```js
 // FeatureCollection with null geometries — ignored silently
-computeBoundingBox({
+computeGeoJsonBoundingBox({
   type: 'FeatureCollection',
   features: [
     { type: 'Feature', geometry: { type: 'Point', coordinates: [2.349, 48.864] }, properties: {} },
@@ -128,13 +128,13 @@ computeBoundingBox({
 
 ```js
 // Empty FeatureCollection — returns null
-computeBoundingBox({ type: 'FeatureCollection', features: [] })
+computeGeoJsonBoundingBox({ type: 'FeatureCollection', features: [] })
 // null
 ```
 
 ```js
 // 3D FeatureCollection
-computeBoundingBox({
+computeGeoJsonBoundingBox({
   type: 'FeatureCollection',
   features: [
     { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0, 100] }, properties: {} },
@@ -146,7 +146,7 @@ computeBoundingBox({
 
 ```js
 // Ignore altitude on a FeatureCollection
-computeBoundingBox(
+computeGeoJsonBoundingBox(
   {
     type: 'FeatureCollection',
     features: [

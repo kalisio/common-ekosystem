@@ -13,11 +13,11 @@ function computeConvexHullFromPositions (positions) {
   return result.geometry
 }
 
-export function computeConvexHull (geoJson) {
+export function computeGeoJsonConvexHull (geoJson) {
   assert.that(geoJson, isLikeGeoJson, 'geoJson must be a GeoJson object')
   if (geoJson.type === FEATURE_TYPES.FEATURE) {
     if (!geoJson.geometry) return null
-    return computeConvexHull(geoJson.geometry)
+    return computeGeoJsonConvexHull(geoJson.geometry)
   }
   const positions = coordAll(geoJson).map(p => [p[0], p[1]])
   return computeConvexHullFromPositions(positions)
