@@ -1,2 +1,2 @@
-export * from './bounding-box/index.js'
-export * from './convex-hull/index.js'
+export * from './bounding-box.js'
+export * from './convex-hull.js'
