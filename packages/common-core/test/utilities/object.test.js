@@ -162,17 +162,6 @@ describe('object', () => {
       object.sort(items, 'label')
       expect(items).toEqual(snapshot)
     })
-    it('should sort a dictionary of objects by a string property, preserving keys', () => {
-      const dict = { z: { label: 'zèbre' }, e: { label: 'étoile' }, a: { label: 'abricot' } }
-      const result = object.sort(dict, 'label')
-      expect(Object.keys(result)).toEqual(['a', 'e', 'z'])
-    })
-    it('should not mutate the original dictionary', () => {
-      const dict = { z: { label: 'zèbre' }, a: { label: 'abricot' } }
-      const snapshot = { ...dict }
-      object.sort(dict, 'label')
-      expect(dict).toEqual(snapshot)
-    })
     it('should respect compare options (e.g. ignoreDiacritics: false)', () => {
       const result = object.sort(
         [{ label: 'ete' }, { label: 'été' }],
@@ -185,9 +174,9 @@ describe('object', () => {
       const result = object.sort(items, 'label', { locale: 'fr-FR' })
       expect(result.map(i => i.id)).toEqual([3, 2, 1])
     })
-    it('should throw if obj is neither an array nor a plain object', () => {
-      expect(() => object.sort('not a collection', 'label')).toThrow('obj must be an array or a plain object')
-      expect(() => object.sort(42, 'label')).toThrow('obj must be an array or a plain object')
+    it('should throw if arr is not an array', () => {
+      expect(() => object.sort('not an array', 'label')).toThrow('arr must be an array')
+      expect(() => object.sort({ a: 1 }, 'label')).toThrow('arr must be an array')
     })
     it('should throw if property is not a string', () => {
       expect(() => object.sort(items, 42)).toThrow('property must be a string')
@@ -195,6 +184,48 @@ describe('object', () => {
     it('should throw if options do not conform to schema', () => {
       expect(() => object.sort(items, 'label', { locale: 42 })).toThrow()
       expect(() => object.sort(items, 'label', { ignoreCase: 'yes' })).toThrow()
+    })
+  })
+
+  describe('reorder', () => {
+    const dict = { z: { label: 'zèbre' }, e: { label: 'étoile' }, a: { label: 'abricot' } }
+
+    it('should reorder a dictionary of objects by a string property, preserving keys', () => {
+      const result = object.reorder(dict, 'label')
+      expect(Object.keys(result)).toEqual(['a', 'e', 'z'])
+    })
+    it('should not mutate the original dictionary', () => {
+      const snapshot = { ...dict }
+      object.reorder(dict, 'label')
+      expect(dict).toEqual(snapshot)
+    })
+    it('should keep each value attached to its original key', () => {
+      const result = object.reorder(dict, 'label')
+      expect(result.a).toEqual({ label: 'abricot' })
+      expect(result.z).toEqual({ label: 'zèbre' })
+    })
+    it('should respect compare options (e.g. ignoreDiacritics: false)', () => {
+      const result = object.reorder(
+        { x: { label: 'ete' }, y: { label: 'été' } },
+        'label',
+        { ignoreDiacritics: false }
+      )
+      expect(Object.values(result).map(v => v.label)).toEqual(['ete', 'été'])
+    })
+    it('should respect the locale option', () => {
+      const result = object.reorder(dict, 'label', { locale: 'fr-FR' })
+      expect(Object.keys(result)).toEqual(['a', 'e', 'z'])
+    })
+    it('should throw if obj is not a plain object', () => {
+      expect(() => object.reorder([1, 2], 'label')).toThrow('obj must be a plain object')
+      expect(() => object.reorder('not an object', 'label')).toThrow('obj must be a plain object')
+    })
+    it('should throw if property is not a string', () => {
+      expect(() => object.reorder(dict, 42)).toThrow('property must be a string')
+    })
+    it('should throw if options do not conform to schema', () => {
+      expect(() => object.reorder(dict, 'label', { locale: 42 })).toThrow()
+      expect(() => object.reorder(dict, 'label', { ignoreCase: 'yes' })).toThrow()
     })
   })
 

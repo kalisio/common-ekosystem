@@ -56,18 +56,16 @@ export const object = {
     return normalizeObject(obj, options)
   },
 
-  sort (obj, property, options = {}) {
+  reorder (obj, property, options = {}) {
     assert.all([
-      { value: obj, validator: (v) => is.array(v) || is.plainObject(v), message: 'obj must be an array or a plain object' },
+      { value: obj, validator: is.plainObject, message: 'obj must be a plain object' },
       { value: property, validator: is.string, message: 'property must be a string' },
       { value: options, validator: (v) => conform.schema(v, SORT_OPTIONS_SCHEMA) }
     ])
     const compareValues = (a, b) => string.compare(a[property], b[property], options)
-    return is.array(obj)
-      ? [...obj].sort(compareValues)
-      : Object.fromEntries(
-        Object.entries(obj).sort(([, a], [, b]) => compareValues(a, b))
-      )
+    return Object.fromEntries(
+      Object.entries(obj).sort(([, a], [, b]) => compareValues(a, b))
+    )
   },
 
   dotify (obj) {
@@ -85,6 +83,14 @@ export const object = {
     }
     recurse(obj)
     return result
-  }
+  },
 
+  sort (arr, property, options = {}) {
+    assert.all([
+      { value: arr, validator: is.array, message: 'arr must be an array' },
+      { value: property, validator: is.string, message: 'property must be a string' },
+      { value: options, validator: (v) => conform.schema(v, SORT_OPTIONS_SCHEMA) }
+    ])
+    return [...arr].sort((a, b) => string.compare(a[property], b[property], options))
+  }
 }

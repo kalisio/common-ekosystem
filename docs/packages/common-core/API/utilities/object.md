@@ -1,11 +1,11 @@
 ---
 title: object
-description: Utility functions for cloning, normalizing, and sorting plain objects and arrays.
+description: Utility functions for cloning, normalizing, sorting, and reordering plain objects and arrays.
 ---
 
 # object
 
-Utility functions for cloning, normalizing, and sorting plain objects and arrays.
+Utility functions for cloning, normalizing, sorting, and reordering plain objects and arrays.
 
 ## clone
 
@@ -118,24 +118,24 @@ object.normalize({ a: [3, 1, 2] })
 // { a: [1, 2, 3] }
 ```
 
-## sort
+## reorder
 
 ### Signature
 
 ```js
-object.sort(obj, property, options = {})
+object.reorder(obj, property, options = {})
 ```
 
 ### Description
 
-Sorts an array of objects, or the values of a dictionary (plain object keyed by id), by a given string property. Comparison is delegated to `string.compare`, so accented and case-insensitive sorting is applied by default. When given a dictionary, keys are preserved and simply reordered. Does not mutate the input.
+Reorders the keys of a plain object based on a given string property of its values, so that iterating the result (`Object.entries`, `Object.keys`, `JSON.stringify`, ...) follows that order. Comparison is delegated to `string.compare`, so accented and case-insensitive sorting is applied by default. Keys and their associated values are preserved — only the order changes. Does not mutate the input.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `obj` | `object \| array` | yes | The array or dictionary to sort |
-| `property` | `string` | yes | The property name to sort by. Must resolve to a string value on every item |
+| `obj` | `object` | yes | The objionary to reorder |
+| `property` | `string` | yes | The property name to reorder by. Must resolve to a string value on every entry |
 | `options` | `object` | no | Comparison options, forwarded to `string.compare` |
 | `options.ignoreSpaces` | `boolean` | no | Ignore leading/trailing/multiple spaces when comparing. Defaults to `false` |
 | `options.ignoreDiacritics` | `boolean` | no | Ignore diacritics when comparing. Defaults to `true` |
@@ -146,40 +146,20 @@ Sorts an array of objects, or the values of a dictionary (plain object keyed by 
 
 | Type | Description |
 |------|-------------|
-| `object \| array` | A new array or dictionary sorted by `property`, matching the shape of the input |
+| `object` | A new object with the same keys and values, reordered by `property` |
 
 ### Throws
 
-Throws a `TypeError` if `obj` is not an array or a plain object, if `property` is not a string, if `options` does not conform to the expected schema, or if the resolved property value on any item is not a string.
+Throws a `TypeError` if `obj` is not a plain object, if `property` is not a string, if `options` does not conform to the expected schema, or if the resolved property value on any entry is not a string.
 
 ### Examples
 
 ```js
-// Sort an array of objects
-object.sort(
-  [{ label: 'zèbre' }, { label: 'étoile' }, { label: 'abricot' }],
-  'label'
-)
-// [{ label: 'abricot' }, { label: 'étoile' }, { label: 'zèbre' }]
-```
-
-```js
-// Sort a dictionary, preserving keys
-object.sort(
+object.reorder(
   { z: { label: 'zèbre' }, a: { label: 'abricot' } },
   'label'
 )
 // { a: { label: 'abricot' }, z: { label: 'zèbre' } }
-```
-
-```js
-// Distinguish diacritics
-object.sort(
-  [{ label: 'ete' }, { label: 'été' }],
-  'label',
-  { ignoreDiacritics: false }
-)
-// [{ label: 'ete' }, { label: 'été' }]
 ```
 
 ## dotify
@@ -224,4 +204,58 @@ object.dotify({ a: { b: null } })
 
 object.dotify({})
 // {}
+```
+
+## sort
+
+### Signature
+
+```js
+object.sort(arr, property, options = {})
+```
+
+### Description
+
+Sorts an array of objects by a given string property. Comparison is delegated to `string.compare`, so accented and case-insensitive sorting is applied by default. Does not mutate the input.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `arr` | `array` | yes | The array to sort |
+| `property` | `string` | yes | The property name to sort by. Must resolve to a string value on every item |
+| `options` | `object` | no | Comparison options, forwarded to `string.compare` |
+| `options.ignoreSpaces` | `boolean` | no | Ignore leading/trailing/multiple spaces when comparing. Defaults to `false` |
+| `options.ignoreDiacritics` | `boolean` | no | Ignore diacritics when comparing. Defaults to `true` |
+| `options.ignoreCase` | `boolean` | no | Ignore case when comparing. Defaults to `true` |
+| `options.locale` | `string` | no | Locale passed to the underlying comparison. Defaults to system locale |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `array` | A new array sorted by `property` |
+
+### Throws
+
+Throws a `TypeError` if `arr` is not an array, if `property` is not a string, if `options` does not conform to the expected schema, or if the resolved property value on any item is not a string.
+
+### Examples
+
+```js
+object.sort(
+  [{ label: 'zèbre' }, { label: 'étoile' }, { label: 'abricot' }],
+  'label'
+)
+// [{ label: 'abricot' }, { label: 'étoile' }, { label: 'zèbre' }]
+```
+
+```js
+// Distinguish diacritics
+object.sort(
+  [{ label: 'ete' }, { label: 'été' }],
+  'label',
+  { ignoreDiacritics: false }
+)
+// [{ label: 'ete' }, { label: 'été' }]
 ```
