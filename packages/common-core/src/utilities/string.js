@@ -1,4 +1,15 @@
-import { assert, is } from '../predicates/index.js'
+import { assert, is, conform, optional } from '../predicates/index.js'
+
+const NORMALIZE_OPTIONS_SCHEMA = {
+  ignoreSpaces: optional(is.boolean),
+  ignoreDiacritics: optional(is.boolean),
+  ignoreCase: optional(is.boolean),
+  locale: optional(is.string)
+}
+
+const COMPARE_OPTIONS_SCHEMA = {
+  ...NORMALIZE_OPTIONS_SCHEMA
+}
 
 export const string = {
 
@@ -12,7 +23,10 @@ export const string = {
   },
 
   normalize (str, options = {}) {
-    assert.that(str, is.string, 'str must be a string')
+    assert.all([
+      { value: str, validator: is.string, message: 'str must be a string' },
+      { value: options, validator: (v) => conform.schema(v, NORMALIZE_OPTIONS_SCHEMA) }
+    ])
     const {
       ignoreSpaces = false,
       ignoreDiacritics = false,
@@ -32,6 +46,18 @@ export const string = {
       result = result.toLocaleLowerCase(locale)
     }
     return result
+  },
+
+  compare (str1, str2, options = {}) {
+    assert.all([
+      { value: str1, validator: is.string, message: 'str1 must be a string' },
+      { value: str2, validator: is.string, message: 'str2 must be a string' },
+      { value: options, validator: (v) => conform.schema(v, COMPARE_OPTIONS_SCHEMA) }
+    ])
+    const normalizeOptions = { ignoreDiacritics: true, ignoreCase: true, ...options }
+    const nStr1 = string.normalize(str1, normalizeOptions)
+    const nStr2 = string.normalize(str2, normalizeOptions)
+    return nStr1.localeCompare(nStr2, options.locale)
   },
 
   makeDiacriticPattern (pattern, options = {}) {

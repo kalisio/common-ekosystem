@@ -23,7 +23,7 @@
     "release": "changeset publish",
     "postrelease": "git push --follow-tags",
     "pretest": "mkdir -p coverage",
-    "test": "pnpm -r test",
+    "test": "pnpm --filter=\"...[origin/master]\" test",
     "posttest": "pnpm lcov-result-merger --prepend-source-files 'packages/*/coverage/lcov.info' coverage/lcov.info",
     "test:common-core": "pnpm --filter @kalisio/common-core test",
     "test:common-geospatial": "pnpm --filter @kalisio/common-geospatial test",

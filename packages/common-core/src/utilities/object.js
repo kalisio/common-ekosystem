@@ -1,21 +1,34 @@
-import { assert, is } from '../predicates/index.js'
+import { assert, is, conform, optional } from '../predicates/index.js'
 import { string } from './string.js'
+
+const SORT_OPTIONS_SCHEMA = {
+  ignoreSpaces: optional(is.boolean),
+  ignoreDiacritics: optional(is.boolean),
+  ignoreCase: optional(is.boolean),
+  locale: optional(is.string)
+}
+
+const NORMALIZE_OPTIONS_SCHEMA = {
+  ...SORT_OPTIONS_SCHEMA,
+  ignoredKeys: optional(is.array)
+}
 
 function normalizeObject (obj, options = {}) {
   if (!is.defined(obj)) return obj
   const ignoredKeys = options?.ignoredKeys ?? []
+  const sortOptions = { ignoreDiacritics: false, ignoreCase: false, locale: options.locale }
   if (is.array(obj)) {
     return obj
       .map(v => normalizeObject(v, options))
       .sort((a, b) =>
-        JSON.stringify(a).localeCompare(JSON.stringify(b))
+        string.compare(JSON.stringify(a), JSON.stringify(b), sortOptions)
       )
   }
   if (is.plainObject(obj)) {
     return Object.fromEntries(
       Object.entries(obj)
         .filter(([key]) => !ignoredKeys.includes(key))
-        .sort(([a], [b]) => a.localeCompare(b))
+        .sort(([a], [b]) => string.compare(a, b, sortOptions))
         .map(([key, value]) => [
           key,
           normalizeObject(value, options)
@@ -36,8 +49,25 @@ export const object = {
   },
 
   normalize (obj, options = {}) {
-    assert.that(obj, is.defined, 'obj must be defined')
+    assert.all([
+      { value: obj, validator: (v) => is.array(v) || is.plainObject(v), message: 'obj must be an array or a plain object' },
+      { value: options, validator: (v) => conform.schema(v, NORMALIZE_OPTIONS_SCHEMA) }
+    ])
     return normalizeObject(obj, options)
+  },
+
+  sort (obj, property, options = {}) {
+    assert.all([
+      { value: obj, validator: (v) => is.array(v) || is.plainObject(v), message: 'obj must be an array or a plain object' },
+      { value: property, validator: is.string, message: 'property must be a string' },
+      { value: options, validator: (v) => conform.schema(v, SORT_OPTIONS_SCHEMA) }
+    ])
+    const compareValues = (a, b) => string.compare(a[property], b[property], options)
+    return is.array(obj)
+      ? [...obj].sort(compareValues)
+      : Object.fromEntries(
+        Object.entries(obj).sort(([, a], [, b]) => compareValues(a, b))
+      )
   },
 
   dotify (obj) {
