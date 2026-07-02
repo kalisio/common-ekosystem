@@ -1,11 +1,11 @@
 ---
 title: string
-description: Utility functions for normalizing, pattern matching, and transforming strings.
+description: Utility functions for normalizing, comparing, pattern matching, and transforming strings.
 ---
 
 # string
 
- Utility functions for normalizing, pattern matching, and transforming strings.
+Utility functions for normalizing, comparing, pattern matching, and transforming strings.
 
 ## DIACRITICS
 
@@ -27,7 +27,7 @@ string.DIACRITICS = {
 ### Signature
 
 ```js
-string.normalize(str, options = {})
+string.normalize (str, options = {})
 ```
 
 ### Description
@@ -53,7 +53,7 @@ Normalizes a string by optionally collapsing whitespace, stripping diacritics, a
 
 ### Throws
 
-Throws a `TypeError` if `str` is not a string.
+Throws a `TypeError` if `str` is not a string, or if `options` does not conform to the expected schema (e.g. wrong option type).
 
 ### Examples
 
@@ -71,12 +71,66 @@ string.normalize('  Héllo  ', { ignoreSpaces: true, ignoreDiacritics: true, ign
 // 'hello'
 ```
 
+## compare
+
+### Signature
+
+```js
+string.compare (str1, str2, options = {})
+```
+
+### Description
+
+Compares two strings for sorting purposes, using locale-aware collation (`String.prototype.localeCompare`) rather than raw Unicode code point comparison. This ensures accented characters sort in their expected linguistic position (e.g. `'été'` sorts before `'zoo'`, not after).
+
+Internally normalizes both strings via `string.normalize` before comparing. Unlike `normalize`, diacritics and case are ignored by default, since this reflects the typical intent when sorting user-facing labels.
+
+Can be passed directly as the callback to `Array.prototype.sort`.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `str1` | `string` | yes | The first string to compare |
+| `str2` | `string` | yes | The second string to compare |
+| `options` | `object` | no | Comparison options |
+| `options.ignoreSpaces` | `boolean` | no | Collapse consecutive whitespace and trim before comparing. Defaults to `false` |
+| `options.ignoreDiacritics` | `boolean` | no | Ignore diacritics when comparing. Defaults to `true` |
+| `options.ignoreCase` | `boolean` | no | Ignore case when comparing. Defaults to `true` |
+| `options.locale` | `string` | no | Locale passed to `localeCompare` (e.g. `'fr-FR'`). Defaults to system locale |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `number` | A negative number if `str1` sorts before `str2`, a positive number if after, `0` if equal under the given options |
+
+### Throws
+
+Throws a `TypeError` if `str1` or `str2` is not a string, or if `options` does not conform to the expected schema.
+
+### Examples
+
+```js
+string.compare('été', 'zoo')
+// negative — 'été' sorts before 'zoo'
+
+string.compare('Hello', 'hello')
+// 0 — case is ignored by default
+
+string.compare('été', 'ete', { ignoreDiacritics: false })
+// non-zero — diacritics are distinguished
+
+;['zèbre', 'étoile', 'abricot'].sort(string.compare)
+// ['abricot', 'étoile', 'zèbre']
+```
+
 ## makeDiacriticPattern
 
 ### Signature
 
 ```js
-string.makeDiacriticPattern(pattern, options = {})
+string.makeDiacriticPattern (pattern, options = {})
 ```
 
 ### Description
@@ -122,7 +176,7 @@ new RegExp(pattern, 'i').test('Café') // true
 ### Signature
 
 ```js
-string.slugify(str, separator = '-')
+string.slugify (str, separator = '-')
 ```
 
 ### Description
@@ -167,7 +221,7 @@ string.slugify('Hello World', '_')
 ### Signature
 
 ```js
-string.initials(str, options = {})
+string.initials (str, options = {})
 ```
 
 ### Description

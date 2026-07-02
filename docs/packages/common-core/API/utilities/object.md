@@ -1,11 +1,11 @@
 ---
 title: object
-description: Utility functions for cloning and normalizing plain objects and arrays.
+description: Utility functions for cloning, normalizing, and sorting plain objects and arrays.
 ---
 
 # object
 
-Utility functions for cloning and normalizing plain objects and arrays.
+Utility functions for cloning, normalizing, and sorting plain objects and arrays.
 
 ## clone
 
@@ -62,26 +62,29 @@ Recursively normalizes a plain object or array to produce a canonical, comparabl
 - **Other primitives** — returned as-is
 - **`null` / `undefined`** — returned as-is without recursing
 
+Key and element ordering always uses a strict, accent- and case-sensitive comparison — `options.ignoreDiacritics` and `options.ignoreCase` only affect how string *values* are normalized, not the sort order of keys or array elements. `options.locale` is honored for both.
+
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `obj` | `*` | yes | The value to normalize |
+| `obj` | `object \| array` | yes | The array or plain object to normalize |
 | `options` | `object` | no | Normalization options |
 | `options.ignoredKeys` | `string[]` | no | Keys to exclude from objects, applied recursively |
-| `options.ignoreCase` | `boolean` | no | Lowercase string values |
-| `options.ignoreDiacritics` | `boolean` | no | Strip diacritics from string values |
-| `options.ignoreSpaces` | `boolean` | no | Normalize whitespace in string values |
+| `options.ignoreCase` | `boolean` | no | Lowercase string values. Defaults to `false` |
+| `options.ignoreDiacritics` | `boolean` | no | Strip diacritics from string values. Defaults to `false` |
+| `options.ignoreSpaces` | `boolean` | no | Normalize whitespace in string values. Defaults to `false` |
+| `options.locale` | `string` | no | Locale used for key/element ordering and, if `ignoreCase` is set, for string value normalization. Defaults to system locale |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `*` | The normalized value |
+| `object \| array` | The normalized value |
 
 ### Throws
 
-Throws a `TypeError` if `obj` is `null` or `undefined`.
+Throws a `TypeError` if `obj` is not an array or a plain object, or if `options` does not conform to the expected schema.
 
 ### Examples
 
@@ -113,6 +116,70 @@ object.normalize({ a: 'Héllo' }, { ignoreCase: true, ignoreDiacritics: true })
 // Sort array elements
 object.normalize({ a: [3, 1, 2] })
 // { a: [1, 2, 3] }
+```
+
+## sort
+
+### Signature
+
+```js
+object.sort(obj, property, options = {})
+```
+
+### Description
+
+Sorts an array of objects, or the values of a dictionary (plain object keyed by id), by a given string property. Comparison is delegated to `string.compare`, so accented and case-insensitive sorting is applied by default. When given a dictionary, keys are preserved and simply reordered. Does not mutate the input.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `obj` | `object \| array` | yes | The array or dictionary to sort |
+| `property` | `string` | yes | The property name to sort by. Must resolve to a string value on every item |
+| `options` | `object` | no | Comparison options, forwarded to `string.compare` |
+| `options.ignoreSpaces` | `boolean` | no | Ignore leading/trailing/multiple spaces when comparing. Defaults to `false` |
+| `options.ignoreDiacritics` | `boolean` | no | Ignore diacritics when comparing. Defaults to `true` |
+| `options.ignoreCase` | `boolean` | no | Ignore case when comparing. Defaults to `true` |
+| `options.locale` | `string` | no | Locale passed to the underlying comparison. Defaults to system locale |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `object \| array` | A new array or dictionary sorted by `property`, matching the shape of the input |
+
+### Throws
+
+Throws a `TypeError` if `obj` is not an array or a plain object, if `property` is not a string, if `options` does not conform to the expected schema, or if the resolved property value on any item is not a string.
+
+### Examples
+
+```js
+// Sort an array of objects
+object.sort(
+  [{ label: 'zèbre' }, { label: 'étoile' }, { label: 'abricot' }],
+  'label'
+)
+// [{ label: 'abricot' }, { label: 'étoile' }, { label: 'zèbre' }]
+```
+
+```js
+// Sort a dictionary, preserving keys
+object.sort(
+  { z: { label: 'zèbre' }, a: { label: 'abricot' } },
+  'label'
+)
+// { a: { label: 'abricot' }, z: { label: 'zèbre' } }
+```
+
+```js
+// Distinguish diacritics
+object.sort(
+  [{ label: 'ete' }, { label: 'été' }],
+  'label',
+  { ignoreDiacritics: false }
+)
+// [{ label: 'ete' }, { label: 'été' }]
 ```
 
 ## dotify
