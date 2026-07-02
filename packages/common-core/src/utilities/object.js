@@ -63,6 +63,7 @@ export const object = {
       { value: options, validator: (v) => conform.schema(v, SORT_OPTIONS_SCHEMA) }
     ])
     const compareValues = (a, b) => string.compare(a[property], b[property], options)
+    // NOSONAR - by design: returns the same shape as the input (array in, array out; plain object in, plain object out)
     return is.array(obj)
       ? [...obj].sort(compareValues)
       : Object.fromEntries(
