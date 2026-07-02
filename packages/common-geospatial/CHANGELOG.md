@@ -1,5 +1,20 @@
 # @kalisio/common-geospatial
 
+## 0.8.0
+
+### Minor Changes
+
+- Provide a compute convex-hull operator
+- Provide a compute bounding box operator
+- Provide additional helper functions for bbox
+- Provide additional helper functions for position
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+  - @kalisio/common-core@1.0.0
+
 ## 0.7.0
 
 ### Minor Changes

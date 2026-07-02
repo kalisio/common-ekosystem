@@ -1,5 +1,12 @@
 # @kalisio/common-core
 
+## 0.8.0
+
+### Minor Changes
+
+- Provide a string comparison helper
+- Provide a sort object helper
+
 ## 0.7.0
 
 ### Minor Changes
