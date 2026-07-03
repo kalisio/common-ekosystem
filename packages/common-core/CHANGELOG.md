@@ -6,6 +6,7 @@
 
 - Provide a string comparison helper
 - Provide a sort object helper
+- Allow disabling assertions at runtime
 
 ## 0.7.0
 
