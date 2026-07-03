@@ -10,12 +10,14 @@ All validation functions return a result object with the following shape:
 ```js
 {
   valid: boolean,        // whether the object is valid
-  errors: { message: string, path?: string, index?: number }[],
-  warnings: { message: string, path?: string, index?: number }[]
+  errors: { code: string, path?: string, index?: number, params?: object }[],
+  warnings: { code: string, path?: string, index?: number, params?: object }[]
 }
 ```
 
 Errors indicate structural or semantic invalidity. Warnings are non-blocking observations (e.g. high coordinate precision, antimeridian crossing, missing geometry).
+
+Every error and warning carries a stable `code` from `VALIDATION_CODES` (see `validate/codes.js`) instead of a human-readable message. This lets consuming applications translate and react to specific issues programmatically without depending on message wording. Optional `params` carry the dynamic values a translation may need (e.g. the out-of-range value, the expected vs actual winding order).
 
 Paths use a JSON Pointer-like notation: `/coordinates/0`, `/features/2/geometry`, `/bbox`.
 
@@ -25,36 +27,43 @@ Paths use a JSON Pointer-like notation: `/coordinates/0`, `/features/2/geometry`
 
 ### Errors
 
-| Emitted by | Message pattern | Cause |
-|---|---|---|
-| `validatePosition` | `Invalid coordinates: longitude must be in the range -180 to 180` | Longitude out of range |
-| `validatePosition` | `Invalid coordinates: latitude must be in the range -90 to 90` | Latitude out of range |
-| `validatePosition` | `Invalid coordinates: altitude must be a number` | Altitude is not a finite number |
-| `validateBBox` | `Invalid bbox: must be an array of 4 or 6 numbers` | Wrong length or wrong type |
-| `validateBBox` | `Invalid bbox: south-west corner — …` | SW corner fails position validation |
-| `validateBBox` | `Invalid bbox: north-east corner — …` | NE corner fails position validation |
-| `validateBBox` | `Invalid bbox: south (N) must be <= north (M)` | South latitude exceeds north |
-| `validateCRS` | `Invalid crs: unknown type: …` | `type` is neither `name` nor `link` |
-| `validateCRS` | `Invalid crs: named crs must have a non-empty properties.name string` | Missing or empty `properties.name` |
-| `validateCRS` | `Invalid crs: linked crs must have a non-empty properties.href string` | Missing or empty `properties.href` |
-| `validateGeometry` | `Invalid geometry type: …` | Unknown `type` value |
-| `validateGeometry` | `Invalid LinearRing: first and last position must be identical` | Ring is not closed |
-| `validateGeometry` | `Invalid LinearRing: must have at least 4 positions` | Ring has fewer than 4 positions |
-| `validateGeometry` | `Invalid LinearRing: self-intersection detected` | Ring crosses itself |
-| `validateGeoJson` | `Invalid GeoJson: type must be either a Geometry, a Feature or a FeatureCollection` | Unknown root type |
-| `validateGeoJson` | `Invalid FeatureCollection: features must be a non empty array` | `features` is empty or not an array |
+| Emitted by | Code | `params` | Cause |
+|---|---|---|---|
+| `validatePosition` | `INVALID_POSITION_LENGTH` | — | Not an array of 2 or 3 numbers |
+| `validatePosition` | `INVALID_POSITION_COORDINATES` | — | An element is not a finite number (`NaN`, `Infinity`, `null`, string...) |
+| `validatePosition` | `INVALID_LONGITUDE_RANGE` | `{ value }` | Longitude out of range `[-180, 180]` |
+| `validatePosition` | `INVALID_LATITUDE_RANGE` | `{ value }` | Latitude out of range `[-90, 90]` |
+| `validatePosition` | `INVALID_ALTITUDE` | — | Altitude is not a finite number |
+| `validateBBox` | `INVALID_BBOX_LENGTH` | — | Wrong length or wrong type |
+| `validateBBox` | `INVALID_BBOX_LATITUDE_ORDER` | `{ south, north }` | South latitude exceeds north |
+| `validateBBox` | `INVALID_BBOX_ALTITUDE_ORDER` | `{ minAlt, maxAlt }` | Min altitude exceeds max altitude (3D bbox) |
+| `validateCRS` | `INVALID_CRS_OBJECT` | — | `crs` is not a plain object |
+| `validateCRS` | `INVALID_CRS_TYPE` | `{ type }` | `type` is neither `name` nor `link` (or missing) |
+| `validateCRS` | `INVALID_CRS_NAME` | — | Missing or empty `properties.name` on a `name` CRS |
+| `validateCRS` | `INVALID_CRS_LINK` | — | Missing or empty `properties.href` on a `link` CRS |
+| `validateGeometry` | `INVALID_GEOMETRY` | — | Not a non-empty object |
+| `validateGeometry` | `INVALID_GEOMETRY_TYPE` | `{ type }` | Unknown `type` value |
+| `validateGeometry` | `INVALID_COORDINATES_LENGTH` | `{ minimumLength }` | Coordinates array shorter than required |
+| `validateGeometry` | `INVALID_MULTI_LINESTRING_COORDINATES` | — | `MultiLineString.coordinates` is empty or not an array |
+| `validateGeometry` | `INVALID_POLYGON_COORDINATES` | — | `Polygon.coordinates` is empty or not an array |
+| `validateGeometry` | `INVALID_MULTIPOLYGON_COORDINATES` | — | `MultiPolygon.coordinates` is empty or not an array |
+| `validateGeometry` | `INVALID_GEOMETRYCOLLECTION_GEOMETRIES` | — | `GeometryCollection.geometries` is empty or not an array |
+| `validateGeometry` | `RING_NOT_CLOSED` | — | First and last position of a ring differ |
+| `validateGeometry` | `SELF_INTERSECTION` | `{ count }` | Ring crosses itself |
+| `validateGeoJson` | `UNKNOWN_TYPE` | `{ type }` | Root or feature `type` is not a Geometry, `Feature`, or `FeatureCollection` |
+| `validateGeoJson` | `INVALID_FEATURES_ARRAY` | — | `features` is empty or not an array |
+| `validateGeoJson` | `EMPTY_OBJECT` | — | Feature is not a non-empty object |
 
 ### Warnings
 
-| Emitted by | Message pattern | Cause |
-|---|---|---|
-| `validatePosition` | `longitude precision is high (N decimals, max recommended: 6)` | Longitude has more than 6 decimal digits |
-| `validatePosition` | `latitude precision is high (N decimals, max recommended: 6)` | Latitude has more than 6 decimal digits |
-| `validateBBox` | `bbox crosses the antimeridian (west: N > east: M)` | West > east in a bounding box |
-| `validateGeometry` | `LineString crosses the antimeridian between positions N and M, consider using MultiLineString` | Segment jumps across the antimeridian |
-| `validateGeometry` | `Polygon outer ring should be counter-clockwise` | Outer ring has clockwise winding |
-| `validateGeometry` | `Polygon hole ring should be clockwise` | A hole ring has counter-clockwise winding |
-| `validateGeoJson` | `Feature has no geometry` | `geometry` is `null` or absent |
+| Emitted by | Code | `params` | Cause |
+|---|---|---|---|
+| `validatePosition` | `HIGH_LONGITUDE_PRECISION` | `{ precision, max }` | Longitude has more than 6 decimal digits |
+| `validatePosition` | `HIGH_LATITUDE_PRECISION` | `{ precision, max }` | Latitude has more than 6 decimal digits |
+| `validateBBox` | `BBOX_ANTIMERIDIAN_CROSSING` | `{ west, east }` | West > east in a bounding box |
+| `validateGeometry` | `ANTIMERIDIAN_CROSSING` | — | Segment jumps across the antimeridian |
+| `validateGeometry` | `INVALID_WINDING_ORDER` | `{ expected, actual }` | A ring's winding order doesn't match what's expected for its role (outer/hole) |
+| `validateGeoJson` | `MISSING_GEOMETRY` | — | `geometry` is `null` or absent on a `Feature` |
 
 ---
 
@@ -70,29 +79,28 @@ validateGeometry({
   type: 'Polygon',
   coordinates: [[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]]
 })
-// { valid: true, errors: [], warnings: [{ message: 'Polygon outer ring should be counter-clockwise' }] }
+// { valid: true, errors: [], warnings: [{ code: 'INVALID_WINDING_ORDER', params: { expected: 'counter-clockwise', actual: 'clockwise' } }] }
 
-// Outer ring CCW, hole CCW → warning on the hole
+// Outer ring CCW, hole also CCW → warning on the hole
 validateGeometry({
   type: 'Polygon',
   coordinates: [
-    [[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]],  // outer CCW ✓
-    [[2, 2], [2, 8], [8, 8], [8, 2], [2, 2]]        // hole should be CW ✗
+    [[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]],   // outer CCW ✓
+    [[2, 2], [8, 2], [8, 8], [2, 8], [2, 2]]         // hole is CCW, should be CW ✗
   ]
 })
-// { valid: true, errors: [], warnings: [{ message: 'Polygon hole ring should be clockwise' }] }
-```
+// { valid: true, errors: [], warnings: [{ code: 'INVALID_WINDING_ORDER', params: { expected: 'clockwise', actual: 'counter-clockwise' } }] }
 
 ### Antimeridian crossings
 
-A segment is considered to cross the antimeridian when the absolute difference between the longitudes of two consecutive positions exceeds 180°. When this happens, `validateGeometry` emits a warning and suggests splitting the geometry into a `MultiLineString` or `MultiPolygon`. `validateBBox` emits a warning when `west > east`.
+A segment is considered to cross the antimeridian when the absolute difference between the longitudes of two consecutive positions exceeds 180°. When this happens, `validateGeometry` emits a warning. `validateBBox` emits a warning when `west > east`.
 
 ```js
 validateGeometry({ type: 'LineString', coordinates: [[170, 0], [-170, 0]] })
-// { valid: true, errors: [], warnings: [{ message: 'LineString crosses the antimeridian between positions 0 and 1, consider using MultiLineString' }] }
+// { valid: true, errors: [], warnings: [{ code: 'ANTIMERIDIAN_CROSSING', path: '/coordinates/0' }] }
 
 validateBBox([170, -20, -170, 20])
-// { valid: true, errors: [], warnings: [{ message: 'bbox crosses the antimeridian (west: 170 > east: -170)' }] }
+// { valid: true, errors: [], warnings: [{ code: 'BBOX_ANTIMERIDIAN_CROSSING', params: { west: 170, east: -170 } }] }
 ```
 
 ### Self-intersections
@@ -104,7 +112,7 @@ validateGeometry({
   type: 'Polygon',
   coordinates: [[[0, 0], [2, 2], [0, 2], [2, 0], [0, 0]]] // bowtie shape
 })
-// { valid: false, errors: [{ message: 'Invalid LinearRing: self-intersection detected' }], warnings: [] }
+// { valid: false, errors: [{ code: 'SELF_INTERSECTION', params: { count: 1 } }], warnings: [] }
 ```
 
 ### Coordinate precision
@@ -113,12 +121,12 @@ More than 6 decimal digits on longitude or latitude (~0.1 mm resolution) produce
 
 ```js
 validatePosition([2.35221234, 48.8566])
-// { valid: true, errors: [], warnings: [{ message: 'longitude precision is high (8 decimals, max recommended: 6)' }] }
+// { valid: true, errors: [], warnings: [{ code: 'HIGH_LONGITUDE_PRECISION', params: { precision: 8, max: 6 } }] }
 ```
 
 ### CRS support
 
-The `crs` property was removed from the GeoJSON specification in RFC 7946 but remains present in older data and in some GIS exports. `validateGeoJson` validates the `crs` object if present at the root of a `Feature` or `FeatureCollection`. Two types are supported: `name` and `link`.
+The `crs` property was removed from the GeoJSON specification in RFC 7946 but remains present in older data and in some GIS exports. `validateGeoJson` validates the `crs` object if present at the root, and on each `Feature` within a `FeatureCollection`. Two types are supported: `name` and `link`.
 
 ```js
 validateGeoJson({
@@ -136,20 +144,21 @@ validateGeoJson({
 ### Signature
 
 ```js
-validatePosition (coordinates)
+validatePosition (coordinates, path = '')
 ```
 
 ### Description
 
 Validates a GeoJSON position. Checks that it is an array of 2 or 3 finite numbers, that longitude is in `[-180, 180]` and latitude in `[-90, 90]`. Emits a warning if longitude or latitude precision exceeds 6 decimal digits.
 
-Non-finite values (`NaN`, `Infinity`, `-Infinity`) and non-number elements (`null`, strings) are rejected.
+Non-finite values (`NaN`, `Infinity`, `-Infinity`) and non-number elements (`null`, strings) are rejected with `INVALID_POSITION_COORDINATES`.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
 | `coordinates` | `number[]` | yes | A position array `[longitude, latitude]` or `[longitude, latitude, altitude]` |
+| `path` | `string` | no | Base path for error and warning reporting (default: `''`) |
 
 ### Returns
 
@@ -167,16 +176,16 @@ validatePosition([2.3522, 48.8566, 35])
 // { valid: true, errors: [], warnings: [] }
 
 validatePosition([200, 48.8566])
-// { valid: false, errors: [{ message: 'Invalid coordinates: longitude must be in the range -180 to 180' }], warnings: [] }
+// { valid: false, errors: [{ code: 'INVALID_LONGITUDE_RANGE', params: { value: 200 } }], warnings: [] }
 
 validatePosition([0, -91])
-// { valid: false, errors: [{ message: 'Invalid coordinates: latitude must be in the range -90 to 90' }], warnings: [] }
+// { valid: false, errors: [{ code: 'INVALID_LATITUDE_RANGE', params: { value: -91 } }], warnings: [] }
 
 validatePosition([NaN, 48])
-// { valid: false, errors: [{ message: 'Invalid coordinates: longitude must be in the range -180 to 180' }], warnings: [] }
+// { valid: false, errors: [{ code: 'INVALID_POSITION_COORDINATES' }], warnings: [] }
 
 validatePosition([2.35221234, 48.8566])
-// { valid: true, errors: [], warnings: [{ message: 'longitude precision is high (8 decimals, max recommended: 6)' }] }
+// { valid: true, errors: [], warnings: [{ code: 'HIGH_LONGITUDE_PRECISION', params: { precision: 8, max: 6 } }] }
 ```
 
 ---
@@ -186,18 +195,19 @@ validatePosition([2.35221234, 48.8566])
 ### Signature
 
 ```js
-validateBBox (bbox)
+validateBBox (bbox, path = '')
 ```
 
 ### Description
 
-Validates a GeoJSON bounding box. Accepts 4-value (2D) and 6-value (3D) arrays. Validates both the south-west and north-east corners as positions. Checks that south ≤ north. Emits a warning if west > east (antimeridian crossing). Precision warnings from corner positions are forwarded.
+Validates a GeoJSON bounding box. Accepts 4-value (2D) and 6-value (3D) arrays. Validates both the south-west and north-east corners as positions (reported under `${path}/min` and `${path}/max`). Checks that south ≤ north (and min altitude ≤ max altitude for 3D). Emits a warning if west > east (antimeridian crossing). Precision warnings from corner positions are forwarded.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
 | `bbox` | `number[]` | yes | A bounding box: `[west, south, east, north]` or `[west, south, minAlt, east, north, maxAlt]` |
+| `path` | `string` | no | Base path for error and warning reporting (default: `''`) |
 
 ### Returns
 
@@ -215,10 +225,10 @@ validateBBox([-10, -10, 0, 10, 10, 100])
 // valid 3D bbox: { valid: true, errors: [], warnings: [] }
 
 validateBBox([-10, 30, 10, 20])
-// { valid: false, errors: [{ message: 'Invalid bbox: south (30) must be <= north (20)' }], warnings: [] }
+// { valid: false, errors: [{ code: 'INVALID_BBOX_LATITUDE_ORDER', params: { south: 30, north: 20 } }], warnings: [] }
 
 validateBBox([170, -20, -170, 20])
-// { valid: true, errors: [], warnings: [{ message: 'bbox crosses the antimeridian (west: 170 > east: -170)' }] }
+// { valid: true, errors: [], warnings: [{ code: 'BBOX_ANTIMERIDIAN_CROSSING', params: { west: 170, east: -170 } }] }
 ```
 
 ---
@@ -228,7 +238,7 @@ validateBBox([170, -20, -170, 20])
 ### Signature
 
 ```js
-validateCRS (crs)
+validateCRS (crs, path = '')
 ```
 
 ### Description
@@ -240,6 +250,7 @@ Validates a GeoJSON CRS (Coordinate Reference System) object. Supports two types
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
 | `crs` | `object` | yes | A CRS object |
+| `path` | `string` | no | Base path for error and warning reporting (default: `''`) |
 
 ### Returns
 
@@ -257,10 +268,10 @@ validateCRS({ type: 'link', properties: { href: 'https://example.com/crs', type:
 // { valid: true, errors: [], warnings: [] }
 
 validateCRS({ type: 'link', properties: { href: '' } })
-// { valid: false, errors: [{ message: 'Invalid crs: linked crs must have a non-empty properties.href string' }], warnings: [] }
+// { valid: false, errors: [{ code: 'INVALID_CRS_LINK' }], warnings: [] }
 
 validateCRS({ type: 'unknown' })
-// { valid: false, errors: [{ message: 'Invalid crs: unknown type: unknown' }], warnings: [] }
+// { valid: false, errors: [{ code: 'INVALID_CRS_TYPE', params: { type: 'unknown' } }], warnings: [] }
 ```
 
 ---
@@ -303,18 +314,18 @@ validateGeometry({ type: 'LineString', coordinates: [[0, 0], [1, 1]] })
 
 // Unclosed ring
 validateGeometry({ type: 'Polygon', coordinates: [[[0, 0], [1, 0], [1, 1], [0, 0]]] })
-// { valid: false, errors: [{ message: 'Invalid LinearRing: first and last position must be identical', path: '/coordinates/0' }], warnings: [] }
+// { valid: false, errors: [{ code: 'RING_NOT_CLOSED', path: '/coordinates/0' }], warnings: [] }
 
 // Antimeridian crossing
 validateGeometry({ type: 'LineString', coordinates: [[170, 0], [-170, 0]] })
-// { valid: true, errors: [], warnings: [{ message: 'LineString crosses the antimeridian between positions 0 and 1, consider using MultiLineString', path: '/coordinates' }] }
+// { valid: true, errors: [], warnings: [{ code: 'ANTIMERIDIAN_CROSSING', path: '/coordinates/0' }] }
 
 // Self-intersecting polygon (bowtie)
 validateGeometry({ type: 'Polygon', coordinates: [[[0, 0], [2, 2], [0, 2], [2, 0], [0, 0]]] })
-// { valid: false, errors: [{ message: 'Invalid LinearRing: self-intersection detected', path: '/coordinates/0' }], warnings: [] }
+// { valid: false, errors: [{ code: 'SELF_INTERSECTION', path: '/coordinates/0', params: { count: 1 } }], warnings: [] }
 
 validateGeometry({ type: 'Unknown', coordinates: [] })
-// { valid: false, errors: [{ message: 'Invalid geometry type: Unknown' }], warnings: [] }
+// { valid: false, errors: [{ code: 'INVALID_GEOMETRY_TYPE', params: { type: 'Unknown' } }], warnings: [] }
 ```
 
 ---
@@ -329,7 +340,7 @@ validateGeoJson (geoJson)
 
 ### Description
 
-Validates any GeoJSON object: a geometry, a `Feature`, or a `FeatureCollection`. Dispatches to `validateGeometry` for plain geometries. For `Feature`, validates the geometry if present, and emits a warning if geometry is `null` or absent. For `FeatureCollection`, validates each feature recursively and reports the index of any invalid feature. If a `crs` property is present at the root, it is validated as well.
+Validates any GeoJSON object: a geometry, a `Feature`, or a `FeatureCollection`. Dispatches to `validateGeometry` for plain geometries. For `Feature`, validates the geometry if present, and emits a warning if geometry is `null` or absent. For `FeatureCollection`, validates each feature recursively and reports the index of any invalid feature. If a `crs` property is present, it is validated wherever it appears (root, `Feature`, or `FeatureCollection`).
 
 ### Parameters
 
@@ -362,7 +373,7 @@ validateGeoJson({
 
 // Feature with no geometry
 validateGeoJson({ type: 'Feature', geometry: null, properties: {} })
-// { valid: true, errors: [], warnings: [{ message: 'Feature has no geometry' }] }
+// { valid: true, errors: [], warnings: [{ code: 'MISSING_GEOMETRY' }] }
 
 // Invalid coordinate inside a FeatureCollection — error includes path and index
 validateGeoJson({
@@ -375,16 +386,17 @@ validateGeoJson({
 // {
 //   valid: false,
 //   errors: [{
-//     message: 'Invalid coordinates: longitude must be in the range -180 to 180',
+//     code: 'INVALID_LONGITUDE_RANGE',
 //     path: '/features/1/geometry/coordinates',
-//     index: 1
+//     index: 1,
+//     params: { value: 200 }
 //   }],
 //   warnings: []
 // }
 
 // Empty features array
 validateGeoJson({ type: 'FeatureCollection', features: [] })
-// { valid: false, errors: [{ message: 'Invalid FeatureCollection: features must be a non empty array' }], warnings: [] }
+// { valid: false, errors: [{ code: 'INVALID_FEATURES_ARRAY' }], warnings: [] }
 
 // CRS validated when present
 validateGeoJson({
@@ -392,5 +404,5 @@ validateGeoJson({
   features: [{ type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] }, properties: {} }],
   crs: { type: 'link', properties: { href: '' } }
 })
-// { valid: false, errors: [{ message: 'Invalid crs: linked crs must have a non-empty properties.href string' }], warnings: [] }
+// { valid: false, errors: [{ code: 'INVALID_CRS_LINK', path: '/crs' }], warnings: [] }
 ```
