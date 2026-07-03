@@ -2,6 +2,7 @@ import path from 'node:path'
 import fs from 'node:fs'
 import { describe, it, expect } from 'vitest'
 import { validateGeoJson } from '../../../src/operators'
+import { VALIDATION_CODES } from '../../../src/operators/validate/codes.js'
 import { features, featureCollections, geometries, crsObjects } from './data/fixtures.js'
 
 describe('validateGeoJson', () => {
@@ -25,7 +26,8 @@ describe('validateGeoJson', () => {
     it('should return invalid for an unknown type', () => {
       const result = validateGeoJson({ type: 'Unknown' })
       expect(result.valid).toBe(false)
-      expect(result.errors[0].message).toMatch(/Invalid GeoJson/)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.UNKNOWN_TYPE)
+      expect(result.errors[0].params.type).toBe('Unknown')
     })
   })
 
@@ -57,7 +59,7 @@ describe('validateGeoJson', () => {
     it('should warn for a Feature with no geometry (null)', () => {
       const result = validateGeoJson(features.noGeometry)
       expect(result.valid).toBe(true)
-      expect(result.warnings.some(w => w.message.match(/no geometry/))).toBe(true)
+      expect(result.warnings.some(w => w.code === VALIDATION_CODES.MISSING_GEOMETRY)).toBe(true)
     })
 
     it('should accept a Feature without properties', () => {
@@ -68,7 +70,7 @@ describe('validateGeoJson', () => {
     it('should return invalid for a Feature with an invalid geometry', () => {
       const result = validateGeoJson(features.invalidGeometry)
       expect(result.valid).toBe(false)
-      expect(result.errors[0].message).toMatch(/longitude/)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_LONGITUDE_RANGE)
     })
 
     it('should include the geometry path in the error', () => {
@@ -98,7 +100,7 @@ describe('validateGeoJson', () => {
     it('should return invalid for an empty features array', () => {
       const result = validateGeoJson(featureCollections.empty)
       expect(result.valid).toBe(false)
-      expect(result.errors[0].message).toMatch(/non empty array/)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_FEATURES_ARRAY)
     })
 
     it('should return invalid if features is not an array', () => {
@@ -136,7 +138,7 @@ describe('validateGeoJson', () => {
     it('should return invalid for a FeatureCollection with an invalid CRS', () => {
       const result = validateGeoJson(featureCollections.withInvalidCRS)
       expect(result.valid).toBe(false)
-      expect(result.errors[0].message).toMatch(/unknown type/)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_CRS_TYPE)
     })
 
     it('should return invalid for a FeatureCollection with an empty features array and a valid CRS', () => {
@@ -146,7 +148,7 @@ describe('validateGeoJson', () => {
         crs: crsObjects.validName
       })
       expect(result.valid).toBe(false)
-      expect(result.errors[0].message).toMatch(/non empty array/)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_FEATURES_ARRAY)
     })
   })
 

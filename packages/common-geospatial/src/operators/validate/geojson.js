@@ -1,5 +1,6 @@
 import { assert, is } from '@kalisio/common-core'
 import { FEATURE_TYPES, GEOMETRY_TYPES } from '../is-like.js'
+import { VALIDATION_CODES } from './codes.js'
 import { emptyStatistics, validateArray, validateOptionalBBox, validateOptionalCRS } from './utils.js'
 import { validateGeometry } from './geometry.js'
 
@@ -7,7 +8,7 @@ function validateFeature (feature, path = '') {
   if (!is.nonEmptyObject(feature)) {
     return {
       valid: false,
-      errors: [{ message: 'Invalid feature: must be a non empty object', path }],
+      errors: [{ code: VALIDATION_CODES.EMPTY_OBJECT, path }],
       warnings: [],
       statistics: emptyStatistics()
     }
@@ -16,8 +17,9 @@ function validateFeature (feature, path = '') {
     if (is.nonEmptyObject(feature.geometry)) {
       const result = validateGeometry(feature.geometry, `${path}/geometry`)
       const bboxResult = validateOptionalBBox(feature, result, path)
+      const crsResult = validateOptionalCRS(feature, bboxResult, path)
       return {
-        ...bboxResult,
+        ...crsResult,
         statistics: {
           Feature: 1,
           FeatureCollection: 0,
@@ -29,7 +31,7 @@ function validateFeature (feature, path = '') {
     return {
       valid: true,
       errors: [],
-      warnings: [{ message: 'Feature has no geometry', path }],
+      warnings: [{ code: VALIDATION_CODES.MISSING_GEOMETRY, path }],
       statistics: { Feature: 1, FeatureCollection: 0, geometries: {} }
     }
   }
@@ -37,21 +39,22 @@ function validateFeature (feature, path = '') {
     if (is.nonEmptyArray(feature.features)) {
       const result = validateArray(feature.features, validateFeature, `${path}/features`)
       const bboxResult = validateOptionalBBox(feature, result, path)
+      const crsResult = validateOptionalCRS(feature, bboxResult, path)
       return {
-        ...bboxResult,
+        ...crsResult,
         statistics: { ...result.statistics, FeatureCollection: result.statistics.FeatureCollection + 1 }
       }
     }
     return {
       valid: false,
-      errors: [{ message: 'Invalid FeatureCollection: features must be a non empty array', path }],
+      errors: [{ code: VALIDATION_CODES.INVALID_FEATURES_ARRAY, path }],
       warnings: [],
       statistics: emptyStatistics()
     }
   }
   return {
     valid: false,
-    errors: [{ message: `Invalid feature: unknown type: ${feature.type}`, path }],
+    errors: [{ code: VALIDATION_CODES.UNKNOWN_TYPE, path, params: { type: feature.type } }],
     warnings: [],
     statistics: emptyStatistics()
   }
@@ -62,7 +65,7 @@ export function validateGeoJson (geoJson) {
   if (is.oneOf(geoJson.type, Object.values(GEOMETRY_TYPES))) {
     const result = validateGeometry(geoJson, '')
     const withBBox = validateOptionalBBox(geoJson, result, '')
-    const withCRS = validateOptionalCRS(geoJson, withBBox)
+    const withCRS = validateOptionalCRS(geoJson, withBBox, '')
     return {
       ...withCRS,
       // Geometry counting is owned by validateGeometry.
@@ -71,11 +74,11 @@ export function validateGeoJson (geoJson) {
   }
   if (geoJson.type === FEATURE_TYPES.FEATURE || geoJson.type === FEATURE_TYPES.FEATURE_COLLECTION) {
     const result = validateFeature(geoJson, '')
-    return validateOptionalCRS(geoJson, result)
+    return result
   }
   return {
     valid: false,
-    errors: [{ message: 'Invalid GeoJson: type must be either a Geometry, a Feature or a FeatureCollection', path: '' }],
+    errors: [{ code: VALIDATION_CODES.UNKNOWN_TYPE, path: '', params: { type: geoJson.type } }],
     warnings: [],
     statistics: emptyStatistics()
   }

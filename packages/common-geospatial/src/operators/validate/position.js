@@ -1,50 +1,51 @@
 import { is } from '@kalisio/common-core'
 import { getCoordinatePrecision } from '../../foundation'
+import { VALIDATION_CODES } from './codes.js'
 
-export function validatePosition (coordinates) {
+export function validatePosition (coordinates, path = '') {
   if (!is.arrayOfLengthBetween(coordinates, 2, 3)) {
     return {
       valid: false,
-      errors: [{ message: 'Invalid coordinates: must be an array of 2 or 3 coordinates' }],
+      errors: [{ code: VALIDATION_CODES.INVALID_POSITION_LENGTH, path }],
       warnings: []
     }
   }
   if (!is.number(coordinates[0]) || !is.number(coordinates[1])) {
     return {
       valid: false,
-      errors: [{ message: 'Invalid coordinates: longitude and latitude must be numbers' }],
+      errors: [{ code: VALIDATION_CODES.INVALID_POSITION_COORDINATES, path }],
       warnings: []
     }
   }
   if (!is.inRange(coordinates[0], -180, 180)) {
     return {
       valid: false,
-      errors: [{ message: 'Invalid coordinates: longitude must be in the range -180 to 180' }],
+      errors: [{ code: VALIDATION_CODES.INVALID_LONGITUDE_RANGE, path, params: { value: coordinates[0] } }],
       warnings: []
     }
   }
   if (!is.inRange(coordinates[1], -90, 90)) {
     return {
       valid: false,
-      errors: [{ message: 'Invalid coordinates: latitude must be in the range -90 to 90' }],
+      errors: [{ code: VALIDATION_CODES.INVALID_LATITUDE_RANGE, path, params: { value: coordinates[1] } }],
       warnings: []
     }
   }
   if (coordinates.length === 3 && !is.number(coordinates[2])) {
     return {
       valid: false,
-      errors: [{ message: 'Invalid coordinates: altitude must be a number' }],
+      errors: [{ code: VALIDATION_CODES.INVALID_ALTITUDE, path }],
       warnings: []
     }
   }
   const response = { valid: true, errors: [], warnings: [] }
   const lonPrecision = getCoordinatePrecision(coordinates[0])
   if (lonPrecision > 6) {
-    response.warnings.push({ message: `longitude precision is high (${lonPrecision} decimals, max recommended: 6)` })
+    response.warnings.push({ code: VALIDATION_CODES.HIGH_LONGITUDE_PRECISION, path, params: { precision: lonPrecision, max: 6 } })
   }
   const latPrecision = getCoordinatePrecision(coordinates[1])
   if (latPrecision > 6) {
-    response.warnings.push({ message: `latitude precision is high (${latPrecision} decimals, max recommended: 6)` })
+    response.warnings.push({ code: VALIDATION_CODES.HIGH_LATITUDE_PRECISION, path, params: { precision: latPrecision, max: 6 } })
   }
   return response
 }

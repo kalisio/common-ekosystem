@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { validateGeometry } from '../../../src/operators'
+import { VALIDATION_CODES } from '../../../src/operators/validate/codes.js'
 import { geometries } from './data/fixtures.js'
 
 describe('validateGeometry', () => {
@@ -7,31 +8,32 @@ describe('validateGeometry', () => {
     it('should return invalid for null', () => {
       const result = validateGeometry(null)
       expect(result.valid).toBe(false)
-      expect(result.errors[0].message).toMatch(/non empty object/)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_GEOMETRY)
     })
 
     it('should return invalid for a string', () => {
       const result = validateGeometry('Point')
       expect(result.valid).toBe(false)
-      expect(result.errors[0].message).toMatch(/non empty object/)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_GEOMETRY)
     })
 
     it('should return invalid for an array', () => {
       const result = validateGeometry([])
       expect(result.valid).toBe(false)
-      expect(result.errors[0].message).toMatch(/non empty object/)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_GEOMETRY)
     })
 
     it('should return invalid for missing type', () => {
       const result = validateGeometry(geometries.missingType)
       expect(result.valid).toBe(false)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_GEOMETRY_TYPE)
     })
 
     it('should return invalid for unknown type', () => {
       const result = validateGeometry(geometries.unknownType)
       expect(result.valid).toBe(false)
-      expect(result.errors[0].message).toMatch(/Invalid geometry type/)
-      expect(result.errors[0].message).toMatch(/Triangle/)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_GEOMETRY_TYPE)
+      expect(result.errors[0].params.type).toBe('Triangle')
     })
 
     it('should return invalid for missing coordinates', () => {
@@ -61,7 +63,7 @@ describe('validateGeometry', () => {
     it('should return invalid for out-of-range longitude', () => {
       const result = validateGeometry(geometries.invalidPointLon)
       expect(result.valid).toBe(false)
-      expect(result.errors[0].message).toMatch(/longitude/)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_LONGITUDE_RANGE)
     })
 
     it('should include the coordinates path in the error', () => {
@@ -84,7 +86,7 @@ describe('validateGeometry', () => {
     it('should return invalid if a position is out of range', () => {
       const result = validateGeometry(geometries.invalidMultiPoint)
       expect(result.valid).toBe(false)
-      expect(result.errors[0].message).toMatch(/longitude/)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_LONGITUDE_RANGE)
     })
 
     it('should include the index of the invalid position in the error', () => {
@@ -102,15 +104,14 @@ describe('validateGeometry', () => {
     it('should return invalid for fewer than 2 positions', () => {
       const result = validateGeometry(geometries.tooShortLineString)
       expect(result.valid).toBe(false)
-      expect(result.errors[0].message).toMatch(/2/)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_COORDINATES_LENGTH)
     })
 
     it('should warn on antimeridian crossing', () => {
       const result = validateGeometry(geometries.antimeridianLineString)
       expect(result.valid).toBe(true)
-      const warning = result.warnings.find(w => w.message.match(/antimeridian/))
+      const warning = result.warnings.find(w => w.code === VALIDATION_CODES.ANTIMERIDIAN_CROSSING)
       expect(warning).toBeDefined()
-      expect(warning.message).toMatch(/0.*1|1.*0/)
     })
   })
 
@@ -123,6 +124,7 @@ describe('validateGeometry', () => {
     it('should return invalid for empty coordinates', () => {
       const result = validateGeometry(geometries.emptyMultiLineString)
       expect(result.valid).toBe(false)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_MULTI_LINESTRING_COORDINATES)
     })
   })
 
@@ -136,35 +138,41 @@ describe('validateGeometry', () => {
     it('should return invalid for empty coordinates', () => {
       const result = validateGeometry(geometries.emptyPolygon)
       expect(result.valid).toBe(false)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POLYGON_COORDINATES)
     })
 
     it('should return invalid if ring is not closed', () => {
       const result = validateGeometry(geometries.unclosedPolygon)
       expect(result.valid).toBe(false)
-      expect(result.errors.some(e => e.message.match(/first and last/))).toBe(true)
+      expect(result.errors.some(e => e.code === VALIDATION_CODES.RING_NOT_CLOSED)).toBe(true)
     })
 
     it('should return invalid for fewer than 4 positions in ring', () => {
       const result = validateGeometry(geometries.tooFewPositionsPolygon)
       expect(result.valid).toBe(false)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_COORDINATES_LENGTH)
     })
 
     it('should warn if outer ring is clockwise', () => {
       const result = validateGeometry(geometries.cwOuterPolygon)
       expect(result.valid).toBe(true)
-      expect(result.warnings.some(w => w.message.match(/counter-clockwise/))).toBe(true)
+      const warning = result.warnings.find(w => w.code === VALIDATION_CODES.INVALID_WINDING_ORDER)
+      expect(warning).toBeDefined()
+      expect(warning.params).toEqual({ expected: 'counter-clockwise', actual: 'clockwise' })
     })
 
     it('should warn if hole ring is counter-clockwise', () => {
       const result = validateGeometry(geometries.ccwHolePolygon)
       expect(result.valid).toBe(true)
-      expect(result.warnings.some(w => w.message.match(/counter-clockwise/))).toBe(true)
+      const warning = result.warnings.find(w => w.code === VALIDATION_CODES.INVALID_WINDING_ORDER)
+      expect(warning).toBeDefined()
+      expect(warning.params).toEqual({ expected: 'counter-clockwise', actual: 'clockwise' })
     })
 
     it('should return invalid for self-intersecting polygon', () => {
       const result = validateGeometry(geometries.selfIntersectingPolygon)
       expect(result.valid).toBe(false)
-      expect(result.errors.some(e => e.message.match(/self-intersection/))).toBe(true)
+      expect(result.errors.some(e => e.code === VALIDATION_CODES.SELF_INTERSECTION)).toBe(true)
     })
   })
 
@@ -177,6 +185,7 @@ describe('validateGeometry', () => {
     it('should return invalid for empty coordinates', () => {
       const result = validateGeometry(geometries.emptyMultiPolygon)
       expect(result.valid).toBe(false)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_MULTIPOLYGON_COORDINATES)
     })
 
     it('should return invalid if a polygon in the collection is invalid', () => {
@@ -188,6 +197,7 @@ describe('validateGeometry', () => {
         ]
       })
       expect(result.valid).toBe(false)
+      expect(result.errors.some(e => e.code === VALIDATION_CODES.RING_NOT_CLOSED)).toBe(true)
     })
   })
 
@@ -200,12 +210,13 @@ describe('validateGeometry', () => {
     it('should return invalid for empty geometries array', () => {
       const result = validateGeometry(geometries.emptyGeometryCollection)
       expect(result.valid).toBe(false)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_GEOMETRYCOLLECTION_GEOMETRIES)
     })
 
     it('should return invalid if a child geometry is invalid', () => {
       const result = validateGeometry(geometries.invalidGeometryCollection)
       expect(result.valid).toBe(false)
-      expect(result.errors[0].message).toMatch(/longitude/)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_LONGITUDE_RANGE)
     })
 
     it('should include the index of the invalid geometry in the error', () => {
@@ -216,6 +227,7 @@ describe('validateGeometry', () => {
     it('should return invalid if a child geometry is null', () => {
       const result = validateGeometry(geometries.nullGeometryInCollection)
       expect(result.valid).toBe(false)
+      expect(result.errors.some(e => e.code === VALIDATION_CODES.INVALID_GEOMETRY)).toBe(true)
     })
   })
 
@@ -234,7 +246,7 @@ describe('validateGeometry', () => {
     it('should forward antimeridian warning from bbox', () => {
       const result = validateGeometry(geometries.withAntimeridianBBox)
       expect(result.valid).toBe(true)
-      expect(result.warnings.some(w => w.message.match(/antimeridian/))).toBe(true)
+      expect(result.warnings.some(w => w.code === VALIDATION_CODES.BBOX_ANTIMERIDIAN_CROSSING)).toBe(true)
     })
   })
 })
