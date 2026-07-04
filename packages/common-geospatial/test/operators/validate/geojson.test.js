@@ -3,7 +3,11 @@ import fs from 'node:fs'
 import { describe, it, expect } from 'vitest'
 import { validateGeoJson } from '../../../src/operators'
 import { VALIDATION_CODES } from '../../../src/operators/validate/codes.js'
-import { features, featureCollections, geometries, crsObjects } from './data/fixtures.js'
+import { points } from '../data/point.fixtures.js'
+import { geometryCollections } from '../data/geometry-collection.fixtures.js'
+import { features } from '../data/feature.fixtures.js'
+import { featureCollections } from '../data/feature-collection.fixtures.js'
+import { crsObjects } from '../data/crs.fixtures.js'
 
 describe('validateGeoJson', () => {
   describe('invalid inputs', () => {
@@ -33,18 +37,18 @@ describe('validateGeoJson', () => {
 
   describe('plain geometries', () => {
     it('should accept a valid Point geometry', () => {
-      const result = validateGeoJson(geometries.validPoint)
+      const result = validateGeoJson(points.valid)
       expect(result.valid).toBe(true)
       expect(result.errors).toHaveLength(0)
     })
 
     it('should return invalid for an invalid geometry', () => {
-      const result = validateGeoJson(geometries.invalidPointLon)
+      const result = validateGeoJson(points.invalidLon)
       expect(result.valid).toBe(false)
     })
 
     it('should accept a valid GeometryCollection', () => {
-      const result = validateGeoJson(geometries.validGeometryCollection)
+      const result = validateGeoJson(geometryCollections.valid)
       expect(result.valid).toBe(true)
     })
   })
@@ -154,7 +158,7 @@ describe('validateGeoJson', () => {
 
   describe('file-based fixtures', () => {
     it('should validate a Feature from polygon.geojson', () => {
-      const filePath = path.resolve(__dirname, './data/polygon.geojson')
+      const filePath = path.resolve(__dirname, '../data/polygon.geojson')
       const geojson = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
       const result = validateGeoJson(geojson)
       expect(result.valid).toBe(true)
@@ -162,7 +166,7 @@ describe('validateGeoJson', () => {
     })
 
     it('should validate a FeatureCollection from collection.geojson', () => {
-      const filePath = path.resolve(__dirname, './data/collection.geojson')
+      const filePath = path.resolve(__dirname, '../data/collection.geojson')
       const geojson = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
       const result = validateGeoJson(geojson)
       expect(result.valid).toBe(true)

@@ -33,9 +33,9 @@ catalog:
   "@feathersjs/schema": ~5.0.44
   "@feathersjs/socketio": ~5.0.44
   "@feathersjs/socketio-client": ~5.0.44
-  "@kalisio/common-core": ~0.6.0
-  "@kalisio/common-geospatial": ~0.6.0
-  "@kalisio/common-graphics": ~0.6.0
+  "@kalisio/common-core": ~0.8.0
+  "@kalisio/common-geospatial": ~0.8.0
+  "@kalisio/common-graphics": ~0.8.0
   "@kalisio/feathers-automerge": ~0.3.8
   "@kalisio/feathers-distributed": ~2.4.0
   "@kalisio/feathers-import-export": ~1.4.1
@@ -59,6 +59,7 @@ catalog:
   "@turf/area": ~7.3.5
   "@turf/bbox": ~7.3.5
   "@turf/boolean-clockwise": ~7.3.5
+  "@turf/buffer": ~7.3.5
   "@turf/center-of-mass": ~7.3.5
   "@turf/clean-coords": ~7.3.5
   "@turf/convex": ~7.3.5

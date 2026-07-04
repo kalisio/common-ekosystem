@@ -7,6 +7,13 @@ import {
   FEATURE_TYPES, isLikeFeature, isLikeFeatureCollection,
   isLikeFeatureOrFeatureCollection, isLikeGeoJson
 } from '../../src/operators'
+import { positions } from './data/position.fixtures.js'
+import { bboxes } from './data/bbox.fixtures.js'
+import { crsObjects } from './data/crs.fixtures.js'
+import { polygons } from './data/polygon.fixtures.js'
+import { geometryCollections } from './data/geometry-collection.fixtures.js'
+import { featureCollections } from './data/feature-collection.fixtures.js'
+import { features } from './data/feature.fixtures.js'
 
 // isLikeBBox
 describe('isLikeBBox', () => {
@@ -20,9 +27,9 @@ describe('isLikeBBox', () => {
 
   it('returns false for wrong length', () => {
     expect(isLikeBBox([])).toBe(false)
-    expect(isLikeBBox([0, 0, 1])).toBe(false)
-    expect(isLikeBBox([0, 0, 1, 1, 1])).toBe(false)
-    expect(isLikeBBox([0, 0, 1, 1, 1, 1, 1])).toBe(false)
+    expect(isLikeBBox(bboxes.wrongLength3)).toBe(false)
+    expect(isLikeBBox(bboxes.wrongLength5)).toBe(false)
+    expect(isLikeBBox(bboxes.wrongLength7)).toBe(false)
   })
 
   it('returns false if any element is not a number', () => {
@@ -48,7 +55,7 @@ describe('CRS_TYPES', () => {
 
 describe('isLikeCRS', () => {
   it('returns true for a named crs', () => {
-    expect(isLikeCRS({ type: 'name', properties: { name: 'urn:ogc:def:crs:OGC:1.3:CRS84' } })).toBe(true)
+    expect(isLikeCRS(crsObjects.validName)).toBe(true)
   })
 
   it('returns true for a linked crs', () => {
@@ -56,19 +63,19 @@ describe('isLikeCRS', () => {
   })
 
   it('returns false for named crs without properties.name', () => {
-    expect(isLikeCRS({ type: 'name', properties: {} })).toBe(false)
-    expect(isLikeCRS({ type: 'name', properties: { name: '' } })).toBe(false)
-    expect(isLikeCRS({ type: 'name' })).toBe(false)
+    expect(isLikeCRS(crsObjects.nameEmptyProperties)).toBe(false)
+    expect(isLikeCRS(crsObjects.nameEmptyString)).toBe(false)
+    expect(isLikeCRS(crsObjects.nameMissingProperties)).toBe(false)
   })
 
   it('returns false for linked crs without properties.href', () => {
-    expect(isLikeCRS({ type: 'link', properties: {} })).toBe(false)
-    expect(isLikeCRS({ type: 'link', properties: { href: '' } })).toBe(false)
-    expect(isLikeCRS({ type: 'link' })).toBe(false)
+    expect(isLikeCRS(crsObjects.linkMissingHref)).toBe(false)
+    expect(isLikeCRS(crsObjects.linkEmptyHref)).toBe(false)
+    expect(isLikeCRS(crsObjects.linkMissingProperties)).toBe(false)
   })
 
   it('returns false for unknown type', () => {
-    expect(isLikeCRS({ type: 'unknown' })).toBe(false)
+    expect(isLikeCRS(crsObjects.unknownType)).toBe(false)
   })
 
   it('returns false for non-object', () => {
@@ -93,9 +100,9 @@ describe('isLikePosition', () => {
   })
 
   it('returns false for wrong length', () => {
-    expect(isLikePosition([])).toBe(false)
-    expect(isLikePosition([1.5])).toBe(false)
-    expect(isLikePosition([1.5, 48.8, 100, 0])).toBe(false)
+    expect(isLikePosition(positions.empty)).toBe(false)
+    expect(isLikePosition(positions.tooShort)).toBe(false)
+    expect(isLikePosition(positions.tooLong)).toBe(false)
   })
 
   it('returns false if any element is not a number', () => {
@@ -126,6 +133,8 @@ describe('GEOMETRY_TYPES', () => {
 // isLikeGeometry
 describe('isLikeGeometry', () => {
   it('returns true for geometries with coordinates', () => {
+    // Kept as a uniform inline loop across all 6 coordinate-based types:
+    // no single fixture file covers "empty coordinates" for every type consistently.
     const types = [
       GEOMETRY_TYPES.POINT,
       GEOMETRY_TYPES.MULTI_POINT,
@@ -140,7 +149,7 @@ describe('isLikeGeometry', () => {
   })
 
   it('returns true for a GeometryCollection with geometries array', () => {
-    expect(isLikeGeometry({ type: 'GeometryCollection', geometries: [] })).toBe(true)
+    expect(isLikeGeometry(geometryCollections.empty)).toBe(true)
   })
 
   it('returns false for GeometryCollection without geometries', () => {
@@ -188,15 +197,15 @@ describe('isLikeFeature', () => {
   })
 
   it('returns true for a Feature with geometry', () => {
-    expect(isLikeFeature({ type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] } })).toBe(true)
+    expect(isLikeFeature(features.valid)).toBe(true)
   })
 
   it('returns true for a Feature with null geometry (spec allows it)', () => {
-    expect(isLikeFeature({ type: 'Feature', geometry: null })).toBe(true)
+    expect(isLikeFeature(features.noGeometry)).toBe(true)
   })
 
   it('returns false for FeatureCollection', () => {
-    expect(isLikeFeature({ type: 'FeatureCollection', features: [] })).toBe(false)
+    expect(isLikeFeature(featureCollections.empty)).toBe(false)
   })
 
   it('returns false for a geometry type', () => {
@@ -213,14 +222,11 @@ describe('isLikeFeature', () => {
 // isLikeFeatureCollection
 describe('isLikeFeatureCollection', () => {
   it('returns true for a FeatureCollection with empty features array', () => {
-    expect(isLikeFeatureCollection({ type: 'FeatureCollection', features: [] })).toBe(true)
+    expect(isLikeFeatureCollection(featureCollections.empty)).toBe(true)
   })
 
   it('returns true for a FeatureCollection with non-empty features', () => {
-    expect(isLikeFeatureCollection({
-      type: 'FeatureCollection',
-      features: [{ type: 'Feature', geometry: null }]
-    })).toBe(true)
+    expect(isLikeFeatureCollection(featureCollections.valid)).toBe(true)
   })
 
   it('does not validate features content', () => {
@@ -232,7 +238,7 @@ describe('isLikeFeatureCollection', () => {
   })
 
   it('returns false when features is not an array', () => {
-    expect(isLikeFeatureCollection({ type: 'FeatureCollection', features: {} })).toBe(false)
+    expect(isLikeFeatureCollection(featureCollections.notAnArray)).toBe(false)
   })
 
   it('returns false for Feature', () => {
@@ -252,11 +258,11 @@ describe('isLikeFeatureOrFeatureCollection', () => {
   })
 
   it('returns true for a FeatureCollection', () => {
-    expect(isLikeFeatureOrFeatureCollection({ type: 'FeatureCollection', features: [] })).toBe(true)
+    expect(isLikeFeatureOrFeatureCollection(featureCollections.empty)).toBe(true)
   })
 
   it('returns false for a Geometry', () => {
-    expect(isLikeFeatureOrFeatureCollection({ type: 'Point', coordinates: [] })).toBe(false)
+    expect(isLikeFeatureOrFeatureCollection(polygons.empty)).toBe(false)
   })
 
   it('returns false for non-object', () => {
@@ -273,10 +279,11 @@ describe('isLikeGeoJson', () => {
   })
 
   it('returns true for a FeatureCollection', () => {
-    expect(isLikeGeoJson({ type: 'FeatureCollection', features: [] })).toBe(true)
+    expect(isLikeGeoJson(featureCollections.empty)).toBe(true)
   })
 
   it('returns true for any geometry type', () => {
+    // Kept as a uniform inline loop, same reasoning as isLikeGeometry above.
     const geometries = [
       { type: 'Point', coordinates: [] },
       { type: 'MultiPoint', coordinates: [] },

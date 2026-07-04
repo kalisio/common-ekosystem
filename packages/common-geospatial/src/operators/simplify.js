@@ -2,6 +2,11 @@ import { Heap } from 'heap-js'
 import { assert, is, optional, conform } from '@kalisio/common-core'
 import { FEATURE_TYPES, GEOMETRY_TYPES, isLikeGeoJson } from './is-like.js'
 
+const SIMPLIFY_OPTIONS_SCHEMA = {
+  tolerance: optional(is.number),
+  getWeight: optional(is.function)
+}
+
 function triangleArea (a, b, c) {
   return Math.abs(
     (a[0] * (b[1] - c[1]) +
@@ -10,56 +15,45 @@ function triangleArea (a, b, c) {
   )
 }
 
-// visvalingam-whyatt simplification algorithm
+// Visvalingam-Whyatt simplification algorithm.
 function visvalingam (coords, { tolerance = 0, getWeight = () => 1 } = {}) {
   if (coords.length <= 2) return coords
-
   const pts = coords.map((coord, i) => ({ coord, i, area: Infinity, removed: false, prev: null, next: null }))
   for (let i = 0; i < pts.length; i++) {
     if (i > 0) pts[i].prev = pts[i - 1]
     if (i < pts.length - 1) pts[i].next = pts[i + 1]
   }
-
   const computeArea = (node) => {
     if (!node.prev || !node.next) return Infinity
-    const area = triangleArea(node.prev.coord, node.coord, node.next.coord)
-    return area * getWeight(node.coord, node.i)
+    return triangleArea(node.prev.coord, node.coord, node.next.coord) * getWeight(node.coord, node.i)
   }
-
+  // Heap entries are immutable snapshots { node, area }, never reused after
+  // push. A stale duplicate (left behind when a node's area is recomputed
+  // after a neighbor is removed) is detected by comparing the entry's frozen
+  // area to the node's current authoritative area, without ever mutating a
+  // value the heap has already positioned internally.
   const heap = new Heap((a, b) => a.area - b.area)
-  for (let i = 1; i < pts.length - 1; i++) {
-    pts[i].area = computeArea(pts[i])
-    pts[i]._currentArea = pts[i].area
-    heap.push(pts[i])
+  const pushNode = (node) => {
+    node.area = computeArea(node)
+    heap.push({ node, area: node.area })
   }
+  for (let i = 1; i < pts.length - 1; i++) pushNode(pts[i])
 
   let maxArea = 0
-
   while (heap.size() > 0) {
-    const node = heap.pop()
+    const entry = heap.pop()
+    const node = entry.node
     if (node.removed) continue
-    if (node.area !== node._currentArea) continue
+    if (entry.area !== node.area) continue
     if (node.area < maxArea) node.area = maxArea
     else maxArea = node.area
-
     if (node.area >= tolerance) break
-
     node.removed = true
     if (node.prev) node.prev.next = node.next
     if (node.next) node.next.prev = node.prev
-
-    if (node.prev?.prev) {
-      node.prev.area = computeArea(node.prev)
-      node.prev._currentArea = node.prev.area
-      heap.push(node.prev)
-    }
-    if (node.next?.next) {
-      node.next.area = computeArea(node.next)
-      node.next._currentArea = node.next.area
-      heap.push(node.next)
-    }
+    if (node.prev?.prev) pushNode(node.prev)
+    if (node.next?.next) pushNode(node.next)
   }
-
   const result = []
   let cur = pts[0]
   while (cur) {
@@ -67,11 +61,6 @@ function visvalingam (coords, { tolerance = 0, getWeight = () => 1 } = {}) {
     cur = cur.next
   }
   return result
-}
-
-const SIMPLIFY_OPTIONS_SCHEMA = {
-  tolerance: optional(is.number),
-  getWeight: optional(is.function)
 }
 
 export function simplifyGeoJson (geoJson, options = {}) {
@@ -94,6 +83,10 @@ export function simplifyGeoJson (geoJson, options = {}) {
       break
     case GEOMETRY_TYPES.POLYGON:
     case GEOMETRY_TYPES.MULTI_LINESTRING:
+      // getWeight receives an index local to each ring/line (each one is
+      // simplified independently, restarting at 0), not a global index
+      // across the whole geometry. This mirrors the fact that a ring is
+      // itself a plain zero-indexed coordinate array.
       geoJson.coordinates = geoJson.coordinates.map(ring => visvalingam(ring, options))
       break
     case GEOMETRY_TYPES.MULTI_POLYGON:

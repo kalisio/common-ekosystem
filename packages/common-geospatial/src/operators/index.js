@@ -1,4 +1,5 @@
 export * from './compute/index.js'
+export * from './fix.js'
 export * from './is-like.js'
 export * from './simplify.js'
 export * from './truncate.js'
