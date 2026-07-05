@@ -63,11 +63,38 @@ Paths use a JSON Pointer-like notation: `/coordinates/0`, `/features/2/geometry`
 | `validateBBox` | `BBOX_ANTIMERIDIAN_CROSSING` | `{ west, east }` | West > east in a bounding box |
 | `validateGeometry` | `ANTIMERIDIAN_CROSSING` | — | Segment jumps across the antimeridian |
 | `validateGeometry` | `INVALID_WINDING_ORDER` | `{ expected, actual }` | A ring's winding order doesn't match what's expected for its role (outer/hole) |
+| `validateGeometry` | `DUPLICATE_POSITION` | — | Two consecutive positions are the same (within precision) |
 | `validateGeoJson` | `MISSING_GEOMETRY` | — | `geometry` is `null` or absent on a `Feature` |
 
 ---
 
 ## Behavioral notes
+
+### Duplicate positions
+
+Two consecutive positions are considered duplicates when they are equal within a fixed precision (10 decimal digits), checked via `isSamePosition`. This applies to `LineString`, `MultiLineString` (per line), `Polygon`, and `MultiPolygon` (per ring) — not `MultiPoint`, where positions have no adjacency relationship. This is a **warning**: valid per the GeoJSON spec, but a common source of failures for consumers with stricter topology requirements (e.g. MongoDB's `2dsphere` index, which can reject a duplicate consecutive vertex outright).
+
+```js
+validateGeometry({
+  type: 'LineString',
+  coordinates: [[0, 0], [1, 1], [1, 1], [2, 2]]
+})
+// { valid: true, errors: [], warnings: [{ code: 'DUPLICATE_POSITION', path: '/coordinates/1' }] }
+```
+
+**Interaction with self-intersection**: on a `Polygon` or `MultiPolygon` ring, a duplicate consecutive position creates a zero-length edge, which the self-intersection check treats as a degenerate crossing. A ring with a duplicate will therefore also fail with a `SELF_INTERSECTION` **error**, not just the `DUPLICATE_POSITION` warning — even though the ring is otherwise perfectly well-formed.
+
+```js
+validateGeometry({
+  type: 'Polygon',
+  coordinates: [[[0, 0], [10, 0], [10, 0], [10, 10], [0, 10], [0, 0]]]
+})
+// {
+//   valid: false,
+//   errors: [{ code: 'SELF_INTERSECTION', path: '/coordinates/0', params: { count: 1 } }],
+//   warnings: [{ code: 'DUPLICATE_POSITION', path: '/coordinates/0/1' }]
+// }
+```
 
 ### Winding order
 

@@ -1,16 +1,31 @@
 import buffer from '@turf/buffer'
+import kinks from '@turf/kinks'
 import { booleanClockwise } from '@turf/boolean-clockwise'
 import { is, assert, conform, optional } from '@kalisio/common-core'
+import { isSamePosition } from '../foundation'
 import { FEATURE_TYPES, GEOMETRY_TYPES, isLikeGeoJson } from './is-like.js'
 import { VALIDATION_CODES } from './validate/codes.js'
 
-const FIXABLE_TYPES = [GEOMETRY_TYPES.POLYGON, GEOMETRY_TYPES.MULTI_POLYGON]
-const FIXABLE_CODES = [VALIDATION_CODES.INVALID_WINDING_ORDER, VALIDATION_CODES.SELF_INTERSECTION]
+// Winding order / self-intersection only apply to ring-based geometries.
+const RING_TYPES = [GEOMETRY_TYPES.POLYGON, GEOMETRY_TYPES.MULTI_POLYGON]
+// Duplicate position removal applies to any coordinate path, ring or line.
+const DEDUPABLE_TYPES = [
+  GEOMETRY_TYPES.LINESTRING,
+  GEOMETRY_TYPES.MULTI_LINESTRING,
+  GEOMETRY_TYPES.POLYGON,
+  GEOMETRY_TYPES.MULTI_POLYGON
+]
+const FIXABLE_CODES = [
+  VALIDATION_CODES.INVALID_WINDING_ORDER,
+  VALIDATION_CODES.SELF_INTERSECTION,
+  VALIDATION_CODES.DUPLICATE_POSITION
+]
 const DEFAULT_PRECISION = 1e-9
 const FIX_OPTIONS_SCHEMA = {
   validation: is.nonEmptyObject,
   windingOrder: optional(is.boolean),
   selfIntersection: optional(is.boolean),
+  duplicatePosition: optional(is.boolean),
   precision: optional(is.number)
 }
 
@@ -31,6 +46,15 @@ function fixPolygonWindingOrder (coordinates) {
   return corrected
 }
 
+// Rings of a Polygon or MultiPolygon, flattened to a single array either way.
+function ringsOf (geometry) {
+  return geometry.type === GEOMETRY_TYPES.POLYGON ? geometry.coordinates : geometry.coordinates.flat(1)
+}
+
+function hasSelfIntersection (geometry) {
+  return ringsOf(geometry).some(ring => kinks({ type: 'Polygon', coordinates: [ring] }).features.length > 0)
+}
+
 function fixSelfIntersection (geometry, precision) {
   const feature = { type: 'Feature', properties: {}, geometry }
   // Dilate then erode by the same tiny amount: gentler than buffer(0),
@@ -44,11 +68,59 @@ function fixSelfIntersection (geometry, precision) {
   return true
 }
 
+// Removes consecutive duplicate positions, keeping the first occurrence of
+// each run. Works identically for lines and rings: a ring's closing position
+// (first === last) is never adjacent to itself in the array, so it is never
+// mistakenly collapsed by this linear left-to-right scan.
+function dedupePositions (positions) {
+  const result = [positions[0]]
+  for (let i = 1; i < positions.length; i++) {
+    if (!isSamePosition(positions[i], result[result.length - 1])) {
+      result.push(positions[i])
+    }
+  }
+  return result
+}
+
+function fixDuplicatePositions (geometry) {
+  let deduped = false
+  const dedupeAndTrack = (positions) => {
+    const before = positions.length
+    const result = dedupePositions(positions)
+    if (result.length !== before) deduped = true
+    return result
+  }
+
+  switch (geometry.type) {
+    case GEOMETRY_TYPES.LINESTRING:
+      geometry.coordinates = dedupeAndTrack(geometry.coordinates)
+      break
+    case GEOMETRY_TYPES.MULTI_LINESTRING:
+      geometry.coordinates = geometry.coordinates.map(dedupeAndTrack)
+      break
+    case GEOMETRY_TYPES.POLYGON:
+      geometry.coordinates = geometry.coordinates.map(dedupeAndTrack)
+      break
+    case GEOMETRY_TYPES.MULTI_POLYGON:
+      geometry.coordinates = geometry.coordinates.map(poly => poly.map(dedupeAndTrack))
+      break
+  }
+  return deduped
+}
+
 function fixGeometry (geometry, options) {
   const corrections = []
-  if (!FIXABLE_TYPES.includes(geometry.type)) {
+
+  if (options.duplicatePosition && DEDUPABLE_TYPES.includes(geometry.type)) {
+    if (fixDuplicatePositions(geometry)) {
+      corrections.push({ code: VALIDATION_CODES.DUPLICATE_POSITION })
+    }
+  }
+
+  if (!RING_TYPES.includes(geometry.type)) {
     return { fixed: geometry, corrections }
   }
+
   if (options.windingOrder) {
     let corrected = false
     if (geometry.type === GEOMETRY_TYPES.POLYGON) {
@@ -60,11 +132,22 @@ function fixGeometry (geometry, options) {
     }
     if (corrected) corrections.push({ code: VALIDATION_CODES.INVALID_WINDING_ORDER })
   }
+
   if (options.selfIntersection) {
-    if (fixSelfIntersection(geometry, options.precision ?? DEFAULT_PRECISION)) {
+    // A duplicate position fixed just above can spuriously look like a
+    // self-intersection to `kinks` (a zero-length edge). Re-check the
+    // current geometry before running the buffer fix, so we don't perturb
+    // an already-clean ring -- but still report the issue as corrected,
+    // since it's genuinely resolved even though the buffer never ran.
+    if (hasSelfIntersection(geometry)) {
+      if (fixSelfIntersection(geometry, options.precision ?? DEFAULT_PRECISION)) {
+        corrections.push({ code: VALIDATION_CODES.SELF_INTERSECTION })
+      }
+    } else {
       corrections.push({ code: VALIDATION_CODES.SELF_INTERSECTION })
     }
   }
+
   return { fixed: geometry, corrections }
 }
 
@@ -79,11 +162,14 @@ function fixGeometryIssues (geometry, relevantIssues, path, options) {
   const fixOptions = {
     windingOrder: options.windingOrder !== false && relevantIssues.some(i => i.code === VALIDATION_CODES.INVALID_WINDING_ORDER),
     selfIntersection: options.selfIntersection !== false && relevantIssues.some(i => i.code === VALIDATION_CODES.SELF_INTERSECTION),
+    duplicatePosition: options.duplicatePosition !== false && relevantIssues.some(i => i.code === VALIDATION_CODES.DUPLICATE_POSITION),
     precision: options.precision
   }
-  const result = (fixOptions.windingOrder || fixOptions.selfIntersection)
+
+  const result = (fixOptions.windingOrder || fixOptions.selfIntersection || fixOptions.duplicatePosition)
     ? fixGeometry(geometry, fixOptions)
     : { corrections: [] }
+
   const correctedCodes = new Set(result.corrections.map(c => c.code))
   const corrections = result.corrections.map(c => ({ ...c, path }))
   const unfixed = relevantIssues.filter(issue => !correctedCodes.has(issue.code))

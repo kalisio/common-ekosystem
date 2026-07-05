@@ -1,6 +1,6 @@
 ---
 title: fix
-description: Automatic correction of common GeoJSON geometry issues (winding order, self-intersection).
+description: Automatic correction of common GeoJSON geometry issues (winding order, self-intersection, duplicate positions).
 ---
 
 # fix
@@ -17,7 +17,7 @@ fixGeoJson (geoJson, options)
 
 Fixes what it can in a GeoJSON object — a geometry, a `Feature`, or a `FeatureCollection` — driven by a previously computed `validateGeoJson` result rather than blindly reprocessing everything. It never validates internally: you must run `validateGeoJson` first and pass the result in via `options.validation`.
 
-Only two issue types are currently fixable: `INVALID_WINDING_ORDER` and `SELF_INTERSECTION`, and only on `Polygon` and `MultiPolygon` geometries. Everything else — invalid bbox, invalid CRS, out-of-range positions, self-intersecting `LineString` (which is valid GeoJSON), etc. — is left untouched and reported back so the caller can decide what to do with it.
+Three issue types are currently fixable: `INVALID_WINDING_ORDER`, `SELF_INTERSECTION`, and `DUPLICATE_POSITION`. Winding order and self-intersection only apply to `Polygon` and `MultiPolygon`; duplicate position removal also applies to `LineString` and `MultiLineString`. Everything else — invalid bbox, invalid CRS, out-of-range positions, self-intersecting `LineString` (which is valid GeoJSON), etc. — is left untouched and reported back so the caller can decide what to do with it.
 
 For a `FeatureCollection`, each feature's geometry is fixed independently and `corrections`/`unfixed` are returned as a flat list, with `path` identifying which feature each entry belongs to (e.g. `/features/2/geometry`).
 
@@ -76,6 +76,36 @@ fixGeoJson(geoJson, { validation })
 // { fixed: geoJson, corrections: [{ code: 'SELF_INTERSECTION', path: '' }], unfixed: [] }
 ```
 
+#### Duplicate positions
+
+Consecutive duplicate positions are removed, keeping the first occurrence of each run. Applies to `LineString`, `MultiLineString`, `Polygon`, and `MultiPolygon`.
+
+```js
+const geoJson = { type: 'LineString', coordinates: [[0, 0], [1, 1], [1, 1], [2, 2]] }
+const validation = validateGeoJson(geoJson)
+fixGeoJson(geoJson, { validation })
+// { fixed: geoJson, corrections: [{ code: 'DUPLICATE_POSITION', path: '' }], unfixed: [] }
+```
+
+**Interaction with self-intersection**: as noted in `validate`, a duplicate position on a ring also triggers a `SELF_INTERSECTION` error (a zero-length edge looks like a kink to the self-intersection check). `fixGeoJson` removes the duplicate first, then re-checks the ring before attempting the self-intersection buffer fix — so a self-intersection caused only by the duplicate is reported as corrected without any unnecessary buffering, while a genuine self-intersection unrelated to any duplicate is still fixed normally.
+
+```js
+const geoJson = {
+  type: 'Polygon',
+  coordinates: [[[0, 0], [10, 0], [10, 0], [10, 10], [0, 10], [0, 0]]]
+}
+const validation = validateGeoJson(geoJson)
+fixGeoJson(geoJson, { validation })
+// {
+//   fixed: geoJson,
+//   corrections: [
+//     { code: 'DUPLICATE_POSITION', path: '' },
+//     { code: 'SELF_INTERSECTION', path: '' }
+//   ],
+//   unfixed: []
+// }
+```
+
 #### Unfixable issues are reported, not silently dropped
 
 ```js
@@ -110,6 +140,7 @@ fixGeoJson(geoJson, { validation, windingOrder: false })
 | `options.validation` | `object` | yes | The result of `validateGeoJson(geoJson)`. Must correspond to the `geoJson` passed in |
 | `options.windingOrder` | `boolean` | no | Whether to fix winding order issues (default: `true`) |
 | `options.selfIntersection` | `boolean` | no | Whether to fix self-intersection issues (default: `true`) |
+| `options.duplicatePosition` | `boolean` | no | Whether to remove consecutive duplicate positions (default: `true`) |
 | `options.precision` | `number` | no | Buffer distance, in degrees, used to resolve self-intersections (default: `1e-9`) |
 
 ### Returns
@@ -157,8 +188,16 @@ const collection = {
 fixGeoJson(collection, { validation: validateGeoJson(collection) })
 // corrections: [{ code: 'INVALID_WINDING_ORDER', path: '/features/1/geometry' }]
 
+// A LineString with a duplicate position
+const line = { type: 'LineString', coordinates: [[0, 0], [1, 1], [1, 1], [2, 2]] }
+fixGeoJson(line, { validation: validateGeoJson(line) })
+// corrections: [{ code: 'DUPLICATE_POSITION', path: '' }]
+
 // Disabling self-intersection fixing
 fixGeoJson(geoJson, { validation, selfIntersection: false })
+
+// Disabling duplicate position removal
+fixGeoJson(geoJson, { validation, duplicatePosition: false })
 
 // Custom precision for the self-intersection buffer
 fixGeoJson(geoJson, { validation, precision: 1e-7 })

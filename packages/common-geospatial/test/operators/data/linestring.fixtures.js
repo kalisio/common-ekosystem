@@ -19,6 +19,12 @@ export const lineStrings = {
     ]
   },
   twoPoints: { type: 'LineString', coordinates: [[2.349, 48.864], [12.496, 41.902]] },
+  withDuplicate: {
+    type: 'LineString',
+    coordinates: [
+      [2.3522, 48.8566], [4.8357, 45.7640], [4.8357, 45.7640], [5.3698, 43.2965]
+    ]
+  },
   coastline: {
     type: 'LineString',
     coordinates: [

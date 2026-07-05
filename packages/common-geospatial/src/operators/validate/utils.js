@@ -30,17 +30,12 @@ export function validateArray (items, validator, path = '') {
   for (let i = 0; i < items.length; i++) {
     const itemPath = `${path}/${i}`
     const result = validator(items[i], itemPath, i)
-
-    // Merge statistics before the valid/invalid branch, so invalid items are
-    // still counted and the continue below cannot skip the merge.
     if (result.statistics) {
       response.statistics = mergeStatistics(response, result)
     }
-
     if (!result.valid) {
       response.valid = false
       response.errors = response.errors.concat(result.errors.map(e => ({ ...e, path: e.path || itemPath, index: i })))
-      continue
     }
     if (!is.empty(result.warnings)) {
       response.warnings = response.warnings.concat(result.warnings.map(w => ({ ...w, path: w.path || itemPath, index: i })))
