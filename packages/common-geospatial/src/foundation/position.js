@@ -1,7 +1,13 @@
 import { assert, is, conform, optional } from '@kalisio/common-core'
 import { AXES } from './axes.js'
 import { isWest, isSouth } from './directions.js'
-import { guessCoordinateAxis, parseCoordinate, COORDINATE_TRUNCATION_FACTORS } from './coordinate.js'
+import {
+  DEFAULT_COORDINATE_PRECISION,
+  MAX_COORDINATE_PRECISION,
+  guessCoordinateAxis,
+  parseCoordinate,
+  truncateCoordinate
+} from './coordinate.js'
 
 export function parsePosition (pattern) {
   assert.that(pattern, (v) => is.nonEmptyString(v), 'pattern must be a non-empty string')
@@ -70,21 +76,28 @@ export function isSamePosition (position1, position2, options = {}) {
       message: 'options must be a valid options object'
     }
   ])
-  const { precision = 10, consider3D = false } = options
+  const { precision = DEFAULT_COORDINATE_PRECISION, consider3D = false } = options
   const length = consider3D ? Math.max(position1.length, position2.length) : 2
   return Array.from({ length }, (_, i) =>
     (position1[i] ?? 0).toFixed(precision) === (position2[i] ?? 0).toFixed(precision)
   ).every(Boolean)
 }
 
-export function truncatePosition (position, precision = 7) {
+export function truncatePosition (position, precision = DEFAULT_COORDINATE_PRECISION) {
   assert.all([
-    { value: position, validator: isValidPosition, message: 'position must be a position' },
-    { value: precision, validator: (v) => is.inRange(v, 0, 8), message: 'precision must be in range [0, 8]' }
+    {
+      value: position,
+      validator: isValidPosition,
+      message: 'position must be a position'
+    },
+    {
+      value: precision,
+      validator: (v) => is.inRange(v, 0, MAX_COORDINATE_PRECISION),
+      message: `precision must be in range [0, ${MAX_COORDINATE_PRECISION}]`
+    }
   ])
-  const factor = COORDINATE_TRUNCATION_FACTORS[precision]
   for (let i = 0; i < position.length; i++) {
-    position[i] = Math.round(position[i] * factor) / factor
+    position[i] = truncateCoordinate(position[i], precision)
   }
   return position
 }

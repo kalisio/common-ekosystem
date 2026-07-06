@@ -1,218 +1,161 @@
 ---
 title: position
-description: Helper functions for working with positions.
+description: GeoJSON position parsing, validation, comparison and truncation utilities.
 ---
 
-# parsePosition
+# position
 
-## Signature
+A position is a `[longitude, latitude]` or `[longitude, latitude, altitude]` array, following the GeoJSON convention.
+
+## parsePosition
+
+### Signature
 
 ```js
 parsePosition(pattern)
 ```
 
-## Description
+### Description
 
-Parses a string containing two coordinate values separated by a delimiter (`,`, `;`, or `|`) and returns a GeoJSON position `[longitude, latitude]`. Each part is parsed independently using `parseCoordinate`, and the axis of each value is inferred using `guessCoordinateAxis`.
+Parses a position string into a `[longitude, latitude]` array. Accepts comma, semicolon or pipe separators. When both values carry explicit directions the position is reordered to `[longitude, latitude]` regardless of input order. When both values are ambiguous, two candidate positions are returned.
 
-If both axes can be determined unambiguously, the coordinates are reordered to `[longitude, latitude]` regardless of the input order. If neither axis can be determined (both values are in the `[-90, 90]` range with no direction hint), two candidate positions are returned.
-
-Returns `null` if the pattern cannot be parsed.
-
-## Parameters
+### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `pattern` | `string` | yes | A non-empty string containing two coordinate values separated by `,`, `;`, or `|` |
+| `pattern` | `string` | yes | A non-empty position string |
 
-## Returns
+### Returns
 
 | Type | Description |
 |------|-------------|
-| `number[]` | A GeoJSON position `[longitude, latitude]` |
-| `number[][]` | Two candidate positions if the axis of both values is ambiguous |
-| `null` | If the pattern cannot be parsed or does not contain exactly two values |
+| `Array \| Array[] \| null` | A `[lon, lat]` position, an array of two candidate positions when ambiguous, or `null` if unparseable |
 
-## Throws
+### Throws
 
 Throws if `pattern` is not a non-empty string.
 
-## Examples
+### Examples
 
 ```js
-// Latitude, longitude with direction symbols
-parsePosition('48.8566N, 2.3522E')
-// [2.3522, 48.8566]
+parsePosition('2.3522E,48.8566N')   // [2.3522, 48.8566]
+parsePosition('48.8566N,2.3522E')   // [2.3522, 48.8566] — reordered
+parsePosition('48.8566,2.3522')     // [[48.8566, 2.3522], [2.3522, 48.8566]] — ambiguous
+parsePosition('invalid')            // null
 ```
+
+## isValidPosition
+
+### Signature
 
 ```js
-// Longitude first
-parsePosition('2.3522E, 48.8566N')
-// [2.3522, 48.8566]
+isValidPosition(position)
 ```
 
-```js
-// Plain decimal, unambiguous — one value > 90 is treated as longitude
-parsePosition('48.8566, 120.5')
-// [120.5, 48.8566]
-```
+### Description
 
-```js
-// Semicolon delimiter
-parsePosition('48.8566N; 2.3522E')
-// [2.3522, 48.8566]
-```
+Returns whether the value is a valid GeoJSON position: an array of 2 or 3 numbers, with a longitude in `[-180, 180]`, a latitude in `[-90, 90]`, and, when present, a numeric altitude.
 
-```js
-// Pipe delimiter
-parsePosition('48.8566N | 2.3522E')
-// [2.3522, 48.8566]
-```
-
-```js
-// South and West directions produce negative values
-parsePosition('34.6037S, 58.3816W')
-// [-58.3816, -34.6037]
-```
-
-```js
-// Ambiguous — both values in [-90, 90], no direction hint
-parsePosition('45, 12')
-// [[45, 12], [12, 45]]
-```
-
-```js
-// Invalid — only one part
-parsePosition('48.8566')
-// null
-```
-
-```js
-// Invalid — unparseable coordinate
-parsePosition('abc, def')
-// null
-```
-
-# isValidPosition
-
-## Signature
-
-```js
-isValidPosition (value)
-```
-
-## Description
-
-Returns `true` if `value` is a valid GeoJSON position: an array of 2 or 3 finite numbers where longitude is in `[-180, 180]` and latitude is in `[-90, 90]`. Altitude, if present, must be a finite number.
-
-## Parameters
+### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `value` | `*` | yes | The value to check |
+| `position` | `any` | yes | Value to test |
 
-## Returns
+### Returns
 
 | Type | Description |
 |------|-------------|
-| `boolean` | `true` if the value is a valid GeoJSON position |
+| `boolean` | `true` if the value is a valid position |
 
-## Examples
+### Examples
 
 ```js
 isValidPosition([2.3522, 48.8566])        // true
 isValidPosition([2.3522, 48.8566, 100])   // true
 isValidPosition([181, 48.8566])           // false — longitude out of range
-isValidPosition([2.3522, 91])             // false — latitude out of range
-isValidPosition([2.3522])                 // false — too few elements
-isValidPosition(null)                     // false
+isValidPosition([2.3522])                 // false — wrong length
 ```
 
-# is3DPosition
+## is3DPosition
 
-## Signature
+### Signature
 
 ```js
-is3DPosition (position)
+is3DPosition(position)
 ```
 
-## Description
+### Description
 
-Returns `true` if `position` is a valid GeoJSON position with an altitude coordinate (3 elements).
+Returns whether a valid position carries an altitude, i.e. has a length of 3.
 
-## Parameters
+### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `position` | `number[]` | yes | A valid GeoJSON position |
+| `position` | `Array` | yes | A valid position |
 
-## Returns
+### Returns
 
 | Type | Description |
 |------|-------------|
-| `boolean` | `true` if the position has 3 coordinates |
+| `boolean` | `true` if the position is 3D |
 
-## Throws
+### Throws
 
-Throws if `position` is not a valid GeoJSON position.
+Throws if `position` is not a valid position.
 
-## Examples
-
-```js
-is3DPosition([2.3522, 48.8566, 100])  // true
-is3DPosition([2.3522, 48.8566])       // false
-is3DPosition(null)                    // throws
-```
-
-# isSamePosition
-
-## Signature
+### Examples
 
 ```js
-isSamePosition (position1, position2, options)
+is3DPosition([2.3522, 48.8566, 100])   // true
+is3DPosition([2.3522, 48.8566])        // false
 ```
 
-## Description
+## isSamePosition
 
-Returns `true` if two GeoJSON positions are equal within the given decimal precision. By default only longitude and latitude are compared; altitude comparison can be enabled via `consider3D`.
+### Signature
 
-## Parameters
+```js
+isSamePosition(position1, position2, options = {})
+```
+
+### Description
+
+Returns whether two positions are equal at a given precision. Comparison is done digit by digit after rounding each coordinate to `precision` decimals, so "same" means "equal once rounded to `precision`", not "identical". By default only longitude and latitude are compared; altitude is ignored.
+
+### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `position1` | `number[]` | yes | A valid GeoJSON position |
-| `position2` | `number[]` | yes | A valid GeoJSON position |
-| `options` | `object` | no | Comparison options |
-| `options.precision` | `number` | no | Decimal places for comparison (default: `10`) |
-| `options.consider3D` | `boolean` | no | Whether to include altitude in comparison (default: `false`) |
+| `position1` | `Array` | yes | A valid position |
+| `position2` | `Array` | yes | A valid position |
+| `options.precision` | `number` | no | Number of decimal digits to compare (default: `DEFAULT_COORDINATE_PRECISION`) |
+| `options.consider3D` | `boolean` | no | When `true`, altitude is also compared (default: `false`) |
 
-## Returns
+::: tip Note on `consider3D`
+`consider3D` defaults to `false`, meaning two positions sharing the same longitude and latitude are considered equal even if their altitudes differ. This is deliberate: MongoDB's `2dsphere` index (S2) only indexes longitude and latitude, so for the truncation pipeline a difference in altitude alone does not make two vertices distinct. Note that `computeBBox` in the `bbox` module uses the opposite convention (`ignore3D`); the two default values do **not** describe the same behaviour.
+:::
+
+### Returns
 
 | Type | Description |
 |------|-------------|
-| `boolean` | `true` if the positions are equal within the given precision |
+| `boolean` | `true` if the positions are equal at the given precision |
 
-## Throws
+### Throws
 
-Throws if either position is not a valid GeoJSON position, or if `options` is invalid.
+Throws if either position is invalid, or if `options` does not match the expected schema.
 
-## Examples
+### Examples
 
 ```js
-isSamePosition([2.3522, 48.8566], [2.3522, 48.8566])
-// true
-
-isSamePosition([2.3522, 48.8566, 100], [2.3522, 48.8566, 200])
-// true — altitude ignored by default
-
-isSamePosition([2.3522, 48.8566, 100], [2.3522, 48.8566, 200], { consider3D: true })
-// false — altitudes differ
-
-isSamePosition([2.352, 48.856], [2.353, 48.857], { precision: 2 })
-// true — equal at 2 decimal places
-
-isSamePosition([2.352, 48.856], [2.353, 48.857], { precision: 3 })
-// false — differ at 3 decimal places
+isSamePosition([2.3522, 48.8566], [2.3522, 48.8566])                          // true
+isSamePosition([2.35220001, 48.8566], [2.3522, 48.8566])                      // true — equal at precision 7
+isSamePosition([2.352201, 48.8566], [2.3522, 48.8566])                        // false — differ at the 6th decimal
+isSamePosition([2.3522, 48.8566, 100], [2.3522, 48.8566, 200])               // true — altitude ignored by default
+isSamePosition([2.3522, 48.8566, 100], [2.3522, 48.8566, 200], { consider3D: true }) // false
+isSamePosition([2.352, 48.856], [2.353, 48.857], { precision: 2 })           // true
 ```
 
 ## truncatePosition
@@ -220,55 +163,38 @@ isSamePosition([2.352, 48.856], [2.353, 48.857], { precision: 3 })
 ### Signature
 
 ```js
-truncatePosition (position, precision)
+truncatePosition(position, precision = DEFAULT_COORDINATE_PRECISION)
 ```
 
 ### Description
 
-Truncates each coordinate of a position to the given number of decimal places. Supports both 2D and 3D positions.
-The operation is performed **in place** — the original array is mutated and returned.
+Truncates every coordinate of a position to the given number of decimal digits, altitude included. This function mutates the position in place and returns the same array.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `position` | `number[]` | yes | A valid GeoJSON position `[lon, lat]` or `[lon, lat, alt]` |
-| `precision` | `number` | no | Number of decimal places to keep, in range `[0, 8]` (default: `7`) |
+| `position` | `Array` | yes | A valid position |
+| `precision` | `number` | no | Number of decimal digits to keep, in range `[0, MAX_COORDINATE_PRECISION]` (default: `DEFAULT_COORDINATE_PRECISION`) |
+
+::: warning Mutation
+Unlike `truncateCoordinate`, which is pure, `truncatePosition` mutates its argument in place. The altitude, when present, is truncated to the same decimal precision as longitude and latitude even though it is expressed in a different unit.
+:::
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `number[]` | The mutated position |
+| `Array` | The same position array, mutated |
 
 ### Throws
 
-Throws if `position` is not a valid position.
-Throws if `precision` is not in range `[0, 8]`.
+Throws if `position` is not a valid position, or if `precision` is not in range `[0, MAX_COORDINATE_PRECISION]`.
 
 ### Examples
 
 ```js
-// Default precision (7)
-truncatePosition([2.352212345, 48.856612345])
-// [2.3522123, 48.8566123]
-```
-
-```js
-// Custom precision
-truncatePosition([2.352212345, 48.856612345], 3)
-// [2.352, 48.857]
-```
-
-```js
-// 3D position
-truncatePosition([2.352212345, 48.856612345, 100.123456789])
-// [2.3522123, 48.8566123, 100.1234568]
-```
-
-```js
-// Mutates in place
-const position = [2.352212345, 48.856612345]
-const result = truncatePosition(position, 3)
-result === position // true
+truncatePosition([2.352212345, 48.856612345])         // [2.3522123, 48.8566123]
+truncatePosition([2.352212345, 48.856612345], 3)      // [2.352, 48.857]
+truncatePosition([2.352212345, 48.856612345, 100.5])  // [2.3522123, 48.8566123, 100.5]
 ```

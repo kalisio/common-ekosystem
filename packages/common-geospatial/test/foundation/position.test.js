@@ -4,7 +4,9 @@ import {
   isValidPosition,
   is3DPosition,
   isSamePosition,
-  truncatePosition
+  truncatePosition,
+  DEFAULT_COORDINATE_PRECISION,
+  MAX_COORDINATE_PRECISION
 } from '../../src/foundation'
 
 describe('parsePosition — invalid input', () => {
@@ -169,11 +171,13 @@ describe('isSamePosition', () => {
   })
 
   it('returns true for positions equal within default precision', () => {
-    expect(isSamePosition([2.35220000001, 48.8566], [2.3522, 48.8566])).toBe(true)
+    // differ at the 8th decimal, below the default precision of 7
+    expect(isSamePosition([2.35220001, 48.8566], [2.3522, 48.8566])).toBe(true)
   })
 
   it('returns false for positions differing beyond default precision', () => {
-    expect(isSamePosition([2.3522000001, 48.8566], [2.3522, 48.8566])).toBe(false)
+    // differ at the 6th decimal, above the default precision of 7
+    expect(isSamePosition([2.352201, 48.8566], [2.3522, 48.8566])).toBe(false)
   })
 
   it('ignores altitude by default (consider3D: false)', () => {
@@ -214,6 +218,21 @@ describe('truncatePosition', () => {
 
   it('truncates with precision 0', () => {
     expect(truncatePosition([2.352212345, 48.856612345], 0)).toEqual([2, 49])
+  })
+
+  it('truncates negative coordinates', () => {
+    expect(truncatePosition([-73.98570123, 40.74840123])).toEqual([-73.9857012, 40.7484012])
+  })
+
+  it('truncates at the maximum precision without producing NaN', () => {
+    const result = truncatePosition([2.12345678, 48.12345678], MAX_COORDINATE_PRECISION)
+    expect(result.every((coordinate) => !Number.isNaN(coordinate))).toBe(true)
+    expect(result).toEqual([2.12345678, 48.12345678])
+  })
+
+  it('defaults precision to DEFAULT_COORDINATE_PRECISION', () => {
+    const value = [2.352212345, 48.856612345]
+    expect(truncatePosition([...value])).toEqual(truncatePosition([...value], DEFAULT_COORDINATE_PRECISION))
   })
 
   it('mutates in place and returns the same object', () => {

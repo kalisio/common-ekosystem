@@ -7,14 +7,32 @@ description: Coordinate parsing, conversion, truncation, normalization and preci
 
 ## Constants
 
+### DEFAULT_COORDINATE_PRECISION
+
+The default number of decimal digits used when truncating coordinates. Its value is `7`, which corresponds to roughly 1 cm in WGS84.
+
+This constant is the single source of truth for coordinate precision across the package. `truncateCoordinate`, `truncatePosition`, `truncateBBox`, `truncateGeoJson` and `isSamePosition` all default to it. Any operator or validator that reasons about precision should import it from here rather than hard-coding a value, so that the whole chain stays aligned.
+
+```js
+DEFAULT_COORDINATE_PRECISION // 7
+```
+
+### MAX_COORDINATE_PRECISION
+
+The maximum precision accepted by the truncation functions. Its value is `8`. Precision arguments are validated against the inclusive range `[0, MAX_COORDINATE_PRECISION]`.
+
+```js
+MAX_COORDINATE_PRECISION // 8
+```
+
 ### COORDINATE_TRUNCATION_FACTORS
 
-Array of powers of 10 indexed by precision, used for coordinate truncation.
+Array of powers of 10 indexed by precision, used for coordinate truncation. It holds `MAX_COORDINATE_PRECISION + 1` entries so that every valid precision, including the maximum, indexes a defined factor.
 
 ```js
 COORDINATE_TRUNCATION_FACTORS = [1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000]
 // index 0 → 10^0 = 1
-// index 7 → 10^7 = 10000000
+// index 8 → 10^8 = 100000000
 ```
 
 ### COORDINATE_FORMATS
@@ -104,19 +122,19 @@ getCoordinatePrecision(100)          // 0
 ### Signature
 
 ```js
-truncateCoordinate(coord, precision = 7)
+truncateCoordinate(coord, precision = DEFAULT_COORDINATE_PRECISION)
 ```
 
 ### Description
 
-Truncates a coordinate value to the given number of decimal digits.
+Truncates a coordinate value to the given number of decimal digits. This function is pure: it returns a new value and does not mutate its argument.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
 | `coord` | `number` | yes | Coordinate value |
-| `precision` | `number` | no | Number of decimal digits to keep, between 0 and 8 (default: `7`) |
+| `precision` | `number` | no | Number of decimal digits to keep, in range `[0, MAX_COORDINATE_PRECISION]` (default: `DEFAULT_COORDINATE_PRECISION`) |
 
 The `precision`, i.e. number of decimal digits, in GPS coordinates directly determines location precision:
 
@@ -130,6 +148,7 @@ The `precision`, i.e. number of decimal digits, in GPS coordinates directly dete
 | 5 | ~1.11 m |
 | 6 | ~0.11 m (11 cm) |
 | 7 | ~1.1 cm |
+| 8 | ~1.1 mm |
 
 ### Returns
 
@@ -139,7 +158,7 @@ The `precision`, i.e. number of decimal digits, in GPS coordinates directly dete
 
 ### Throws
 
-Throws if `coord` is not a number, or if `precision` is not in range `[0, 8]`.
+Throws if `coord` is not a number, or if `precision` is not in range `[0, MAX_COORDINATE_PRECISION]`.
 
 ### Examples
 

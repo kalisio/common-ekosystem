@@ -1,110 +1,110 @@
 ---
-title: position
-description: Helper functions for working with bounding boxes.
+title: bbox
+description: GeoJSON bounding-box validation, merging, computation and truncation utilities.
 ---
 
-# isValidBBox
+# bbox
 
-## Signature
+A bounding box follows the GeoJSON convention: a 2D box is `[west, south, east, north]`, a 3D box is `[west, south, minAltitude, east, north, maxAltitude]`.
+
+## isValidBBox
+
+### Signature
 
 ```js
-isValidBBox (value)
+isValidBBox(bbox)
 ```
 
-## Description
+### Description
 
-Returns `true` if `value` is a valid GeoJSON bounding box: an array of 4 (2D) or 6 (3D) numbers where the south-west and north-east corners are valid positions and south is less than or equal to north. A bbox crossing the antimeridian (west > east) is considered valid.
+Returns whether the value is a valid bounding box: an array of 4 or 6 numbers whose south-west and north-east corners are valid positions, with `south <= north` and, in 3D, `minAltitude <= maxAltitude`. Longitude order is not constrained, so a box crossing the antimeridian (`west > east`) is considered valid, as allowed by the GeoJSON specification.
 
-## Parameters
+### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `value` | `*` | yes | The value to check |
+| `bbox` | `any` | yes | Value to test |
 
-## Returns
+### Returns
 
 | Type | Description |
 |------|-------------|
-| `boolean` | `true` if the value is a valid GeoJSON bounding box |
+| `boolean` | `true` if the value is a valid bounding box |
 
-## Examples
-
-```js
-isValidBBox([-10, -20, 10, 20])              // true
-isValidBBox([-10, -20, -100, 10, 20, 100])   // true — 3D
-isValidBBox([10, -20, -10, 20])              // true — crosses antimeridian
-isValidBBox([-181, -20, 10, 20])             // false — longitude out of range
-isValidBBox([-10, 20, 10, -20])              // false — south > north
-isValidBBox([-10, -20, 100, 10, 20, -100])   // false — minAlt > maxAlt
-isValidBBox(null)                            // false
-```
-
-# is3DBBox
-
-## Signature
+### Examples
 
 ```js
-is3DBBox (bbox)
+isValidBBox([-10, -20, 10, 20])                 // true
+isValidBBox([-10, -20, -100, 10, 20, 100])      // true — 3D
+isValidBBox([10, -20, -10, 20])                 // true — crosses the antimeridian
+isValidBBox([-10, 20, 10, -20])                 // false — south > north
 ```
 
-## Description
+## is3DBBox
 
-Returns `true` if `bbox` is a valid GeoJSON bounding box with altitude coordinates (6 elements).
+### Signature
 
-## Parameters
+```js
+is3DBBox(bbox)
+```
+
+### Description
+
+Returns whether a valid bounding box carries altitudes, i.e. has a length of 6.
+
+### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `bbox` | `number[]` | yes | A valid GeoJSON bounding box |
+| `bbox` | `Array` | yes | A valid bounding box |
 
-## Returns
+### Returns
 
 | Type | Description |
 |------|-------------|
-| `boolean` | `true` if the bounding box has 6 coordinates |
+| `boolean` | `true` if the bounding box is 3D |
 
-## Throws
+### Throws
 
-Throws if `bbox` is not a valid GeoJSON bounding box.
+Throws if `bbox` is not a valid bounding box.
 
-## Examples
-
-```js
-is3DBBox([-10, -20, -100, 10, 20, 100])  // true
-is3DBBox([-10, -20, 10, 20])             // false
-is3DBBox(null)                           // throws
-```
-
-# mergeBBox
-
-## Signature
+### Examples
 
 ```js
-mergeBBox (bbox1, bbox2)
+is3DBBox([-10, -20, -100, 10, 20, 100])   // true
+is3DBBox([-10, -20, 10, 20])              // false
 ```
 
-## Description
+## mergeBBox
 
-Returns the smallest bounding box that encloses both input bounding boxes. Both inputs must be valid GeoJSON bounding boxes of the same dimensionality (2D or 3D).
+### Signature
 
-## Parameters
+```js
+mergeBBox(bbox1, bbox2)
+```
+
+### Description
+
+Returns the smallest bounding box that contains both inputs. A 3D box is returned only when both inputs are 3D; otherwise a 2D box is returned.
+
+### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `bbox1` | `number[]` | yes | A valid GeoJSON bounding box |
-| `bbox2` | `number[]` | yes | A valid GeoJSON bounding box |
+| `bbox1` | `Array` | yes | A valid bounding box |
+| `bbox2` | `Array` | yes | A valid bounding box |
 
-## Returns
+### Returns
 
 | Type | Description |
 |------|-------------|
-| `number[]` | The merged bounding box |
+| `Array` | A new bounding box containing both inputs |
 
-## Throws
+### Throws
 
-Throws if either input is not a valid GeoJSON bounding box.
+Throws if either input is not a valid bounding box.
 
-## Examples
+### Examples
 
 ```js
 mergeBBox([-10, -20, 10, 20], [-5, -15, 15, 25])
@@ -112,12 +112,6 @@ mergeBBox([-10, -20, 10, 20], [-5, -15, 15, 25])
 
 mergeBBox([-10, -20, -100, 10, 20, 100], [-5, -15, -50, 15, 25, 200])
 // [-10, -20, -100, 15, 25, 200]
-
-mergeBBox([-180, -90, 0, 0], [0, 0, 180, 90])
-// [-180, -90, 180, 90]
-
-mergeBBox([2.3522, 48.8566, 2.3522, 48.8566], [2.3600, 48.8600, 2.3600, 48.8600])
-// [2.3522, 48.8566, 2.3600, 48.8600]
 ```
 
 ## computeBBox
@@ -125,45 +119,40 @@ mergeBBox([2.3522, 48.8566, 2.3522, 48.8566], [2.3600, 48.8600, 2.3600, 48.8600]
 ### Signature
 
 ```js
-computeBBox (positions, options)
+computeBBox(positions, options = {})
 ```
 
 ### Description
 
-Computes the bounding box of an array of positions. If any position has an altitude coordinate, the result is a 3D bbox `[minX, minY, minZ, maxX, maxY, maxZ]`. Otherwise a 2D bbox `[minX, minY, maxX, maxY]` is returned. This behavior can be overridden with `ignore3D`.
+Computes the bounding box enclosing a non-empty array of positions. A 3D box is returned when at least one position carries an altitude, unless `ignore3D` is set. Missing altitudes are treated as `0` in 3D mode.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `positions` | `number[][]` | yes | A non-empty array of valid GeoJSON positions |
-| `options` | `object` | no | Options |
-| `options.ignore3D` | `boolean` | no | If `true`, altitude is ignored and a 2D bbox is always returned (default: `false`) |
+| `positions` | `Array` | yes | A non-empty array of valid positions |
+| `options.ignore3D` | `boolean` | no | When `true`, a 2D box is always returned (default: `false`) |
+
+::: tip Note on `ignore3D`
+This module uses `ignore3D`, whereas `isSamePosition` and the `truncate` operator use `consider3D`. The two are opposite conventions: `computeBBox` with `ignore3D: false` (the default) **considers** altitude, while `isSamePosition` with `consider3D: false` (the default) **ignores** it. Read the option name, not just the boolean value.
+:::
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `number[]` | A 2D `[minX, minY, maxX, maxY]` or 3D `[minX, minY, minZ, maxX, maxY, maxZ]` bounding box |
+| `Array` | A bounding box enclosing all positions |
 
 ### Throws
 
-Throws if `positions` is empty, contains invalid positions, or if `options` is invalid.
+Throws if `positions` is empty, contains an invalid position, or if `options` does not match the expected schema.
 
 ### Examples
 
 ```js
-computeBBox([[2.3522, 48.8566]])
-// [2.3522, 48.8566, 2.3522, 48.8566]
-
-computeBBox([[-10, -20], [10, 20], [0, 0]])
-// [-10, -20, 10, 20]
-
-computeBBox([[-10, -20, -100], [10, 20, 100]])
-// [-10, -20, -100, 10, 20, 100]
-
-computeBBox([[-10, -20, -100], [10, 20, 100]], { ignore3D: true })
-// [-10, -20, 10, 20]
+computeBBox([[-10, -20], [10, 20], [0, 0]])            // [-10, -20, 10, 20]
+computeBBox([[-10, -20, -100], [10, 20, 100]])         // [-10, -20, -100, 10, 20, 100]
+computeBBox([[-10, -20, -100], [10, 20, 100]], { ignore3D: true }) // [-10, -20, 10, 20]
 ```
 
 ## truncateBBox
@@ -171,56 +160,40 @@ computeBBox([[-10, -20, -100], [10, 20, 100]], { ignore3D: true })
 ### Signature
 
 ```js
-truncateBBox (bbox, precision)
+truncateBBox(bbox, precision = DEFAULT_COORDINATE_PRECISION)
 ```
 
 ### Description
 
-Truncates each coordinate of a bounding box to the given number of decimal places. Supports both 2D `[west, south, east, north]`
-and 3D `[west, south, minAlt, east, north, maxAlt]` bounding boxes. The operation is performed **in place** — the original
-array is mutated and returned.
+Truncates every value of a bounding box to the given number of decimal digits. This function mutates the bounding box in place and returns the same array.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `bbox` | `number[]` | yes | A valid bounding box array |
-| `precision` | `number` | no | Number of decimal places to keep, in range `[0, 8]` (default: `7`) |
+| `bbox` | `Array` | yes | A valid bounding box |
+| `precision` | `number` | no | Number of decimal digits to keep, in range `[0, MAX_COORDINATE_PRECISION]` (default: `DEFAULT_COORDINATE_PRECISION`) |
+
+::: warning Mutation
+`truncateBBox` mutates its argument in place.
+:::
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `number[]` | The mutated bounding box |
+| `Array` | The same bounding box array, mutated |
 
 ### Throws
 
-Throws if `bbox` is not a valid bounding box.
-Throws if `precision` is not in range `[0, 8]`.
+Throws if `bbox` is not a valid bounding box, or if `precision` is not in range `[0, MAX_COORDINATE_PRECISION]`.
 
 ### Examples
 
 ```js
-// Default precision (7)
 truncateBBox([-10.123456789, -20.987654321, 10.123456789, 20.987654321])
 // [-10.1234568, -20.9876543, 10.1234568, 20.9876543]
-```
 
-```js
-// Custom precision
 truncateBBox([-10.123456789, -20.987654321, 10.123456789, 20.987654321], 3)
 // [-10.123, -20.988, 10.123, 20.988]
-```
-
-```js
-// 3D bbox
-truncateBBox([-10.123456789, -20.987654321, -100.123456789, 10.123456789, 20.987654321, 100.123456789])
-// [-10.1234568, -20.9876543, -100.1234568, 10.1234568, 20.9876543, 100.1234568]
-```
-
-```js
-// Mutates in place
-const bbox = [-10.123456789, -20.987654321, 10.123456789, 20.987654321]
-const result = truncateBBox(bbox, 3)
-result === bbox // true
 ```

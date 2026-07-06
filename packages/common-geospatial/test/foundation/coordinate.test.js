@@ -6,7 +6,9 @@ import {
   convertCoordinate,
   parseCoordinate,
   COORDINATE_FORMATS,
-  COORDINATE_MODELS
+  COORDINATE_MODELS,
+  DEFAULT_COORDINATE_PRECISION,
+  MAX_COORDINATE_PRECISION
 } from '../../src/foundation/coordinate.js'
 import { AXES } from '../../src/foundation/axes.js'
 import { setLocale } from '../../src/foundation/localization.js'
@@ -50,6 +52,26 @@ describe('truncateCoordinate', () => {
 
   it('should accept precision 8', () => {
     expect(truncateCoordinate(48.12345678, 8)).toBe(48.12345678)
+  })
+
+  it('should use the default precision when omitted', () => {
+    // DEFAULT_COORDINATE_PRECISION is 7: the 8th decimal drives the rounding
+    expect(truncateCoordinate(48.123456789)).toBe(48.1234568)
+  })
+
+  it('should default precision to DEFAULT_COORDINATE_PRECISION', () => {
+    expect(truncateCoordinate(48.123456789)).toBe(truncateCoordinate(48.123456789, DEFAULT_COORDINATE_PRECISION))
+  })
+
+  it('should accept the maximum precision', () => {
+    // MAX_COORDINATE_PRECISION must index a defined truncation factor (no NaN)
+    const result = truncateCoordinate(48.123456789, MAX_COORDINATE_PRECISION)
+    expect(Number.isNaN(result)).toBe(false)
+    expect(result).toBe(48.12345679)
+  })
+
+  it('should throw just above the maximum precision', () => {
+    expect(() => truncateCoordinate(48.8566, MAX_COORDINATE_PRECISION + 1)).toThrow()
   })
 })
 

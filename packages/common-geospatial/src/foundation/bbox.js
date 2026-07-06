@@ -1,5 +1,9 @@
 import { assert, is, conform, optional } from '@kalisio/common-core'
-import { COORDINATE_TRUNCATION_FACTORS } from './coordinate.js'
+import {
+  DEFAULT_COORDINATE_PRECISION,
+  MAX_COORDINATE_PRECISION,
+  truncateCoordinate
+} from './coordinate.js'
 import { isValidPosition, is3DPosition } from './position.js'
 
 export function isValidBBox (bbox) {
@@ -86,14 +90,21 @@ export function computeBBox (positions, options = {}) {
   ], [Infinity, Infinity, -Infinity, -Infinity])
 }
 
-export function truncateBBox (bbox, precision = 7) {
+export function truncateBBox (bbox, precision = DEFAULT_COORDINATE_PRECISION) {
   assert.all([
-    { value: bbox, validator: isValidBBox, message: 'bbox must be a valid bounding box' },
-    { value: precision, validator: (v) => is.inRange(v, 0, 8), message: 'precision must be in range [0, 8]' }
+    {
+      value: bbox,
+      validator: isValidBBox,
+      message: 'bbox must be a valid bounding box'
+    },
+    {
+      value: precision,
+      validator: (v) => is.inRange(v, 0, MAX_COORDINATE_PRECISION),
+      message: `precision must be in range [0, ${MAX_COORDINATE_PRECISION}]`
+    }
   ])
-  const factor = COORDINATE_TRUNCATION_FACTORS[precision]
   for (let i = 0; i < bbox.length; i++) {
-    bbox[i] = Math.round(bbox[i] * factor) / factor
+    bbox[i] = truncateCoordinate(bbox[i], precision)
   }
   return bbox
 }

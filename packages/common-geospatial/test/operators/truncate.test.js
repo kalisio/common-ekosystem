@@ -66,7 +66,7 @@ describe('truncate', () => {
 
     it('applies custom precision', () => {
       const geometry = { type: 'Point', coordinates: [10.123456789, 20.987654321] }
-      const result = truncateGeoJson(geometry, 3)
+      const result = truncateGeoJson(geometry, { precision: 3 })
       expect(result.coordinates).toEqual([10.123, 20.988])
     })
 
@@ -78,8 +78,146 @@ describe('truncate', () => {
 
     it('throws if precision is out of range', () => {
       const geometry = { type: 'Point', coordinates: [1, 2] }
-      expect(() => truncateGeoJson(geometry, -1)).toThrow()
-      expect(() => truncateGeoJson(geometry, 9)).toThrow()
+      expect(() => truncateGeoJson(geometry, { precision: -1 })).toThrow()
+      expect(() => truncateGeoJson(geometry, { precision: 9 })).toThrow()
+    })
+  })
+
+  describe('Polygon ring deduplication', () => {
+    it('removes consecutive positions that collapse after truncation', () => {
+      // The middle vertex rounds onto its predecessor at precision 3
+      const geometry = {
+        type: 'Polygon',
+        coordinates: [[
+          [0, 0],
+          [2, 0.0001],
+          [2, 0.0002],
+          [2, 1],
+          [0, 1],
+          [0, 0]
+        ]]
+      }
+      const result = truncateGeoJson(geometry, { precision: 3 })
+      const ring = result.coordinates[0]
+      // [2, 0.0001] and [2, 0.0002] both round to [2, 0] -> one is dropped
+      const duplicates = ring.filter(([lon, lat]) => lon === 2 && lat === 0)
+      expect(duplicates).toHaveLength(1)
+    })
+
+    it('keeps the ring closed after dropping the closing point', () => {
+      // The penultimate vertex collapses onto the first after truncation
+      const geometry = {
+        type: 'Polygon',
+        coordinates: [[
+          [0, 0],
+          [2, 0],
+          [2, 1],
+          [0.0001, 0.0001],
+          [0, 0]
+        ]]
+      }
+      const result = truncateGeoJson(geometry, { precision: 3 })
+      const ring = result.coordinates[0]
+      expect(ring[0]).toEqual(ring[ring.length - 1])
+    })
+
+    it('leaves a clean ring untouched', () => {
+      const geometry = {
+        type: 'Polygon',
+        coordinates: [[
+          [0, 0],
+          [2, 0],
+          [2, 1],
+          [0, 1],
+          [0, 0]
+        ]]
+      }
+      const result = truncateGeoJson(geometry, { precision: 3 })
+      expect(result.coordinates[0]).toHaveLength(5)
+    })
+
+    it('does not deduplicate positions of a LineString', () => {
+      // A line may legitimately revisit the same point; it must not be deduplicated
+      const geometry = {
+        type: 'LineString',
+        coordinates: [
+          [0, 0],
+          [0.0001, 0.0001],
+          [0.0002, 0.0002],
+          [1, 1]
+        ]
+      }
+      const result = truncateGeoJson(geometry, { precision: 3 })
+      // All four positions are preserved even though the first three collapse
+      expect(result.coordinates).toHaveLength(4)
+    })
+
+    it('does not deduplicate positions of a MultiPoint', () => {
+      const geometry = {
+        type: 'MultiPoint',
+        coordinates: [
+          [0, 0],
+          [0.0001, 0.0001],
+          [1, 1]
+        ]
+      }
+      const result = truncateGeoJson(geometry, { precision: 3 })
+      expect(result.coordinates).toHaveLength(3)
+    })
+
+    it('deduplicates rings within a MultiPolygon', () => {
+      const geometry = {
+        type: 'MultiPolygon',
+        coordinates: [[[
+          [0, 0],
+          [2, 0.0001],
+          [2, 0.0002],
+          [2, 1],
+          [0, 1],
+          [0, 0]
+        ]]]
+      }
+      const result = truncateGeoJson(geometry, { precision: 3 })
+      const ring = result.coordinates[0][0]
+      const duplicates = ring.filter(([lon, lat]) => lon === 2 && lat === 0)
+      expect(duplicates).toHaveLength(1)
+    })
+  })
+
+  describe('consider3D', () => {
+    it('merges positions equal in lon/lat but differing in altitude by default', () => {
+      const geometry = {
+        type: 'Polygon',
+        coordinates: [[
+          [0, 0, 10],
+          [2, 1, 20],
+          [2, 1, 50],
+          [0, 1, 30],
+          [0, 0, 10]
+        ]]
+      }
+      const result = truncateGeoJson(geometry)
+      const ring = result.coordinates[0]
+      // [2, 1, 20] and [2, 1, 50] share lon/lat -> merged when altitude is ignored
+      const atVertex = ring.filter(([lon, lat]) => lon === 2 && lat === 1)
+      expect(atVertex).toHaveLength(1)
+    })
+
+    it('keeps altitude-differing positions when consider3D is true', () => {
+      const geometry = {
+        type: 'Polygon',
+        coordinates: [[
+          [0, 0, 10],
+          [2, 1, 20],
+          [2, 1, 50],
+          [0, 1, 30],
+          [0, 0, 10]
+        ]]
+      }
+      const result = truncateGeoJson(geometry, { consider3D: true })
+      const ring = result.coordinates[0]
+      const atVertex = ring.filter(([lon, lat]) => lon === 2 && lat === 1)
+      expect(atVertex).toHaveLength(2)
     })
   })
 
@@ -168,7 +306,7 @@ describe('truncate', () => {
       geometry: { type: 'Point', coordinates: [10.123456789, 20.987654321] },
       properties: {}
     }
-    const result = truncateGeoJson(geoJson, 3)
+    const result = truncateGeoJson(geoJson, { precision: 3 })
     expect(result.geometry.coordinates).toEqual([10.123, 20.988])
   })
 
@@ -180,7 +318,7 @@ describe('truncate', () => {
 
   it('throws if precision is out of range', () => {
     const geoJson = { type: 'Feature', geometry: { type: 'Point', coordinates: [1, 2] }, properties: {} }
-    expect(() => truncateGeoJson(geoJson, -1)).toThrow()
-    expect(() => truncateGeoJson(geoJson, 9)).toThrow()
+    expect(() => truncateGeoJson(geoJson, { precision: -1 })).toThrow()
+    expect(() => truncateGeoJson(geoJson, { precision: 9 })).toThrow()
   })
 })
