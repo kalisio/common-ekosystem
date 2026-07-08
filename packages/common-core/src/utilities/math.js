@@ -82,6 +82,16 @@ export const math = {
     return uu * u * y1 + 3 * uu * t * x1 + 3 * u * tt * x2 + tt * t * y2
   },
 
+  toRadians (degrees) {
+    assert.that(degrees, is.number, 'degrees must be a number')
+    return (degrees * Math.PI) / 180
+  },
+
+  toDegrees (radians) {
+    assert.that(radians, is.number, 'radians must be a number')
+    return (radians * 180) / Math.PI
+  },
+
   sum (values) {
     assert.that(values, is.array, 'values must be an array')
     return values.reduce((acc, v) => acc + v, 0)

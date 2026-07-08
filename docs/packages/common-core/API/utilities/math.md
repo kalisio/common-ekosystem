@@ -343,6 +343,78 @@ math.cubicBezier(1)   // 1
 math.cubicBezier(0.5, 0.25, 0.1, 0.25, 1)
 ```
 
+## toRadians
+
+### Signature
+
+```js
+toRadians(degrees)
+```
+
+### Description
+
+Converts an angle from degrees to radians.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `degrees` | `number` | yes | Angle in degrees |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `number` | The angle in radians |
+
+### Throws
+
+Throws if `degrees` is not a number.
+
+### Examples
+
+```js
+toRadians(180)   // 3.141592653589793
+toRadians(90)    // 1.5707963267948966
+toRadians(0)     // 0
+```
+
+## toDegrees
+
+### Signature
+
+```js
+toDegrees(radians)
+```
+
+### Description
+
+Converts an angle from radians to degrees.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `radians` | `number` | yes | Angle in radians |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `number` | The angle in degrees |
+
+### Throws
+
+Throws if `radians` is not a number.
+
+### Examples
+
+```js
+toDegrees(Math.PI)       // 180
+toDegrees(Math.PI / 2)   // 90
+toDegrees(0)             // 0
+```
+
 ## sum
 
 ### Signature

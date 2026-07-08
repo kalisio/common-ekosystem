@@ -77,6 +77,50 @@ describe('math', () => {
     it('returns ~0.5 at t=0.5 for symmetric curve', () => expect(math.cubicBezier(0.5)).toBeCloseTo(0.5, 1))
   })
 
+  describe('toRadians', () => {
+    it('converts common angles', () => {
+      expect(math.toRadians(0)).toBe(0)
+      expect(math.toRadians(180)).toBeCloseTo(Math.PI, 10)
+      expect(math.toRadians(90)).toBeCloseTo(Math.PI / 2, 10)
+      expect(math.toRadians(360)).toBeCloseTo(2 * Math.PI, 10)
+    })
+
+    it('handles negative angles', () => {
+      expect(math.toRadians(-90)).toBeCloseTo(-Math.PI / 2, 10)
+    })
+
+    it('throws for a non-number', () => {
+      expect(() => math.toRadians('90')).toThrow()
+      expect(() => math.toRadians(null)).toThrow()
+    })
+  })
+
+  describe('toDegrees', () => {
+    it('converts common angles', () => {
+      expect(math.toDegrees(0)).toBe(0)
+      expect(math.toDegrees(Math.PI)).toBeCloseTo(180, 10)
+      expect(math.toDegrees(Math.PI / 2)).toBeCloseTo(90, 10)
+      expect(math.toDegrees(2 * Math.PI)).toBeCloseTo(360, 10)
+    })
+
+    it('handles negative angles', () => {
+      expect(math.toDegrees(-Math.PI / 2)).toBeCloseTo(-90, 10)
+    })
+
+    it('throws for a non-number', () => {
+      expect(() => math.toDegrees('3.14')).toThrow()
+      expect(() => math.toDegrees(null)).toThrow()
+    })
+  })
+
+  describe('toRadians / toDegrees', () => {
+    it('are inverse of each other', () => {
+      for (const deg of [0, 30, 45, 90, 137, -60, 360]) {
+        expect(math.toDegrees(math.toRadians(deg))).toBeCloseTo(deg, 10)
+      }
+    })
+  })
+
   describe('sum', () => {
     it('sums an array of numbers', () => expect(math.sum([1, 2, 3, 4])).toBe(10))
     it('returns 0 for an empty array', () => expect(math.sum([])).toBe(0))
