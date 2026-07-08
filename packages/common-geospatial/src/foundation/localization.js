@@ -1,4 +1,4 @@
-import { assert, is, has, conform } from '@kalisio/common-core'
+import { assert, is, has, conform } from '@kalisio/common-core/predicates'
 import fr from './i18n/fr.json'
 import en from './i18n/en.json'
 

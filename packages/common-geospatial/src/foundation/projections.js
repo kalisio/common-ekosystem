@@ -1,5 +1,5 @@
 import proj4 from 'proj4'
-import { assert, is } from '@kalisio/common-core'
+import { assert, is } from '@kalisio/common-core/predicates'
 
 export function listProjections () {
   return Object.keys(proj4.defs)

@@ -1,27 +1,14 @@
-import { assert, is } from '@kalisio/common-core'
+import { assert, is } from '@kalisio/common-core/predicates'
 import { truncateBBox } from '../foundation/index.js'
-import { truncatePosition, isSamePosition } from '../foundation/position.js'
+import { truncatePosition } from '../foundation/position.js'
+import { deduplicateRingPositions, closeRing } from '../foundation/ring.js'
 import { DEFAULT_COORDINATE_PRECISION, MAX_COORDINATE_PRECISION } from '../foundation/coordinate.js'
 import { FEATURE_TYPES, GEOMETRY_TYPES, isLikeGeoJson } from './is-like.js'
 
-// Truncate every position of a ring, then drop positions that collapsed onto their
-// predecessor after rounding (S2/MongoDB rejects duplicate consecutive positions).
-// Re-close the ring if the closing point was among those dropped.
 function truncateRing (ring, precision, consider3D) {
-  const result = []
-  for (const position of ring) {
-    truncatePosition(position, precision)
-    const previous = result[result.length - 1]
-    if (!previous || !isSamePosition(position, previous, { precision, consider3D })) {
-      result.push(position)
-    }
-  }
-  const first = result[0]
-  const last = result[result.length - 1]
-  if (first && last && !isSamePosition(first, last, { precision, consider3D })) {
-    result.push([...first])
-  }
-  return result
+  for (const position of ring) truncatePosition(position, precision)
+  const deduplicated = deduplicateRingPositions(ring, { precision, consider3D })
+  return closeRing(deduplicated, { precision, consider3D })
 }
 
 function truncateLine (line, precision) {

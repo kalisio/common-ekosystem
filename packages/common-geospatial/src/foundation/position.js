@@ -1,4 +1,4 @@
-import { assert, is, conform, optional } from '@kalisio/common-core'
+import { assert, is, conform, optional } from '@kalisio/common-core/predicates'
 import { AXES } from './axes.js'
 import { isWest, isSouth } from './directions.js'
 import {
@@ -8,6 +8,11 @@ import {
   parseCoordinate,
   truncateCoordinate
 } from './coordinate.js'
+
+export const IS_SAME_POSITION_OPTIONS_SCHEMA = {
+  precision: optional(is.number),
+  consider3D: optional(is.boolean)
+}
 
 export function parsePosition (pattern) {
   assert.that(pattern, (v) => is.nonEmptyString(v), 'pattern must be a non-empty string')
@@ -53,11 +58,6 @@ export function is3DPosition (position) {
   return is.arrayOfLength(position, 3)
 }
 
-const IS_SAME_POSITION_OPTIONS = {
-  precision: optional(is.number),
-  consider3D: optional(is.boolean)
-}
-
 export function isSamePosition (position1, position2, options = {}) {
   assert.all([
     {
@@ -72,7 +72,7 @@ export function isSamePosition (position1, position2, options = {}) {
     },
     {
       value: options,
-      validator: (v) => conform.schema(v, IS_SAME_POSITION_OPTIONS),
+      validator: (v) => conform.schema(v, IS_SAME_POSITION_OPTIONS_SCHEMA),
       message: 'options must be a valid options object'
     }
   ])

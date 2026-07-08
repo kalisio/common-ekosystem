@@ -1,4 +1,4 @@
-import { assert, is } from '@kalisio/common-core'
+import { assert, is } from '@kalisio/common-core/predicates'
 
 export const AXES = {
   LATITUDE: 'LAT',

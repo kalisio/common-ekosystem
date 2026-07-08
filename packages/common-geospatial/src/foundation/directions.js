@@ -1,4 +1,4 @@
-import { assert, is } from '@kalisio/common-core'
+import { assert, is } from '@kalisio/common-core/predicates'
 import { getLocale, getLocaleByCode, getActiveLocales } from './localization.js'
 import { AXES, isLatitude, isLongitude, isAxis } from './axes.js'
 

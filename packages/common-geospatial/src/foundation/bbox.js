@@ -1,4 +1,4 @@
-import { assert, is, conform, optional } from '@kalisio/common-core'
+import { assert, is, conform, optional } from '@kalisio/common-core/predicates'
 import {
   DEFAULT_COORDINATE_PRECISION,
   MAX_COORDINATE_PRECISION,
