@@ -1,13 +1,13 @@
 import { assert, is } from '@kalisio/common-core/predicates'
 import { truncateBBox } from '../foundation/index.js'
 import { truncatePosition } from '../foundation/position.js'
-import { deduplicateRingPositions, closeRing } from '../foundation/ring.js'
+import { deduplicatePositions, closeRing } from '../foundation/ring.js'
 import { DEFAULT_COORDINATE_PRECISION, MAX_COORDINATE_PRECISION } from '../foundation/coordinate.js'
 import { FEATURE_TYPES, GEOMETRY_TYPES, isLikeGeoJson } from './is-like.js'
 
 function truncateRing (ring, precision, consider3D) {
   for (const position of ring) truncatePosition(position, precision)
-  const deduplicated = deduplicateRingPositions(ring, { precision, consider3D })
+  const deduplicated = deduplicatePositions(ring, { precision, consider3D })
   return closeRing(deduplicated, { precision, consider3D })
 }
 

@@ -19,7 +19,7 @@ const MONGO_URL = process.env.MONGO_TEST_URL
 const describeMongo = MONGO_URL ? describe : describe.skip
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const FIXTURE = path.join(__dirname, 'data', 'feature3.geojson')
+const FIXTURE = path.join(__dirname, 'data', 'hole-intersects-shell.geojson')
 
 // Net area of a (Multi)Polygon: sum of exteriors minus their holes, built on the
 // foundation's spherical ring area (signed, hence Math.abs). Robust to fix

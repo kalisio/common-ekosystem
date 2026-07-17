@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import {
-  deduplicateRingPositions,
+  deduplicatePositions,
   isClosedRing,
   closeRing,
   isValidRing,
@@ -10,50 +10,50 @@ import {
   ringSelfIntersections
 } from '../../src/foundation/ring.js'
 
-describe('deduplicateRingPositions', () => {
+describe('deduplicatePositions', () => {
   it('removes consecutive duplicate positions', () => {
     const ring = [[0, 0], [0, 0], [2, 0], [2, 1], [0, 0]]
-    expect(deduplicateRingPositions(ring)).toEqual([[0, 0], [2, 0], [2, 1], [0, 0]])
+    expect(deduplicatePositions(ring)).toEqual([[0, 0], [2, 0], [2, 1], [0, 0]])
   })
 
   it('keeps non-consecutive equal positions', () => {
     const ring = [[0, 0], [2, 0], [0, 0], [2, 1]]
-    expect(deduplicateRingPositions(ring)).toEqual([[0, 0], [2, 0], [0, 0], [2, 1]])
+    expect(deduplicatePositions(ring)).toEqual([[0, 0], [2, 0], [0, 0], [2, 1]])
   })
 
   it('deduplicates positions equal within precision', () => {
     // [2, 0.00000001] and [2, 0.00000002] both round to 0.0000000 at the default precision (7)
     const ring = [[0, 0], [2, 0.00000001], [2, 0.00000002], [2, 1]]
-    expect(deduplicateRingPositions(ring)).toEqual([[0, 0], [2, 0.00000001], [2, 1]])
+    expect(deduplicatePositions(ring)).toEqual([[0, 0], [2, 0.00000001], [2, 1]])
   })
 
   it('respects a custom precision', () => {
     const ring = [[0, 0], [2, 0.001], [2, 0.002], [2, 1]]
-    expect(deduplicateRingPositions(ring, { precision: 2 })).toEqual([[0, 0], [2, 0.001], [2, 1]])
+    expect(deduplicatePositions(ring, { precision: 2 })).toEqual([[0, 0], [2, 0.001], [2, 1]])
   })
 
   it('ignores altitude by default', () => {
     const ring = [[0, 0, 10], [2, 1, 20], [2, 1, 50], [0, 1, 30]]
-    expect(deduplicateRingPositions(ring)).toEqual([[0, 0, 10], [2, 1, 20], [0, 1, 30]])
+    expect(deduplicatePositions(ring)).toEqual([[0, 0, 10], [2, 1, 20], [0, 1, 30]])
   })
 
   it('keeps altitude-differing positions with consider3D', () => {
     const ring = [[0, 0, 10], [2, 1, 20], [2, 1, 50], [0, 1, 30]]
-    expect(deduplicateRingPositions(ring, { consider3D: true })).toEqual([[0, 0, 10], [2, 1, 20], [2, 1, 50], [0, 1, 30]])
+    expect(deduplicatePositions(ring, { consider3D: true })).toEqual([[0, 0, 10], [2, 1, 20], [2, 1, 50], [0, 1, 30]])
   })
 
   it('leaves a clean ring untouched', () => {
     const ring = [[0, 0], [2, 0], [2, 1], [0, 1], [0, 0]]
-    expect(deduplicateRingPositions(ring)).toEqual(ring)
+    expect(deduplicatePositions(ring)).toEqual(ring)
   })
 
   it('returns an empty array for an empty ring', () => {
-    expect(deduplicateRingPositions([])).toEqual([])
+    expect(deduplicatePositions([])).toEqual([])
   })
 
   it('throws for invalid options', () => {
-    expect(() => deduplicateRingPositions([[0, 0], [1, 0]], { precision: 'bad' })).toThrow()
-    expect(() => deduplicateRingPositions([[0, 0], [1, 0]], { consider3D: 'bad' })).toThrow()
+    expect(() => deduplicatePositions([[0, 0], [1, 0]], { precision: 'bad' })).toThrow()
+    expect(() => deduplicatePositions([[0, 0], [1, 0]], { consider3D: 'bad' })).toThrow()
   })
 })
 

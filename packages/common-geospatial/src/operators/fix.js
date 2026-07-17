@@ -1,6 +1,6 @@
 import buffer from '@turf/buffer'
 import { is, assert, conform, optional } from '@kalisio/common-core'
-import { isSamePosition, isClockwiseRing, ringSelfIntersections, ringsIntersect, DEFAULT_COORDINATE_PRECISION } from '../foundation'
+import { deduplicatePositions, isClockwiseRing, ringSelfIntersections, ringsIntersect, DEFAULT_COORDINATE_PRECISION } from '../foundation'
 import { FEATURE_TYPES, GEOMETRY_TYPES, isLikeGeoJson } from './is-like.js'
 import { VALIDATION_CODES } from './validate/codes.js'
 
@@ -92,40 +92,26 @@ function bufferRebuild (geometry) {
   return { type: repaired.geometry.type, coordinates: repaired.geometry.coordinates }
 }
 
-// Removes consecutive duplicate positions, keeping the first occurrence of
-// each run. Works identically for lines and rings: a ring's closing position
-// (first === last) is never adjacent to itself in the array, so it is never
-// mistakenly collapsed by this linear left-to-right scan.
-function dedupePositions (positions, precision = DEFAULT_COORDINATE_PRECISION) {
-  const result = [positions[0]]
-  for (let i = 1; i < positions.length; i++) {
-    if (!isSamePosition(positions[i], result[result.length - 1], { precision })) {
-      result.push(positions[i])
-    }
-  }
-  return result
-}
-
 function fixDuplicatePositions (geometry, precision) {
   let deduped = false
-  const deduplicateAndTrack = (positions) => {
+  const dedupeAndTrack = (positions) => {
     const before = positions.length
-    const result = dedupePositions(positions, precision)
+    const result = deduplicatePositions(positions, { precision })
     if (result.length !== before) deduped = true
     return result
   }
   switch (geometry.type) {
     case GEOMETRY_TYPES.LINESTRING:
-      geometry.coordinates = deduplicateAndTrack(geometry.coordinates)
+      geometry.coordinates = dedupeAndTrack(geometry.coordinates)
       break
     case GEOMETRY_TYPES.MULTI_LINESTRING:
-      geometry.coordinates = geometry.coordinates.map(deduplicateAndTrack)
+      geometry.coordinates = geometry.coordinates.map(dedupeAndTrack)
       break
     case GEOMETRY_TYPES.POLYGON:
-      geometry.coordinates = geometry.coordinates.map(deduplicateAndTrack)
+      geometry.coordinates = geometry.coordinates.map(dedupeAndTrack)
       break
     case GEOMETRY_TYPES.MULTI_POLYGON:
-      geometry.coordinates = geometry.coordinates.map(poly => poly.map(deduplicateAndTrack))
+      geometry.coordinates = geometry.coordinates.map(poly => poly.map(dedupeAndTrack))
       break
   }
   return deduped
@@ -134,17 +120,14 @@ function fixDuplicatePositions (geometry, precision) {
 function fixGeometry (geometry, options) {
   const corrections = []
   const precision = options.precision ?? DEFAULT_COORDINATE_PRECISION
-
   if (options.duplicatePosition && DEDUPABLE_TYPES.includes(geometry.type)) {
     if (fixDuplicatePositions(geometry, precision)) {
       corrections.push({ code: VALIDATION_CODES.DUPLICATE_POSITION })
     }
   }
-
   if (!RING_TYPES.includes(geometry.type)) {
     return { fixed: geometry, corrections }
   }
-
   if (options.windingOrder) {
     let corrected = false
     if (geometry.type === GEOMETRY_TYPES.POLYGON) {
@@ -156,7 +139,6 @@ function fixGeometry (geometry, options) {
     }
     if (corrected) corrections.push({ code: VALIDATION_CODES.INVALID_WINDING_ORDER })
   }
-
   // Self-intersection and hole/shell overlap are both repaired by a single
   // buffer(0) topological rebuild, so run it at most once when either applies.
   const wantsSelfIntersection = options.selfIntersection
