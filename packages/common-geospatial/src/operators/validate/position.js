@@ -1,8 +1,8 @@
 import { is } from '@kalisio/common-core'
-import { getCoordinatePrecision } from '../../foundation'
+import { getCoordinatePrecision, DEFAULT_COORDINATE_PRECISION } from '../../foundation/index.js'
 import { VALIDATION_CODES } from './codes.js'
 
-export function validatePosition (coordinates, path = '') {
+export function validatePosition (coordinates, path = '', precision = DEFAULT_COORDINATE_PRECISION) {
   if (!is.arrayOfLengthBetween(coordinates, 2, 3)) {
     return {
       valid: false,
@@ -40,12 +40,12 @@ export function validatePosition (coordinates, path = '') {
   }
   const response = { valid: true, errors: [], warnings: [] }
   const lonPrecision = getCoordinatePrecision(coordinates[0])
-  if (lonPrecision > 6) {
-    response.warnings.push({ code: VALIDATION_CODES.HIGH_LONGITUDE_PRECISION, path, params: { precision: lonPrecision, max: 6 } })
+  if (lonPrecision > precision) {
+    response.warnings.push({ code: VALIDATION_CODES.HIGH_LONGITUDE_PRECISION, path, params: { precision: lonPrecision, max: precision } })
   }
   const latPrecision = getCoordinatePrecision(coordinates[1])
-  if (latPrecision > 6) {
-    response.warnings.push({ code: VALIDATION_CODES.HIGH_LATITUDE_PRECISION, path, params: { precision: latPrecision, max: 6 } })
+  if (latPrecision > precision) {
+    response.warnings.push({ code: VALIDATION_CODES.HIGH_LATITUDE_PRECISION, path, params: { precision: latPrecision, max: precision } })
   }
   return response
 }

@@ -1,12 +1,10 @@
 import buffer from '@turf/buffer'
-import kinks from '@turf/kinks'
-import { booleanClockwise } from '@turf/boolean-clockwise'
 import { is, assert, conform, optional } from '@kalisio/common-core'
-import { isSamePosition } from '../foundation'
+import { isSamePosition, isClockwiseRing, ringSelfIntersections, ringsIntersect, DEFAULT_COORDINATE_PRECISION } from '../foundation'
 import { FEATURE_TYPES, GEOMETRY_TYPES, isLikeGeoJson } from './is-like.js'
 import { VALIDATION_CODES } from './validate/codes.js'
 
-// Winding order / self-intersection only apply to ring-based geometries.
+// Winding order / self-intersection / hole overlap only apply to ring-based geometries.
 const RING_TYPES = [GEOMETRY_TYPES.POLYGON, GEOMETRY_TYPES.MULTI_POLYGON]
 // Duplicate position removal applies to any coordinate path, ring or line.
 const DEDUPABLE_TYPES = [
@@ -18,19 +16,26 @@ const DEDUPABLE_TYPES = [
 const FIXABLE_CODES = [
   VALIDATION_CODES.INVALID_WINDING_ORDER,
   VALIDATION_CODES.SELF_INTERSECTION,
+  VALIDATION_CODES.HOLE_INTERSECTS_SHELL,
   VALIDATION_CODES.DUPLICATE_POSITION
 ]
-const DEFAULT_PRECISION = 1e-9
 const FIX_OPTIONS_SCHEMA = {
   validation: is.nonEmptyObject,
   windingOrder: optional(is.boolean),
   selfIntersection: optional(is.boolean),
+  holeIntersectsShell: optional(is.boolean),
   duplicatePosition: optional(is.boolean),
+  // Coordinate precision (decimal places) used to decide when two positions are
+  // the same during deduplication -- the same notion validate uses, so fix and
+  // validate stay in lockstep on duplicates.
   precision: optional(is.number)
 }
 
+// Winding order is computed spherically (isClockwiseRing), identical to what
+// validate uses, so a ring validate flags is exactly one fix will reverse --
+// the two stay in lockstep near the antimeridian and the poles.
 function fixRingWindingOrder (ring, shouldBeClockwise) {
-  if (booleanClockwise(ring) !== shouldBeClockwise) {
+  if (isClockwiseRing(ring) !== shouldBeClockwise) {
     ring.reverse()
     return true
   }
@@ -51,58 +56,76 @@ function ringsOf (geometry) {
   return geometry.type === GEOMETRY_TYPES.POLYGON ? geometry.coordinates : geometry.coordinates.flat(1)
 }
 
-function hasSelfIntersection (geometry) {
-  return ringsOf(geometry).some(ring => kinks({ type: 'Polygon', coordinates: [ring] }).features.length > 0)
+// Polygons of a Polygon or MultiPolygon, as an array of ring-arrays either way.
+function polygonsOf (geometry) {
+  return geometry.type === GEOMETRY_TYPES.POLYGON ? [geometry.coordinates] : geometry.coordinates
 }
 
-function fixSelfIntersection (geometry, precision) {
+// Self-intersection is detected spherically (ringSelfIntersections), identical
+// to validate. The repair below (buffer(0)) stays planar, but detection agrees
+// with what flagged the issue in the first place.
+function hasSelfIntersection (geometry) {
+  return ringsOf(geometry).some(ring => ringSelfIntersections(ring).length > 0)
+}
+
+// Hole/shell overlap is detected spherically (ringsIntersect), identical to
+// validate: for each polygon, does any hole cross its exterior ring.
+function hasHoleIntersectingShell (geometry) {
+  return polygonsOf(geometry).some(rings => {
+    const shell = rings[0]
+    for (let i = 1; i < rings.length; i++) {
+      if (ringsIntersect(shell, rings[i])) return true
+    }
+    return false
+  })
+}
+
+// buffer(0) rebuilds the geometry as a valid (multi)polygon. It is the classic
+// topological repair for both self-intersections and hole/shell overlaps: it
+// resolves a wide range of cases, but is planar and more aggressive than a
+// dilate/erode pass (it can drop very small legitimate loops). Returns a plain
+// { type, coordinates } candidate, or null if turf produced nothing.
+function bufferRebuild (geometry) {
   const feature = { type: 'Feature', properties: {}, geometry }
-  // Dilate then erode by the same tiny amount: gentler than buffer(0),
-  // avoids collapsing small legitimate loops while resolving self-intersections.
-  const dilated = buffer(feature, precision, { units: 'degrees' })
-  if (!dilated) return false
-  const eroded = buffer(dilated, -precision, { units: 'degrees' })
-  if (!eroded) return false
-  geometry.type = eroded.geometry.type
-  geometry.coordinates = eroded.geometry.coordinates
-  return true
+  const repaired = buffer(feature, 0)
+  if (!repaired) return null
+  return { type: repaired.geometry.type, coordinates: repaired.geometry.coordinates }
 }
 
 // Removes consecutive duplicate positions, keeping the first occurrence of
 // each run. Works identically for lines and rings: a ring's closing position
 // (first === last) is never adjacent to itself in the array, so it is never
 // mistakenly collapsed by this linear left-to-right scan.
-function dedupePositions (positions) {
+function dedupePositions (positions, precision = DEFAULT_COORDINATE_PRECISION) {
   const result = [positions[0]]
   for (let i = 1; i < positions.length; i++) {
-    if (!isSamePosition(positions[i], result[result.length - 1])) {
+    if (!isSamePosition(positions[i], result[result.length - 1], { precision })) {
       result.push(positions[i])
     }
   }
   return result
 }
 
-function fixDuplicatePositions (geometry) {
+function fixDuplicatePositions (geometry, precision) {
   let deduped = false
-  const dedupeAndTrack = (positions) => {
+  const deduplicateAndTrack = (positions) => {
     const before = positions.length
-    const result = dedupePositions(positions)
+    const result = dedupePositions(positions, precision)
     if (result.length !== before) deduped = true
     return result
   }
-
   switch (geometry.type) {
     case GEOMETRY_TYPES.LINESTRING:
-      geometry.coordinates = dedupeAndTrack(geometry.coordinates)
+      geometry.coordinates = deduplicateAndTrack(geometry.coordinates)
       break
     case GEOMETRY_TYPES.MULTI_LINESTRING:
-      geometry.coordinates = geometry.coordinates.map(dedupeAndTrack)
+      geometry.coordinates = geometry.coordinates.map(deduplicateAndTrack)
       break
     case GEOMETRY_TYPES.POLYGON:
-      geometry.coordinates = geometry.coordinates.map(dedupeAndTrack)
+      geometry.coordinates = geometry.coordinates.map(deduplicateAndTrack)
       break
     case GEOMETRY_TYPES.MULTI_POLYGON:
-      geometry.coordinates = geometry.coordinates.map(poly => poly.map(dedupeAndTrack))
+      geometry.coordinates = geometry.coordinates.map(poly => poly.map(deduplicateAndTrack))
       break
   }
   return deduped
@@ -110,9 +133,10 @@ function fixDuplicatePositions (geometry) {
 
 function fixGeometry (geometry, options) {
   const corrections = []
+  const precision = options.precision ?? DEFAULT_COORDINATE_PRECISION
 
   if (options.duplicatePosition && DEDUPABLE_TYPES.includes(geometry.type)) {
-    if (fixDuplicatePositions(geometry)) {
+    if (fixDuplicatePositions(geometry, precision)) {
       corrections.push({ code: VALIDATION_CODES.DUPLICATE_POSITION })
     }
   }
@@ -133,18 +157,40 @@ function fixGeometry (geometry, options) {
     if (corrected) corrections.push({ code: VALIDATION_CODES.INVALID_WINDING_ORDER })
   }
 
-  if (options.selfIntersection) {
-    // A duplicate position fixed just above can spuriously look like a
-    // self-intersection to `kinks` (a zero-length edge). Re-check the
-    // current geometry before running the buffer fix, so we don't perturb
-    // an already-clean ring -- but still report the issue as corrected,
-    // since it's genuinely resolved even though the buffer never ran.
-    if (hasSelfIntersection(geometry)) {
-      if (fixSelfIntersection(geometry, options.precision ?? DEFAULT_PRECISION)) {
-        corrections.push({ code: VALIDATION_CODES.SELF_INTERSECTION })
-      }
-    } else {
+  // Self-intersection and hole/shell overlap are both repaired by a single
+  // buffer(0) topological rebuild, so run it at most once when either applies.
+  const wantsSelfIntersection = options.selfIntersection
+  const wantsHoleIntersectsShell = options.holeIntersectsShell
+  if (wantsSelfIntersection || wantsHoleIntersectsShell) {
+    // Detect what is still present after the earlier dedupe/winding steps.
+    const selfIntersectionPresent = wantsSelfIntersection && hasSelfIntersection(geometry)
+    const holeIntersectsShellPresent = wantsHoleIntersectsShell && hasHoleIntersectingShell(geometry)
+
+    // A flagged defect that is already gone -- e.g. a self-intersection resolved
+    // as a side effect of dedupe -- is reported corrected without a rebuild.
+    if (wantsSelfIntersection && !selfIntersectionPresent) {
       corrections.push({ code: VALIDATION_CODES.SELF_INTERSECTION })
+    }
+    if (wantsHoleIntersectsShell && !holeIntersectsShellPresent) {
+      corrections.push({ code: VALIDATION_CODES.HOLE_INTERSECTS_SHELL })
+    }
+
+    if (selfIntersectionPresent || holeIntersectsShellPresent) {
+      // buffer(0) is planar and cannot repair every case (e.g. across the
+      // antimeridian). Commit only if every defect that triggered the rebuild is
+      // actually gone -- checked with the same spherical tests that flagged them
+      // -- otherwise leave the original untouched and report them unfixed.
+      const candidate = bufferRebuild(geometry)
+      const selfIntersectionGone = candidate && !hasSelfIntersection(candidate)
+      const holeIntersectsShellGone = candidate && !hasHoleIntersectingShell(candidate)
+      if (candidate &&
+        (!selfIntersectionPresent || selfIntersectionGone) &&
+        (!holeIntersectsShellPresent || holeIntersectsShellGone)) {
+        geometry.type = candidate.type
+        geometry.coordinates = candidate.coordinates
+        if (selfIntersectionPresent) corrections.push({ code: VALIDATION_CODES.SELF_INTERSECTION })
+        if (holeIntersectsShellPresent) corrections.push({ code: VALIDATION_CODES.HOLE_INTERSECTS_SHELL })
+      }
     }
   }
 
@@ -162,11 +208,12 @@ function fixGeometryIssues (geometry, relevantIssues, path, options) {
   const fixOptions = {
     windingOrder: options.windingOrder !== false && relevantIssues.some(i => i.code === VALIDATION_CODES.INVALID_WINDING_ORDER),
     selfIntersection: options.selfIntersection !== false && relevantIssues.some(i => i.code === VALIDATION_CODES.SELF_INTERSECTION),
+    holeIntersectsShell: options.holeIntersectsShell !== false && relevantIssues.some(i => i.code === VALIDATION_CODES.HOLE_INTERSECTS_SHELL),
     duplicatePosition: options.duplicatePosition !== false && relevantIssues.some(i => i.code === VALIDATION_CODES.DUPLICATE_POSITION),
     precision: options.precision
   }
 
-  const result = (fixOptions.windingOrder || fixOptions.selfIntersection || fixOptions.duplicatePosition)
+  const result = (fixOptions.windingOrder || fixOptions.selfIntersection || fixOptions.holeIntersectsShell || fixOptions.duplicatePosition)
     ? fixGeometry(geometry, fixOptions)
     : { corrections: [] }
 

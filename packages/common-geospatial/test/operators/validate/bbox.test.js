@@ -143,15 +143,34 @@ describe('validateBBox', () => {
     })
   })
 
-  describe('precision warnings', () => {
-    it('should forward precision warnings from SW and NE positions', () => {
-      const result = validateBBox(bboxes.highPrecision)
+  describe('validateBBox — precision warnings', () => {
+    it('does not warn at the default precision (7 decimals)', () => {
+      const result = validateBBox([2.3522123, 48.8566123, 3.1234567, 49.1234567])
       expect(result.valid).toBe(true)
+      expect(result.warnings).toHaveLength(0)
+    })
+
+    it('warns beyond the default precision (8 decimals)', () => {
+      const result = validateBBox([2.35221234, 48.8566, 3.1234, 49.1234])
+      expect(result.warnings).toContainEqual(
+        expect.objectContaining({
+          code: VALIDATION_CODES.HIGH_LONGITUDE_PRECISION,
+          params: { precision: 8, max: 7 }
+        })
+      )
+    })
+
+    it('propagates a custom precision to min/max positions', () => {
+      // 7-decimal coords with threshold 6 -> warnings must surface with max: 6
+      const result = validateBBox([2.3522123, 48.8566123, 3.1234567, 49.1234567], '', 6)
       expect(result.warnings.length).toBeGreaterThan(0)
-      expect(result.warnings.some(w => [
-        VALIDATION_CODES.HIGH_LONGITUDE_PRECISION,
-        VALIDATION_CODES.HIGH_LATITUDE_PRECISION
-      ].includes(w.code))).toBe(true)
+      expect(result.warnings.every((w) => w.params.max === 6)).toBe(true)
+    })
+
+    it('reports precision warnings with the correct path (min/max)', () => {
+      const result = validateBBox([2.35221234, 48.8566, 3.1234, 49.1234], 'bbox')
+      // the warning should come from the /min position (west has 8 decimals)
+      expect(result.warnings.some((w) => w.path.includes('min'))).toBe(true)
     })
   })
 

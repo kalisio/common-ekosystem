@@ -1,28 +1,33 @@
-import booleanClockwise from '@turf/boolean-clockwise'
-import kinks from '@turf/kinks'
 import { is } from '@kalisio/common-core'
-import { isSamePosition } from '../../foundation'
+import {
+  DEFAULT_COORDINATE_PRECISION,
+  isSamePosition,
+  ringsIntersect,
+  isClockwiseRing,
+  isClosedRing,
+  ringSelfIntersections
+} from '../../foundation/index.js'
 import { GEOMETRY_TYPES } from '../is-like.js'
 import { VALIDATION_CODES } from './codes.js'
 import { validatePosition } from './position.js'
 import { validateOptionalBBox, validateArray } from './utils.js'
 
-function findConsecutiveDuplicateIndex (positions, startAt = 0) {
+function findConsecutiveDuplicateIndex (positions, startAt = 0, precision = DEFAULT_COORDINATE_PRECISION) {
   for (let i = startAt; i < positions.length - 1; i++) {
-    if (isSamePosition(positions[i], positions[i + 1])) return i
+    if (isSamePosition(positions[i], positions[i + 1], { precision })) return i
   }
   return -1
 }
 
-function checkDuplicatePositions (positions, path, warnings) {
-  let i = findConsecutiveDuplicateIndex(positions)
+function checkDuplicatePositions (positions, path, warnings, precision = DEFAULT_COORDINATE_PRECISION) {
+  let i = findConsecutiveDuplicateIndex(positions, 0, precision)
   while (i !== -1) {
     warnings.push({ code: VALIDATION_CODES.DUPLICATE_POSITION, path: `${path}/${i}` })
-    i = findConsecutiveDuplicateIndex(positions, i + 1)
+    i = findConsecutiveDuplicateIndex(positions, i + 1, precision)
   }
 }
 
-function validateCoordinatesArray (coordinates, minimumLength = 0, path = '') {
+function validateCoordinatesArray (coordinates, minimumLength = 0, path = '', precision = DEFAULT_COORDINATE_PRECISION) {
   if (!is.arrayOfLengthAtLeast(coordinates, minimumLength)) {
     return {
       valid: false,
@@ -30,13 +35,14 @@ function validateCoordinatesArray (coordinates, minimumLength = 0, path = '') {
       warnings: []
     }
   }
-  return validateArray(coordinates, validatePosition, path)
+  // Closure injects precision; validateArray would otherwise pass the index as 3rd arg
+  return validateArray(coordinates, (pos, p) => validatePosition(pos, p, precision), path)
 }
 
-function validateLineStringCoordinates (coordinates, path = '') {
-  const result = validateCoordinatesArray(coordinates, 2, path)
+function validateLineStringCoordinates (coordinates, path = '', precision = DEFAULT_COORDINATE_PRECISION) {
+  const result = validateCoordinatesArray(coordinates, 2, path, precision)
   if (!result.valid) return result
-  checkDuplicatePositions(coordinates, path, result.warnings)
+  checkDuplicatePositions(coordinates, path, result.warnings, precision)
   // Check for antimeridian crossings
   for (let i = 0; i < coordinates.length - 1; i++) {
     const lon1 = coordinates[i][0]
@@ -48,7 +54,7 @@ function validateLineStringCoordinates (coordinates, path = '') {
   return result
 }
 
-function validateMultiLineStringCoordinates (coordinates, path = '') {
+function validateMultiLineStringCoordinates (coordinates, path = '', precision = DEFAULT_COORDINATE_PRECISION) {
   if (!is.nonEmptyArray(coordinates)) {
     return {
       valid: false,
@@ -56,16 +62,16 @@ function validateMultiLineStringCoordinates (coordinates, path = '') {
       warnings: []
     }
   }
-  return validateArray(coordinates, validateLineStringCoordinates, path)
+  return validateArray(coordinates, (line, p) => validateLineStringCoordinates(line, p, precision), path)
 }
 
-function validateLinearRing (coordinates, expectedWindingOrder, path = '') {
-  const result = validateCoordinatesArray(coordinates, 4, path)
+function validateLinearRing (coordinates, expectedWindingOrder, path = '', precision = DEFAULT_COORDINATE_PRECISION) {
+  const result = validateCoordinatesArray(coordinates, 4, path, precision)
   if (!result.valid) return result
-  // check ring is closed
-  const first = coordinates[0]
-  const last = coordinates[coordinates.length - 1]
-  if (first[0] !== last[0] || first[1] !== last[1]) {
+  // Ring closure shares the foundation's notion of "same position"
+  // (precision-tolerant), so a ring validate reports as not closed is exactly
+  // one fix's closeRing would repair. Keeps validate and fix in lockstep.
+  if (!isClosedRing(coordinates, { precision })) {
     result.valid = false
     result.errors.push({ code: VALIDATION_CODES.RING_NOT_CLOSED, path })
     return result
@@ -73,31 +79,31 @@ function validateLinearRing (coordinates, expectedWindingOrder, path = '') {
   // Check for duplicate consecutive positions (the intentional closing
   // duplicate is never flagged, since first/last are only equal across the
   // whole array, not adjacent to each other).
-  checkDuplicatePositions(coordinates, path, result.warnings)
-  // check winding order
-  const isClockwise = booleanClockwise(coordinates)
-  const actualWindingOrder = isClockwise ? 'clockwise' : 'counter-clockwise'
+  checkDuplicatePositions(coordinates, path, result.warnings, precision)
+  // check winding order (spherical, matching what S2/MongoDB use)
+  const actualWindingOrder = isClockwiseRing(coordinates) ? 'clockwise' : 'counter-clockwise'
   if (actualWindingOrder !== expectedWindingOrder) {
-    result.warnings.push({
+    result.valid = false
+    result.errors.push({
       code: VALIDATION_CODES.INVALID_WINDING_ORDER,
       path,
       params: { expected: expectedWindingOrder, actual: actualWindingOrder }
     })
   }
-  // check self-intersection
-  const intersections = kinks({ type: 'Polygon', coordinates: [coordinates] })
-  if (intersections.features.length > 0) {
+  // check self-intersection (spherical, matching what S2/MongoDB use)
+  const selfIntersections = ringSelfIntersections(coordinates)
+  if (selfIntersections.length > 0) {
     result.valid = false
     result.errors.push({
       code: VALIDATION_CODES.SELF_INTERSECTION,
       path,
-      params: { count: intersections.features.length }
+      params: { count: selfIntersections.length }
     })
   }
   return result
 }
 
-function validatePolygonCoordinates (coordinates, path = '') {
+function validatePolygonCoordinates (coordinates, path = '', precision = DEFAULT_COORDINATE_PRECISION) {
   if (!is.nonEmptyArray(coordinates)) {
     return {
       valid: false,
@@ -105,10 +111,20 @@ function validatePolygonCoordinates (coordinates, path = '') {
       warnings: []
     }
   }
-  return validateArray(coordinates, (ring, p, i) => validateLinearRing(ring, i === 0 ? 'counter-clockwise' : 'clockwise', p), path)
+  const result = validateArray(coordinates, (ring, p, i) => validateLinearRing(ring, i === 0 ? 'counter-clockwise' : 'clockwise', p, precision), path)
+  if (result.valid && coordinates.length > 1) {
+    const shell = coordinates[0]
+    for (let i = 1; i < coordinates.length; i++) {
+      if (ringsIntersect(shell, coordinates[i])) {
+        result.valid = false
+        result.errors.push({ code: VALIDATION_CODES.HOLE_INTERSECTS_SHELL, path: `${path}/${i}` })
+      }
+    }
+  }
+  return result
 }
 
-function validateMultiPolygonCoordinates (coordinates, path = '') {
+function validateMultiPolygonCoordinates (coordinates, path = '', precision = DEFAULT_COORDINATE_PRECISION) {
   if (!is.nonEmptyArray(coordinates)) {
     return {
       valid: false,
@@ -116,10 +132,10 @@ function validateMultiPolygonCoordinates (coordinates, path = '') {
       warnings: []
     }
   }
-  return validateArray(coordinates, (c, p) => validatePolygonCoordinates(c, p), path)
+  return validateArray(coordinates, (c, p) => validatePolygonCoordinates(c, p, precision), path)
 }
 
-function validateGeometryCollectionGeometries (geometries, path = '') {
+function validateGeometryCollectionGeometries (geometries, path = '', precision = DEFAULT_COORDINATE_PRECISION) {
   if (!is.nonEmptyArray(geometries)) {
     return {
       valid: false,
@@ -127,10 +143,10 @@ function validateGeometryCollectionGeometries (geometries, path = '') {
       warnings: []
     }
   }
-  return validateArray(geometries, (g, p) => validateGeometry(g, p), path)
+  return validateArray(geometries, (g, p) => validateGeometry(g, p, precision), path)
 }
 
-export function validateGeometry (geometry, path = '') {
+export function validateGeometry (geometry, path = '', precision = DEFAULT_COORDINATE_PRECISION) {
   if (!is.nonEmptyObject(geometry)) {
     return {
       valid: false,
@@ -142,7 +158,7 @@ export function validateGeometry (geometry, path = '') {
   let result
   switch (geometry.type) {
     case GEOMETRY_TYPES.POINT: {
-      const positionResult = validatePosition(geometry.coordinates, coordsPath)
+      const positionResult = validatePosition(geometry.coordinates, coordsPath, precision)
       result = {
         valid: positionResult.valid,
         errors: positionResult.errors,
@@ -151,22 +167,22 @@ export function validateGeometry (geometry, path = '') {
       break
     }
     case GEOMETRY_TYPES.MULTI_POINT:
-      result = validateCoordinatesArray(geometry.coordinates, 0, coordsPath)
+      result = validateCoordinatesArray(geometry.coordinates, 0, coordsPath, precision)
       break
     case GEOMETRY_TYPES.LINESTRING:
-      result = validateLineStringCoordinates(geometry.coordinates, coordsPath)
+      result = validateLineStringCoordinates(geometry.coordinates, coordsPath, precision)
       break
     case GEOMETRY_TYPES.MULTI_LINESTRING:
-      result = validateMultiLineStringCoordinates(geometry.coordinates, coordsPath)
+      result = validateMultiLineStringCoordinates(geometry.coordinates, coordsPath, precision)
       break
     case GEOMETRY_TYPES.POLYGON:
-      result = validatePolygonCoordinates(geometry.coordinates, coordsPath)
+      result = validatePolygonCoordinates(geometry.coordinates, coordsPath, precision)
       break
     case GEOMETRY_TYPES.MULTI_POLYGON:
-      result = validateMultiPolygonCoordinates(geometry.coordinates, coordsPath)
+      result = validateMultiPolygonCoordinates(geometry.coordinates, coordsPath, precision)
       break
     case GEOMETRY_TYPES.GEOMETRY_COLLECTION:
-      result = validateGeometryCollectionGeometries(geometry.geometries, `${path}/geometries`)
+      result = validateGeometryCollectionGeometries(geometry.geometries, `${path}/geometries`, precision)
       break
     default:
       return {
@@ -175,7 +191,7 @@ export function validateGeometry (geometry, path = '') {
         warnings: []
       }
   }
-  result = validateOptionalBBox(geometry, result, path)
+  result = validateOptionalBBox(geometry, result, path, precision)
   // Count this geometry by its own type. A GeometryCollection counts as one
   // and its members are NOT decomposed, so we overwrite any statistics that
   // bubbled up from the members.

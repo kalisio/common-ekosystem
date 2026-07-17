@@ -154,23 +154,49 @@ describe('validateGeoJson', () => {
       expect(result.valid).toBe(false)
       expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_FEATURES_ARRAY)
     })
+
+    it('should path a nested invalid CRS to the inner feature', () => {
+      const result = validateGeoJson({
+        type: 'FeatureCollection',
+        features: [{
+          type: 'FeatureCollection',
+          crs: { type: 'bad' },
+          features: [{
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: [0, 0] },
+            properties: {}
+          }]
+        }]
+      })
+      expect(result.valid).toBe(false)
+      const crsError = result.errors.find(e => e.code === VALIDATION_CODES.INVALID_CRS_TYPE)
+      expect(crsError).toBeDefined()
+      expect(crsError.path).toBe('/features/0/crs')
+    })
   })
 
   describe('file-based fixtures', () => {
-    it('should validate a Feature from polygon.geojson', () => {
+    it('should reject polygon.geojson (clockwise exterior ring)', () => {
       const filePath = path.resolve(__dirname, '../data/polygon.geojson')
       const geojson = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
       const result = validateGeoJson(geojson)
-      expect(result.valid).toBe(true)
-      expect(result.errors).toHaveLength(0)
+      expect(result.valid).toBe(false)
+      const windingErrors = result.errors.filter(e => e.code === VALIDATION_CODES.INVALID_WINDING_ORDER)
+      expect(windingErrors).toHaveLength(1)
+      expect(windingErrors[0].path).toBe('/geometry/coordinates/0')
+      expect(windingErrors[0].params).toEqual({ expected: 'counter-clockwise', actual: 'clockwise' })
     })
 
-    it('should validate a FeatureCollection from collection.geojson', () => {
+    it('should reject collection.geojson (all exterior rings clockwise)', () => {
       const filePath = path.resolve(__dirname, '../data/collection.geojson')
       const geojson = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
       const result = validateGeoJson(geojson)
-      expect(result.valid).toBe(true)
-      expect(result.errors).toHaveLength(0)
+      expect(result.valid).toBe(false)
+      const windingErrors = result.errors.filter(e => e.code === VALIDATION_CODES.INVALID_WINDING_ORDER)
+      expect(windingErrors).toHaveLength(4)
+      // Every error is a winding error; the nested FeatureCollection is otherwise valid.
+      expect(result.errors.every(e => e.code === VALIDATION_CODES.INVALID_WINDING_ORDER)).toBe(true)
+      expect(windingErrors.every(e => /^\/features\/0\/features\/\d+\/geometry\/coordinates\/0$/.test(e.path))).toBe(true)
     })
   })
 })

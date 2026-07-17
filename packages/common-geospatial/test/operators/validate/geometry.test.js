@@ -138,11 +138,15 @@ describe('validateGeometry', () => {
       expect(result.valid).toBe(false)
       expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POLYGON_COORDINATES)
     })
-    it('should warn on duplicate consecutive positions, and also flag a self-intersection (a zero-length edge looks like a kink)', () => {
+    it('should warn on duplicate consecutive positions without flagging a phantom self-intersection', () => {
       const result = validateGeometry(polygons.withDuplicate)
-      expect(result.valid).toBe(false) // SELF_INTERSECTION is an error, not just a warning
+      // A duplicate vertex is a warning only. The zero-length edge it creates
+      // must not be misread as a self-intersection: that was a floating-point
+      // false positive at the shared vertex, now guarded in
+      // ringSelfIntersections.
+      expect(result.valid).toBe(true)
       expect(result.warnings.some(w => w.code === VALIDATION_CODES.DUPLICATE_POSITION)).toBe(true)
-      expect(result.errors.some(e => e.code === VALIDATION_CODES.SELF_INTERSECTION)).toBe(true)
+      expect(result.errors.some(e => e.code === VALIDATION_CODES.SELF_INTERSECTION)).toBe(false)
     })
     it('should return invalid if ring is not closed', () => {
       const result = validateGeometry(polygons.unclosed)
@@ -154,24 +158,20 @@ describe('validateGeometry', () => {
       expect(result.valid).toBe(false)
       expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_COORDINATES_LENGTH)
     })
-    it('should warn if outer ring is clockwise', () => {
+    it('should be invalid if outer ring is clockwise', () => {
       const result = validateGeometry(polygons.cwOuter)
-      expect(result.valid).toBe(true)
-      // Identify the warning by ring path (index 0 = outer), not just by code,
-      // so a coincidental warning on another ring can't false-positive this test.
-      const warning = result.warnings.find(w => w.code === VALIDATION_CODES.INVALID_WINDING_ORDER && w.path?.endsWith('/0'))
-      expect(warning).toBeDefined()
-      expect(warning.params).toEqual({ expected: 'counter-clockwise', actual: 'clockwise' })
+      expect(result.valid).toBe(false)
+      const error = result.errors.find(e => e.code === VALIDATION_CODES.INVALID_WINDING_ORDER && e.path?.endsWith('/0'))
+      expect(error).toBeDefined()
+      expect(error.params).toEqual({ expected: 'counter-clockwise', actual: 'clockwise' })
     })
-    it('should warn if hole ring is counter-clockwise', () => {
+    it('should be invalid if hole ring is counter-clockwise', () => {
       const result = validateGeometry(polygons.ccwHole)
-      expect(result.valid).toBe(true)
-      // Identify the warning by ring path (index 1 = first hole), not just by code.
-      const warning = result.warnings.find(w => w.code === VALIDATION_CODES.INVALID_WINDING_ORDER && w.path?.endsWith('/1'))
-      expect(warning).toBeDefined()
-      expect(warning.params).toEqual({ expected: 'clockwise', actual: 'counter-clockwise' })
-      // The outer ring itself should be correctly CCW here — no warning on ring 0.
-      expect(result.warnings.some(w => w.code === VALIDATION_CODES.INVALID_WINDING_ORDER && w.path?.endsWith('/0'))).toBe(false)
+      expect(result.valid).toBe(false)
+      const error = result.errors.find(e => e.code === VALIDATION_CODES.INVALID_WINDING_ORDER && e.path?.endsWith('/1'))
+      expect(error).toBeDefined()
+      expect(error.params).toEqual({ expected: 'clockwise', actual: 'counter-clockwise' })
+      expect(result.errors.some(e => e.code === VALIDATION_CODES.INVALID_WINDING_ORDER && e.path?.endsWith('/0'))).toBe(false)
     })
     it('should return invalid for self-intersecting polygon', () => {
       const result = validateGeometry(polygons.selfIntersecting)
@@ -243,6 +243,50 @@ describe('validateGeometry', () => {
       const result = validateGeometry(geometries.withAntimeridianBBox)
       expect(result.valid).toBe(true)
       expect(result.warnings.some(w => w.code === VALIDATION_CODES.BBOX_ANTIMERIDIAN_CROSSING)).toBe(true)
+    })
+  })
+
+  describe('precision', () => {
+    // The default warning threshold is DEFAULT_COORDINATE_PRECISION (7 decimals).
+    it('should not warn at the default precision (7 decimals)', () => {
+      const geometry = { type: 'Point', coordinates: [2.3522123, 48.8566123] }
+      const result = validateGeometry(geometry)
+      expect(result.valid).toBe(true)
+      expect(result.warnings).toHaveLength(0)
+    })
+
+    it('should warn beyond the default precision (8 decimals)', () => {
+      const geometry = { type: 'Point', coordinates: [2.35221234, 48.8566] }
+      const result = validateGeometry(geometry)
+      const warning = result.warnings.find((w) => w.code === VALIDATION_CODES.HIGH_LONGITUDE_PRECISION)
+      expect(warning).toBeDefined()
+      expect(warning.params).toEqual({ precision: 8, max: 7 })
+    })
+
+    it('should respect a custom precision threshold', () => {
+      const geometry = { type: 'Point', coordinates: [2.3522123, 48.8566] } // 7 decimals
+      const result = validateGeometry(geometry, '', 6)
+      const warning = result.warnings.find((w) => w.code === VALIDATION_CODES.HIGH_LONGITUDE_PRECISION)
+      expect(warning).toBeDefined()
+      expect(warning.params).toEqual({ precision: 7, max: 6 })
+    })
+
+    it('should propagate precision down to polygon rings', () => {
+      // 7-decimal coords with threshold 6 must reach validatePosition through
+      // validatePolygonCoordinates -> validateLinearRing -> validateCoordinatesArray
+      const polygon = {
+        type: 'Polygon',
+        coordinates: [[
+          [2.3522123, 48.8566],
+          [3, 48.8566],
+          [3, 49],
+          [2.3522123, 48.8566]
+        ]]
+      }
+      const result = validateGeometry(polygon, '', 6)
+      const precisionWarnings = result.warnings.filter((w) => w.code === VALIDATION_CODES.HIGH_LONGITUDE_PRECISION)
+      expect(precisionWarnings.length).toBeGreaterThan(0)
+      expect(precisionWarnings.every((w) => w.params.max === 6)).toBe(true)
     })
   })
 })

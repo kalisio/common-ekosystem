@@ -1,8 +1,9 @@
 import { is } from '@kalisio/common-core'
+import { DEFAULT_COORDINATE_PRECISION } from '../../foundation/index.js'
 import { validatePosition } from './position.js'
 import { VALIDATION_CODES } from './codes.js'
 
-export function validateBBox (bbox, path = '') {
+export function validateBBox (bbox, path = '', precision = DEFAULT_COORDINATE_PRECISION) {
   if (!is.arrayOfLength(bbox, 4) && !is.arrayOfLength(bbox, 6)) {
     return {
       valid: false,
@@ -13,16 +14,14 @@ export function validateBBox (bbox, path = '') {
   const is2D = bbox.length === 4
   const min = is2D ? [bbox[0], bbox[1]] : [bbox[0], bbox[1], bbox[2]]
   const max = is2D ? [bbox[2], bbox[3]] : [bbox[3], bbox[4], bbox[5]]
-
-  const minResult = validatePosition(min, `${path}/min`)
+  const minResult = validatePosition(min, `${path}/min`, precision)
   if (!minResult.valid) {
     return { valid: false, errors: minResult.errors, warnings: [] }
   }
-  const maxResult = validatePosition(max, `${path}/max`)
+  const maxResult = validatePosition(max, `${path}/max`, precision)
   if (!maxResult.valid) {
     return { valid: false, errors: maxResult.errors, warnings: [] }
   }
-
   const [west, south] = min
   const [east, north] = max
   if (south > north) {
@@ -43,7 +42,6 @@ export function validateBBox (bbox, path = '') {
       }
     }
   }
-
   const response = { valid: true, errors: [], warnings: [] }
   if (west > east) {
     response.warnings.push({ code: VALIDATION_CODES.BBOX_ANTIMERIDIAN_CROSSING, path, params: { west, east } })

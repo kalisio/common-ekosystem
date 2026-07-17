@@ -102,5 +102,14 @@ export const polygons = {
     coordinates: [[
       [0, 0, 100], [10, 0, 150], [10, 10, 200], [0, 10, 120], [0, 0, 100]
     ]]
+  },
+  // Exterior CCW, hole CW, but the hole straddles the right edge of the shell:
+  // valid winding on both rings, only HOLE_INTERSECTS_SHELL is flagged.
+  holeIntersectsShell: {
+    type: 'Polygon',
+    coordinates: [
+      [[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]],
+      [[8, 3], [8, 6], [12, 6], [12, 3], [8, 3]]
+    ]
   }
 }

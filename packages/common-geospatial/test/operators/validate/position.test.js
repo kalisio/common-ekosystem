@@ -148,35 +148,46 @@ describe('validatePosition', () => {
     })
   })
 
-  describe('precision warnings', () => {
-    it('should warn if longitude precision > 6 decimals', () => {
-      const result = validatePosition(positions.highPrecisionLon)
-      expect(result.valid).toBe(true)
-      expect(result.warnings.some(w => w.code === VALIDATION_CODES.HIGH_LONGITUDE_PRECISION)).toBe(true)
-    })
-
-    it('should warn if latitude precision > 6 decimals', () => {
-      const result = validatePosition(positions.highPrecisionLat)
-      expect(result.valid).toBe(true)
-      expect(result.warnings.some(w => w.code === VALIDATION_CODES.HIGH_LATITUDE_PRECISION)).toBe(true)
-    })
-
-    it('should warn for both if both exceed 6 decimals', () => {
-      const result = validatePosition(positions.highPrecisionBoth)
-      expect(result.valid).toBe(true)
-      expect(result.warnings).toHaveLength(2)
-    })
-
-    it('should not warn for precision <= 6 decimals', () => {
-      const result = validatePosition([2.123456, 48.123456])
+  describe('validatePosition — precision warnings', () => {
+    it('does not warn at the default precision (7 decimals)', () => {
+      const result = validatePosition([2.3522123, 48.8566123])
       expect(result.valid).toBe(true)
       expect(result.warnings).toHaveLength(0)
     })
 
-    it('should not warn for integer coordinates', () => {
-      const result = validatePosition([2, 48])
-      expect(result.valid).toBe(true)
-      expect(result.warnings).toHaveLength(0)
+    it('warns beyond the default precision (8 decimals on longitude)', () => {
+      const result = validatePosition([2.35221234, 48.8566])
+      expect(result.warnings).toContainEqual(
+        expect.objectContaining({
+          code: VALIDATION_CODES.HIGH_LONGITUDE_PRECISION,
+          params: { precision: 8, max: 7 }
+        })
+      )
+    })
+
+    it('warns beyond the default precision (8 decimals on latitude)', () => {
+      const result = validatePosition([2.3522, 48.85661234])
+      expect(result.warnings).toContainEqual(
+        expect.objectContaining({
+          code: VALIDATION_CODES.HIGH_LATITUDE_PRECISION,
+          params: { precision: 8, max: 7 }
+        })
+      )
+    })
+
+    it('respects a custom precision threshold', () => {
+      const result = validatePosition([2.3522123, 48.8566], '', 6)
+      expect(result.warnings).toContainEqual(
+        expect.objectContaining({
+          code: VALIDATION_CODES.HIGH_LONGITUDE_PRECISION,
+          params: { precision: 7, max: 6 }
+        })
+      )
+    })
+
+    it('reports max reflecting the passed precision', () => {
+      const result = validatePosition([2.352212345, 48.8566], '', 4)
+      expect(result.warnings[0].params.max).toBe(4)
     })
   })
 
