@@ -51,6 +51,18 @@ function fixPolygonWindingOrder (coordinates) {
   return corrected
 }
 
+// Fixes winding for a Polygon or every polygon of a MultiPolygon.
+function fixWindingOrder (geometry) {
+  if (geometry.type === GEOMETRY_TYPES.POLYGON) {
+    return fixPolygonWindingOrder(geometry.coordinates)
+  }
+  let corrected = false
+  for (const polygonCoordinates of geometry.coordinates) {
+    if (fixPolygonWindingOrder(polygonCoordinates)) corrected = true
+  }
+  return corrected
+}
+
 // Rings of a Polygon or MultiPolygon, flattened to a single array either way.
 function ringsOf (geometry) {
   return geometry.type === GEOMETRY_TYPES.POLYGON ? geometry.coordinates : geometry.coordinates.flat(1)
@@ -100,6 +112,7 @@ function fixDuplicatePositions (geometry, precision) {
     if (result.length !== before) deduped = true
     return result
   }
+
   switch (geometry.type) {
     case GEOMETRY_TYPES.LINESTRING:
       geometry.coordinates = dedupeAndTrack(geometry.coordinates)
@@ -117,63 +130,63 @@ function fixDuplicatePositions (geometry, precision) {
   return deduped
 }
 
+// Self-intersection and hole/shell overlap are both repaired by a single
+// buffer(0) topological rebuild, run at most once when either applies. Returns
+// the list of correction codes to report; mutates geometry only if the rebuild
+// resolves every triggering defect.
+function fixTopology (geometry, options) {
+  const wantsSelfIntersection = options.selfIntersection
+  const wantsHoleIntersectsShell = options.holeIntersectsShell
+  if (!wantsSelfIntersection && !wantsHoleIntersectsShell) return []
+
+  // Detect what is still present after the earlier dedupe/winding steps.
+  const selfIntersectionPresent = wantsSelfIntersection && hasSelfIntersection(geometry)
+  const holeIntersectsShellPresent = wantsHoleIntersectsShell && hasHoleIntersectingShell(geometry)
+
+  // A flagged defect that is already gone -- e.g. a self-intersection resolved
+  // as a side effect of dedupe -- is reported corrected without a rebuild.
+  const corrected = []
+  if (wantsSelfIntersection && !selfIntersectionPresent) corrected.push(VALIDATION_CODES.SELF_INTERSECTION)
+  if (wantsHoleIntersectsShell && !holeIntersectsShellPresent) corrected.push(VALIDATION_CODES.HOLE_INTERSECTS_SHELL)
+
+  if (!selfIntersectionPresent && !holeIntersectsShellPresent) return corrected
+
+  // buffer(0) is planar and cannot repair every case (e.g. across the
+  // antimeridian). Commit only if every defect that triggered the rebuild is
+  // actually gone -- checked with the same spherical tests that flagged them --
+  // otherwise leave the original untouched and report them unfixed.
+  const candidate = bufferRebuild(geometry)
+  if (!candidate) return corrected
+  if (selfIntersectionPresent && hasSelfIntersection(candidate)) return corrected
+  if (holeIntersectsShellPresent && hasHoleIntersectingShell(candidate)) return corrected
+
+  geometry.type = candidate.type
+  geometry.coordinates = candidate.coordinates
+  if (selfIntersectionPresent) corrected.push(VALIDATION_CODES.SELF_INTERSECTION)
+  if (holeIntersectsShellPresent) corrected.push(VALIDATION_CODES.HOLE_INTERSECTS_SHELL)
+  return corrected
+}
+
 function fixGeometry (geometry, options) {
   const corrections = []
   const precision = options.precision ?? DEFAULT_COORDINATE_PRECISION
+
   if (options.duplicatePosition && DEDUPABLE_TYPES.includes(geometry.type)) {
     if (fixDuplicatePositions(geometry, precision)) {
       corrections.push({ code: VALIDATION_CODES.DUPLICATE_POSITION })
     }
   }
+
   if (!RING_TYPES.includes(geometry.type)) {
     return { fixed: geometry, corrections }
   }
-  if (options.windingOrder) {
-    let corrected = false
-    if (geometry.type === GEOMETRY_TYPES.POLYGON) {
-      corrected = fixPolygonWindingOrder(geometry.coordinates)
-    } else {
-      for (const polygonCoordinates of geometry.coordinates) {
-        if (fixPolygonWindingOrder(polygonCoordinates)) corrected = true
-      }
-    }
-    if (corrected) corrections.push({ code: VALIDATION_CODES.INVALID_WINDING_ORDER })
+
+  if (options.windingOrder && fixWindingOrder(geometry)) {
+    corrections.push({ code: VALIDATION_CODES.INVALID_WINDING_ORDER })
   }
-  // Self-intersection and hole/shell overlap are both repaired by a single
-  // buffer(0) topological rebuild, so run it at most once when either applies.
-  const wantsSelfIntersection = options.selfIntersection
-  const wantsHoleIntersectsShell = options.holeIntersectsShell
-  if (wantsSelfIntersection || wantsHoleIntersectsShell) {
-    // Detect what is still present after the earlier dedupe/winding steps.
-    const selfIntersectionPresent = wantsSelfIntersection && hasSelfIntersection(geometry)
-    const holeIntersectsShellPresent = wantsHoleIntersectsShell && hasHoleIntersectingShell(geometry)
 
-    // A flagged defect that is already gone -- e.g. a self-intersection resolved
-    // as a side effect of dedupe -- is reported corrected without a rebuild.
-    if (wantsSelfIntersection && !selfIntersectionPresent) {
-      corrections.push({ code: VALIDATION_CODES.SELF_INTERSECTION })
-    }
-    if (wantsHoleIntersectsShell && !holeIntersectsShellPresent) {
-      corrections.push({ code: VALIDATION_CODES.HOLE_INTERSECTS_SHELL })
-    }
-
-    if (selfIntersectionPresent || holeIntersectsShellPresent) {
-      // buffer(0) is planar and cannot repair every case (e.g. across the
-      // antimeridian). Commit only if every defect that triggered the rebuild is
-      // actually gone -- checked with the same spherical tests that flagged them
-      // -- otherwise leave the original untouched and report them unfixed.
-      const candidate = bufferRebuild(geometry)
-      const selfIntersectionGone = candidate && !hasSelfIntersection(candidate)
-      const holeIntersectsShellGone = candidate && !hasHoleIntersectingShell(candidate)
-      if (candidate &&
-        (!selfIntersectionPresent || selfIntersectionGone) &&
-        (!holeIntersectsShellPresent || holeIntersectsShellGone)) {
-        geometry.type = candidate.type
-        geometry.coordinates = candidate.coordinates
-        if (selfIntersectionPresent) corrections.push({ code: VALIDATION_CODES.SELF_INTERSECTION })
-        if (holeIntersectsShellPresent) corrections.push({ code: VALIDATION_CODES.HOLE_INTERSECTS_SHELL })
-      }
-    }
+  for (const code of fixTopology(geometry, options)) {
+    corrections.push({ code })
   }
 
   return { fixed: geometry, corrections }
