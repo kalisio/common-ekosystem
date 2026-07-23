@@ -7,6 +7,47 @@ description: Mathematical utility functions for common numeric operations and in
 
 Mathematical utility functions for common numeric operations and interpolation.
 
+## sign
+
+### Signature
+
+```js
+math.sign (value, epsilon = 0)
+```
+
+### Description
+
+Returns the sign of a number, with an optional tolerance below which the value is considered zero. Unlike `Math.sign`, which has no tolerance and returns a sign for values that are only non-zero through floating-point noise. The tolerance is compared strictly: a value equal to `epsilon` is considered zero.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `value` | `number` | yes | The number to take the sign of |
+| `epsilon` | `number` | no | Tolerance below which `value` is considered zero. Must be positive. Defaults to `0`, which applies no tolerance |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `number` | `1` if `value > epsilon`, `-1` if `value < -epsilon`, `0` otherwise |
+
+### Throws
+
+Throws if `value` is not a number, or if `epsilon` is not a positive number.
+
+### Examples
+
+```js
+math.sign(3)     // 1
+math.sign(-3)    // -1
+math.sign(0)     // 0
+
+math.sign(1e-15, 1e-12)  // 0 (within tolerance)
+math.sign(1e-9, 1e-12)   // 1
+math.sign(1e-12, 1e-12)  // 0 (equal to tolerance)
+```
+
 ## square
 
 ### Signature

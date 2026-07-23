@@ -2,6 +2,16 @@ import { assert, is } from '../predicates/index.js'
 
 export const math = {
 
+  sign (value, epsilon = 0) {
+    assert.all([
+      { value, validator: is.number, message: 'value must be a number' },
+      { value: epsilon, validator: is.nonNegative, message: 'epsilon must be a non-negative number' }
+    ])
+    if (value > epsilon) return 1
+    if (value < -epsilon) return -1
+    return 0
+  },
+
   square (value) {
     assert.that(value, is.number, 'value must be a number')
     return value * value

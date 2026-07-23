@@ -2,6 +2,28 @@ import { describe, it, expect } from 'vitest'
 import { math } from '../../src/utilities'
 
 describe('math', () => {
+  describe('sign', () => {
+    it('returns 1 for a positive value', () => expect(math.sign(3)).toBe(1))
+    it('returns -1 for a negative value', () => expect(math.sign(-3)).toBe(-1))
+    it('returns 0 for zero', () => expect(math.sign(0)).toBe(0))
+    it('returns 0 for negative zero', () => expect(math.sign(-0)).toBe(0))
+    it('returns 0 within the tolerance', () => expect(math.sign(1e-15, 1e-12)).toBe(0))
+    it('returns 0 within the tolerance for a negative value', () => expect(math.sign(-1e-15, 1e-12)).toBe(0))
+    it('returns 1 above the tolerance', () => expect(math.sign(1e-9, 1e-12)).toBe(1))
+    it('returns -1 below the tolerance', () => expect(math.sign(-1e-9, 1e-12)).toBe(-1))
+    it('treats a value equal to the tolerance as zero', () => expect(math.sign(1e-12, 1e-12)).toBe(0))
+    it('treats a value equal to the negated tolerance as zero', () => expect(math.sign(-1e-12, 1e-12)).toBe(0))
+    it('applies no tolerance by default', () => expect(math.sign(1e-300)).toBe(1))
+    it('matches Math.sign by default', () => {
+      for (const value of [42, -42, 0.5, -0.5, 1e-300]) {
+        expect(math.sign(value)).toBe(Math.sign(value))
+      }
+    })
+    it('throws if value is not a number', () => expect(() => math.sign('a')).toThrow('value must be a number'))
+    it('throws if epsilon is not a number', () => expect(() => math.sign(1, 'a')).toThrow('epsilon must be a non-negative number'))
+    it('throws if epsilon is negative', () => expect(() => math.sign(1, -1)).toThrow('epsilon must be a non-negative number'))
+  })
+
   describe('square', () => {
     it('squares a positive number', () => expect(math.square(3)).toBe(9))
     it('squares a negative number', () => expect(math.square(-4)).toBe(16))

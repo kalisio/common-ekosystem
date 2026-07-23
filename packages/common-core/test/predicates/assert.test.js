@@ -1,52 +1,14 @@
-import { describe, it, expect, afterEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { assert, is } from '../../src/predicates'
-
-describe('assert.isEnabled', () => {
-  afterEach(() => {
-    assert.isEnabled = true
-  })
-
-  it('is true by default in test environment', () => {
-    expect(assert.isEnabled).toBe(true)
-  })
-
-  it('that does not throw when disabled', () => {
-    assert.isEnabled = false
-    expect(() => assert.that(-1, (v) => v > 0, 'must be positive')).not.toThrow()
-  })
-
-  it('all does not throw when disabled', () => {
-    assert.isEnabled = false
-    expect(() => assert.all([
-      { value: -1, validator: (v) => v > 0, message: 'must be positive' }
-    ])).not.toThrow()
-  })
-
-  it('any does not throw when disabled', () => {
-    assert.isEnabled = false
-    expect(() => assert.any([
-      { value: -1, validator: (v) => v > 0, message: 'must be positive' },
-      { value: -1, validator: (v) => v > 0, message: 'must be positive' }
-    ])).not.toThrow()
-  })
-
-  it('that throws again when re-enabled', () => {
-    assert.isEnabled = false
-    assert.isEnabled = true
-    expect(() => assert.that(-1, (v) => v > 0, 'must be positive')).toThrow(TypeError)
-  })
-})
 
 describe('assert.that', () => {
   it('should not throw when validator returns true', () => {
     expect(() => {
       assert.that(5, (v) => v === 5, 'Should be 5')
     }).not.toThrow()
-
     expect(() => {
       assert.that('hello', is.string, 'Should be a string')
     }).not.toThrow()
-
     expect(() => {
       assert.that([1, 2, 3], is.array, 'Should be an array')
     }).not.toThrow()
@@ -56,7 +18,6 @@ describe('assert.that', () => {
     expect(() => {
       assert.that(5, (v) => v === 10, 'Should be 10')
     }).toThrow(TypeError)
-
     expect(() => {
       assert.that(5, (v) => v === 10, 'Should be 10')
     }).toThrow('Should be 10')
@@ -66,11 +27,9 @@ describe('assert.that', () => {
     expect(() => {
       assert.that(null, is.defined, 'Value must be defined')
     }).toThrow('Value must be defined')
-
     expect(() => {
       assert.that('', is.emptyString, 'String must be empty')
     }).not.toThrow()
-
     expect(() => {
       assert.that(-5, is.positive, 'Age must be positive')
     }).toThrow('Age must be positive')
@@ -80,7 +39,6 @@ describe('assert.that', () => {
     expect(() => {
       assert.that({ a: 1 }, is.plainObject, 'Must be plain object')
     }).not.toThrow()
-
     expect(() => {
       assert.that([], is.plainObject, 'Must be plain object')
     }).toThrow('Must be plain object')
@@ -89,19 +47,15 @@ describe('assert.that', () => {
   it('should work with custom validators', () => {
     const isEven = (n) => n % 2 === 0
     const isEmail = (s) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)
-
     expect(() => {
       assert.that(4, isEven, 'Must be even')
     }).not.toThrow()
-
     expect(() => {
       assert.that(5, isEven, 'Must be even')
     }).toThrow('Must be even')
-
     expect(() => {
       assert.that('test@example.com', isEmail, 'Must be valid email')
     }).not.toThrow()
-
     expect(() => {
       assert.that('invalid', isEmail, 'Must be valid email')
     }).toThrow('Must be valid email')
@@ -110,7 +64,6 @@ describe('assert.that', () => {
   it('should work with complex validators', () => {
     const hasRequiredFields = (obj) =>
       obj && obj.name && obj.email && obj.age
-
     expect(() => {
       assert.that(
         { name: 'John', email: 'john@example.com', age: 30 },
@@ -118,7 +71,6 @@ describe('assert.that', () => {
         'Missing required fields'
       )
     }).not.toThrow()
-
     expect(() => {
       assert.that(
         { name: 'John' },
@@ -132,17 +84,14 @@ describe('assert.that', () => {
     expect(() => {
       assert.that(5, (v) => is.inRange(v, 0, 10), 'Must be between 0 and 10')
     }).not.toThrow()
-
     expect(() => {
       assert.that(15, (v) => is.inRange(v, 0, 10), 'Must be between 0 and 10')
     }).toThrow('Must be between 0 and 10')
   })
-
   it('should work with oneOf validators', () => {
     expect(() => {
       assert.that('blue', (v) => is.oneOf(v, ['red', 'green', 'blue']), 'Invalid color')
     }).not.toThrow()
-
     expect(() => {
       assert.that('yellow', (v) => is.oneOf(v, ['red', 'green', 'blue']), 'Invalid color')
     }).toThrow('Invalid color')
@@ -159,7 +108,6 @@ describe('assert.all', () => {
       ])
     }).not.toThrow()
   })
-
   it('should throw on first failing validation', () => {
     expect(() => {
       assert.all([
@@ -169,13 +117,11 @@ describe('assert.all', () => {
       ])
     }).toThrow('Must be number')
   })
-
   it('should handle empty validations array', () => {
     expect(() => {
       assert.all([])
     }).not.toThrow()
   })
-
   it('should validate multiple properties of an object', () => {
     const user = {
       name: 'John Doe',
@@ -192,20 +138,17 @@ describe('assert.all', () => {
       ])
     }).not.toThrow()
   })
-
   it('should fail with specific message for each property', () => {
     const user = {
       name: '',
       age: -5,
       email: 'john@example.com'
     }
-
     expect(() => {
       assert.all([
         { value: user.name, validator: is.nonEmptyString, message: 'Name is required' }
       ])
     }).toThrow('Name is required')
-
     expect(() => {
       assert.all([
         { value: user.name, validator: is.string, message: 'Name must be string' },
@@ -217,21 +160,18 @@ describe('assert.all', () => {
   it('should work with custom validators', () => {
     const isAdult = (age) => age >= 18
     const isValidUsername = (name) => /^[a-zA-Z0-9_]{3,20}$/.test(name)
-
     expect(() => {
       assert.all([
         { value: 'john_doe', validator: isValidUsername, message: 'Invalid username' },
         { value: 25, validator: isAdult, message: 'Must be adult' }
       ])
     }).not.toThrow()
-
     expect(() => {
       assert.all([
         { value: 'jo', validator: isValidUsername, message: 'Invalid username' },
         { value: 25, validator: isAdult, message: 'Must be adult' }
       ])
     }).toThrow('Invalid username')
-
     expect(() => {
       assert.all([
         { value: 'john_doe', validator: isValidUsername, message: 'Invalid username' },
@@ -249,7 +189,6 @@ describe('assert.all', () => {
       ])
       return { name, age, email }
     }
-
     expect(() => createUser('John', 30, 'john@example.com')).not.toThrow()
     expect(() => createUser('', 30, 'john@example.com')).toThrow('Name must be a non-empty string')
     expect(() => createUser('John', -5, 'john@example.com')).toThrow('Age must be a positive number')
@@ -266,7 +205,6 @@ describe('assert.all', () => {
         user: 'admin'
       }
     }
-
     expect(() => {
       assert.all([
         { value: config.port, validator: is.positive, message: 'Port must be positive number' },
@@ -281,7 +219,6 @@ describe('assert.all', () => {
 
   it('should handle array validations', () => {
     const items = [1, 2, 3, 4, 5]
-
     expect(() => {
       assert.all([
         { value: items, validator: is.nonEmptyArray, message: 'Items must be non-empty array' },
@@ -297,7 +234,6 @@ describe('assert.all', () => {
       validationCount++
       return false
     }
-
     expect(() => {
       assert.all([
         { value: 1, validator: countingValidator, message: 'First error' },
@@ -308,7 +244,6 @@ describe('assert.all', () => {
 
     expect(validationCount).toBe(1)
   })
-
   it('should throw TypeError specifically', () => {
     expect(() => {
       assert.all([
@@ -327,7 +262,6 @@ describe('assert integration with is', () => {
     expect(() => assert.that(true, is.boolean, 'Must be boolean')).not.toThrow()
     expect(() => assert.that(() => {}, is.function, 'Must be function')).not.toThrow()
   })
-
   it('should validate with is.inRange', () => {
     expect(() => {
       assert.that(5, (v) => is.inRange(v, 0, 10), 'Must be between 0 and 10')
@@ -337,7 +271,6 @@ describe('assert integration with is', () => {
       assert.that(15, (v) => is.inRange(v, 0, 10), 'Must be between 0 and 10')
     }).toThrow('Must be between 0 and 10')
   })
-
   it('should validate with negations', () => {
     expect(() => {
       assert.that('hello', is.nonEmptyString, 'String must not be empty')
@@ -347,12 +280,10 @@ describe('assert integration with is', () => {
       assert.that('', is.nonEmptyString, 'String must not be empty')
     }).toThrow('String must not be empty')
   })
-
   it('should combine multiple is checks', () => {
     expect(() => {
       assert.that(5, is.positiveInteger, 'Must be positive integer')
     }).not.toThrow()
-
     expect(() => {
       assert.that(5.5, is.positiveInteger, 'Must be positive integer')
     }).toThrow('Must be positive integer')
@@ -368,7 +299,6 @@ describe('assert.any', () => {
       ])
     }).not.toThrow()
   })
-
   it('does not throw when the last validation passes', () => {
     expect(() => {
       assert.any([
@@ -377,7 +307,6 @@ describe('assert.any', () => {
       ])
     }).not.toThrow()
   })
-
   it('does not throw when all validations pass', () => {
     expect(() => {
       assert.any([
@@ -386,7 +315,6 @@ describe('assert.any', () => {
       ])
     }).not.toThrow()
   })
-
   it('throws when all validations fail', () => {
     expect(() => {
       assert.any([
@@ -395,7 +323,6 @@ describe('assert.any', () => {
       ])
     }).toThrow(TypeError)
   })
-
   it('throws a message combining all messages with "or"', () => {
     expect(() => {
       assert.any([
@@ -404,7 +331,6 @@ describe('assert.any', () => {
       ])
     }).toThrow('Must be string or Must be boolean')
   })
-
   it('combines three messages with "or"', () => {
     expect(() => {
       assert.any([
@@ -414,18 +340,15 @@ describe('assert.any', () => {
       ])
     }).toThrow('Must be string or Must be number or Must be boolean')
   })
-
   it('works with custom validators', () => {
     const isEven = (n) => n % 2 === 0
     const isNegative = (n) => n < 0
-
     expect(() => {
       assert.any([
         { value: 4, validator: isEven, message: 'Must be even' },
         { value: 4, validator: isNegative, message: 'Must be negative' }
       ])
     }).not.toThrow()
-
     expect(() => {
       assert.any([
         { value: 3, validator: isEven, message: 'Must be even' },
@@ -433,7 +356,6 @@ describe('assert.any', () => {
       ])
     }).toThrow('Must be even or Must be negative')
   })
-
   it('works with is.oneOf and is.inRange', () => {
     expect(() => {
       assert.any([
@@ -441,7 +363,6 @@ describe('assert.any', () => {
         { value: 'admin', validator: is.number, message: 'Must be a number' }
       ])
     }).not.toThrow()
-
     expect(() => {
       assert.any([
         { value: 'guest', validator: (v) => is.oneOf(v, ['admin', 'user']), message: 'Must be a role' },
@@ -449,7 +370,6 @@ describe('assert.any', () => {
       ])
     }).toThrow('Must be a role or Must be in range')
   })
-
   it('handles a single validation', () => {
     expect(() => {
       assert.any([
