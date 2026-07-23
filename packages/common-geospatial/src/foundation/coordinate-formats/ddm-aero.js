@@ -1,20 +1,20 @@
 import { is, conform } from '@kalisio/common-core'
-import { getLatitudeSymbols, getLongitudeSymbols } from '../localization.js'
-import { isDirection, isEast, isWest } from '../directions.js'
+import { AXES } from '../axes.js'
+import { isValidDirection, isEast, isWest, getDirectionSymbols } from '../directions.js'
 import { DD } from './dd.js'
 
 const SCHEMA = {
   degrees: is.nonNegativeInteger,
   minutes: (v) => is.inRangeExclusiveMax(v, 0, 60),
-  direction: isDirection
+  direction: isValidDirection
 }
 
 function latRegex () {
-  return new RegExp(`^(\\d{2})(\\d{3})([${getLatitudeSymbols().join('')}])$`, 'i')
+  return new RegExp(`^(\\d{2})(\\d{3})([${getDirectionSymbols(AXES.LATITUDE).join('')}])$`, 'i')
 }
 
 function lonRegex () {
-  return new RegExp(`^(\\d{3})(\\d{3})([${getLongitudeSymbols().join('')}])$`, 'i')
+  return new RegExp(`^(\\d{3})(\\d{3})([${getDirectionSymbols(AXES.LONGITUDE).join('')}])$`, 'i')
 }
 
 export function DDMAero (ddm) {
@@ -45,7 +45,7 @@ export function DDMAero (ddm) {
     isValid () {
       return is.nonNegativeInteger(_degrees) &&
         is.inRangeExclusiveMax(_minutes, 0, 60) &&
-        isDirection(_direction)
+        isValidDirection(_direction)
     },
 
     toString () {

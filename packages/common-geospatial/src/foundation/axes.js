@@ -6,7 +6,7 @@ export const AXES = {
   ALTITUDE: 'ALT'
 }
 
-export function isAxis (axis) {
+export function isValidAxis (axis) {
   assert.that(axis, is.string, 'axis must be a string')
   return Object.values(AXES).includes(axis)
 }

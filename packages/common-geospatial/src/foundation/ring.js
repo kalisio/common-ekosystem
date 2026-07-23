@@ -41,7 +41,7 @@ export function sphericalRingArea (ring) {
   for (let i = 0; i < ring.length - 1; i++) {
     const [lon1, lat1] = ring[i]
     const [lon2, lat2] = ring[i + 1]
-    sum += math.toRadians(lon2 - lon1) * (2 + Math.sin(math.toRadians(lat1)) + Math.sin(math.toRadians(lat2)))
+    sum += math.to.radians(lon2 - lon1) * (2 + Math.sin(math.to.radians(lat1)) + Math.sin(math.to.radians(lat2)))
   }
   return -sum / 2
 }
@@ -51,8 +51,8 @@ export function isClockwiseRing (ring) {
 }
 
 function toUnitVector ([lon, lat]) {
-  const lonRad = math.toRadians(lon)
-  const latRad = math.toRadians(lat)
+  const lonRad = math.to.radians(lon)
+  const latRad = math.to.radians(lat)
   const cosLat = Math.cos(latRad)
   return [cosLat * Math.cos(lonRad), cosLat * Math.sin(lonRad), Math.sin(latRad)]
 }

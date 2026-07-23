@@ -1,6 +1,6 @@
 import { assert, is, has } from '@kalisio/common-core/predicates'
 import { AXES, isLatitude, isLongitude } from './axes.js'
-import { isDirection, getDirectionAxis } from './directions.js'
+import { isValidDirection, getDirectionAxis } from './directions.js'
 import { COORDINATE_FORMATS, COORDINATE_MODELS, converter } from './coordinate-formats/index.js'
 export { COORDINATE_FORMATS, COORDINATE_MODELS } from './coordinate-formats/index.js'
 
@@ -11,7 +11,7 @@ export const COORDINATE_TRUNCATION_FACTORS = Array.from({ length: MAX_COORDINATE
 export function guessCoordinateAxis (coord, dir) {
   assert.that(coord, is.number, 'coord must be a number')
   if (is.defined(dir)) {
-    assert.that(dir, isDirection, 'dir must be a direction')
+    assert.that(dir, isValidDirection, 'dir must be a direction')
     return getDirectionAxis(dir)
   }
   if (Math.abs(coord) > 90) return AXES.LONGITUDE

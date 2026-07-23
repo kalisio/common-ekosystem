@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { AXES, isAxis, isLatitude, isLongitude, isAltitude } from '../../src/foundation/axes.js'
+import { AXES, isValidAxis, isLatitude, isLongitude, isAltitude } from '../../src/foundation/axes.js'
 
 describe('AXES', () => {
   it('should contain LATITUDE', () => {
@@ -15,27 +15,27 @@ describe('AXES', () => {
   })
 })
 
-describe('isAxis', () => {
+describe('isValidAxis', () => {
   it('should return true for LATITUDE', () => {
-    expect(isAxis(AXES.LATITUDE)).toBe(true)
+    expect(isValidAxis(AXES.LATITUDE)).toBe(true)
   })
 
   it('should return true for LONGITUDE', () => {
-    expect(isAxis(AXES.LONGITUDE)).toBe(true)
+    expect(isValidAxis(AXES.LONGITUDE)).toBe(true)
   })
 
   it('should return true for ALTITUDE', () => {
-    expect(isAxis(AXES.ALTITUDE)).toBe(true)
+    expect(isValidAxis(AXES.ALTITUDE)).toBe(true)
   })
 
   it('should return false for an unknown axis', () => {
-    expect(isAxis('UNKNOWN')).toBe(false)
+    expect(isValidAxis('UNKNOWN')).toBe(false)
   })
 
   it('should throw if axis is not a string', () => {
-    expect(() => isAxis(null)).toThrow()
-    expect(() => isAxis(42)).toThrow()
-    expect(() => isAxis(undefined)).toThrow()
+    expect(() => isValidAxis(null)).toThrow()
+    expect(() => isValidAxis(42)).toThrow()
+    expect(() => isValidAxis(undefined)).toThrow()
   })
 })
 

@@ -19,12 +19,12 @@ AXES = {
 }
 ```
 
-## isAxis
+## isValidAxis
 
 ### Signature
 
 ```js
-isAxis(axis)
+isValidAxis(axis)
 ```
 
 ### Description
@@ -50,10 +50,10 @@ Throws if `axis` is not a string.
 ### Examples
 
 ```js
-isAxis('LAT')     // true
-isAxis('LON')     // true
-isAxis('ALT')     // true
-isAxis('X')       // false
+isValidAxis('LAT')     // true
+isValidAxis('LON')     // true
+isValidAxis('ALT')     // true
+isValidAxis('X')       // false
 ```
 
 ## isLatitude

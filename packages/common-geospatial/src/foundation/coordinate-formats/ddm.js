@@ -1,18 +1,17 @@
 import { assert, is, conform, optional } from '@kalisio/common-core'
-import { getAllDirectionSymbols } from '../localization.js'
-import { isDirection } from '../directions.js'
+import { isValidDirection, getDirectionSymbols } from '../directions.js'
 import { DD } from './dd.js'
 
 const SCHEMA = {
   degrees: is.integer,
   minutes: (v) => is.inRangeExclusiveMax(v, 0, 60),
-  direction: optional(isDirection)
+  direction: optional(isValidDirection)
 }
 
 const REGEX_SIGNED = /^(-?\d{1,3})°(\d{1,2}(?:\.\d+)?)'?$/
 
 function dirRegex () {
-  return new RegExp(`^(\\d{1,3})°(\\d{1,2}(?:\\.\\d+)?)'?([${getAllDirectionSymbols().join('')}])$`, 'i')
+  return new RegExp(`^(\\d{1,3})°(\\d{1,2}(?:\\.\\d+)?)'?([${getDirectionSymbols().join('')}])$`, 'i')
 }
 
 export function DDM (ddm) {

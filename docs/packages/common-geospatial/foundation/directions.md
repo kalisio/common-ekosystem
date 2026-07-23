@@ -10,7 +10,7 @@ Direction labels and symbols are locale-aware — they depend on the current loc
 Two behaviours differ across this module:
 
 - **Display helpers** (`getDirections`, `getNorth`, `getSouth`, `getEast`, `getWest`) use the **current locale only**.
-- **Validation predicates** (`isDirection`, `isNorth`, `isSouth`, `isEast`, `isWest`, `getDirectionAxis`) accept the current locale **plus** the fallback (`en`). A hard-coded `'W'` is therefore a valid direction even under the `fr` locale (where West is displayed as `'O'`). See [`getActiveLocales`](./localization.md) for the exact set considered.
+- **Validation predicates** (`isValidDirection`, `isNorth`, `isSouth`, `isEast`, `isWest`, `getDirectionAxis`) accept the current locale **plus** the fallback (`en`). A hard-coded `'W'` is therefore a valid direction even under the `fr` locale (where West is displayed as `'O'`). See [`getActiveLocales`](./localization.md) for the exact set considered.
 
 ## getDirections
 
@@ -89,12 +89,12 @@ setLocale('fr')
 getWest()    // { label: 'Ouest', symbol: 'O' }
 ```
 
-## isDirection
+## isValidDirection
 
 ### Signature
 
 ```js
-isDirection (dir)
+isValidDirection (dir)
 ```
 
 ### Description
@@ -120,14 +120,14 @@ Throws if `dir` is not a string.
 ### Examples
 
 ```js
-isDirection('N')      // true
-isDirection('North')  // true
-isDirection('north')  // true
-isDirection('X')      // false
+isValidDirection('N')      // true
+isValidDirection('North')  // true
+isValidDirection('north')  // true
+isValidDirection('X')      // false
 
 setLocale('fr')
-isDirection('O')      // true — current locale (Ouest)
-isDirection('W')      // true — en fallback
+isValidDirection('O')      // true — current locale (Ouest)
+isValidDirection('W')      // true — en fallback
 ```
 
 ## isNorth / isSouth / isEast / isWest

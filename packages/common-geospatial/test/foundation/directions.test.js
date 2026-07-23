@@ -5,7 +5,7 @@ import {
   getSouth,
   getEast,
   getWest,
-  isDirection,
+  isValidDirection,
   isNorth,
   isSouth,
   isEast,
@@ -105,47 +105,47 @@ describe('getWest', () => {
   })
 })
 
-describe('isDirection', () => {
+describe('isValidDirection', () => {
   it('should return true for valid symbols', () => {
-    expect(isDirection('N')).toBe(true)
-    expect(isDirection('S')).toBe(true)
-    expect(isDirection('E')).toBe(true)
-    expect(isDirection('W')).toBe(true)
+    expect(isValidDirection('N')).toBe(true)
+    expect(isValidDirection('S')).toBe(true)
+    expect(isValidDirection('E')).toBe(true)
+    expect(isValidDirection('W')).toBe(true)
   })
 
   it('should return true for valid labels', () => {
-    expect(isDirection('North')).toBe(true)
-    expect(isDirection('South')).toBe(true)
-    expect(isDirection('East')).toBe(true)
-    expect(isDirection('West')).toBe(true)
+    expect(isValidDirection('North')).toBe(true)
+    expect(isValidDirection('South')).toBe(true)
+    expect(isValidDirection('East')).toBe(true)
+    expect(isValidDirection('West')).toBe(true)
   })
 
   it('should be case insensitive', () => {
-    expect(isDirection('n')).toBe(true)
-    expect(isDirection('north')).toBe(true)
-    expect(isDirection('NORTH')).toBe(true)
+    expect(isValidDirection('n')).toBe(true)
+    expect(isValidDirection('north')).toBe(true)
+    expect(isValidDirection('NORTH')).toBe(true)
   })
 
   it('should return true for french symbols', () => {
     setLocale('fr')
-    expect(isDirection('O')).toBe(true)
-    expect(isDirection('Ouest')).toBe(true)
+    expect(isValidDirection('O')).toBe(true)
+    expect(isValidDirection('Ouest')).toBe(true)
   })
 
   it('should still accept W in french locale via the en fallback', () => {
     setLocale('fr')
-    expect(isDirection('W')).toBe(true)
+    expect(isValidDirection('W')).toBe(true)
   })
 
   it('should return false for an unknown direction', () => {
-    expect(isDirection('X')).toBe(false)
-    expect(isDirection('Z')).toBe(false)
+    expect(isValidDirection('X')).toBe(false)
+    expect(isValidDirection('Z')).toBe(false)
   })
 
   it('should throw if dir is not a string', () => {
-    expect(() => isDirection(null)).toThrow()
-    expect(() => isDirection(42)).toThrow()
-    expect(() => isDirection(undefined)).toThrow()
+    expect(() => isValidDirection(null)).toThrow()
+    expect(() => isValidDirection(42)).toThrow()
+    expect(() => isValidDirection(undefined)).toThrow()
   })
 })
 
