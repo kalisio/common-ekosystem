@@ -7,33 +7,6 @@ description: Functions that throw a TypeError if validation fails. Used to guard
 
 Functions that throw a TypeError if validation fails. Used to guard function inputs.
 
-## isEnabled
-
-### Description
-
-A boolean flag that controls whether assertions are executed. When `false`, all `that`, `all`, and `any` calls are no-ops.
-
-Defaults to `true` in development and `false` in production (detected via `process.env.NODE_ENV`).
-
-### Usage
-
-```js
-// disable manually
-assert.isEnabled = false
-
-// or set NODE_ENV at startup
-NODE_ENV=production node app.js
-```
-
-### Example
-
-```js
-assert.isEnabled = false
-assert.that(-1, (v) => v > 0, 'Value must be positive') // no-op, does not throw
-assert.isEnabled = true
-assert.that(-1, (v) => v > 0, 'Value must be positive') // throws TypeError
-```
-
 ## that
 
 ### Signature
