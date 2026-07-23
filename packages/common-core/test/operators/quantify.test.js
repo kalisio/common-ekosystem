@@ -260,7 +260,7 @@ describe('quantify', () => {
     })
 
     it('throws if decimals is not a positive integer', () => {
-      expect(() => quantify(1000, 'meter', unitSystem).toString(-1)).toThrow('decimals must be a positive integer')
+      expect(() => quantify(1000, 'meter', unitSystem).toString(-1)).toThrow('decimals must be a non-negative integer')
     })
   })
 })
