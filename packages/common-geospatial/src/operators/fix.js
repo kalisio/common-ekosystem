@@ -1,6 +1,12 @@
 import buffer from '@turf/buffer'
 import { is, assert, conform, optional } from '@kalisio/common-core'
-import { deduplicatePositions, isClockwiseRing, ringSelfIntersections, ringsIntersect, DEFAULT_COORDINATE_PRECISION } from '../foundation'
+import {
+  deduplicatePositions,
+  isClockwiseRing,
+  ringSelfIntersections,
+  ringsIntersect,
+  DEFAULT_COORDINATE_PRECISION
+} from '../foundation/index.js'
 import { FEATURE_TYPES, GEOMETRY_TYPES, isLikeGeoJson } from './is-like.js'
 import { VALIDATION_CODES } from './validate/codes.js'
 

@@ -1,7 +1,7 @@
 import { convex } from '@turf/convex'
 import { coordAll } from '@turf/meta'
 import { featureCollection, feature } from '@turf/helpers'
-import { assert } from '@kalisio/common-core'
+import { assert } from '@kalisio/common-core/predicates'
 import { FEATURE_TYPES, isLikeGeoJson } from '../is-like.js'
 
 function computeConvexHullFromPositions (positions) {

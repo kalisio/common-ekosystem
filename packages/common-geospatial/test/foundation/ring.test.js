@@ -8,7 +8,7 @@ import {
   isClockwiseRing,
   ringsIntersect,
   ringSelfIntersections
-} from '../../src/foundation/ring.js'
+} from '../../src/foundation'
 
 describe('deduplicatePositions', () => {
   it('removes consecutive duplicate positions', () => {

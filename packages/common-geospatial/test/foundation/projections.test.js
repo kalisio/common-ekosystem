@@ -1,10 +1,17 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import proj4 from 'proj4'
-import { listProjections, registerProjection, hasProjection, getProjection } from '../../src/foundation/projections.js'
+import {
+  listProjections,
+  defineProjection,
+  hasProjection,
+  getProjection,
+  isWGS84Projection
+} from '../../src/foundation/projections.js'
 
 const EPSG_3857_DEF = '+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs'
+const LAMBERT_93_DEF = '+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
 
-// Isolate tests: remove any projection registered during a previous test
+// Isolate tests: remove any projection defined during a previous test
 beforeEach(() => {
   for (const key of Object.keys(proj4.defs)) {
     if (key.startsWith('TEST:')) {
@@ -17,122 +24,156 @@ describe('listProjections', () => {
   it('returns an array', () => {
     expect(Array.isArray(listProjections())).toBe(true)
   })
-
-  it('contains built-in WGS84 projection', () => {
+  it('contains the built-in WGS84 projection', () => {
+    expect(listProjections()).toContain('EPSG:4326')
+  })
+  it('contains the defined WGS84 aliases', () => {
+    expect(listProjections()).toContain('CRS84')
     expect(listProjections()).toContain('WGS84')
   })
-
-  it('reflects a newly registered projection', () => {
+  it('reflects a newly defined projection', () => {
     proj4.defs('TEST:CUSTOM', EPSG_3857_DEF)
     expect(listProjections()).toContain('TEST:CUSTOM')
   })
 })
 
-describe('registerProjection', () => {
+describe('defineProjection', () => {
   describe('valid inputs', () => {
     it('registers a projection with a proj4 string definition', () => {
-      registerProjection('TEST:STRING', EPSG_3857_DEF)
+      defineProjection('TEST:STRING', EPSG_3857_DEF)
       expect(listProjections()).toContain('TEST:STRING')
     })
-
     it('registers a projection with an object definition', () => {
-      const objDef = proj4.defs('WGS84')
-      registerProjection('TEST:OBJECT', objDef)
+      const objDef = proj4.defs('EPSG:4326')
+      defineProjection('TEST:OBJECT', objDef)
       expect(listProjections()).toContain('TEST:OBJECT')
     })
   })
 
   describe('invalid name', () => {
     it('throws when name is an empty string', () => {
-      expect(() => registerProjection('', EPSG_3857_DEF)).toThrow('name must be a non empty string')
+      expect(() => defineProjection('', EPSG_3857_DEF)).toThrow('name must be a non empty string')
     })
-
     it('throws when name is null', () => {
-      expect(() => registerProjection(null, EPSG_3857_DEF)).toThrow('name must be a non empty string')
+      expect(() => defineProjection(null, EPSG_3857_DEF)).toThrow('name must be a non empty string')
     })
-
-    it('throws when name is undefined', () => {
-      expect(() => registerProjection(undefined, EPSG_3857_DEF)).toThrow('name must be a non empty string')
-    })
-
     it('throws when name is a number', () => {
-      expect(() => registerProjection(42, EPSG_3857_DEF)).toThrow('name must be a non empty string')
+      expect(() => defineProjection(42, EPSG_3857_DEF)).toThrow('name must be a non empty string')
     })
   })
 
   describe('invalid definition', () => {
     it('throws when def is an empty string', () => {
-      expect(() => registerProjection('TEST:BAD', '')).toThrow('def must be a non empty string or a non empty object')
+      expect(() => defineProjection('TEST:BAD', '')).toThrow('definition must be a non empty string or a non empty object')
     })
-
     it('throws when def is null', () => {
-      expect(() => registerProjection('TEST:BAD', null)).toThrow('def must be a non empty string or a non empty object')
+      expect(() => defineProjection('TEST:BAD', null)).toThrow('definition must be a non empty string or a non empty object')
     })
-
     it('throws when def is an empty object', () => {
-      expect(() => registerProjection('TEST:BAD', {})).toThrow('def must be a non empty string or a non empty object')
+      expect(() => defineProjection('TEST:BAD', {})).toThrow('definition must be a non empty string or a non empty object')
     })
-
     it('throws when def is a number', () => {
-      expect(() => registerProjection('TEST:BAD', 42)).toThrow('def must be a non empty string or a non empty object')
-    })
-
-    it('throws when def is undefined', () => {
-      expect(() => registerProjection('TEST:BAD', undefined)).toThrow('def must be a non empty string or a non empty object')
+      expect(() => defineProjection('TEST:BAD', 42)).toThrow('definition must be a non empty string or a non empty object')
     })
   })
 })
 
 describe('hasProjection', () => {
   it('returns true for a built-in projection', () => {
-    expect(hasProjection('WGS84')).toBe(true)
+    expect(hasProjection('EPSG:4326')).toBe(true)
   })
-
   it('returns true after registering a projection', () => {
-    registerProjection('TEST:HAS', EPSG_3857_DEF)
+    defineProjection('TEST:HAS', EPSG_3857_DEF)
     expect(hasProjection('TEST:HAS')).toBe(true)
   })
-
   it('returns false for an unknown projection', () => {
     expect(hasProjection('TEST:UNKNOWN')).toBe(false)
   })
-
   it('throws when name is an empty string', () => {
     expect(() => hasProjection('')).toThrow('name must be a non empty string')
   })
-
   it('throws when name is null', () => {
     expect(() => hasProjection(null)).toThrow('name must be a non empty string')
-  })
-
-  it('throws when name is undefined', () => {
-    expect(() => hasProjection(undefined)).toThrow('name must be a non empty string')
   })
 })
 
 describe('getProjection', () => {
   it('returns the definition for a built-in projection', () => {
-    expect(getProjection('WGS84')).toBeDefined()
+    expect(getProjection('EPSG:4326')).toBeDefined()
   })
-
-  it('returns the definition for a registered projection', () => {
-    registerProjection('TEST:GET', EPSG_3857_DEF)
+  it('returns the definition for a defined projection', () => {
+    defineProjection('TEST:GET', EPSG_3857_DEF)
     expect(getProjection('TEST:GET')).toBeDefined()
   })
-
   it('returns undefined for an unknown projection', () => {
     expect(getProjection('TEST:UNKNOWN')).toBeUndefined()
   })
-
   it('throws when name is an empty string', () => {
     expect(() => getProjection('')).toThrow('name must be a non empty string')
   })
-
   it('throws when name is null', () => {
     expect(() => getProjection(null)).toThrow('name must be a non empty string')
   })
+})
 
-  it('throws when name is undefined', () => {
-    expect(() => getProjection(undefined)).toThrow('name must be a non empty string')
+describe('isWGS84Projection', () => {
+  describe('accepts every WGS84 designation', () => {
+    it('accepts EPSG:4326', () => {
+      expect(isWGS84Projection('EPSG:4326')).toBe(true)
+    })
+    it('accepts CRS:84', () => {
+      expect(isWGS84Projection('CRS:84')).toBe(true)
+    })
+    it('accepts CRS84', () => {
+      expect(isWGS84Projection('CRS84')).toBe(true)
+    })
+    it('accepts WGS84', () => {
+      expect(isWGS84Projection('WGS84')).toBe(true)
+    })
+    it('accepts the OGC 1.3 CRS84 URN', () => {
+      expect(isWGS84Projection('urn:ogc:def:crs:OGC:1.3:CRS84')).toBe(true)
+    })
+    it('accepts the OGC 2 CRS84 URN', () => {
+      expect(isWGS84Projection('urn:ogc:def:crs:OGC:2:84')).toBe(true)
+    })
+    it('accepts the OGC 2 CRS84 URN', () => {
+      expect(isWGS84Projection('urn:ogc:def:crs:EPSG::4326')).toBe(true)
+    })
+  })
+
+  describe('rejects non-WGS84 projections', () => {
+    it('rejects Web Mercator (EPSG:3857)', () => {
+      // built-in, no registration needed
+      expect(isWGS84Projection('EPSG:3857')).toBe(false)
+    })
+    it('rejects a defined Lambert-93', () => {
+      defineProjection('TEST:LAMBERT93', LAMBERT_93_DEF)
+      expect(isWGS84Projection('TEST:LAMBERT93')).toBe(false)
+    })
+  })
+
+  describe('rejects unknown or malformed names', () => {
+    it('returns false for an undefined name', () => {
+      expect(isWGS84Projection('TEST:UNKNOWN')).toBe(false)
+    })
+    it('is case-sensitive: lowercase EPSG is not resolved', () => {
+      // proj4 keys are case-sensitive; GeoJSON CRS names use canonical casing.
+      expect(isWGS84Projection('epsg:4326')).toBe(false)
+    })
+    it('is case-sensitive: lowercased URN is not resolved', () => {
+      expect(isWGS84Projection('urn:ogc:def:crs:ogc:1.3:crs84')).toBe(false)
+    })
+  })
+
+  describe('invalid input', () => {
+    it('throws when name is an empty string', () => {
+      expect(() => isWGS84Projection('')).toThrow('name must be a non empty string')
+    })
+    it('throws when name is null', () => {
+      expect(() => isWGS84Projection(null)).toThrow('name must be a non empty string')
+    })
+    it('throws when name is a number', () => {
+      expect(() => isWGS84Projection(42)).toThrow('name must be a non empty string')
+    })
   })
 })

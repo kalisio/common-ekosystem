@@ -1,11 +1,13 @@
 ---
 title: projections
-description: Registration and lookup of coordinate reference system projections via proj4.
+description: Registration and lookup of coordinate reference system (CRS) definitions using proj4.
 ---
 
 # projections
 
-Wraps [proj4](https://github.com/proj4js/proj4js) to manage coordinate reference system (CRS) projection definitions. Projections can be registered by name and retrieved or checked later.
+This module wraps **proj4** to manage coordinate reference system (CRS) definitions.
+
+In addition to the projections provided by proj4, several common WGS84 aliases used by GeoJSON and OGC specifications are automatically registered when the module is loaded.
 
 ## listProjections
 
@@ -17,52 +19,68 @@ listProjections()
 
 ### Description
 
-Returns the list of all registered projection names, including those built into proj4.
+Returns the names of all registered projections.
+
+This includes the projections built into proj4 as well as any projections defined through `defineProjection()`.
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `string[]` | Array of projection names |
+| `string[]` | Array of registered projection names |
 
 ### Examples
 
 ```js
-listProjections()   // ['WGS84', 'EPSG:4326', ...]
+listProjections()
+// ['EPSG:4326', 'CRS:84', 'EPSG:3857', ...]
 ```
 
-## registerProjection
+---
+
+## defineProjection
 
 ### Signature
 
 ```js
-registerProjection(name, def)
+defineProjection(name, definition)
 ```
 
 ### Description
 
-Registers a new projection definition under the given name. The definition can be a proj4 string or a configuration object.
+Defines a projection under the given name.
+
+The definition may be either a Proj4 definition string or a Proj4 definition object. If a projection with the same name already exists, it is replaced.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `name` | `string` | yes | Unique projection name (e.g. `'EPSG:2154'`) |
-| `def` | `string \| object` | yes | proj4 definition string or configuration object |
+| `name` | `string` | yes | Projection name (for example `EPSG:2154`) |
+| `definition` | `string \| object` | yes | Proj4 definition string or definition object |
 
 ### Throws
 
-Throws if `name` is not a non-empty string, or if `def` is neither a non-empty string nor a non-empty object.
+Throws if `name` is not a non-empty string or if `definition` is neither a non-empty string nor a non-empty object.
 
 ### Examples
 
 ```js
-// Register with a proj4 string
-registerProjection('EPSG:2154', '+proj=lcc +lat_1=49 +lat_2=44 ...')
+defineProjection(
+  'EPSG:2154',
+  '+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 ...'
+)
 
-// Register with an object
-registerProjection('EPSG:2154', { proj: 'lcc', lat1: 49, lat2: 44, ... })
+defineProjection(
+  'MY_PROJECTION',
+  {
+    proj: 'merc',
+    datumCode: 'WGS84'
+  }
+)
 ```
+
+---
 
 ## hasProjection
 
@@ -74,19 +92,19 @@ hasProjection(name)
 
 ### Description
 
-Returns `true` if a projection with the given name is registered.
+Returns whether a projection with the given name is defined.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `name` | `string` | yes | Projection name to look up |
+| `name` | `string` | yes | Projection name |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `boolean` | `true` if the projection is registered |
+| `boolean` | `true` if the projection exists |
 
 ### Throws
 
@@ -95,10 +113,17 @@ Throws if `name` is not a non-empty string.
 ### Examples
 
 ```js
-hasProjection('WGS84')      // true
-hasProjection('EPSG:2154')  // true — if previously registered
-hasProjection('unknown')    // false
+hasProjection('EPSG:4326')
+// true
+
+hasProjection('EPSG:2154')
+// true
+
+hasProjection('UNKNOWN')
+// false
 ```
+
+---
 
 ## getProjection
 
@@ -110,19 +135,19 @@ getProjection(name)
 
 ### Description
 
-Returns the proj4 definition object for the given projection name, or `undefined` if not found.
+Returns the Proj4 definition associated with the given projection name.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `name` | `string` | yes | Projection name to retrieve |
+| `name` | `string` | yes | Projection name |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `object \| undefined` | The proj4 definition object, or `undefined` if not registered |
+| `object \| undefined` | Projection definition, or `undefined` if the projection is not defined |
 
 ### Throws
 
@@ -131,9 +156,72 @@ Throws if `name` is not a non-empty string.
 ### Examples
 
 ```js
-getProjection('WGS84')
-// { projName: 'longlat', datum: 'WGS84', ... }
+getProjection('EPSG:4326')
+// { projName: 'longlat', datumCode: 'WGS84', ... }
 
-getProjection('unknown')
+getProjection('UNKNOWN')
 // undefined
 ```
+
+---
+
+## isWGS84Projection
+
+### Signature
+
+```js
+isWGS84Projection(name)
+```
+
+### Description
+
+Returns whether the specified projection is equivalent to the WGS84 geographic coordinate reference system.
+
+The comparison is performed against the registered `EPSG:4326` definition.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `name` | `string` | yes | Projection name |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `boolean` | `true` if the projection is equivalent to WGS84 |
+
+### Throws
+
+Throws if `name` is not a non-empty string.
+
+### Examples
+
+```js
+isWGS84Projection('EPSG:4326')
+// true
+
+isWGS84Projection('CRS:84')
+// true
+
+isWGS84Projection('EPSG:3857')
+// false
+
+isWGS84Projection('UNKNOWN')
+// false
+```
+
+::: tip WGS84 aliases
+
+When this module is loaded, the following aliases are automatically defined if they are not already known by proj4:
+
+- `CRS:84`
+- `CRS84`
+- `WGS84`
+- `urn:ogc:def:crs:OGC:1.3:CRS84`
+- `urn:ogc:def:crs:OGC:2:84`
+- `urn:ogc:def:crs:EPSG::4326`
+
+These aliases are all considered equivalent to `EPSG:4326`.
+
+:::

@@ -1,13 +1,18 @@
 import { describe, it, expect } from 'vitest'
 import {
+  EARTH_RADIUS,
   parsePosition,
   isValidPosition,
   is3DPosition,
   isSamePosition,
   truncatePosition,
+  distanceBetweenPositions,
+  destinationFromPosition,
   DEFAULT_COORDINATE_PRECISION,
   MAX_COORDINATE_PRECISION
 } from '../../src/foundation'
+
+const ONE_DEGREE_M = (Math.PI / 180) * EARTH_RADIUS // ≈ 111194.93 m
 
 describe('parsePosition — invalid input', () => {
   it('throws on null', () => {
@@ -249,5 +254,77 @@ describe('truncatePosition', () => {
   it('throws if precision is out of range', () => {
     expect(() => truncatePosition([2.3522, 48.8566], -1)).toThrow()
     expect(() => truncatePosition([2.3522, 48.8566], 9)).toThrow()
+  })
+})
+
+describe('distanceBetweenPositions', () => {
+  it('returns 0 between identical positions', () => {
+    expect(distanceBetweenPositions([2.3522, 48.8566], [2.3522, 48.8566])).toBeCloseTo(0, 6)
+  })
+  it('measures one degree of latitude as one arc-degree', () => {
+    expect(distanceBetweenPositions([0, 0], [0, 1])).toBeCloseTo(ONE_DEGREE_M, 3)
+  })
+  it('measures one degree of longitude at the equator as one arc-degree', () => {
+    expect(distanceBetweenPositions([0, 0], [1, 0])).toBeCloseTo(ONE_DEGREE_M, 3)
+  })
+  it('is symmetric', () => {
+    const a = [2.3522, 48.8566]
+    const b = [-73.9857, 40.7484]
+    expect(distanceBetweenPositions(a, b)).toBeCloseTo(distanceBetweenPositions(b, a), 6)
+  })
+  it('measures the half-circumference between antipodes', () => {
+    expect(distanceBetweenPositions([0, 0], [180, 0])).toBeCloseTo(Math.PI * EARTH_RADIUS, 3)
+  })
+  it('ignores altitude', () => {
+    expect(distanceBetweenPositions([0, 0, 100], [0, 1, 900])).toBeCloseTo(ONE_DEGREE_M, 3)
+  })
+  it('throws for an invalid position', () => {
+    expect(() => distanceBetweenPositions(null, [0, 0])).toThrow()
+    expect(() => distanceBetweenPositions([0, 0], [999, 0])).toThrow()
+  })
+})
+
+describe('destinationFromPosition', () => {
+  it('returns the origin for a zero distance', () => {
+    const result = destinationFromPosition([2.3522, 48.8566], 45, 0)
+    expect(result[0]).toBeCloseTo(2.3522, 9)
+    expect(result[1]).toBeCloseTo(48.8566, 9)
+  })
+  it('moves north for bearing 0', () => {
+    const [lon, lat] = destinationFromPosition([0, 0], 0, ONE_DEGREE_M)
+    expect(lon).toBeCloseTo(0, 6)
+    expect(lat).toBeCloseTo(1, 6)
+  })
+  it('moves east along the equator for bearing 90', () => {
+    const [lon, lat] = destinationFromPosition([0, 0], 90, ONE_DEGREE_M)
+    expect(lon).toBeCloseTo(1, 6)
+    expect(lat).toBeCloseTo(0, 6)
+  })
+  it('moves south for bearing 180', () => {
+    const [lon, lat] = destinationFromPosition([0, 0], 180, ONE_DEGREE_M)
+    expect(lon).toBeCloseTo(0, 6)
+    expect(lat).toBeCloseTo(-1, 6)
+  })
+  it('moves west for bearing 270', () => {
+    const [lon, lat] = destinationFromPosition([0, 0], 270, ONE_DEGREE_M)
+    expect(lon).toBeCloseTo(-1, 6)
+    expect(lat).toBeCloseTo(0, 6)
+  })
+  it('lands at the requested distance from the origin', () => {
+    // Inverse consistency: distance(origin, destination) === requested distance.
+    const origin = [10, 20]
+    const dest = destinationFromPosition(origin, 57, 250000)
+    expect(distanceBetweenPositions(origin, dest)).toBeCloseTo(250000, 3)
+  })
+  it('returns a 2D position', () => {
+    expect(destinationFromPosition([2.3522, 48.8566], 30, 1000)).toHaveLength(2)
+  })
+  it('throws for an invalid position', () => {
+    expect(() => destinationFromPosition(null, 0, 1000)).toThrow()
+    expect(() => destinationFromPosition([999, 0], 0, 1000)).toThrow()
+  })
+  it('throws for a non-numeric bearing or distance', () => {
+    expect(() => destinationFromPosition([0, 0], 'north', 1000)).toThrow()
+    expect(() => destinationFromPosition([0, 0], 0, 'far')).toThrow()
   })
 })

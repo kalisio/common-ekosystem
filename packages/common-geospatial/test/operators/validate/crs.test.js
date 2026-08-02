@@ -44,35 +44,35 @@ describe('validateCRS', () => {
       expect(result.errors).toHaveLength(0)
       expect(result.warnings).toHaveLength(0)
     })
-
     it('should return invalid if properties is missing', () => {
       const result = validateCRS(crsObjects.nameMissingProperties)
       expect(result.valid).toBe(false)
       expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_CRS_NAME)
     })
-
     it('should return invalid if properties is null', () => {
       const result = validateCRS(crsObjects.nameNullProperties)
       expect(result.valid).toBe(false)
       expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_CRS_NAME)
     })
-
     it('should return invalid if properties.name is missing', () => {
       const result = validateCRS(crsObjects.nameEmptyProperties)
       expect(result.valid).toBe(false)
       expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_CRS_NAME)
     })
-
     it('should return invalid if properties.name is an empty string', () => {
       const result = validateCRS(crsObjects.nameEmptyString)
       expect(result.valid).toBe(false)
       expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_CRS_NAME)
     })
-
     it('should return invalid if properties.name is not a string', () => {
       const result = validateCRS({ type: 'name', properties: { name: 42 } })
       expect(result.valid).toBe(false)
       expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_CRS_NAME)
+    })
+    it('should return unsupported crs if properties.name is not a WGS84 projection', () => {
+      const result = validateCRS({ type: 'name', properties: { name: 'EPSG:3857' } })
+      expect(result.valid).toBe(false)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.UNSUPPORTED_CRS)
     })
   })
 
