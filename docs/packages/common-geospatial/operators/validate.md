@@ -197,18 +197,13 @@ validatePosition([2.35221234, 48.8566])
 
 ### CRS support
 
-The `crs` property was removed from the GeoJSON specification in RFC 7946 but remains present in older data and in some GIS exports. `validateGeoJson` validates the `crs` object if present at the root, and on each `Feature` within a `FeatureCollection`. Two types are supported: `name` and `link`.
+Although the `crs` property was removed from the GeoJSON specification in RFC 7946, it is still found in legacy datasets and some GIS exports.
 
-```js
-validateGeoJson({
-  type: 'FeatureCollection',
-  features: [{ type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] }, properties: {} }],
-  crs: { type: 'name', properties: { name: 'urn:ogc:def:crs:OGC:1.3:CRS84' } }
-})
-// { valid: true, errors: [], warnings: [] }
-```
+The library validates the structure of `name` and `link` CRS objects, but **only supports WGS84 geographic coordinate reference systems**.
+A `name` CRS is considered supported only if it resolves to a WGS84 projection (for example `EPSG:4326`, `CRS:84`, or another registered
+WGS84 alias). Any other CRS produces an `UNSUPPORTED_CRS` error.
 
----
+For `link` CRS objects, only the object structure is validated; the referenced CRS is not resolved.
 
 ## validatePosition
 
@@ -259,8 +254,6 @@ validatePosition([2.35221234, 48.8566])
 // { valid: true, errors: [], warnings: [{ code: 'HIGH_LONGITUDE_PRECISION', params: { precision: 8, max: 6 } }] }
 ```
 
----
-
 ## validateBBox
 
 ### Signature
@@ -302,25 +295,32 @@ validateBBox([170, -20, -170, 20])
 // { valid: true, errors: [], warnings: [{ code: 'BBOX_ANTIMERIDIAN_CROSSING', params: { west: 170, east: -170 } }] }
 ```
 
----
-
 ## validateCRS
 
 ### Signature
 
 ```js
-validateCRS (crs, path = '')
+validateCRS(crs, path = '')
 ```
 
 ### Description
 
-Validates a GeoJSON CRS (Coordinate Reference System) object. Supports two types: `name` (requires a non-empty `properties.name` string) and `link` (requires a non-empty `properties.href` string). The optional `type` field on a `link` CRS is not validated.
+Validates a GeoJSON Coordinate Reference System (CRS) object.
+
+The function validates the structure of both `name` and `link` CRS objects:
+
+- a `name` CRS must define a non-empty `properties.name` string;
+- a `link` CRS must define a non-empty `properties.href` string.
+
+Only **WGS84 geographic coordinate reference systems** are supported. For a `name` CRS, the referenced projection must resolve to a registered WGS84 projection (for example `EPSG:4326`, `CRS:84`, or another registered WGS84 alias). Any other CRS produces an `UNSUPPORTED_CRS` error.
+
+For a `link` CRS, only the object structure is validated; the referenced CRS is not resolved.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `crs` | `object` | yes | A CRS object |
+| `crs` | `object` | yes | A GeoJSON CRS object |
 | `path` | `string` | no | Base path for error and warning reporting (default: `''`) |
 
 ### Returns
@@ -332,20 +332,61 @@ Validates a GeoJSON CRS (Coordinate Reference System) object. Supports two types
 ### Examples
 
 ```js
-validateCRS({ type: 'name', properties: { name: 'urn:ogc:def:crs:OGC:1.3:CRS84' } })
+validateCRS({
+  type: 'name',
+  properties: {
+    name: 'urn:ogc:def:crs:OGC:1.3:CRS84'
+  }
+})
 // { valid: true, errors: [], warnings: [] }
 
-validateCRS({ type: 'link', properties: { href: 'https://example.com/crs', type: 'proj4' } })
+validateCRS({
+  type: 'name',
+  properties: {
+    name: 'EPSG:2154'
+  }
+})
+// {
+//   valid: false,
+//   errors: [{
+//     code: 'UNSUPPORTED_CRS',
+//     params: { name: 'EPSG:2154' }
+//   }],
+//   warnings: []
+// }
+
+validateCRS({
+  type: 'link',
+  properties: {
+    href: 'https://example.com/crs'
+  }
+})
 // { valid: true, errors: [], warnings: [] }
 
-validateCRS({ type: 'link', properties: { href: '' } })
-// { valid: false, errors: [{ code: 'INVALID_CRS_LINK' }], warnings: [] }
+validateCRS({
+  type: 'link',
+  properties: {
+    href: ''
+  }
+})
+// {
+//   valid: false,
+//   errors: [{ code: 'INVALID_CRS_LINK' }],
+//   warnings: []
+// }
 
-validateCRS({ type: 'unknown' })
-// { valid: false, errors: [{ code: 'INVALID_CRS_TYPE', params: { type: 'unknown' } }], warnings: [] }
+validateCRS({
+  type: 'unknown'
+})
+// {
+//   valid: false,
+//   errors: [{
+//     code: 'INVALID_CRS_TYPE',
+//     params: { type: 'unknown' }
+//   }],
+//   warnings: []
+// }
 ```
-
----
 
 ## validateGeometry
 
@@ -398,8 +439,6 @@ validateGeometry({ type: 'Polygon', coordinates: [[[0, 0], [2, 2], [0, 2], [2, 0
 validateGeometry({ type: 'Unknown', coordinates: [] })
 // { valid: false, errors: [{ code: 'INVALID_GEOMETRY_TYPE', params: { type: 'Unknown' } }], warnings: [] }
 ```
-
----
 
 ## validateGeoJson
 
