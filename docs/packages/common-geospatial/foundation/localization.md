@@ -1,21 +1,27 @@
 ---
 title: localization
-description: Locale management for direction labels and symbols.
+description: Locale and localized message management.
 ---
 
 # localization
 
-Manages the active locale used by direction helpers. Two locales are built in (`en` and `fr`). Additional locales can be registered at runtime. The default locale is `en`.
+This module manages the localization of the library.
+
+Two locales are built in (`en` and `fr`). Each locale contains localized resources such as direction labels, symbols and validation messages. Additional locales can be registered at runtime.
+
+The default locale is `en`.
 
 ## Active locale and fallback
 
-The active locale is mutable (`setLocale`) and drives **display**: helpers that return labels or symbols (e.g. `getNorth`, `getDirections`) use the active locale only.
+The active locale is mutable (`setLocale`) and controls the language used by locale-aware functions.
 
-**Validation**, on the other hand, accepts the active locale **plus** a fallback (`en`). This means a hard-coded `'W'` stays a valid direction even when the active locale is `fr` (where West is `'O'`). The set of locales considered for validation is exposed by `getActiveLocales`.
+When a localized resource is requested, the active locale is used first. If the resource is not available, the fallback locale (`en`) is used automatically.
+
+The ordered list of locales considered during lookup is exposed by `getActiveLocales()`.
 
 ## Locale schema
 
-Each locale must conform to the following schema. Note that `symbol` must be a **single character**.
+Each locale must conform to the following schema.
 
 ```js
 {
@@ -24,6 +30,13 @@ Each locale must conform to the following schema. Note that `symbol` must be a *
     SOUTH: { label: string, symbol: char },
     EAST:  { label: string, symbol: char },
     WEST:  { label: string, symbol: char }
+  },
+
+  VALIDATION: {
+    EMPTY_OBJECT: string,
+    UNKNOWN_TYPE: string,
+    MISSING_GEOMETRY: string,
+    ...
   }
 }
 ```
@@ -49,46 +62,65 @@ Returns the list of registered locale codes.
 ### Examples
 
 ```js
-listLocales()   // ['en', 'fr']
+listLocales()
+// ['en', 'fr']
 ```
 
-## registerLocale
+---
+
+## registerMessages
 
 ### Signature
 
 ```js
-registerLocale(code, content)
+registerMessages(code, messages)
 ```
 
 ### Description
 
-Registers a new locale. The locale code must not already exist. The content must be a plain object conforming to the locale schema.
+Registers the localized messages for a new locale.
+
+The locale code must not already exist. The localized messages must conform to the locale schema.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `code` | `string` | yes | Unique locale code (e.g. `'de'`) |
-| `content` | `object` | yes | Locale content conforming to the locale schema |
+| `code` | `string` | yes | Unique locale code (for example `'de'`) |
+| `messages` | `object` | yes | Localized resources conforming to the locale schema |
 
 ### Throws
 
-Throws if `code` is not a string, if `code` is already registered, if `content` is not a plain object, or if `content` does not conform to the locale schema (including a `symbol` that is not a single character).
+Throws if:
+
+- `code` is not a string;
+- `code` is already registered;
+- `messages` is not an object;
+- `messages` does not conform to the locale schema.
 
 ### Examples
 
 ```js
-registerLocale('de', {
+registerMessages('de', {
   DIRECTIONS: {
     NORTH: { label: 'Nord', symbol: 'N' },
     SOUTH: { label: 'Süd', symbol: 'S' },
     EAST:  { label: 'Ost', symbol: 'O' },
     WEST:  { label: 'West', symbol: 'W' }
+  },
+
+  VALIDATION: {
+    EMPTY_OBJECT: 'Objekt ist leer',
+    UNKNOWN_TYPE: 'Unbekannter GeoJSON-Typ',
+    ...
   }
 })
 
-listLocales()   // ['en', 'fr', 'de']
+listLocales()
+// ['en', 'fr', 'de']
 ```
+
+---
 
 ## setLocale
 
@@ -100,24 +132,30 @@ setLocale(code)
 
 ### Description
 
-Sets the active locale. Affects all locale-aware functions such as direction helpers.
+Sets the active locale.
+
+All locale-aware functions use this locale when returning localized resources.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `code` | `string` | yes | A registered locale code |
+| `code` | `string` | yes | Registered locale code |
 
 ### Throws
 
-Throws if `code` is not a string or if `code` is not a registered locale.
+Throws if `code` is not a string or is not registered.
 
 ### Examples
 
 ```js
 setLocale('fr')
-getLocale()   // 'fr'
+
+getLocale()
+// 'fr'
 ```
+
+---
 
 ## getLocale
 
@@ -129,162 +167,122 @@ getLocale()
 
 ### Description
 
-Returns the currently active locale code. Resolve its content with `getLocaleByCode`.
+Returns the currently active locale code.
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `string` | The active locale code |
+| `string` | Active locale code |
 
 ### Examples
 
 ```js
-getLocale()                      // 'en'
-getLocaleByCode(getLocale())     // the active locale content
+getLocale()
+// 'en'
 ```
 
-## getLocaleByCode
+---
+
+## getMessages
 
 ### Signature
 
 ```js
-getLocaleByCode(code)
+getMessages(code)
 ```
 
 ### Description
 
-Returns the content of a registered locale by its code. Independent of the active locale.
+Returns the localized resources associated with a locale.
+
+This function is independent of the active locale.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `code` | `string` | yes | A registered locale code |
+| `code` | `string` | yes | Registered locale code |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `object` | The locale content conforming to the locale schema |
+| `object` | Localized resources |
 
 ### Throws
 
-Throws if `code` is not a string or if `code` is not a registered locale.
+Throws if `code` is not a string or is not registered.
 
 ### Examples
 
 ```js
-getLocaleByCode('en')
+getMessages('en')
+
 // {
 //   DIRECTIONS: {
 //     NORTH: { label: 'North', symbol: 'N' },
 //     SOUTH: { label: 'South', symbol: 'S' },
-//     EAST:  { label: 'East',  symbol: 'E' },
-//     WEST:  { label: 'West',  symbol: 'W' }
+//     EAST:  { label: 'East', symbol: 'E' },
+//     WEST:  { label: 'West', symbol: 'W' }
+//   },
+//
+//   VALIDATION: {
+//     EMPTY_OBJECT: 'Object is empty',
+//     ...
 //   }
 // }
 ```
+
+---
 
 ## getActiveLocales
 
 ### Signature
 
 ```js
-getActiveLocales ()
+getActiveLocales()
 ```
 
 ### Description
 
-Returns the locale codes considered for validation: the active locale plus the fallback (`en`), deduplicated. Resolve each to its content with `getLocaleByCode`.
+Returns the ordered list of locale codes used during localized resource lookup.
+
+The active locale is always returned first. If it differs from the fallback locale (`en`), the fallback locale is appended.
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `string[]` | Active locale codes (current + fallback) |
+| `string[]` | Active locale codes |
 
 ### Examples
 
 ```js
 setLocale('fr')
-getActiveLocales()   // ['fr', 'en']
+
+getActiveLocales()
+// ['fr', 'en']
 
 setLocale('en')
-getActiveLocales()   // ['en'] — current equals fallback, deduplicated
+
+getActiveLocales()
+// ['en']
 ```
 
-## getLatitudeSymbols
+---
 
-### Signature
+## Localization lookup
+
+Most localization-aware helpers iterate over the locales returned by `getActiveLocales()` until a matching resource is found.
+
+For example:
 
 ```js
-getLatitudeSymbols ()
+for (const locale of getActiveLocales()) {
+  const message = getMessages(locale).VALIDATION[code]
+  if (message) return message
+}
 ```
 
-### Description
-
-Returns the distinct latitude symbols (NORTH/SOUTH) across the active locales (current + fallback).
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `string[]` | Distinct latitude symbols |
-
-### Examples
-
-```js
-setLocale('en')
-getLatitudeSymbols()   // ['N', 'S']
-```
-
-## getLongitudeSymbols
-
-### Signature
-
-```js
-getLongitudeSymbols ()
-```
-
-### Description
-
-Returns the distinct longitude symbols (EAST/WEST) across the active locales (current + fallback).
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `string[]` | Distinct longitude symbols |
-
-### Examples
-
-```js
-setLocale('fr')
-getLongitudeSymbols()   // ['E', 'O', 'W'] — fr (E, O) plus en fallback (W)
-```
-
-## getAllDirectionSymbols
-
-### Signature
-
-```js
-getAllDirectionSymbols ()
-```
-
-### Description
-
-Returns the distinct direction symbols for both axes across the active locales (current + fallback).
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `string[]` | Distinct direction symbols |
-
-### Examples
-
-```js
-setLocale('fr')
-getAllDirectionSymbols()   // ['N', 'S', 'E', 'O', 'W']
-```
+This guarantees that localized resources remain available even when a translation is missing from the active locale.

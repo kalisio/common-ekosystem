@@ -31,42 +31,86 @@ Paths use a JSON Pointer-like notation: `/coordinates/0`, `/features/2/geometry`
 |---|---|---|---|
 | `validatePosition` | `INVALID_POSITION_LENGTH` | — | Not an array of 2 or 3 numbers |
 | `validatePosition` | `INVALID_POSITION_COORDINATES` | — | An element is not a finite number (`NaN`, `Infinity`, `null`, string...) |
-| `validatePosition` | `INVALID_LONGITUDE_RANGE` | `{ value }` | Longitude out of range `[-180, 180]` |
-| `validatePosition` | `INVALID_LATITUDE_RANGE` | `{ value }` | Latitude out of range `[-90, 90]` |
+| `validatePosition` | `INVALID_LONGITUDE_RANGE` | `{ value }` | Longitude is out of range `[-180, 180]` |
+| `validatePosition` | `INVALID_LATITUDE_RANGE` | `{ value }` | Latitude is out of range `[-90, 90]` |
 | `validatePosition` | `INVALID_ALTITUDE` | — | Altitude is not a finite number |
 | `validateBBox` | `INVALID_BBOX_LENGTH` | — | Wrong length or wrong type |
-| `validateBBox` | `INVALID_BBOX_LATITUDE_ORDER` | `{ south, north }` | South latitude exceeds north |
-| `validateBBox` | `INVALID_BBOX_ALTITUDE_ORDER` | `{ minAlt, maxAlt }` | Min altitude exceeds max altitude (3D bbox) |
+| `validateBBox` | `INVALID_BBOX_LATITUDE_ORDER` | `{ south, north }` | South latitude exceeds north latitude |
+| `validateBBox` | `INVALID_BBOX_ALTITUDE_ORDER` | `{ minAlt, maxAlt }` | Minimum altitude exceeds maximum altitude |
 | `validateCRS` | `INVALID_CRS_OBJECT` | — | `crs` is not a plain object |
-| `validateCRS` | `INVALID_CRS_TYPE` | `{ type }` | `type` is neither `name` nor `link` (or missing) |
-| `validateCRS` | `INVALID_CRS_NAME` | — | Missing or empty `properties.name` on a `name` CRS |
-| `validateCRS` | `INVALID_CRS_LINK` | — | Missing or empty `properties.href` on a `link` CRS |
+| `validateCRS` | `INVALID_CRS_TYPE` | `{ type }` | `type` is neither `name` nor `link` (or is missing) |
+| `validateCRS` | `INVALID_CRS_NAME` | — | Missing or empty `properties.name` |
+| `validateCRS` | `INVALID_CRS_LINK` | — | Missing or empty `properties.href` |
+| `validateCRS` | `UNSUPPORTED_CRS` | `{ name }` | CRS is not supported |
 | `validateGeometry` | `INVALID_GEOMETRY` | — | Not a non-empty object |
-| `validateGeometry` | `INVALID_GEOMETRY_TYPE` | `{ type }` | Unknown `type` value |
-| `validateGeometry` | `INVALID_COORDINATES_LENGTH` | `{ minimumLength }` | Coordinates array shorter than required |
+| `validateGeometry` | `INVALID_GEOMETRY_TYPE` | `{ type }` | Unknown geometry type |
+| `validateGeometry` | `INVALID_COORDINATES_LENGTH` | `{ minimumLength }` | Coordinates array is shorter than required |
 | `validateGeometry` | `INVALID_MULTI_LINESTRING_COORDINATES` | — | `MultiLineString.coordinates` is empty or not an array |
 | `validateGeometry` | `INVALID_POLYGON_COORDINATES` | — | `Polygon.coordinates` is empty or not an array |
 | `validateGeometry` | `INVALID_MULTIPOLYGON_COORDINATES` | — | `MultiPolygon.coordinates` is empty or not an array |
 | `validateGeometry` | `INVALID_GEOMETRYCOLLECTION_GEOMETRIES` | — | `GeometryCollection.geometries` is empty or not an array |
-| `validateGeometry` | `RING_NOT_CLOSED` | — | First and last position of a ring differ |
-| `validateGeometry` | `SELF_INTERSECTION` | `{ count }` | Ring crosses itself |
-| `validateGeoJson` | `UNKNOWN_TYPE` | `{ type }` | Root or feature `type` is not a Geometry, `Feature`, or `FeatureCollection` |
+| `validateGeometry` | `RING_NOT_CLOSED` | — | Ring is not closed |
+| `validateGeometry` | `SELF_INTERSECTION` | `{ count }` | Ring self-intersects |
+| `validateGeometry` | `HOLE_INTERSECTS_SHELL` | — | A hole intersects the exterior ring |
+| `validateGeoJson` | `UNKNOWN_TYPE` | `{ type }` | Unknown GeoJSON type |
 | `validateGeoJson` | `INVALID_FEATURES_ARRAY` | — | `features` is empty or not an array |
-| `validateGeoJson` | `EMPTY_OBJECT` | — | Feature is not a non-empty object |
+| `validateGeoJson` | `EMPTY_OBJECT` | — | Object is empty |
 
 ### Warnings
 
 | Emitted by | Code | `params` | Cause |
 |---|---|---|---|
-| `validatePosition` | `HIGH_LONGITUDE_PRECISION` | `{ precision, max }` | Longitude has more than 6 decimal digits |
-| `validatePosition` | `HIGH_LATITUDE_PRECISION` | `{ precision, max }` | Latitude has more than 6 decimal digits |
-| `validateBBox` | `BBOX_ANTIMERIDIAN_CROSSING` | `{ west, east }` | West > east in a bounding box |
-| `validateGeometry` | `ANTIMERIDIAN_CROSSING` | — | Segment jumps across the antimeridian |
-| `validateGeometry` | `INVALID_WINDING_ORDER` | `{ expected, actual }` | A ring's winding order doesn't match what's expected for its role (outer/hole) |
-| `validateGeometry` | `DUPLICATE_POSITION` | — | Two consecutive positions are the same (within precision) |
+| `validatePosition` | `EXCESSIVE_LONGITUDE_PRECISION` | `{ precision, max }` | Longitude has more than the recommended number of decimal digits |
+| `validatePosition` | `EXCESSIVE_LATITUDE_PRECISION` | `{ precision, max }` | Latitude has more than the recommended number of decimal digits |
+| `validateBBox` | `BBOX_ANTIMERIDIAN_CROSSING` | `{ west, east }` | Bounding box crosses the antimeridian (`west > east`) |
+| `validateGeometry` | `ANTIMERIDIAN_CROSSING` | — | Segment crosses the antimeridian |
+| `validateGeometry` | `INVALID_WINDING_ORDER` | `{ expected, actual }` | Ring winding order is incorrect |
+| `validateGeometry` | `DUPLICATE_POSITION` | — | Duplicate consecutive position |
 | `validateGeoJson` | `MISSING_GEOMETRY` | — | `geometry` is `null` or absent on a `Feature` |
 
 ---
+
+## Localized messages
+
+Validation results intentionally contain stable error and warning **codes** instead of localized messages.
+
+Applications can translate these codes using the localization module.
+
+```js
+import {
+  getActiveLocales,
+  getMessages
+} from '@kalisio/geo/foundation/localization'
+
+function getValidationMessage (code) {
+  for (const locale of getActiveLocales()) {
+    const message = getMessages(locale).VALIDATION[code]
+    if (message) return message
+  }
+  return code
+}
+```
+
+```js
+const result = validateGeometry(geometry)
+
+for (const error of result.errors) {
+  console.log(getValidationMessage(error.code))
+}
+
+// Ring is not closed
+// Self-intersection detected
+```
+
+Using stable codes instead of localized messages allows applications to:
+
+- display messages in any supported language;
+- react programmatically to specific validation issues;
+- customize or replace translations without changing validation logic.
+
+::: tip
+Validation codes are generated from the keys of the built-in English locale (`en`) and are therefore guaranteed to stay synchronized with the localization catalog.
+:::
 
 ## Behavioral notes
 

@@ -159,7 +159,7 @@ describe('validatePosition', () => {
       const result = validatePosition([2.35221234, 48.8566])
       expect(result.warnings).toContainEqual(
         expect.objectContaining({
-          code: VALIDATION_CODES.HIGH_LONGITUDE_PRECISION,
+          code: VALIDATION_CODES.EXCESSIVE_LONGITUDE_PRECISION,
           params: { precision: 8, max: 7 }
         })
       )
@@ -169,7 +169,7 @@ describe('validatePosition', () => {
       const result = validatePosition([2.3522, 48.85661234])
       expect(result.warnings).toContainEqual(
         expect.objectContaining({
-          code: VALIDATION_CODES.HIGH_LATITUDE_PRECISION,
+          code: VALIDATION_CODES.EXCESSIVE_LATITUDE_PRECISION,
           params: { precision: 8, max: 7 }
         })
       )
@@ -179,7 +179,7 @@ describe('validatePosition', () => {
       const result = validatePosition([2.3522123, 48.8566], '', 6)
       expect(result.warnings).toContainEqual(
         expect.objectContaining({
-          code: VALIDATION_CODES.HIGH_LONGITUDE_PRECISION,
+          code: VALIDATION_CODES.EXCESSIVE_LONGITUDE_PRECISION,
           params: { precision: 7, max: 6 }
         })
       )

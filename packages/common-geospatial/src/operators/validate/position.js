@@ -41,11 +41,11 @@ export function validatePosition (coordinates, path = '', precision = DEFAULT_CO
   const response = { valid: true, errors: [], warnings: [] }
   const lonPrecision = getCoordinatePrecision(coordinates[0])
   if (lonPrecision > precision) {
-    response.warnings.push({ code: VALIDATION_CODES.HIGH_LONGITUDE_PRECISION, path, params: { precision: lonPrecision, max: precision } })
+    response.warnings.push({ code: VALIDATION_CODES.EXCESSIVE_LONGITUDE_PRECISION, path, params: { precision: lonPrecision, max: precision } })
   }
   const latPrecision = getCoordinatePrecision(coordinates[1])
   if (latPrecision > precision) {
-    response.warnings.push({ code: VALIDATION_CODES.HIGH_LATITUDE_PRECISION, path, params: { precision: latPrecision, max: precision } })
+    response.warnings.push({ code: VALIDATION_CODES.EXCESSIVE_LATITUDE_PRECISION, path, params: { precision: latPrecision, max: precision } })
   }
   return response
 }

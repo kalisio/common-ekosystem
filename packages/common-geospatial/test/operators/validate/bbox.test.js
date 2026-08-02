@@ -154,7 +154,7 @@ describe('validateBBox', () => {
       const result = validateBBox([2.35221234, 48.8566, 3.1234, 49.1234])
       expect(result.warnings).toContainEqual(
         expect.objectContaining({
-          code: VALIDATION_CODES.HIGH_LONGITUDE_PRECISION,
+          code: VALIDATION_CODES.EXCESSIVE_LONGITUDE_PRECISION,
           params: { precision: 8, max: 7 }
         })
       )
