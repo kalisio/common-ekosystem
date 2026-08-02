@@ -12,9 +12,9 @@ _Core utilities for the Kalisio ekosystem_
 **common-core** is a lightweight library that provides core utilities that work in both **browsers** and **Node.js**.
 
 It is organized around 3 modules:
-- [predicates](./API/predicates/assert.md) — minimalist conditional and assertion functions
-- [utilities](./API/utilities/byte.md) — general purpose utility functions
-- [operators](./API/operators/compare.md) — higher-order functions that process data
+- [predicates](./predicates/assert.md) — minimalist conditional and assertion functions
+- [utilities](./utilities/byte.md) — general purpose utility functions
+- [operators](./operators/compare.md) — higher-order functions that process data
 
 ## Installation
 

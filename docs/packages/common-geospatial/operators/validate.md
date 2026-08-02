@@ -68,9 +68,7 @@ Paths use a JSON Pointer-like notation: `/coordinates/0`, `/features/2/geometry`
 | `validateGeometry` | `DUPLICATE_POSITION` | — | Duplicate consecutive position |
 | `validateGeoJson` | `MISSING_GEOMETRY` | — | `geometry` is `null` or absent on a `Feature` |
 
----
-
-## Localized messages
+### Localized messages
 
 Validation results intentionally contain stable error and warning **codes** instead of localized messages.
 

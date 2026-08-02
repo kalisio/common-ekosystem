@@ -12,8 +12,8 @@ _Graphics utilities for the Kalisio ekosystem_
 **common-graphics** is a lightweight library that provides graphics utilities that work in both **browsers** and **Node.js**.
 
 It is organized around 2 modules:
-- [utilities](./API/utilities/color.md) — general purpose utility functions
-- [shapes](./API/shapes/shape-factory.md) — build marker shapes and render them as SVG or PNG.
+- [utilities](./utilities/color.md) — general purpose utility functions
+- [shapes](./shapes/shape-factory.md) — build marker shapes and render them as SVG or PNG.
 
 ## Installation
 
