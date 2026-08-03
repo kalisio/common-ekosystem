@@ -1,4 +1,4 @@
-import { assert, is, conform } from '@kalisio/common-core/predicates'
+import { assert, is, conform, optional } from '@kalisio/common-core/predicates'
 import { DEFAULT_COORDINATE_PRECISION } from './coordinate.js'
 import {
   isValidPosition,
@@ -7,6 +7,11 @@ import {
   truncatePosition,
   transformPosition
 } from './position.js'
+
+export const TRUNCATE_POSITIONS_OPTIONS_SCHEMA = {
+  ...IS_SAME_POSITION_OPTIONS_SCHEMA,
+  deduplicate: optional(is.boolean)
+}
 
 export function isValidPositions (positions) {
   return is.nonEmptyArray(positions) && positions.every(isValidPosition)
@@ -25,9 +30,22 @@ export function deduplicatePositions (positions, options = {}) {
   return result
 }
 
-export function truncatePositions (positions, precision = DEFAULT_COORDINATE_PRECISION) {
-  assert.that(positions, is.nonEmptyArray, 'positions must be a non-empty array')
-  return positions.map((position) => truncatePosition(position, precision))
+export function truncatePositions (positions, options = {}) {
+  assert.all([
+    {
+      value: positions,
+      validator: is.nonEmptyArray,
+      message: 'positions must be a non-empty array'
+    },
+    {
+      value: options,
+      validator: (v) => conform.schema(v, TRUNCATE_POSITIONS_OPTIONS_SCHEMA),
+      message: 'options must be a valid options object'
+    }
+  ])
+  const { precision = DEFAULT_COORDINATE_PRECISION, deduplicate = false, consider3D = false } = options
+  const truncated = positions.map((position) => truncatePosition(position, precision))
+  return deduplicate ? deduplicatePositions(truncated, { precision, consider3D }) : truncated
 }
 
 export function transformPositions (positions, from, to) {

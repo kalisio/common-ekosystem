@@ -4,17 +4,14 @@ import {
   MAX_COORDINATE_PRECISION,
   truncateBBox,
   truncatePosition,
-  deduplicatePositions,
   truncatePositions,
-  closeRing
+  truncateRing
 } from '../foundation/index.js'
-import { FEATURE_TYPES, GEOMETRY_TYPES, isLikeGeoJson } from './is-like.js'
-
-function truncateRing (ring, precision, consider3D) {
-  for (const position of ring) truncatePosition(position, precision)
-  const deduplicated = deduplicatePositions(ring, { precision, consider3D })
-  return closeRing(deduplicated, { precision, consider3D })
-}
+import {
+  FEATURE_TYPES,
+  GEOMETRY_TYPES,
+  isLikeGeoJson
+} from './is-like.js'
 
 function truncateGeometry (geometry, precision, consider3D) {
   switch (geometry.type) {
@@ -23,17 +20,17 @@ function truncateGeometry (geometry, precision, consider3D) {
       break
     case GEOMETRY_TYPES.MULTI_POINT:
     case GEOMETRY_TYPES.LINESTRING:
-      truncatePositions(geometry.coordinates, precision)
+      truncatePositions(geometry.coordinates, { precision })
       break
     case GEOMETRY_TYPES.MULTI_LINESTRING:
-      for (const line of geometry.coordinates) truncatePositions(line, precision)
+      for (const line of geometry.coordinates) truncatePositions(line, { precision })
       break
     case GEOMETRY_TYPES.POLYGON:
-      geometry.coordinates = geometry.coordinates.map((ring) => truncateRing(ring, precision, consider3D))
+      geometry.coordinates = geometry.coordinates.map((ring) => truncateRing(ring, { precision, consider3D }))
       break
     case GEOMETRY_TYPES.MULTI_POLYGON:
       geometry.coordinates = geometry.coordinates.map((polygon) =>
-        polygon.map((ring) => truncateRing(ring, precision, consider3D))
+        polygon.map((ring) => truncateRing(ring, { precision, consider3D }))
       )
       break
     case GEOMETRY_TYPES.GEOMETRY_COLLECTION:

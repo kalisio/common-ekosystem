@@ -1,7 +1,14 @@
 import { assert, is, conform } from '@kalisio/common-core/predicates'
 import { math } from '@kalisio/common-core/utilities'
 import { isSamePosition, isValidPosition, IS_SAME_POSITION_OPTIONS_SCHEMA } from './position.js'
+import { truncatePositions } from './positions.js'
 import { positionToNVector, crossNVectorArcs } from './nvector.js'
+
+export function isValidRing (ring, options = {}) {
+  if (!is.arrayOfLengthAtLeast(ring, 4)) return false
+  if (!ring.every(isValidPosition)) return false
+  return isClosedRing(ring, options)
+}
 
 export function isClosedRing (ring, options = {}) {
   assert.that(options, (v) => conform.schema(v, IS_SAME_POSITION_OPTIONS_SCHEMA), 'options must be a valid options object')
@@ -16,10 +23,9 @@ export function closeRing (ring, options = {}) {
   return [...ring, [...ring[0]]]
 }
 
-export function isValidRing (ring, options = {}) {
-  if (!is.arrayOfLengthAtLeast(ring, 4)) return false
-  if (!ring.every(isValidPosition)) return false
-  return isClosedRing(ring, options)
+export function truncateRing (ring, options = {}) {
+  const truncated = truncatePositions(ring, { deduplicate: true, ...options })
+  return closeRing(truncated, options)
 }
 
 export function sphericalRingArea (ring) {
