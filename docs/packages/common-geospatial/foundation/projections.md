@@ -212,7 +212,6 @@ isWGS84Projection('UNKNOWN')
 ```
 
 ::: tip WGS84 aliases
-
 When this module is loaded, the following aliases are automatically defined if they are not already known by proj4:
 
 - `CRS:84`
@@ -223,5 +222,67 @@ When this module is loaded, the following aliases are automatically defined if t
 - `urn:ogc:def:crs:EPSG::4326`
 
 These aliases are all considered equivalent to `EPSG:4326`.
-
 :::
+
+## transformCoordinates
+
+### Signature
+
+```js
+transformCoordinates(coordinates, source, target)
+```
+
+### Description
+
+Transforms a coordinate tuple from one coordinate reference system (CRS) to another.
+
+The source and target projections must be registered beforehand using `defineProjection()`. Built-in projections and registered WGS84 aliases are available automatically.
+
+The function accepts both 2D (`[x, y]`) and 3D (`[x, y, z]`) coordinate tuples. When a third coordinate is present, it is preserved and transformed if supported by the underlying projection.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `coordinates` | `number[]` | yes | A coordinate tuple containing 2 or 3 finite numbers |
+| `source` | `string` | yes | Source projection name |
+| `target` | `string` | yes | Target projection name |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `number[]` | The transformed coordinate tuple |
+
+### Throws
+
+Throws if:
+
+- `coordinates` is not a valid coordinate tuple;
+- `source` is not a registered projection;
+- `target` is not a registered projection.
+
+### Examples
+
+```js
+transformCoordinates(
+  [2.3522, 48.8566],
+  'EPSG:4326',
+  'EPSG:3857'
+)
+// [261845.7..., 6250564.3...]
+
+transformCoordinates(
+  [261845.7, 6250564.3],
+  'EPSG:3857',
+  'EPSG:4326'
+)
+// [2.3522, 48.8566]
+
+transformCoordinates(
+  [700000, 6600000],
+  'EPSG:2154',
+  'EPSG:4326'
+)
+// [3.0..., 46.5...]
+```

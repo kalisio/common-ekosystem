@@ -47,3 +47,16 @@ export function isWGS84Projection (name) {
   const ref = proj4.defs('EPSG:4326')
   return def.projName === ref.projName && def.datumCode === ref.datumCode
 }
+
+export function transformCoordinates (coordinates, from, to) {
+  assert.all([
+    {
+      value: coordinates,
+      validator: (v) => is.arrayOfLengthBetween(v, 2, 3) && v.every(is.finite),
+      message: 'coordinates must be a tuple of 2 or 3 finite numbers'
+    },
+    { value: from, validator: hasProjection, message: `unknown source projection: ${from}` },
+    { value: to, validator: hasProjection, message: `unknown target projection: ${to}` }
+  ])
+  return proj4(from, to, coordinates)
+}

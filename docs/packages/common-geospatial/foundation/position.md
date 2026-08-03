@@ -7,7 +7,8 @@ description: GeoJSON position parsing, validation, comparison, truncation and ge
 
 A position is a `[longitude, latitude]` or `[longitude, latitude, altitude]` array, following the GeoJSON convention.
 
-This module provides helpers to parse, validate, compare and manipulate GeoJSON positions, as well as basic geodesic operations such as computing distances and destinations.
+This module provides helpers to parse, validate, compare and manipulate GeoJSON positions, as well as basic geodesic operations
+such as computing distances and destinations.
 
 ## parsePosition
 
@@ -19,7 +20,9 @@ parsePosition(pattern)
 
 ### Description
 
-Parses a position string into a `[longitude, latitude]` array. Accepts comma, semicolon or pipe separators. When both values carry explicit directions the position is reordered to `[longitude, latitude]` regardless of input order. When both values are ambiguous, two candidate positions are returned.
+Parses a position string into a `[longitude, latitude]` array. Accepts comma, semicolon or pipe separators. When both values carry
+explicit directions the position is reordered to `[longitude, latitude]` regardless of input order. When both values are ambiguous,
+two candidate positions are returned.
 
 ### Parameters
 
@@ -58,7 +61,8 @@ isValidPosition(position)
 
 ### Description
 
-Returns whether the value is a valid GeoJSON position: an array of 2 or 3 numbers, with a longitude in `[-180, 180]`, a latitude in `[-90, 90]`, and, when present, a numeric altitude.
+Returns whether the value is a valid GeoJSON position: an array of 2 or 3 numbers, with a longitude in `[-180, 180]`,
+a latitude in `[-90, 90]`, and, when present, a numeric altitude.
 
 ### Parameters
 
@@ -118,8 +122,6 @@ is3DPosition([2.3522, 48.8566, 100]) // true
 is3DPosition([2.3522, 48.8566])      // false
 ```
 
----
-
 ## isSamePosition
 
 ### Signature
@@ -130,7 +132,8 @@ isSamePosition(position1, position2, options = {})
 
 ### Description
 
-Returns whether two positions are equal at a given precision. Comparison is done after rounding each coordinate to the requested precision. By default only longitude and latitude are compared; altitude is ignored.
+Returns whether two positions are equal at a given precision. Comparison is done after rounding each coordinate to the requested precision.
+By default only longitude and latitude are compared; altitude is ignored.
 
 ### Parameters
 
@@ -171,8 +174,6 @@ isSamePosition(
   { consider3D: true }
 ) // false
 ```
-
----
 
 ## truncatePosition
 
@@ -217,7 +218,59 @@ truncatePosition([2.352212345, 48.856612345], 3)
 This function mutates the input array.
 :::
 
----
+## transformPosition
+
+### Signature
+
+```js
+transformPosition(position, source, target)
+```
+
+### Description
+
+Transforms a GeoJSON position from one coordinate reference system (CRS) to another.
+
+The source and target projections must be registered beforehand using `defineProjection()`.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `position` | `Array` | yes | A valid GeoJSON position |
+| `source` | `string` | yes | Source projection name |
+| `target` | `string` | yes | Target projection name |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `Array` | The transformed position |
+
+### Throws
+
+Throws if:
+
+- `position` is not a valid position;
+- `source` is not a registered projection;
+- `target` is not a registered projection.
+
+### Examples
+
+```js
+transformPosition(
+  [2.3522, 48.8566],
+  'EPSG:4326',
+  'EPSG:3857'
+)
+// [261845.7..., 6250564.3...]
+
+transformPosition(
+  [261845.7, 6250564.3],
+  'EPSG:3857',
+  'EPSG:4326'
+)
+// [2.3522, 48.8566]
+```
 
 ## distanceBetweenPositions
 

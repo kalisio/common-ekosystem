@@ -15,6 +15,7 @@ import {
   angleBetweenNVectors,
   destinationNVector
 } from './nvector.js'
+import { transformCoordinates, hasProjection } from './projections.js'
 
 export const IS_SAME_POSITION_OPTIONS_SCHEMA = {
   precision: optional(is.number),
@@ -53,12 +54,17 @@ export function parsePosition (pattern) {
   }
 }
 
-export function isValidPosition (coordinates) {
+export function isValidCoordinates (coordinates) {
   if (!is.arrayOfLengthBetween(coordinates, 2, 3)) return false
   if (!is.number(coordinates[0]) || !is.number(coordinates[1])) return false
+  if (coordinates.length === 3 && !is.number(coordinates[2])) return false
+  return true
+}
+
+export function isValidPosition (coordinates) {
+  if (!isValidCoordinates(coordinates)) return false
   if (!is.inRange(coordinates[0], -180, 180)) return false
   if (!is.inRange(coordinates[1], -90, 90)) return false
-  if (coordinates.length === 3 && !is.number(coordinates[2])) return false
   return true
 }
 
@@ -109,6 +115,27 @@ export function truncatePosition (position, precision = DEFAULT_COORDINATE_PRECI
     position[i] = truncateCoordinate(position[i], precision)
   }
   return position
+}
+
+export function transformPosition (position, source, target) {
+  assert.all([
+    {
+      value: position,
+      validator: isValidPosition,
+      message: 'position must be a valid position'
+    },
+    {
+      value: source,
+      validator: hasProjection,
+      message: `unknown source projection: ${source}`
+    },
+    {
+      value: target,
+      validator: hasProjection,
+      message: `unknown target projection: ${target}`
+    }
+  ])
+  return transformCoordinates(position, source, target)
 }
 
 export function destinationFromPosition (position, bearing, distance) {

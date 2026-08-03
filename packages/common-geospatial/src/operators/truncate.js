@@ -5,6 +5,7 @@ import {
   truncateBBox,
   truncatePosition,
   deduplicatePositions,
+  truncatePositions,
   closeRing
 } from '../foundation/index.js'
 import { FEATURE_TYPES, GEOMETRY_TYPES, isLikeGeoJson } from './is-like.js'
@@ -15,11 +16,6 @@ function truncateRing (ring, precision, consider3D) {
   return closeRing(deduplicated, { precision, consider3D })
 }
 
-function truncateLine (line, precision) {
-  for (const position of line) truncatePosition(position, precision)
-  return line
-}
-
 function truncateGeometry (geometry, precision, consider3D) {
   switch (geometry.type) {
     case GEOMETRY_TYPES.POINT:
@@ -27,10 +23,10 @@ function truncateGeometry (geometry, precision, consider3D) {
       break
     case GEOMETRY_TYPES.MULTI_POINT:
     case GEOMETRY_TYPES.LINESTRING:
-      truncateLine(geometry.coordinates, precision)
+      truncatePositions(geometry.coordinates, precision)
       break
     case GEOMETRY_TYPES.MULTI_LINESTRING:
-      for (const line of geometry.coordinates) truncateLine(line, precision)
+      for (const line of geometry.coordinates) truncatePositions(line, precision)
       break
     case GEOMETRY_TYPES.POLYGON:
       geometry.coordinates = geometry.coordinates.map((ring) => truncateRing(ring, precision, consider3D))
