@@ -15,7 +15,7 @@ import {
   angleBetweenNVectors,
   destinationNVector
 } from './nvector.js'
-import { transformCoordinates, hasProjection } from './projections.js'
+import { reprojectCoordinates, hasProjection } from './projections.js'
 
 export const IS_SAME_POSITION_OPTIONS_SCHEMA = {
   precision: optional(is.number),
@@ -117,12 +117,12 @@ export function truncatePosition (position, precision = DEFAULT_COORDINATE_PRECI
   return position
 }
 
-export function transformPosition (position, source, target) {
+export function reprojectPosition (position, source, target) {
   assert.all([
     {
       value: position,
-      validator: isValidPosition,
-      message: 'position must be a valid position'
+      validator: (v) => is.arrayOfLengthBetween(v, 2, 3) && v.every(is.number),
+      message: 'position must be a tuple of 2 or 3 numbers'
     },
     {
       value: source,
@@ -135,7 +135,7 @@ export function transformPosition (position, source, target) {
       message: `unknown target projection: ${target}`
     }
   ])
-  return transformCoordinates(position, source, target)
+  return reprojectCoordinates(position, source, target)
 }
 
 export function destinationFromPosition (position, bearing, distance) {

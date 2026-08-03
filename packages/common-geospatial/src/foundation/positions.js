@@ -5,7 +5,7 @@ import {
   isSamePosition,
   IS_SAME_POSITION_OPTIONS_SCHEMA,
   truncatePosition,
-  transformPosition
+  reprojectPosition
 } from './position.js'
 
 export const TRUNCATE_POSITIONS_OPTIONS_SCHEMA = {
@@ -14,7 +14,7 @@ export const TRUNCATE_POSITIONS_OPTIONS_SCHEMA = {
 }
 
 export function isValidPositions (positions) {
-  return is.nonEmptyArray(positions) && positions.every(isValidPosition)
+  return is.array(positions) && positions.every(isValidPosition)
 }
 
 export function deduplicatePositions (positions, options = {}) {
@@ -34,8 +34,8 @@ export function truncatePositions (positions, options = {}) {
   assert.all([
     {
       value: positions,
-      validator: is.nonEmptyArray,
-      message: 'positions must be a non-empty array'
+      validator: is.array,
+      message: 'positions must be an array'
     },
     {
       value: options,
@@ -48,7 +48,7 @@ export function truncatePositions (positions, options = {}) {
   return deduplicate ? deduplicatePositions(truncated, { precision, consider3D }) : truncated
 }
 
-export function transformPositions (positions, from, to) {
-  assert.that(positions, is.nonEmptyArray, 'positions must be a non-empty array')
-  return positions.map((position) => transformPosition(position, from, to))
+export function reprojectPositions (positions, source, target) {
+  assert.that(positions, is.array, 'positions must be an array')
+  return positions.map((position) => reprojectPosition(position, source, target))
 }

@@ -48,15 +48,15 @@ export function isWGS84Projection (name) {
   return def.projName === ref.projName && def.datumCode === ref.datumCode
 }
 
-export function transformCoordinates (coordinates, from, to) {
+export function reprojectCoordinates (coordinates, source, target) {
   assert.all([
     {
       value: coordinates,
-      validator: (v) => is.arrayOfLengthBetween(v, 2, 3) && v.every(is.finite),
-      message: 'coordinates must be a tuple of 2 or 3 finite numbers'
+      validator: (v) => is.arrayOfLengthBetween(v, 2, 3) && v.every(is.number),
+      message: 'coordinates must be a tuple of 2 or 3 numbers'
     },
-    { value: from, validator: hasProjection, message: `unknown source projection: ${from}` },
-    { value: to, validator: hasProjection, message: `unknown target projection: ${to}` }
+    { value: source, validator: hasProjection, message: `unknown source projection: ${source}` },
+    { value: target, validator: hasProjection, message: `unknown target projection: ${target}` }
   ])
-  return proj4(from, to, coordinates)
+  return proj4(source, target, coordinates)
 }
