@@ -246,6 +246,9 @@ describe('object', () => {
     it('handles null values', () => {
       expect(object.dotify({ a: { b: null } })).toEqual({ 'a.b': null })
     })
+    it('handles nested empty objects', () => {
+      expect(object.dotify({ a: { b: {} } })).toEqual({ 'a.b': {} })
+    })
     it('handles false values', () => {
       expect(object.dotify({ a: { b: false } })).toEqual({ 'a.b': false })
     })
