@@ -365,6 +365,40 @@ is.nonEmptyString('   ')   // false
 is.nonEmptyString(null)    // false
 ```
 
+## char
+
+### Signature
+
+```js
+is.char (value)
+```
+
+### Description
+
+Check if a value is a string containing exactly one character.
+
+### Parameters
+
+| Name    | Type | Required | Description        |
+| ------- | ---- | -------- | ------------------ |
+| `value` | *    | yes      | The value to check |
+
+### Returns
+
+| Type      | Description                                                    |
+| --------- | -------------------------------------------------------------- |
+| `boolean` | True if the value is a string containing exactly one character |
+
+### Examples
+
+```js
+is.char('a')  // true
+is.char('1')  // true
+is.char('')   // false
+is.char('ab') // false
+is.char(1)    // false
+```
+
 ## regularExpression
 
 ### Signature
@@ -438,7 +472,7 @@ is.hex(null)       // false — value must be a string
 ### Signature
 
 ```js
-is.dataUri value)
+is.dataUri (value)
 ```
 
 ### Description
@@ -478,7 +512,7 @@ is.url (value)
 
 ### Description
 
-Check if a value is a valid URL. Also accepts multi-host authorities (e.g. MongoDB replica set connection strings), 
+Check if a value is a valid URL. Also accepts multi-host authorities (e.g. MongoDB replica set connection strings),
 where several comma-separated hosts share a single scheme, path and query.
 
 ### Parameters
@@ -548,7 +582,7 @@ is.email(null)                     // false — must be a string
 ### Signature
 
 ```js
-number(value)
+is.number (value)
 ```
 
 ### Description
