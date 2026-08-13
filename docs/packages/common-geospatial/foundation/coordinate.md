@@ -127,7 +127,7 @@ truncateCoordinate(coord, precision = DEFAULT_COORDINATE_PRECISION)
 
 ### Description
 
-Truncates a coordinate value to the given number of decimal digits. This function is pure: it returns a new value and does not mutate its argument.
+Reduces the precision of a coordinate to the specified number of decimal places.
 
 ### Parameters
 

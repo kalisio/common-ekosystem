@@ -165,7 +165,8 @@ truncateBBox(bbox, precision = DEFAULT_COORDINATE_PRECISION)
 
 ### Description
 
-Truncates every value of a bounding box to the given number of decimal digits. This function mutates the bounding box in place and returns the same array.
+Reduces the precision of all coordinates in a bounding box to the specified number of decimal places.
+The bounding box is modified in place and returned.
 
 ### Parameters
 

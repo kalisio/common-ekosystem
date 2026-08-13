@@ -217,3 +217,42 @@ getDirectionAxis('W')   // 'LON'
 setLocale('fr')
 getDirectionAxis('O')   // 'LON' — Ouest
 ```
+
+## getDirectionSymbols
+
+### Signature
+
+```js id="brqavb"
+getDirectionSymbols(axis = null)
+```
+
+### Description
+
+Returns the direction symbols recognized for the specified axis across all active locales.
+
+When no axis is specified, symbols for all directions are returned.
+
+### Parameters
+
+| Name   | Type             | Required | Description                                                                                     |
+| ------ | ---------------- | -------- | ----------------------------------------------------------------------------------------------- |
+| `axis` | `string \| null` | no       | Axis used to filter direction symbols (`longitude` or `latitude`), or `null` for all directions |
+
+### Returns
+
+| Type       | Description                      |
+| ---------- | -------------------------------- |
+| `string[]` | The recognized direction symbols |
+
+### Examples
+
+```js id="dbyfzq"
+getDirectionSymbols('longitude')
+// ['E', 'W', ...]
+
+getDirectionSymbols('latitude')
+// ['N', 'S', ...]
+
+getDirectionSymbols()
+// ['N', 'S', 'E', 'W', ...]
+```

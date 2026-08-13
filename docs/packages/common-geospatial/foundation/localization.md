@@ -5,41 +5,16 @@ description: Locale and localized message management.
 
 # localization
 
-This module manages the localization of the library.
+This module provides localization support for the library.
 
-Two locales are built in (`en` and `fr`). Each locale contains localized resources such as direction labels, symbols and validation messages. Additional locales can be registered at runtime.
+English (`en`) and French (`fr`) are available by default, and additional locales can be registered at runtime.
+Locale resources include direction labels and symbols, validation messages, and other localized content.
 
-The default locale is `en`.
+The current locale can be changed using `setLocale()` and is used by locale-aware functions when
+resolving localized resources.
 
-## Active locale and fallback
-
-The active locale is mutable (`setLocale`) and controls the language used by locale-aware functions.
-
-When a localized resource is requested, the active locale is used first. If the resource is not available, the fallback locale (`en`) is used automatically.
-
-The ordered list of locales considered during lookup is exposed by `getActiveLocales()`.
-
-## Locale schema
-
-Each locale must conform to the following schema.
-
-```js
-{
-  DIRECTIONS: {
-    NORTH: { label: string, symbol: char },
-    SOUTH: { label: string, symbol: char },
-    EAST:  { label: string, symbol: char },
-    WEST:  { label: string, symbol: char }
-  },
-
-  VALIDATION: {
-    EMPTY_OBJECT: string,
-    UNKNOWN_TYPE: string,
-    MISSING_GEOMETRY: string,
-    ...
-  }
-}
-```
+English (`en`) is the default and fallback locale. getActiveLocales() returns the ordered list of locales to
+consider during resource lookup, starting with the current locale and falling back to English when necessary.
 
 ## listLocales
 
@@ -65,8 +40,6 @@ Returns the list of registered locale codes.
 listLocales()
 // ['en', 'fr']
 ```
-
----
 
 ## registerMessages
 
@@ -120,7 +93,25 @@ listLocales()
 // ['en', 'fr', 'de']
 ```
 
----
+Each locale must conform to the following schema.
+
+```js
+{
+  DIRECTIONS: {
+    NORTH: { label: string, symbol: char },
+    SOUTH: { label: string, symbol: char },
+    EAST:  { label: string, symbol: char },
+    WEST:  { label: string, symbol: char }
+  },
+
+  VALIDATION: {
+    EMPTY_OBJECT: string,
+    UNKNOWN_TYPE: string,
+    MISSING_GEOMETRY: string,
+    ...
+  }
+}
+```
 
 ## setLocale
 
@@ -234,8 +225,6 @@ getMessages('en')
 // }
 ```
 
----
-
 ## getActiveLocales
 
 ### Signature
@@ -269,8 +258,6 @@ setLocale('en')
 getActiveLocales()
 // ['en']
 ```
-
----
 
 ## Localization lookup
 
