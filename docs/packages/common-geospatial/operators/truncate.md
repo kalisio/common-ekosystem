@@ -1,6 +1,6 @@
 ---
 title: truncate
-description: Truncate the coordinates of any GeoJSON object and remove duplicate polygon vertices.
+description: Reduces  the coordinates of any GeoJSON object and remove duplicate polygon vertices.
 ---
 
 # truncate
@@ -15,15 +15,23 @@ truncateGeoJson(geoJson, options = {})
 
 ### Description
 
-Truncates every coordinate of a GeoJSON object to a fixed decimal precision, and removes duplicate consecutive vertices from polygon rings. It accepts any GeoJSON type: a geometry, a `GeometryCollection`, a `Feature`, or a `FeatureCollection`. Bounding boxes found at any level are truncated as well.
+Reduces the precision of every coordinate in a GeoJSON object to the specified number of decimal places
+and removes duplicate consecutive vertices from polygon rings.
 
-Rounding coordinates can bring two distinct vertices onto the same point. On polygon rings this produces duplicate consecutive positions, which invalidate a geometry for MongoDB's `2dsphere` index (S2). To prevent this, `truncateGeoJson` deduplicates consecutive positions on each polygon ring after truncation, and re-closes the ring when the closing point was among those dropped.
+Rounding coordinates can bring two distinct vertices onto the same point. On polygon rings this produces
+duplicate consecutive positions, which invalidate a geometry for MongoDB's `2dsphere` index (S2). To prevent
+this, `truncateGeoJson` deduplicates consecutive positions on each polygon ring after truncation, and
+re-closes the ring when the closing point was among those dropped.
 
-Deduplication applies **only** to polygon rings (`Polygon` and `MultiPolygon`). Positions of `LineString`, `MultiLineString` and `MultiPoint` are truncated but never deduplicated, since a line may legitimately revisit the same point and S2 rejects duplicates only on rings.
+Deduplication applies **only** to polygon rings (`Polygon` and `MultiPolygon`). Positions of `LineString`,
+`MultiLineString` and `MultiPoint` are truncated but never deduplicated, since a line may legitimately
+revisit the same point and S2 rejects duplicates only on rings.
 
-This operator normalizes precision; it does not repair topology. If deduplication leaves a ring with fewer than four positions, the ring is left as is: detecting and repairing a degenerate ring is the responsibility of the `validate` and `fix` operators.
+This operator normalizes precision; it does not repair topology. If deduplication leaves a ring with fewer
+than four positions, the ring is left as is: detecting and repairing a degenerate ring is the responsibility
+of the `validate` and `fix` operators.
 
-::: warning Mutation
+::: warning
 `truncateGeoJson` mutates the input object in place and returns the same reference.
 :::
 
