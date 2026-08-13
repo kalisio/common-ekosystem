@@ -24,7 +24,7 @@ The schema is an object where keys are property names and values are either:
 - a nested schema object for sub-objects
 
 Returns `true` if the object conform to the schema, `false` otherwise.
-Throws a `TypeError` if `obj` or `schema` are not plain objects.
+Throws a `AssertionError` if `obj` or `schema` are not plain objects.
 
 ### Parameters
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { is } from '../../src/predicates'
+import { is } from '../../src/predicates/index.js'
 
 describe('is.defined', () => {
   it('returns true for 0', () => {

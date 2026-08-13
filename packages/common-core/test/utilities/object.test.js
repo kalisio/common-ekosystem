@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { object } from '../../src/utilities'
+import { object } from '../../src/utilities/index.js'
 
 describe('object', () => {
   describe('clone', () => {

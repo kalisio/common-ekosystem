@@ -1,6 +1,7 @@
 // test/utilities/byte.test.js
 import { describe, it, expect } from 'vitest'
-import { byte } from '../../src/utilities'
+import { AssertionError } from '../../src/predicates/index.js'
+import { byte } from '../../src/utilities/index.js'
 
 describe('byte.toBase64', () => {
   it('encodes a simple ASCII string', () => {
@@ -22,13 +23,13 @@ describe('byte.toBase64', () => {
     expect(() => byte.toBase64(large)).not.toThrow()
   })
   it('throws if value is a number', () => {
-    expect(() => byte.toBase64(123)).toThrow(TypeError)
+    expect(() => byte.toBase64(123)).toThrow(AssertionError)
   })
   it('throws if value is null', () => {
-    expect(() => byte.toBase64(null)).toThrow(TypeError)
+    expect(() => byte.toBase64(null)).toThrow(AssertionError)
   })
   it('throws if value is undefined', () => {
-    expect(() => byte.toBase64(undefined)).toThrow(TypeError)
+    expect(() => byte.toBase64(undefined)).toThrow(AssertionError)
   })
 })
 
@@ -45,9 +46,9 @@ describe('byte.fromBase64', () => {
     expect(byte.fromBase64(byte.toBase64(original))).toBe(original)
   })
   it('throws if value is not a string', () => {
-    expect(() => byte.fromBase64(123)).toThrow(TypeError)
-    expect(() => byte.fromBase64(null)).toThrow(TypeError)
-    expect(() => byte.fromBase64(undefined)).toThrow(TypeError)
+    expect(() => byte.fromBase64(123)).toThrow(AssertionError)
+    expect(() => byte.fromBase64(null)).toThrow(AssertionError)
+    expect(() => byte.fromBase64(undefined)).toThrow(AssertionError)
   })
 })
 
@@ -63,9 +64,9 @@ describe('byte.fromBase64Bytes', () => {
     expect(byte.fromBase64Bytes('aGVsbG8=') instanceof Uint8Array).toBe(true)
   })
   it('throws if value is not a string', () => {
-    expect(() => byte.fromBase64Bytes(123)).toThrow(TypeError)
-    expect(() => byte.fromBase64Bytes(null)).toThrow(TypeError)
-    expect(() => byte.fromBase64Bytes(undefined)).toThrow(TypeError)
+    expect(() => byte.fromBase64Bytes(123)).toThrow(AssertionError)
+    expect(() => byte.fromBase64Bytes(null)).toThrow(AssertionError)
+    expect(() => byte.fromBase64Bytes(undefined)).toThrow(AssertionError)
   })
 })
 
@@ -84,13 +85,13 @@ describe('byte.toHex', () => {
     expect(() => byte.fromHex('')).toThrow()
   })
   it('throws if value is a string', () => {
-    expect(() => byte.toHex('hello')).toThrow(TypeError)
+    expect(() => byte.toHex('hello')).toThrow(AssertionError)
   })
   it('throws if value is null', () => {
-    expect(() => byte.toHex(null)).toThrow(TypeError)
+    expect(() => byte.toHex(null)).toThrow(AssertionError)
   })
   it('throws if value is undefined', () => {
-    expect(() => byte.toHex(undefined)).toThrow(TypeError)
+    expect(() => byte.toHex(undefined)).toThrow(AssertionError)
   })
 })
 
@@ -106,18 +107,18 @@ describe('byte.fromHex', () => {
     expect(byte.fromHex(byte.toHex(original))).toEqual(original)
   })
   it('throws if value is an empty string', () => {
-    expect(() => byte.fromHex('')).toThrow(TypeError)
+    expect(() => byte.fromHex('')).toThrow(AssertionError)
   })
   it('throws if value has odd length', () => {
-    expect(() => byte.fromHex('abc')).toThrow(TypeError)
+    expect(() => byte.fromHex('abc')).toThrow(AssertionError)
   })
   it('throws if value contains non-hex characters', () => {
-    expect(() => byte.fromHex('zz')).toThrow(TypeError)
+    expect(() => byte.fromHex('zz')).toThrow(AssertionError)
   })
   it('throws if value is not a string', () => {
-    expect(() => byte.fromHex(123)).toThrow(TypeError)
-    expect(() => byte.fromHex(null)).toThrow(TypeError)
-    expect(() => byte.fromHex(undefined)).toThrow(TypeError)
+    expect(() => byte.fromHex(123)).toThrow(AssertionError)
+    expect(() => byte.fromHex(null)).toThrow(AssertionError)
+    expect(() => byte.fromHex(undefined)).toThrow(AssertionError)
   })
 })
 
@@ -144,12 +145,12 @@ describe('byte.dataUriToBlob', () => {
     expect(text).toBe('hello')
   })
   it('throws if value is not a valid data URI', () => {
-    expect(() => byte.dataUriToBlob('hello')).toThrow(TypeError)
-    expect(() => byte.dataUriToBlob('data:text/plain,hello')).toThrow(TypeError)
+    expect(() => byte.dataUriToBlob('hello')).toThrow(AssertionError)
+    expect(() => byte.dataUriToBlob('data:text/plain,hello')).toThrow(AssertionError)
   })
   it('throws if value is not a string', () => {
-    expect(() => byte.dataUriToBlob(null)).toThrow(TypeError)
-    expect(() => byte.dataUriToBlob(undefined)).toThrow(TypeError)
-    expect(() => byte.dataUriToBlob(123)).toThrow(TypeError)
+    expect(() => byte.dataUriToBlob(null)).toThrow(AssertionError)
+    expect(() => byte.dataUriToBlob(undefined)).toThrow(AssertionError)
+    expect(() => byte.dataUriToBlob(123)).toThrow(AssertionError)
   })
 })

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { assert, is } from '../../src/predicates'
+import { assert, is, AssertionError } from '../../src/predicates'
 
 describe('assert.that', () => {
   it('should not throw when validator returns true', () => {
@@ -14,10 +14,10 @@ describe('assert.that', () => {
     }).not.toThrow()
   })
 
-  it('should throw TypeError when validator returns false', () => {
+  it('should throw AssertionError when validator returns false', () => {
     expect(() => {
       assert.that(5, (v) => v === 10, 'Should be 10')
-    }).toThrow(TypeError)
+    }).toThrow(AssertionError)
     expect(() => {
       assert.that(5, (v) => v === 10, 'Should be 10')
     }).toThrow('Should be 10')
@@ -244,12 +244,12 @@ describe('assert.all', () => {
 
     expect(validationCount).toBe(1)
   })
-  it('should throw TypeError specifically', () => {
+  it('should throw AssertionError specifically', () => {
     expect(() => {
       assert.all([
         { value: 'test', validator: () => false, message: 'Error' }
       ])
-    }).toThrow(TypeError)
+    }).toThrow(AssertionError)
   })
 })
 
@@ -321,7 +321,7 @@ describe('assert.any', () => {
         { value: 5, validator: is.string, message: 'Must be string' },
         { value: 5, validator: is.boolean, message: 'Must be boolean' }
       ])
-    }).toThrow(TypeError)
+    }).toThrow(AssertionError)
   })
   it('throws a message combining all messages with "or"', () => {
     expect(() => {

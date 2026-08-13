@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { has } from '../../src/predicates'
+import { has } from '../../src/predicates/index.js'
 
 describe('has.key', () => {
   it('should return true if object has the key', () => {

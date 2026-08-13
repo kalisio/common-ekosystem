@@ -1,3 +1,4 @@
+import proj4 from 'proj4'
 import { assert, is, conform, optional } from '@kalisio/common-core/predicates'
 import { math } from '@kalisio/common-core/utilities'
 import { AXES } from './axes.js'
@@ -15,7 +16,7 @@ import {
   angleBetweenNVectors,
   destinationNVector
 } from './nvector.js'
-import { reprojectCoordinates, hasProjection } from './projections.js'
+import { hasProjection } from './projections.js'
 
 export const IS_SAME_POSITION_OPTIONS_SCHEMA = {
   precision: optional(is.number),
@@ -54,17 +55,10 @@ export function parsePosition (pattern) {
   }
 }
 
-export function isValidCoordinates (coordinates) {
+export function isValidPosition (coordinates) {
   if (!is.arrayOfLengthBetween(coordinates, 2, 3)) return false
   if (!is.number(coordinates[0]) || !is.number(coordinates[1])) return false
   if (coordinates.length === 3 && !is.number(coordinates[2])) return false
-  return true
-}
-
-export function isValidPosition (coordinates) {
-  if (!isValidCoordinates(coordinates)) return false
-  if (!is.inRange(coordinates[0], -180, 180)) return false
-  if (!is.inRange(coordinates[1], -90, 90)) return false
   return true
 }
 
@@ -121,8 +115,8 @@ export function reprojectPosition (position, source, target) {
   assert.all([
     {
       value: position,
-      validator: (v) => is.arrayOfLengthBetween(v, 2, 3) && v.every(is.number),
-      message: 'position must be a tuple of 2 or 3 numbers'
+      validator: isValidPosition,
+      message: 'position must be a valid position'
     },
     {
       value: source,
@@ -135,7 +129,7 @@ export function reprojectPosition (position, source, target) {
       message: `unknown target projection: ${target}`
     }
   ])
-  return reprojectCoordinates(position, source, target)
+  return proj4(source, target, position)
 }
 
 export function destinationFromPosition (position, bearing, distance) {

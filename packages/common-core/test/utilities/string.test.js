@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { string } from '../../src/utilities/string'
+import { string } from '../../src/utilities/index.js'
 
 describe('string.normalize', () => {
   it('returns the string unchanged by default', () => {

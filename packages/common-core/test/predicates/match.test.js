@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { match } from '../../src/predicates'
+import { match } from '../../src/predicates/index.js'
 
 describe('match.pattern', () => {
   it('should return true when string match the pattern', () => {

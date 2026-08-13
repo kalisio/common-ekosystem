@@ -1,6 +1,6 @@
 import { is } from './is.js'
 import { has } from './has.js'
-import { assert } from './assert.js'
+import { assert, AssertionError } from './assert.js'
 
 function check (obj, schema, path = '') {
   return Object.entries(schema).every(([key, validator]) => {
@@ -18,7 +18,7 @@ function check (obj, schema, path = '') {
       return validator(value)
     }
     // raise an error
-    throw new TypeError(`Invalid validator for key "${fullPath}"`)
+    throw new AssertionError(`Invalid validator for key "${fullPath}"`)
   })
 }
 

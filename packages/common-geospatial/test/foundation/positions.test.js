@@ -167,6 +167,6 @@ describe('reprojectPositions', () => {
   })
 
   it('propagates leaf validation for a non-finite coordinate', () => {
-    expect(() => reprojectPositions([[2.35, 48.85], [NaN, 5]], SOURCE, TARGET)).toThrow(/number/)
+    expect(() => reprojectPositions([[2.35, 48.85], [NaN, 5]], SOURCE, TARGET)).toThrow(/position must be a valid position/)
   })
 })

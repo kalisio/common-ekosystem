@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { optional, is } from '../../src/predicates'
+import { optional, is } from '../../src/predicates/index.js'
 
 describe('optional', () => {
   it('should throw if validator is not a function', () => {

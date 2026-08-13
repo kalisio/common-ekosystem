@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { file } from '../../src/utilities'
+import { AssertionError } from '../../src/predicates/index.js'
+import { file } from '../../src/utilities/index.js'
 
 describe('file.parse', () => {
   it('returns the components of a Unix path', () => {
@@ -84,9 +85,9 @@ describe('file.parse', () => {
   })
 
   it('throws if filePath is not a string', () => {
-    expect(() => file.parse(123)).toThrow(TypeError)
-    expect(() => file.parse(null)).toThrow(TypeError)
-    expect(() => file.parse(undefined)).toThrow(TypeError)
+    expect(() => file.parse(123)).toThrow(AssertionError)
+    expect(() => file.parse(null)).toThrow(AssertionError)
+    expect(() => file.parse(undefined)).toThrow(AssertionError)
   })
 })
 
@@ -116,7 +117,7 @@ describe('file.formatSize', () => {
   })
 
   it('throws if bytes is not a number', () => {
-    expect(() => file.formatSize('1024')).toThrow(TypeError)
-    expect(() => file.formatSize(null)).toThrow(TypeError)
+    expect(() => file.formatSize('1024')).toThrow(AssertionError)
+    expect(() => file.formatSize(null)).toThrow(AssertionError)
   })
 })

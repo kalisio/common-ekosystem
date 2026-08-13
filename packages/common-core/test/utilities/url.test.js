@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { url } from '../../src/utilities'
+import { url } from '../../src/utilities/index.js'
 
 describe('url.build', () => {
   it('builds a url with valid params', () => {

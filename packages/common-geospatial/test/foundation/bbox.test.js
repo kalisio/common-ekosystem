@@ -22,16 +22,6 @@ describe('isValidBBox', () => {
     expect(isValidBBox([-10, -20, 10, 20, 0])).toBe(false)
   })
 
-  it('returns false for invalid south-west position', () => {
-    expect(isValidBBox([-181, -20, 10, 20])).toBe(false)
-    expect(isValidBBox([-10, -91, 10, 20])).toBe(false)
-  })
-
-  it('returns false for invalid north-east position', () => {
-    expect(isValidBBox([-10, -20, 181, 20])).toBe(false)
-    expect(isValidBBox([-10, -20, 10, 91])).toBe(false)
-  })
-
   it('returns false when south > north', () => {
     expect(isValidBBox([-10, 20, 10, -20])).toBe(false)
   })
@@ -62,19 +52,13 @@ describe('is3DBBox', () => {
   it('throws for invalid bbox', () => {
     expect(() => is3DBBox(null)).toThrow()
     expect(() => is3DBBox([])).toThrow()
-    expect(() => is3DBBox([-181, -20, 10, 20])).toThrow()
   })
 })
 
 describe('mergeBBox', () => {
-  it('throws for invalid bbox1', () => {
+  it('throws for invalid bbox', () => {
     expect(() => mergeBBox(null, [-10, -20, 10, 20])).toThrow()
-    expect(() => mergeBBox([-181, -20, 10, 20], [-10, -20, 10, 20])).toThrow()
-  })
-
-  it('throws for invalid bbox2', () => {
     expect(() => mergeBBox([-10, -20, 10, 20], null)).toThrow()
-    expect(() => mergeBBox([-10, -20, 10, 20], [-181, -20, 10, 20])).toThrow()
   })
 
   it('merges two 2D bboxes', () => {
@@ -128,7 +112,6 @@ describe('computeBBox', () => {
   })
 
   it('throws for invalid positions', () => {
-    expect(() => computeBBox([[999, 999]])).toThrow()
     expect(() => computeBBox([null])).toThrow()
   })
 
@@ -213,7 +196,6 @@ describe('truncateBBox', () => {
   it('throws if bbox is invalid', () => {
     expect(() => truncateBBox(null)).toThrow()
     expect(() => truncateBBox([])).toThrow()
-    expect(() => truncateBBox([-181, -20, 10, 20])).toThrow()
   })
 
   it('throws if precision is out of range', () => {

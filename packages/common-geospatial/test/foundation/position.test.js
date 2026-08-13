@@ -6,6 +6,7 @@ import {
   is3DPosition,
   isSamePosition,
   truncatePosition,
+  reprojectPosition,
   distanceBetweenPositions,
   destinationFromPosition,
   DEFAULT_COORDINATE_PRECISION,
@@ -108,16 +109,6 @@ describe('isValidPosition', () => {
     expect(isValidPosition([2.3522, undefined])).toBe(false)
   })
 
-  it('returns false for out of range longitude', () => {
-    expect(isValidPosition([-181, 48.8566])).toBe(false)
-    expect(isValidPosition([181, 48.8566])).toBe(false)
-  })
-
-  it('returns false for out of range latitude', () => {
-    expect(isValidPosition([2.3522, -91])).toBe(false)
-    expect(isValidPosition([2.3522, 91])).toBe(false)
-  })
-
   it('returns false for invalid altitude', () => {
     expect(isValidPosition([2.3522, 48.8566, NaN])).toBe(false)
     expect(isValidPosition([2.3522, 48.8566, '100'])).toBe(false)
@@ -152,14 +143,9 @@ describe('is3DPosition', () => {
 })
 
 describe('isSamePosition', () => {
-  it('throws for invalid position1', () => {
+  it('throws for invalid positions', () => {
     expect(() => isSamePosition(null, [2.3522, 48.8566])).toThrow()
-    expect(() => isSamePosition([999, 999], [2.3522, 48.8566])).toThrow()
-  })
-
-  it('throws for invalid position2', () => {
     expect(() => isSamePosition([2.3522, 48.8566], null)).toThrow()
-    expect(() => isSamePosition([2.3522, 48.8566], [999, 999])).toThrow()
   })
 
   it('throws for invalid options', () => {
@@ -247,7 +233,6 @@ describe('truncatePosition', () => {
 
   it('throws if position is invalid', () => {
     expect(() => truncatePosition(null)).toThrow()
-    expect(() => truncatePosition([999, 48.8566])).toThrow()
     expect(() => truncatePosition('not a position')).toThrow()
   })
 
@@ -280,7 +265,6 @@ describe('distanceBetweenPositions', () => {
   })
   it('throws for an invalid position', () => {
     expect(() => distanceBetweenPositions(null, [0, 0])).toThrow()
-    expect(() => distanceBetweenPositions([0, 0], [999, 0])).toThrow()
   })
 })
 
@@ -321,10 +305,57 @@ describe('destinationFromPosition', () => {
   })
   it('throws for an invalid position', () => {
     expect(() => destinationFromPosition(null, 0, 1000)).toThrow()
-    expect(() => destinationFromPosition([999, 0], 0, 1000)).toThrow()
   })
   it('throws for a non-numeric bearing or distance', () => {
     expect(() => destinationFromPosition([0, 0], 'north', 1000)).toThrow()
     expect(() => destinationFromPosition([0, 0], 0, 'far')).toThrow()
+  })
+})
+
+describe('reprojectPosition', () => {
+  it('is the identity when source and target are equal', () => {
+    const result = reprojectPosition([2.3522, 48.8566], 'EPSG:4326', 'EPSG:4326')
+    expect(result[0]).toBeCloseTo(2.3522, 9)
+    expect(result[1]).toBeCloseTo(48.8566, 9)
+  })
+
+  it('maps the origin to the origin (4326 → 3857)', () => {
+    const [x, y] = reprojectPosition([0, 0], 'EPSG:4326', 'EPSG:3857')
+    expect(x).toBeCloseTo(0, 6)
+    expect(y).toBeCloseTo(0, 6)
+  })
+
+  it('round-trips 4326 → 3857 → 4326', () => {
+    const projected = reprojectPosition([2.3522, 48.8566], 'EPSG:4326', 'EPSG:3857')
+    const back = reprojectPosition(projected, 'EPSG:3857', 'EPSG:4326')
+    expect(back[0]).toBeCloseTo(2.3522, 6)
+    expect(back[1]).toBeCloseTo(48.8566, 6)
+  })
+
+  it('preserves coordinate signs into Web Mercator', () => {
+    const [x, y] = reprojectPosition([2.3522, 48.8566], 'EPSG:4326', 'EPSG:3857')
+    // positive lon/lat → positive easting/northing, in metric ranges
+    expect(x).toBeGreaterThan(0)
+    expect(y).toBeGreaterThan(0)
+    expect(Math.abs(x)).toBeGreaterThan(180) // no longer degrees
+  })
+
+  it('passes altitude through on a 3D position', () => {
+    const result = reprojectPosition([2.3522, 48.8566, 100], 'EPSG:4326', 'EPSG:3857')
+    expect(result).toHaveLength(3)
+    expect(result[2]).toBeCloseTo(100, 6)
+  })
+
+  it('throws for an invalid position', () => {
+    expect(() => reprojectPosition(null, 'EPSG:4326', 'EPSG:3857')).toThrow()
+    expect(() => reprojectPosition([2.3522], 'EPSG:4326', 'EPSG:3857')).toThrow()
+  })
+
+  it('throws for an unknown source projection', () => {
+    expect(() => reprojectPosition([2.3522, 48.8566], 'EPSG:0000', 'EPSG:3857')).toThrow()
+  })
+
+  it('throws for an unknown target projection', () => {
+    expect(() => reprojectPosition([2.3522, 48.8566], 'EPSG:4326', 'EPSG:0000')).toThrow()
   })
 })

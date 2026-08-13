@@ -248,22 +248,22 @@ describe('reprojectGeoJson', () => {
   describe('leaf coordinate validation propagates through the walk', () => {
     it('rejects a non-finite coordinate', () => {
       const geoJson = { type: 'LineString', coordinates: [[2.35, 48.85], [NaN, 48.90]] }
-      expect(() => reprojectGeoJson(geoJson, SOURCE, TARGET)).toThrow(/number/)
+      expect(() => reprojectGeoJson(geoJson, SOURCE, TARGET)).toThrow(/position must be a valid position/)
     })
 
     it('rejects a non-number coordinate', () => {
       const geoJson = { type: 'Point', coordinates: ['2.35', '48.85'] }
-      expect(() => reprojectGeoJson(geoJson, SOURCE, TARGET)).toThrow(/number/)
+      expect(() => reprojectGeoJson(geoJson, SOURCE, TARGET)).toThrow(/position must be a valid position/)
     })
 
     it('rejects a coordinate tuple that is too short', () => {
       const geoJson = { type: 'Point', coordinates: [2.35] }
-      expect(() => reprojectGeoJson(geoJson, SOURCE, TARGET)).toThrow(/number/)
+      expect(() => reprojectGeoJson(geoJson, SOURCE, TARGET)).toThrow(/position must be a valid position/)
     })
 
     it('rejects a coordinate tuple that is too long', () => {
       const geoJson = { type: 'Point', coordinates: [2.35, 48.85, 100, 7] }
-      expect(() => reprojectGeoJson(geoJson, SOURCE, TARGET)).toThrow(/number/)
+      expect(() => reprojectGeoJson(geoJson, SOURCE, TARGET)).toThrow(/position must be a valid position/)
     })
   })
 

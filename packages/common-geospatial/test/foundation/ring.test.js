@@ -117,10 +117,6 @@ describe('isValidRing', () => {
     expect(isValidRing([[0, 0], [2, 0], [2, 1], [0, 1]])).toBe(false)
   })
 
-  it('returns false when a position is invalid', () => {
-    expect(isValidRing([[0, 0], [200, 0], [2, 1], [0, 0]])).toBe(false)
-  })
-
   it('returns false for a non-array', () => {
     expect(isValidRing(null)).toBe(false)
     expect(isValidRing('ring')).toBe(false)

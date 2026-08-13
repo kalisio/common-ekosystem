@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { conform, is, optional } from '../../src/predicates'
+import { conform, is, optional, AssertionError } from '../../src/predicates/index.js'
 
 describe('conform.schema', () => {
   describe('arguments validation', () => {
@@ -42,19 +42,19 @@ describe('conform.schema', () => {
     it('should throw if a validator is a number', () => {
       const schema = { name: 42 }
       const obj = { name: 'Alice' }
-      expect(() => conform.schema(obj, schema)).toThrow(TypeError)
+      expect(() => conform.schema(obj, schema)).toThrow(AssertionError)
     })
 
     it('should throw if a validator is a string', () => {
       const schema = { name: 'string' }
       const obj = { name: 'Alice' }
-      expect(() => conform.schema(obj, schema)).toThrow(TypeError)
+      expect(() => conform.schema(obj, schema)).toThrow(AssertionError)
     })
 
     it('should throw if a validator is null', () => {
       const schema = { name: null }
       const obj = { name: 'Alice' }
-      expect(() => conform.schema(obj, schema)).toThrow(TypeError)
+      expect(() => conform.schema(obj, schema)).toThrow(AssertionError)
     })
   })
 

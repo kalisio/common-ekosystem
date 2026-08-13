@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { locale } from '../../src/utilities'
+import { locale } from '../../src/utilities/index.js'
 
 describe('locale.get', () => {
   it('returns a valid BCP 47 locale string', () => {

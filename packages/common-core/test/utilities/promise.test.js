@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { promise } from '../../src/utilities'
+import { AssertionError } from '../../src/predicates/index.js'
+import { promise } from '../../src/utilities/index.js'
 
 describe('promise.createQueryable', () => {
   it('accepts a Promise as argument', () => {
@@ -16,10 +17,10 @@ describe('promise.createQueryable', () => {
   })
 
   it('throws if argument is neither a Promise nor a function', () => {
-    expect(() => promise.createQueryable(42)).toThrow(TypeError)
-    expect(() => promise.createQueryable('hello')).toThrow(TypeError)
-    expect(() => promise.createQueryable(null)).toThrow(TypeError)
-    expect(() => promise.createQueryable(undefined)).toThrow(TypeError)
+    expect(() => promise.createQueryable(42)).toThrow(AssertionError)
+    expect(() => promise.createQueryable('hello')).toThrow(AssertionError)
+    expect(() => promise.createQueryable(null)).toThrow(AssertionError)
+    expect(() => promise.createQueryable(undefined)).toThrow(AssertionError)
   })
 
   it('is pending immediately after creation', () => {
