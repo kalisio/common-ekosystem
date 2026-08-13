@@ -32,7 +32,7 @@ than four positions, the ring is left as is: detecting and repairing a degenerat
 of the `validate` and `fix` operators.
 
 ::: warning
-`truncateGeoJson` mutates the input object in place and returns the same reference.
+`truncateGeoJson` mutates the input GeoJSON object in place and returns the same reference.
 :::
 
 ### Parameters
