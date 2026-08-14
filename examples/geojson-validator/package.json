@@ -6,7 +6,8 @@
   "packageManager": "pnpm@10.1.0",
   "standard": {
     "globals": [
-      "FileReader"
+      "FileReader",
+      "requestAnimationFrame"
     ]
   },
   "scripts": {
@@ -22,7 +23,8 @@
   "license": "MIT",
   "dependencies": {
     "@kalisio/common-core": "workspace:*",
-    "@kalisio/common-geospatial": "workspace:*"
+    "@kalisio/common-geospatial": "workspace:*",
+    "maplibre-gl": "^5.0.0"
   },
   "engines": {
     "node": "^24 || ^22 || ^20",

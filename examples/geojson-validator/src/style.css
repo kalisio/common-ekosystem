@@ -57,18 +57,13 @@ header code {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-
   min-height: 130px;
   margin-bottom: 1.5rem;
   padding: 1.5rem;
-
   border: 2px dashed #cbd5e1;
   border-radius: 10px;
-
   background: #ffffff;
-
   cursor: pointer;
-
   transition:
     border-color 150ms ease,
     background-color 150ms ease;
@@ -101,14 +96,12 @@ header code {
 
 /* Sections */
 
-.editor,
+.geojson,
 .validation,
 .fix-result {
   overflow: hidden;
-
   border: 1px solid #e2e8f0;
   border-radius: 10px;
-
   background: #ffffff;
 }
 
@@ -120,10 +113,8 @@ header code {
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   min-height: 54px;
   padding: 0 1.25rem;
-
   border-bottom: 1px solid #e2e8f0;
 }
 
@@ -133,112 +124,11 @@ header code {
   font-weight: 600;
 }
 
-/* Editor */
-
-textarea {
-  display: block;
-
-  width: 100%;
-  min-height: 350px;
-
-  padding: 1.25rem;
-
-  border: 0;
-  outline: none;
-
-  resize: vertical;
-
-  background: #0f172a;
-  color: #e2e8f0;
-
-  font-family:
-    "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-  font-size: 0.875rem;
-  line-height: 1.6;
-
-  tab-size: 2;
-}
-
-/* Actions */
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-
-  margin: 1rem 0;
-}
-
-.actions button {
-  padding: 0.65rem 1.1rem;
-
-  border: 0;
-  border-radius: 6px;
-
-  font: inherit;
-  font-size: 0.875rem;
-  font-weight: 600;
-
-  cursor: pointer;
-
-  transition:
-    background-color 150ms ease,
-    border-color 150ms ease;
-}
-
-#validate {
-  background: #2563eb;
-  color: white;
-}
-
-#validate:hover {
-  background: #1d4ed8;
-}
-
-#fix {
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
-  color: #334155;
-}
-
-#fix:hover {
-  border-color: #94a3b8;
-  background: #f8fafc;
-}
-
-.actions button:active {
-  transform: translateY(1px);
-}
-
-/* Validation status */
-
-#status {
-  padding: 0.25rem 0.65rem;
-
-  border-radius: 999px;
-
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-#status.valid {
-  background: #dcfce7;
-  color: #15803d;
-}
-
-#status.invalid {
-  background: #fee2e2;
-  color: #b91c1c;
-}
-
 /* Tabs */
 
 .tabs {
   display: flex;
   padding: 0 1rem;
-
   border-bottom: 1px solid #e2e8f0;
   background: #f8fafc;
 }
@@ -247,18 +137,13 @@ textarea {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-
   padding: 0.85rem 0.75rem;
-
   border: 0;
   border-bottom: 2px solid transparent;
-
   background: transparent;
   color: #64748b;
-
   font: inherit;
   font-size: 0.875rem;
-
   cursor: pointer;
 }
 
@@ -276,26 +161,129 @@ textarea {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   min-width: 1.4rem;
   height: 1.4rem;
   padding: 0 0.4rem;
-
   border-radius: 999px;
-
   background: #e2e8f0;
   color: #475569;
-
   font-size: 0.7rem;
   font-weight: 700;
 }
 
-/* Tab panels */
+/* GeoJSON views */
+
+.view-panel {
+  display: none;
+}
+
+.view-panel.active {
+  display: block;
+}
+
+textarea {
+  display: block;
+  width: 100%;
+  height: 500px;
+  padding: 1.25rem;
+  border: 0;
+  outline: none;
+  resize: vertical;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-family:
+    "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  tab-size: 2;
+}
+
+#map {
+  width: 100%;
+  height: 500px;
+}
+
+.maplibregl-map {
+  font-family: inherit;
+}
+
+/* Actions */
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.actions button {
+  padding: 0.65rem 1.1rem;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+
+#validate {
+  border: 0;
+  background: #2563eb;
+  color: white;
+}
+
+#validate:hover {
+  background: #1d4ed8;
+}
+
+#fix,
+#export {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+}
+
+#fix:hover,
+#export:hover {
+  border-color: #94a3b8;
+  background: #f8fafc;
+}
+
+.actions button:active {
+  transform: translateY(1px);
+}
+
+/* Validation */
+
+#status {
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+#status.valid {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+#status.invalid {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Result panels */
 
 .tab-panel {
   display: none;
   min-height: 100px;
+  max-height: 300px;
   padding: 0 1.25rem;
+  overflow-y: auto;
 }
 
 .tab-panel.active {
@@ -304,9 +292,7 @@ textarea {
 
 .empty {
   margin: 1.5rem 0;
-
   color: #94a3b8;
-
   font-size: 0.875rem;
 }
 
@@ -316,9 +302,7 @@ textarea {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 0.35rem 1rem;
-
   padding: 1rem 0;
-
   border-bottom: 1px solid #f1f5f9;
 }
 
@@ -328,27 +312,21 @@ textarea {
 
 .issue code {
   padding: 0.2rem 0.4rem;
-
   border-radius: 4px;
-
   background: #f1f5f9;
   color: #475569;
-
   font-size: 0.75rem;
   font-weight: 600;
 }
 
 .issue span {
   align-self: center;
-
   font-size: 0.875rem;
 }
 
 .issue small {
   grid-column: 1 / -1;
-
   color: #94a3b8;
-
   font-family:
     "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   font-size: 0.75rem;
@@ -358,24 +336,19 @@ textarea {
 
 .statistics {
   padding: 1rem 1.25rem;
-
   border-top: 1px solid #e2e8f0;
-
   background: #f8fafc;
 }
 
 .statistics h3 {
   margin: 0 0 0.75rem;
-
   font-size: 0.875rem;
   font-weight: 600;
 }
 
 .statistics pre {
   margin: 0;
-
   color: #475569;
-
   font-family:
     "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   font-size: 0.8rem;
@@ -390,8 +363,9 @@ textarea {
     padding: 1.5rem 0;
   }
 
-  textarea {
-    min-height: 300px;
+  textarea,
+  #map {
+    height: 400px;
   }
 
   .actions {

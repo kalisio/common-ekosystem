@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>GeoJSON Validator</title>
 </head>
 
@@ -11,9 +10,8 @@
   <main>
     <header>
       <h1>GeoJSON Validator</h1>
-
       <p>
-        Validate and fix GeoJSON geometries using
+        Validate, fix and preview GeoJSON using
         <code>@kalisio/common-geospatial</code>.
       </p>
     </header>
@@ -21,7 +19,6 @@
     <section id="drop-zone" class="drop-zone">
       <strong>Drop a GeoJSON file here</strong>
       <span id="file-name">or click to select a file</span>
-
       <input
         id="file-input"
         type="file"
@@ -29,28 +26,53 @@
       >
     </section>
 
-    <section class="editor">
+    <section class="geojson">
       <div class="section-header">
         <h2>GeoJSON</h2>
       </div>
 
-      <textarea
-        id="input"
-        spellcheck="false"
-        placeholder="Paste your GeoJSON here..."
-      >{
-  "type": "Point",
-  "coordinates": [2.35, 48.85]
+      <div class="tabs">
+        <button id="code-tab" class="tab active" type="button">
+          Code
+        </button>
+        <button id="map-tab" class="tab" type="button">
+          Map
+        </button>
+      </div>
+
+      <div id="code-panel" class="view-panel active">
+        <textarea
+          id="input"
+          spellcheck="false"
+          placeholder="Paste your GeoJSON here..."
+        >{
+  "type": "Polygon",
+  "coordinates": [
+    [
+      [2.30, 48.84],
+      [2.40, 48.84],
+      [2.40, 48.90],
+      [2.30, 48.90],
+      [2.30, 48.84]
+    ]
+  ]
 }</textarea>
+      </div>
+
+      <div id="map-panel" class="view-panel">
+        <div id="map"></div>
+      </div>
     </section>
 
     <div class="actions">
       <button id="validate" type="button">
         Validate GeoJSON
       </button>
-
-      <button id="fix" class="secondary" type="button">
+      <button id="fix" type="button">
         Fix GeoJSON
+      </button>
+      <button id="export" type="button">
+        Export GeoJSON
       </button>
     </div>
 
@@ -65,7 +87,6 @@
           Errors
           <span id="errors-count">0</span>
         </button>
-
         <button id="warnings-tab" class="tab" type="button">
           Warnings
           <span id="warnings-count">0</span>
@@ -100,7 +121,6 @@
           Corrections
           <span id="corrections-count">0</span>
         </button>
-
         <button id="unfixed-tab" class="tab" type="button">
           Unfixed
           <span id="unfixed-count">0</span>
@@ -121,6 +141,6 @@
     </section>
   </main>
 
-  <script type="module" src="./src/validator.js"></script>
+  <script type="module" src="./src/main.js"></script>
 </body>
 </html>
