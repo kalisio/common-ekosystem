@@ -3,12 +3,14 @@ import { withMermaid } from 'vitepress-plugin-mermaid'
 import { generateSideBar } from 'vitepress-theme-kalisio/sidebar'
 import packages from './packages.json'
 
-const sortedPackagesNavBar = packages.sort().map(pkg => {
+const sortedPackages = [...packages].sort()
+
+const sortedPackagesNavBar = sortedPackages.map(pkg => {
   return { text: pkg, link: `/packages/${pkg}/` }
 })
 
 const sortedPackageSidebar = Object.fromEntries(
-  packages.sort().map(pkg => [`/packages/${pkg}/`, generateSideBar(pkg)])
+  sortedPackages.map(pkg => [`/packages/${pkg}/`, generateSideBar(pkg)])
 )
 
 export default withMermaid(
