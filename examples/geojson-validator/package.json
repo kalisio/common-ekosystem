@@ -1,13 +1,12 @@
 {
-  "name": "shapes",
-  "description": "Shapes example",
+  "name": "geojson-validator",
+  "description": "geojson-validator example",
   "type": "module",
   "private": true,
   "packageManager": "pnpm@10.1.0",
   "standard": {
     "globals": [
-      "Vue",
-      "Quasar"
+      "FileReader"
     ]
   },
   "scripts": {
@@ -15,14 +14,15 @@
     "lint": "standard --fix"
   },
   "author": {
-    "name": "KALISIO <contact@kalisio.com>",
+    "name": "KALISIO",
+    "email": "contact@kalisio.com",
     "url": "https://github.com/kalisio"
   },
   "contributors": [],
   "license": "MIT",
   "dependencies": {
     "@kalisio/common-core": "workspace:*",
-    "@kalisio/common-graphics": "workspace:*"
+    "@kalisio/common-geospatial": "workspace:*"
   },
   "engines": {
     "node": "^24 || ^22 || ^20",

@@ -37,8 +37,10 @@
     "kalisio"
   ],
   "author": {
-    "name": "KALISIO <contact@kalisio.com>",
-    "url": "https://github.com/kalisio"
+    "name": "KALISIO",
+    "email": "contact@kalisio.com",
+    "url": "https://github.com/kalisio",
+    "logo": "https://kalisio.github.io/kalisioscope/kalisio/kalisio-logo-light.svg"
   },
   "contributors": [],
   "license": "MIT",

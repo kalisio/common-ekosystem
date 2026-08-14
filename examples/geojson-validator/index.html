@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>GeoJSON Validator</title>
+</head>
+
+<body>
+  <main>
+    <header>
+      <h1>GeoJSON Validator</h1>
+
+      <p>
+        Validate GeoJSON geometries using
+        <code>@kalisio/common-geospatial</code>.
+      </p>
+    </header>
+
+    <section id="drop-zone" class="drop-zone">
+      <strong>Drop a GeoJSON file here</strong>
+      <span id="file-name">or click to select a file</span>
+
+      <input
+        id="file-input"
+        type="file"
+        accept=".json,.geojson,application/json"
+      >
+    </section>
+
+    <section class="editor">
+      <div class="section-header">
+        <h2>GeoJSON</h2>
+      </div>
+
+      <textarea
+        id="input"
+        spellcheck="false"
+        placeholder="Paste your GeoJSON here..."
+      >{
+  "type": "Point",
+  "coordinates": [2.35, 48.85]
+}</textarea>
+    </section>
+
+    <div class="actions">
+      <button id="validate" type="button">
+        Validate GeoJSON
+      </button>
+    </div>
+
+    <section class="validation">
+      <div class="section-header">
+        <h2>Validation result</h2>
+        <span id="status"></span>
+      </div>
+
+      <div class="tabs">
+        <button
+          id="errors-tab"
+          class="tab active"
+          type="button"
+        >
+          Errors
+          <span id="errors-count">0</span>
+        </button>
+
+        <button
+          id="warnings-tab"
+          class="tab"
+          type="button"
+        >
+          Warnings
+          <span id="warnings-count">0</span>
+        </button>
+      </div>
+
+      <div id="errors-panel" class="tab-panel active">
+        <div id="errors">
+          <p class="empty">None</p>
+        </div>
+      </div>
+
+      <div id="warnings-panel" class="tab-panel">
+        <div id="warnings">
+          <p class="empty">None</p>
+        </div>
+      </div>
+
+      <div class="statistics">
+        <h3>Statistics</h3>
+        <pre id="statistics"></pre>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="./src/validator.js"></script>
+</body>
+</html>

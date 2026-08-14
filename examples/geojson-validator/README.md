@@ -1,4 +1,4 @@
-# graphics
+# geojson-validator
 
 ## Running the example
 
