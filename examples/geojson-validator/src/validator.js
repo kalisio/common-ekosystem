@@ -1,11 +1,13 @@
 import './style.css'
-import { validateGeoJson } from '@kalisio/common-geospatial'
+import { validateGeoJson, fixGeoJson } from '@kalisio/common-geospatial'
 
 const input = document.querySelector('#input')
 const fileInput = document.querySelector('#file-input')
 const fileName = document.querySelector('#file-name')
 const dropZone = document.querySelector('#drop-zone')
+
 const validateButton = document.querySelector('#validate')
+const fixButton = document.querySelector('#fix')
 
 const status = document.querySelector('#status')
 
@@ -21,7 +23,17 @@ const warningsCount = document.querySelector('#warnings-count')
 
 const statistics = document.querySelector('#statistics')
 
-function selectTab (name) {
+const correctionsTab = document.querySelector('#corrections-tab')
+const unfixedTab = document.querySelector('#unfixed-tab')
+const correctionsPanel = document.querySelector('#corrections-panel')
+const unfixedPanel = document.querySelector('#unfixed-panel')
+
+const corrections = document.querySelector('#corrections')
+const unfixed = document.querySelector('#unfixed')
+const correctionsCount = document.querySelector('#corrections-count')
+const unfixedCount = document.querySelector('#unfixed-count')
+
+function selectValidationTab (name) {
   const showErrors = name === 'errors'
 
   errorsTab.classList.toggle('active', showErrors)
@@ -29,6 +41,16 @@ function selectTab (name) {
 
   errorsPanel.classList.toggle('active', showErrors)
   warningsPanel.classList.toggle('active', !showErrors)
+}
+
+function selectFixTab (name) {
+  const showCorrections = name === 'corrections'
+
+  correctionsTab.classList.toggle('active', showCorrections)
+  unfixedTab.classList.toggle('active', !showCorrections)
+
+  correctionsPanel.classList.toggle('active', showCorrections)
+  unfixedPanel.classList.toggle('active', !showCorrections)
 }
 
 function renderIssues (container, issues) {
@@ -65,11 +87,27 @@ function renderIssues (container, issues) {
       item.appendChild(path)
     }
 
+    if (issue.params) {
+      const params = document.createElement('small')
+      params.textContent = JSON.stringify(issue.params)
+      item.appendChild(params)
+    }
+
     container.appendChild(item)
   }
 }
 
-function renderResult (result) {
+function clearFixResult () {
+  correctionsCount.textContent = '0'
+  unfixedCount.textContent = '0'
+
+  renderIssues(corrections, [])
+  renderIssues(unfixed, [])
+
+  selectFixTab('corrections')
+}
+
+function renderValidationResult (result) {
   const resultErrors = result.errors ?? []
   const resultWarnings = result.warnings ?? []
 
@@ -89,11 +127,28 @@ function renderResult (result) {
   )
 
   if (resultErrors.length > 0) {
-    selectTab('errors')
+    selectValidationTab('errors')
   } else if (resultWarnings.length > 0) {
-    selectTab('warnings')
+    selectValidationTab('warnings')
   } else {
-    selectTab('errors')
+    selectValidationTab('errors')
+  }
+}
+
+function renderFixResult (result) {
+  const resultCorrections = result.corrections ?? []
+  const resultUnfixed = result.unfixed ?? []
+
+  correctionsCount.textContent = resultCorrections.length
+  unfixedCount.textContent = resultUnfixed.length
+
+  renderIssues(corrections, resultCorrections)
+  renderIssues(unfixed, resultUnfixed)
+
+  if (resultUnfixed.length > 0) {
+    selectFixTab('unfixed')
+  } else {
+    selectFixTab('corrections')
   }
 }
 
@@ -113,17 +168,42 @@ function renderJsonError (error) {
 
   statistics.textContent = ''
 
-  selectTab('errors')
+  selectValidationTab('errors')
 }
 
 function validate () {
   try {
     const geoJson = JSON.parse(input.value)
-    const result = validateGeoJson(geoJson)
+    const validation = validateGeoJson(geoJson)
 
-    renderResult(result)
+    renderValidationResult(validation)
+
+    return validation
   } catch (error) {
     renderJsonError(error)
+    return null
+  }
+}
+
+function fix () {
+  try {
+    const geoJson = JSON.parse(input.value)
+    const validation = validateGeoJson(geoJson)
+
+    const result = fixGeoJson(geoJson, {
+      validation
+    })
+
+    input.value = JSON.stringify(result.fixed, null, 2)
+
+    renderFixResult(result)
+
+    // Validate the fixed GeoJSON again
+    const fixedValidation = validateGeoJson(result.fixed)
+    renderValidationResult(fixedValidation)
+  } catch (error) {
+    renderJsonError(error)
+    clearFixResult()
   }
 }
 
@@ -133,6 +213,8 @@ function loadFile (file) {
   reader.addEventListener('load', () => {
     fileName.textContent = file.name
     input.value = reader.result
+
+    clearFixResult()
     validate()
   })
 
@@ -143,14 +225,27 @@ function loadFile (file) {
   reader.readAsText(file)
 }
 
-validateButton.addEventListener('click', validate)
+validateButton.addEventListener('click', () => {
+  clearFixResult()
+  validate()
+})
+
+fixButton.addEventListener('click', fix)
 
 errorsTab.addEventListener('click', () => {
-  selectTab('errors')
+  selectValidationTab('errors')
 })
 
 warningsTab.addEventListener('click', () => {
-  selectTab('warnings')
+  selectValidationTab('warnings')
+})
+
+correctionsTab.addEventListener('click', () => {
+  selectFixTab('corrections')
+})
+
+unfixedTab.addEventListener('click', () => {
+  selectFixTab('unfixed')
 })
 
 fileInput.addEventListener('change', () => {

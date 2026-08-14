@@ -68,6 +68,7 @@ header code {
   background: #ffffff;
 
   cursor: pointer;
+
   transition:
     border-color 150ms ease,
     background-color 150ms ease;
@@ -101,13 +102,18 @@ header code {
 /* Sections */
 
 .editor,
-.validation {
+.validation,
+.fix-result {
   overflow: hidden;
 
   border: 1px solid #e2e8f0;
   border-radius: 10px;
 
   background: #ffffff;
+}
+
+.fix-result {
+  margin-top: 1.5rem;
 }
 
 .section-header {
@@ -158,17 +164,16 @@ textarea {
 .actions {
   display: flex;
   justify-content: flex-end;
+  gap: 0.75rem;
+
   margin: 1rem 0;
 }
 
-#validate {
+.actions button {
   padding: 0.65rem 1.1rem;
 
   border: 0;
   border-radius: 6px;
-
-  background: #2563eb;
-  color: white;
 
   font: inherit;
   font-size: 0.875rem;
@@ -176,14 +181,32 @@ textarea {
 
   cursor: pointer;
 
-  transition: background-color 150ms ease;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+
+#validate {
+  background: #2563eb;
+  color: white;
 }
 
 #validate:hover {
   background: #1d4ed8;
 }
 
-#validate:active {
+#fix {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+}
+
+#fix:hover {
+  border-color: #94a3b8;
+  background: #f8fafc;
+}
+
+.actions button:active {
   transform: translateY(1px);
 }
 
@@ -191,6 +214,7 @@ textarea {
 
 #status {
   padding: 0.25rem 0.65rem;
+
   border-radius: 999px;
 
   font-size: 0.75rem;
@@ -280,7 +304,9 @@ textarea {
 
 .empty {
   margin: 1.5rem 0;
+
   color: #94a3b8;
+
   font-size: 0.875rem;
 }
 
@@ -314,6 +340,7 @@ textarea {
 
 .issue span {
   align-self: center;
+
   font-size: 0.875rem;
 }
 
@@ -333,6 +360,7 @@ textarea {
   padding: 1rem 1.25rem;
 
   border-top: 1px solid #e2e8f0;
+
   background: #f8fafc;
 }
 
@@ -364,6 +392,14 @@ textarea {
 
   textarea {
     min-height: 300px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .actions button {
+    width: 100%;
   }
 
   .issue {

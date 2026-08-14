@@ -13,7 +13,7 @@
       <h1>GeoJSON Validator</h1>
 
       <p>
-        Validate GeoJSON geometries using
+        Validate and fix GeoJSON geometries using
         <code>@kalisio/common-geospatial</code>.
       </p>
     </header>
@@ -48,6 +48,10 @@
       <button id="validate" type="button">
         Validate GeoJSON
       </button>
+
+      <button id="fix" class="secondary" type="button">
+        Fix GeoJSON
+      </button>
     </div>
 
     <section class="validation">
@@ -57,20 +61,12 @@
       </div>
 
       <div class="tabs">
-        <button
-          id="errors-tab"
-          class="tab active"
-          type="button"
-        >
+        <button id="errors-tab" class="tab active" type="button">
           Errors
           <span id="errors-count">0</span>
         </button>
 
-        <button
-          id="warnings-tab"
-          class="tab"
-          type="button"
-        >
+        <button id="warnings-tab" class="tab" type="button">
           Warnings
           <span id="warnings-count">0</span>
         </button>
@@ -91,6 +87,36 @@
       <div class="statistics">
         <h3>Statistics</h3>
         <pre id="statistics"></pre>
+      </div>
+    </section>
+
+    <section class="fix-result">
+      <div class="section-header">
+        <h2>Fix result</h2>
+      </div>
+
+      <div class="tabs">
+        <button id="corrections-tab" class="tab active" type="button">
+          Corrections
+          <span id="corrections-count">0</span>
+        </button>
+
+        <button id="unfixed-tab" class="tab" type="button">
+          Unfixed
+          <span id="unfixed-count">0</span>
+        </button>
+      </div>
+
+      <div id="corrections-panel" class="tab-panel active">
+        <div id="corrections">
+          <p class="empty">None</p>
+        </div>
+      </div>
+
+      <div id="unfixed-panel" class="tab-panel">
+        <div id="unfixed">
+          <p class="empty">None</p>
+        </div>
       </div>
     </section>
   </main>
