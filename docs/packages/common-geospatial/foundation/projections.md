@@ -5,10 +5,13 @@ description: Registration and lookup of coordinate reference system (CRS) defini
 ---
 
 # projections
-
 This module wraps **proj4** to manage coordinate reference system (CRS) definitions.
 
-In addition to the projections provided by proj4, several common WGS84 aliases used by GeoJSON and OGC specifications are automatically registered when the module is loaded.
+The `WGS84` constant (`'WGS84'`) is the canonical name used by the library for the 
+WGS84 geographic coordinate reference system.
+
+In addition to the projections provided by proj4, several common WGS84 aliases used by 
+GeoJSON and OGC specifications are automatically registered when the module is loaded.
 
 ## listProjections
 
