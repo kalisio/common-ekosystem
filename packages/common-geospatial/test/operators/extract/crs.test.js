@@ -1,0 +1,40 @@
+import { describe, it, expect } from 'vitest'
+import { WGS84 } from '../../../src/foundation/index.js'
+import { extractCrs } from '../../../src/operators/index.js'
+import { features } from '../data/feature.fixtures.js'
+import { featureCollections } from '../data/feature-collection.fixtures.js'
+
+describe('extractCrs', () => {
+  it('returns WGS84 when no CRS is declared', () => {
+    expect(extractCrs(features.valid)).toBe(WGS84)
+    expect(extractCrs(featureCollections.valid)).toBe(WGS84)
+  })
+  it('extracts the declared CRS from a feature', () => {
+    expect(extractCrs(features.withCRS)).toBe('urn:ogc:def:crs:OGC:1.3:CRS84')
+  })
+  it('extracts the declared CRS from a feature collection', () => {
+    expect(extractCrs(featureCollections.withValidCRS)).toBe('urn:ogc:def:crs:OGC:1.3:CRS84')
+  })
+  it('normalizes an EPSG URN', () => {
+    const geoJson = {
+      ...features.valid,
+      crs: { type: 'name', properties: { name: 'urn:ogc:def:crs:EPSG::2154' } }
+    }
+    expect(extractCrs(geoJson)).toBe('EPSG:2154')
+  })
+  it('normalizes an EPSG URN case-insensitively', () => {
+    const geoJson = {
+      ...features.valid,
+      crs: { type: 'name', properties: { name: 'URN:OGC:DEF:CRS:EPSG::3857' } }
+    }
+    expect(extractCrs(geoJson)).toBe('EPSG:3857')
+  })
+  it('keeps non-EPSG CRS names unchanged', () => {
+    expect(extractCrs(features.withCRS)).toBe('urn:ogc:def:crs:OGC:1.3:CRS84')
+  })
+  it('throws if geoJson is invalid', () => {
+    expect(() => extractCrs(null)).toThrow()
+    expect(() => extractCrs({ type: 'Invalid' })).toThrow()
+    expect(() => extractCrs('not geojson')).toThrow()
+  })
+})

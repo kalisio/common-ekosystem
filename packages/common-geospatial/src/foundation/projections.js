@@ -1,6 +1,8 @@
 import proj4 from 'proj4'
 import { assert, is } from '@kalisio/common-core/predicates'
 
+export const WGS84 = 'EPSG:4326'
+
 // Register the GeoJSON WGS84 aliases proj4 doesn't know natively
 const WGS84_DEF = '+proj=longlat +datum=WGS84 +no_defs'
 for (const alias of ['CRS:84', 'CRS84', 'WGS84',
