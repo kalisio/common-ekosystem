@@ -69,51 +69,49 @@ describe('validateCRS', () => {
       expect(result.valid).toBe(false)
       expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_CRS_NAME)
     })
-    it('should return unsupported crs if properties.name is not a WGS84 projection', () => {
+    it('should accept a registered non-WGS84 named CRS', () => {
       const result = validateCRS({ type: 'name', properties: { name: 'EPSG:3857' } })
+      expect(result.valid).toBe(true)
+      expect(result.errors).toHaveLength(0)
+    })
+    it('should return unsupported crs for an unregistered named CRS', () => {
+      const result = validateCRS({ type: 'name', properties: { name: 'UNKNOWN:CRS' } })
       expect(result.valid).toBe(false)
       expect(result.errors[0].code).toBe(VALIDATION_CODES.UNSUPPORTED_CRS)
     })
   })
 
   describe('link CRS', () => {
-    it('should accept a valid link CRS with type property', () => {
+    it('should reject a structurally valid link CRS as unsupported', () => {
       const result = validateCRS(crsObjects.validLink)
-      expect(result.valid).toBe(true)
-      expect(result.errors).toHaveLength(0)
-      expect(result.warnings).toHaveLength(0)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.UNSUPPORTED_LINK_CRS)
     })
-
-    it('should accept a valid link CRS without type property', () => {
+    it('should reject a link CRS without type property as unsupported', () => {
       const result = validateCRS(crsObjects.validLinkNoType)
-      expect(result.valid).toBe(true)
-      expect(result.errors).toHaveLength(0)
+      expect(result.valid).toBe(false)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.UNSUPPORTED_LINK_CRS)
     })
-
     it('should return invalid if properties is missing', () => {
       const result = validateCRS(crsObjects.linkMissingProperties)
       expect(result.valid).toBe(false)
       expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_CRS_LINK)
     })
-
     it('should return invalid if properties is null', () => {
       const result = validateCRS(crsObjects.linkNullProperties)
       expect(result.valid).toBe(false)
       expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_CRS_LINK)
     })
-
     it('should return invalid if properties.href is missing', () => {
       const result = validateCRS(crsObjects.linkMissingHref)
       expect(result.valid).toBe(false)
       expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_CRS_LINK)
     })
-
     it('should return invalid if properties.href is an empty string', () => {
       const result = validateCRS(crsObjects.linkEmptyHref)
       expect(result.valid).toBe(false)
       expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_CRS_LINK)
     })
-
     it('should return invalid if properties.href is not a string', () => {
       const result = validateCRS({ type: 'link', properties: { href: 42 } })
       expect(result.valid).toBe(false)

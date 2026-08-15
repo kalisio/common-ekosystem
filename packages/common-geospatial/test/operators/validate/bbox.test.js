@@ -10,47 +10,40 @@ describe('validateBBox', () => {
       expect(result.valid).toBe(false)
       expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_BBOX_LENGTH)
     })
-
     it('should return invalid for a string', () => {
       const result = validateBBox('0,0,1,1')
       expect(result.valid).toBe(false)
       expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_BBOX_LENGTH)
     })
-
     it('should return invalid for an object', () => {
       const result = validateBBox({ west: 0, south: 0, east: 1, north: 1 })
       expect(result.valid).toBe(false)
       expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_BBOX_LENGTH)
     })
-
     it('should return invalid for array of length 3', () => {
       const result = validateBBox(bboxes.wrongLength3)
       expect(result.valid).toBe(false)
       expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_BBOX_LENGTH)
     })
-
     it('should return invalid for array of length 5', () => {
       const result = validateBBox(bboxes.wrongLength5)
       expect(result.valid).toBe(false)
       expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_BBOX_LENGTH)
     })
-
     it('should return invalid for array of length 7', () => {
       const result = validateBBox(bboxes.wrongLength7)
       expect(result.valid).toBe(false)
       expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_BBOX_LENGTH)
     })
-
     it('should return invalid if west is NaN', () => {
       const result = validateBBox(bboxes.withNaN)
       expect(result.valid).toBe(false)
-      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION_COORDINATES)
     })
-
     it('should return invalid if west is null', () => {
       const result = validateBBox(bboxes.withNull)
       expect(result.valid).toBe(false)
-      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION_COORDINATES)
     })
   })
 
@@ -61,7 +54,6 @@ describe('validateBBox', () => {
       expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_LONGITUDE_RANGE)
       expect(result.errors[0].path).toMatch(/min/)
     })
-
     it('should return invalid for out-of-range south latitude', () => {
       const result = validateBBox(bboxes.invalidSouth)
       expect(result.valid).toBe(false)
@@ -77,7 +69,6 @@ describe('validateBBox', () => {
       expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_LONGITUDE_RANGE)
       expect(result.errors[0].path).toMatch(/max/)
     })
-
     it('should return invalid for out-of-range north latitude', () => {
       const result = validateBBox(bboxes.invalidNorth)
       expect(result.valid).toBe(false)
@@ -92,14 +83,12 @@ describe('validateBBox', () => {
       expect(result.valid).toBe(false)
       expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_BBOX_LATITUDE_ORDER)
     })
-
     it('should include the actual south and north values in the error', () => {
       const result = validateBBox([0, 30, 10, 20])
       expect(result.valid).toBe(false)
       expect(result.errors[0].params.south).toBe(30)
       expect(result.errors[0].params.north).toBe(20)
     })
-
     it('should accept south === north', () => {
       const result = validateBBox(bboxes.southEqualsNorth)
       expect(result.valid).toBe(true)
@@ -113,7 +102,6 @@ describe('validateBBox', () => {
       expect(result.valid).toBe(true)
       expect(result.warnings.some(w => w.code === VALIDATION_CODES.BBOX_ANTIMERIDIAN_CROSSING)).toBe(true)
     })
-
     it('should include west and east values in the warning', () => {
       const result = validateBBox([170, -10, -170, 10])
       expect(result.valid).toBe(true)
@@ -121,13 +109,11 @@ describe('validateBBox', () => {
       expect(warning.params.west).toBe(170)
       expect(warning.params.east).toBe(-170)
     })
-
     it('should not warn for a standard bbox (west < east)', () => {
       const result = validateBBox(bboxes.valid2D)
       expect(result.valid).toBe(true)
       expect(result.warnings).toHaveLength(0)
     })
-
     it('should not warn when west === east', () => {
       const result = validateBBox([5, -10, 5, 10])
       expect(result.valid).toBe(true)
@@ -149,7 +135,6 @@ describe('validateBBox', () => {
       expect(result.valid).toBe(true)
       expect(result.warnings).toHaveLength(0)
     })
-
     it('warns beyond the default precision (8 decimals)', () => {
       const result = validateBBox([2.35221234, 48.8566, 3.1234, 49.1234])
       expect(result.warnings).toContainEqual(
@@ -159,14 +144,12 @@ describe('validateBBox', () => {
         })
       )
     })
-
     it('propagates a custom precision to min/max positions', () => {
       // 7-decimal coords with threshold 6 -> warnings must surface with max: 6
-      const result = validateBBox([2.3522123, 48.8566123, 3.1234567, 49.1234567], '', 6)
+      const result = validateBBox([2.3522123, 48.8566123, 3.1234567, 49.1234567], '', { precision: 6 })
       expect(result.warnings.length).toBeGreaterThan(0)
       expect(result.warnings.every((w) => w.params.max === 6)).toBe(true)
     })
-
     it('reports precision warnings with the correct path (min/max)', () => {
       const result = validateBBox([2.35221234, 48.8566, 3.1234, 49.1234], 'bbox')
       // the warning should come from the /min position (west has 8 decimals)

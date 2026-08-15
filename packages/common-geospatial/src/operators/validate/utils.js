@@ -1,5 +1,4 @@
 import { is } from '@kalisio/common-core'
-import { DEFAULT_COORDINATE_PRECISION } from '../../foundation/index.js'
 import { validateBBox } from './bbox.js'
 import { validateCRS } from './crs.js'
 
@@ -56,9 +55,9 @@ export function validateOptionalCRS (obj, result, path = '') {
   return result
 }
 
-export function validateOptionalBBox (obj, result, path = '', precision = DEFAULT_COORDINATE_PRECISION) {
+export function validateOptionalBBox (obj, result, path = '', context = {}) {
   if (!is.defined(obj.bbox)) return result
-  const bboxResult = validateBBox(obj.bbox, '', precision)
+  const bboxResult = validateBBox(obj.bbox, '', context)
   if (!bboxResult.valid) {
     result.valid = false
     result.errors.push(...bboxResult.errors.map(e => ({ ...e, path: `${path}/bbox` })))

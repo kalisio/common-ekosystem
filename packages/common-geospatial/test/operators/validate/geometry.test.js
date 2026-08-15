@@ -254,7 +254,6 @@ describe('validateGeometry', () => {
       expect(result.valid).toBe(true)
       expect(result.warnings).toHaveLength(0)
     })
-
     it('should warn beyond the default precision (8 decimals)', () => {
       const geometry = { type: 'Point', coordinates: [2.35221234, 48.8566] }
       const result = validateGeometry(geometry)
@@ -262,15 +261,13 @@ describe('validateGeometry', () => {
       expect(warning).toBeDefined()
       expect(warning.params).toEqual({ precision: 8, max: 7 })
     })
-
     it('should respect a custom precision threshold', () => {
       const geometry = { type: 'Point', coordinates: [2.3522123, 48.8566] } // 7 decimals
-      const result = validateGeometry(geometry, '', 6)
+      const result = validateGeometry(geometry, '', { precision: 6 })
       const warning = result.warnings.find((w) => w.code === VALIDATION_CODES.EXCESSIVE_LONGITUDE_PRECISION)
       expect(warning).toBeDefined()
       expect(warning.params).toEqual({ precision: 7, max: 6 })
     })
-
     it('should propagate precision down to polygon rings', () => {
       // 7-decimal coords with threshold 6 must reach validatePosition through
       // validatePolygonCoordinates -> validateLinearRing -> validateCoordinatesArray
@@ -283,7 +280,7 @@ describe('validateGeometry', () => {
           [2.3522123, 48.8566]
         ]]
       }
-      const result = validateGeometry(polygon, '', 6)
+      const result = validateGeometry(polygon, '', { precision: 6 })
       const precisionWarnings = result.warnings.filter((w) => w.code === VALIDATION_CODES.EXCESSIVE_LONGITUDE_PRECISION)
       expect(precisionWarnings.length).toBeGreaterThan(0)
       expect(precisionWarnings.every((w) => w.params.max === 6)).toBe(true)

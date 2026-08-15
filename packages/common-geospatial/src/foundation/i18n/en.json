@@ -22,12 +22,14 @@
     "SELF_INTERSECTION": "Self-intersection detected",
     "HOLE_INTERSECTS_SHELL": "A hole intersects the exterior ring",
     "ANTIMERIDIAN_CROSSING": "Geometry crosses the antimeridian",
-    "INVALID_POSITION": "Position coordinates are invalid",
+    "DUPLICATE_POSITION": "Consecutive position is duplicated",
+    "INVALID_POSITION_LENGTH": "Position length is invalid",
+    "INVALID_POSITION_COORDINATES": "Position coordinates are invalid",
     "INVALID_LONGITUDE_RANGE": "Longitude is out of range",
     "INVALID_LATITUDE_RANGE": "Latitude is out of range",
+    "INVALID_ALTITUDE": "Altitude is invalid",
     "EXCESSIVE_LONGITUDE_PRECISION": "Longitude precision is excessive",
     "EXCESSIVE_LATITUDE_PRECISION": "Latitude precision is excessive",
-    "DUPLICATE_POSITION": "Consecutive position is duplicated",
     "INVALID_BBOX_LENGTH": "Bounding box length is invalid",
     "INVALID_BBOX_LATITUDE_ORDER": "Bounding box latitude order is invalid",
     "INVALID_BBOX_ALTITUDE_ORDER": "Bounding box altitude order is invalid",
@@ -36,6 +38,7 @@
     "INVALID_CRS_NAME": "CRS name is invalid",
     "INVALID_CRS_LINK": "CRS link is invalid",
     "INVALID_CRS_TYPE": "CRS type is invalid",
-    "UNSUPPORTED_CRS": "CRS is not supported"
+    "UNSUPPORTED_CRS": "CRS is not supported",
+    "UNSUPPORTED_LINK_CRS": "CRS link is not supported"
   }
 }

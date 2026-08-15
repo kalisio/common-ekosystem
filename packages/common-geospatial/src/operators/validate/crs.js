@@ -1,5 +1,5 @@
 import { is } from '@kalisio/common-core'
-import { isWGS84Projection } from '../../foundation/index.js'
+import { hasProjection, normalizeCrsName } from '../../foundation/index.js'
 import { CRS_TYPES } from '../is-like.js'
 import { VALIDATION_CODES } from './codes.js'
 
@@ -20,7 +20,9 @@ export function validateCRS (crs, path = '') {
           warnings: []
         }
       }
-      if (!isWGS84Projection(crs.properties.name)) {
+      // A named CRS is valid as long as its projection is registered, whatever
+      // the datum. URN normalization stays consistent with extractGeoJsonCRS.
+      if (!hasProjection(normalizeCrsName(crs.properties.name))) {
         return {
           valid: false,
           errors: [{ code: VALIDATION_CODES.UNSUPPORTED_CRS, path, params: { name: crs.properties.name } }],
@@ -37,7 +39,13 @@ export function validateCRS (crs, path = '') {
           warnings: []
         }
       }
-      return { valid: true, errors: [], warnings: [] }
+      // Link CRS stay structurally valid for isLikeGeoJson but cannot be
+      // resolved without fetching external resources, so validation rejects them.
+      return {
+        valid: false,
+        errors: [{ code: VALIDATION_CODES.UNSUPPORTED_LINK_CRS, path }],
+        warnings: []
+      }
     }
     default:
       return {

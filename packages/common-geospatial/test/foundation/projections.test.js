@@ -5,7 +5,8 @@ import {
   defineProjection,
   hasProjection,
   getProjection,
-  isWGS84Projection
+  isWGS84Projection,
+  normalizeCrsName
 } from '../../src/foundation/projections.js'
 
 const EPSG_3857_DEF = '+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs'
@@ -174,6 +175,50 @@ describe('isWGS84Projection', () => {
     })
     it('throws when name is a number', () => {
       expect(() => isWGS84Projection(42)).toThrow('name must be a non empty string')
+    })
+  })
+})
+
+describe('normalizeCrsName', () => {
+  describe('EPSG URN normalization', () => {
+    it('normalizes an EPSG URN to its short EPSG:<code> form', () => {
+      expect(normalizeCrsName('urn:ogc:def:crs:EPSG::2154')).toBe('EPSG:2154')
+    })
+    it('normalizes the EPSG URN case-insensitively', () => {
+      expect(normalizeCrsName('urn:ogc:def:crs:epsg::3857')).toBe('EPSG:3857')
+    })
+    it('preserves multi-digit codes', () => {
+      expect(normalizeCrsName('urn:ogc:def:crs:EPSG::32631')).toBe('EPSG:32631')
+    })
+  })
+
+  describe('passthrough', () => {
+    it('leaves a short EPSG name unchanged', () => {
+      expect(normalizeCrsName('EPSG:4326')).toBe('EPSG:4326')
+    })
+    it('leaves the WGS84 alias unchanged', () => {
+      expect(normalizeCrsName('WGS84')).toBe('WGS84')
+    })
+    it('leaves an OGC CRS84 URN unchanged', () => {
+      expect(normalizeCrsName('urn:ogc:def:crs:OGC:1.3:CRS84')).toBe('urn:ogc:def:crs:OGC:1.3:CRS84')
+    })
+    it('leaves a non-EPSG URN unchanged', () => {
+      expect(normalizeCrsName('urn:ogc:def:crs:IAU::49900')).toBe('urn:ogc:def:crs:IAU::49900')
+    })
+    it('does not normalize a malformed EPSG URN with a non-numeric code', () => {
+      expect(normalizeCrsName('urn:ogc:def:crs:EPSG::abc')).toBe('urn:ogc:def:crs:EPSG::abc')
+    })
+  })
+
+  describe('invalid input', () => {
+    it('throws when name is an empty string', () => {
+      expect(() => normalizeCrsName('')).toThrow('name must be a non empty string')
+    })
+    it('throws when name is null', () => {
+      expect(() => normalizeCrsName(null)).toThrow('name must be a non empty string')
+    })
+    it('throws when name is a number', () => {
+      expect(() => normalizeCrsName(42)).toThrow('name must be a non empty string')
     })
   })
 })
