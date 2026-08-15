@@ -229,6 +229,49 @@ describe('object', () => {
     })
   })
 
+  describe('lookup', () => {
+    const value = {
+      foo: {
+        bar: 42,
+        falsy: false,
+        zero: 0,
+        nil: null
+      },
+      items: [
+        { name: 'first' },
+        { name: 'second' }
+      ]
+    }
+    it('returns a top-level value', () => {
+      expect(object.lookup(value, 'foo')).toEqual(value.foo)
+    })
+    it('returns a nested value', () => {
+      expect(object.lookup(value, 'foo.bar')).toBe(42)
+    })
+    it('traverses arrays', () => {
+      expect(object.lookup(value, 'items.0.name')).toBe('first')
+      expect(object.lookup(value, 'items.1.name')).toBe('second')
+    })
+    it('preserves falsy values', () => {
+      expect(object.lookup(value, 'foo.falsy')).toBe(false)
+      expect(object.lookup(value, 'foo.zero')).toBe(0)
+      expect(object.lookup(value, 'foo.nil')).toBe(null)
+    })
+    it('returns undefined when the path does not exist', () => {
+      expect(object.lookup(value, 'foo.unknown')).toBeUndefined()
+      expect(object.lookup(value, 'unknown.foo')).toBeUndefined()
+    })
+    it('accepts an array as root value', () => {
+      expect(object.lookup([{ name: 'foo' }], '0.name')).toBe('foo')
+    })
+    it('throws when obj is undefined', () => {
+      expect(() => object.lookup(undefined, 'foo')).toThrow()
+    })
+    it('throws when path is empty', () => {
+      expect(() => object.lookup(value, '')).toThrow()
+    })
+  })
+
   describe('dotify', () => {
     it('flattens a nested object', () => {
       expect(object.dotify({ a: { b: { c: 1 }, d: 2 }, e: 3 })).toEqual({

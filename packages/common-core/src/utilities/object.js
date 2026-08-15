@@ -69,6 +69,14 @@ export const object = {
     )
   },
 
+  lookup (obj, path) {
+    assert.all([
+      { value: obj, validator: is.defined, message: 'obj must be defined' },
+      { value: path, validator: is.nonEmptyString, message: 'path must be a non empty string' }
+    ])
+    return path.split('.').reduce((value, key) => value?.[key], obj)
+  },
+
   dotify (obj) {
     assert.that(obj, is.plainObject, 'obj must be a plain object')
     const result = {}

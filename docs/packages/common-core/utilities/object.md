@@ -162,6 +162,71 @@ object.reorder(
 // { a: { label: 'abricot' }, z: { label: 'zèbre' } }
 ```
 
+````md
+## lookup
+
+### Signature
+
+```js
+object.lookup(obj, path)
+````
+
+### Description
+
+Returns the value reachable from an object or array through a dot-separated path.
+
+The path can traverse both object properties and array indexes. If any segment of the path does not exist, `undefined` is returned.
+
+Falsy values such as `false`, `0`, and `null` are returned as-is.
+
+### Parameters
+
+| Name   | Type     | Required | Description                              |
+| ------ | -------- | -------- | ---------------------------------------- |
+| `obj`  | `*`      | yes      | The value from which to start the lookup |
+| `path` | `string` | yes      | Dot-separated path to the value          |
+
+### Returns
+
+| Type             | Description                                                              |
+| ---------------- | ------------------------------------------------------------------------ |
+| `* \| undefined` | The value found at `path`, or `undefined` if the path cannot be resolved |
+
+### Throws
+
+Throws a `TypeError` if `obj` is `null` or `undefined`, or if `path` is not a non-empty string.
+
+### Examples
+
+```js
+object.lookup({ a: { b: 1 } }, 'a.b')
+// 1
+```
+
+```js
+object.lookup(
+  { items: [{ name: 'first' }, { name: 'second' }] },
+  'items.1.name'
+)
+// 'second'
+```
+
+```js
+object.lookup({ a: { b: false } }, 'a.b')
+// false
+
+object.lookup({ a: { b: 0 } }, 'a.b')
+// 0
+
+object.lookup({ a: { b: null } }, 'a.b')
+// null
+```
+
+```js
+object.lookup({ a: {} }, 'a.b')
+// undefined
+```
+
 ## dotify
 
 ### Signature
