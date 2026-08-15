@@ -232,3 +232,124 @@ computeGeoJsonBoundingBox(
 )
 // [0, 0, 10, 10]
 ```
+
+## computeGeoJsonConvexHull
+
+### Signature
+
+```js
+computeGeoJsonConvexHull (geoJson)
+```
+
+### Description
+
+Computes the 2D convex hull of a GeoJSON object from all its positions.
+
+Altitude values are ignored. The returned geometry depends on the number and spatial distribution of the extracted positions:
+
+- no position → `null`
+- one position → `Point`
+- two positions → `LineString`
+- three or more positions → `Polygon` when a convex hull can be computed
+- collinear positions → `LineString`
+
+If a `Feature` has a `null` geometry, `null` is returned.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `geoJson` | `object` | yes | Any valid GeoJSON object |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `Point \| LineString \| Polygon \| null` | The convex hull geometry, or `null` if no positions are available |
+
+### Throws
+
+Throws if `geoJson` is not a valid GeoJSON object.
+
+### Examples
+
+```js
+// Point
+computeGeoJsonConvexHull({
+  type: 'Point',
+  coordinates: [2.349, 48.864]
+})
+// { type: 'Point', coordinates: [2.349, 48.864] }
+```
+
+```js
+// Two positions
+computeGeoJsonConvexHull({
+  type: 'MultiPoint',
+  coordinates: [[2.349, 48.864], [4.835, 45.764]]
+})
+// {
+//   type: 'LineString',
+//   coordinates: [[2.349, 48.864], [4.835, 45.764]]
+// }
+```
+
+```js
+// Polygon hull
+computeGeoJsonConvexHull({
+  type: 'MultiPoint',
+  coordinates: [
+    [0, 0],
+    [10, 0],
+    [10, 10],
+    [0, 10],
+    [5, 5]
+  ]
+})
+// {
+//   type: 'Polygon',
+//   coordinates: [
+//     [[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]]
+//   ]
+// }
+```
+
+```js
+// Collinear positions
+computeGeoJsonConvexHull({
+  type: 'MultiPoint',
+  coordinates: [[0, 0], [5, 5], [10, 10]]
+})
+// {
+//   type: 'LineString',
+//   coordinates: [[0, 0], [10, 10]]
+// }
+```
+
+```js
+// Feature with null geometry
+computeGeoJsonConvexHull({
+  type: 'Feature',
+  geometry: null,
+  properties: {}
+})
+// null
+```
+
+```js
+// Altitude values are ignored
+computeGeoJsonConvexHull({
+  type: 'MultiPoint',
+  coordinates: [
+    [0, 0, 100],
+    [10, 0, 200],
+    [0, 10, 300]
+  ]
+})
+// {
+//   type: 'Polygon',
+//   coordinates: [
+//     [[0, 0], [10, 0], [0, 10], [0, 0]]
+//   ]
+// }
+```
