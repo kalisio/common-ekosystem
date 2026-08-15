@@ -1,5 +1,5 @@
-import { extractNode } from './node.js'
+import { extractGeoJsonNode } from './node.js'
 
-export function extractBBox (geoJson) {
-  return extractNode(geoJson, 'bbox')
+export function extractGeoJsonBBox (geoJson) {
+  return extractGeoJsonNode(geoJson, 'bbox')
 }
