@@ -162,7 +162,6 @@ object.reorder(
 // { a: { label: 'abricot' }, z: { label: 'zèbre' } }
 ```
 
-````md
 ## lookup
 
 ### Signature
