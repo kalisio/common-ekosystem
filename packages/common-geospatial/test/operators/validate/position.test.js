@@ -8,67 +8,67 @@ describe('validatePosition', () => {
     it('should return invalid for null', () => {
       const result = validatePosition(null)
       expect(result.valid).toBe(false)
-      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION_LENGTH)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION)
     })
 
     it('should return invalid for a string', () => {
       const result = validatePosition('0,0')
       expect(result.valid).toBe(false)
-      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION_LENGTH)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION)
     })
 
     it('should return invalid for an object', () => {
       const result = validatePosition({ lon: 0, lat: 0 })
       expect(result.valid).toBe(false)
-      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION_LENGTH)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION)
     })
 
     it('should return invalid for an empty array', () => {
       const result = validatePosition(positions.empty)
       expect(result.valid).toBe(false)
-      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION_LENGTH)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION)
     })
 
     it('should return invalid for array of length 1', () => {
       const result = validatePosition(positions.tooShort)
       expect(result.valid).toBe(false)
-      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION_LENGTH)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION)
     })
 
     it('should return invalid for array of length 4', () => {
       const result = validatePosition(positions.tooLong)
       expect(result.valid).toBe(false)
-      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION_LENGTH)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION)
     })
 
     it('should return invalid if longitude is NaN', () => {
       const result = validatePosition(positions.withNaNLon)
       expect(result.valid).toBe(false)
-      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION_COORDINATES)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION)
     })
 
     it('should return invalid if latitude is NaN', () => {
       const result = validatePosition(positions.withNaNLat)
       expect(result.valid).toBe(false)
-      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION_COORDINATES)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION)
     })
 
     it('should return invalid if longitude is Infinity', () => {
       const result = validatePosition(positions.withInfinityLon)
       expect(result.valid).toBe(false)
-      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION_COORDINATES)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION)
     })
 
     it('should return invalid if an element is null', () => {
       const result = validatePosition(positions.withNullInArray)
       expect(result.valid).toBe(false)
-      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION_COORDINATES)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION)
     })
 
     it('should return invalid if an element is a string', () => {
       const result = validatePosition(positions.withStringInArray)
       expect(result.valid).toBe(false)
-      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION_COORDINATES)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION)
     })
   })
 
@@ -138,13 +138,13 @@ describe('validatePosition', () => {
     it('should return invalid if altitude is not a number', () => {
       const result = validatePosition(positions.invalidAltitude)
       expect(result.valid).toBe(false)
-      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_ALTITUDE)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION)
     })
 
     it('should return invalid if altitude is NaN', () => {
       const result = validatePosition([0, 0, NaN])
       expect(result.valid).toBe(false)
-      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_ALTITUDE)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION)
     })
   })
 

@@ -44,13 +44,13 @@ describe('validateBBox', () => {
     it('should return invalid if west is NaN', () => {
       const result = validateBBox(bboxes.withNaN)
       expect(result.valid).toBe(false)
-      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION_COORDINATES)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION)
     })
 
     it('should return invalid if west is null', () => {
       const result = validateBBox(bboxes.withNull)
       expect(result.valid).toBe(false)
-      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION_COORDINATES)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_POSITION)
     })
   })
 

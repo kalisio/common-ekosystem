@@ -55,11 +55,9 @@ Paths use a JSON Pointer-like notation such as `/coordinates/0`, `/features/2/ge
 
 | Emitted by | Code | `params` | Cause |
 |---|---|---|---|
-| `validatePosition` | `INVALID_POSITION_LENGTH` | — | Position is not an array of 2 or 3 values |
-| `validatePosition` | `INVALID_POSITION_COORDINATES` | — | Longitude or latitude is not a valid number |
+| `validatePosition` | `INVALID_POSITION` | — | Coordinates are not a well-formed tuple of 2–3 finite numbers |
 | `validatePosition` | `INVALID_LONGITUDE_RANGE` | `{ value }` | Longitude is outside `[-180, 180]` |
 | `validatePosition` | `INVALID_LATITUDE_RANGE` | `{ value }` | Latitude is outside `[-90, 90]` |
-| `validatePosition` | `INVALID_ALTITUDE` | — | Altitude is not a valid number |
 | `validateBBox` | `INVALID_BBOX_LENGTH` | — | Bounding box does not contain 4 or 6 values |
 | `validateBBox` | `INVALID_BBOX_LATITUDE_ORDER` | `{ south, north }` | South latitude exceeds north latitude |
 | `validateBBox` | `INVALID_BBOX_ALTITUDE_ORDER` | `{ minAlt, maxAlt }` | Minimum altitude exceeds maximum altitude |
