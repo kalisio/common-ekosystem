@@ -3,14 +3,12 @@ import { DEFAULT_COORDINATE_PRECISION, WGS84, isWGS84Projection } from '../../fo
 import { FEATURE_TYPES, GEOMETRY_TYPES, isLikeGeoJson } from '../is-like.js'
 import { extractGeoJsonCRS } from '../extract/index.js'
 import { VALIDATION_CODES } from './codes.js'
-import {
-  emptyStatistics,
-  validateArray,
-  validateOptionalBBox,
-  validateOptionalCRS
-} from './utils.js'
+import { emptyStatistics, validateArray, validateOptionalBBox, validateOptionalCRS } from './utils.js'
 import { validateGeometry } from './geometry.js'
 
+// Resolve the validation context once, at the top of the stack, then propagate
+// it down. Only the root CRS is considered: it determines whether geodesic
+// (WGS84-only) checks apply. Lower-level validators never re-resolve the CRS.
 function createValidationContext (geoJson, precision) {
   const crs = isLikeGeoJson(geoJson) ? extractGeoJsonCRS(geoJson) : WGS84
   const geodesic = is.nonEmptyString(crs) ? isWGS84Projection(crs) : false
@@ -27,43 +25,56 @@ function validateFeature (feature, path = '', context = {}) {
     }
   }
   if (feature.type === FEATURE_TYPES.FEATURE) {
+    let result
     if (is.nonEmptyObject(feature.geometry)) {
-      const result = validateGeometry(feature.geometry, `${path}/geometry`, context)
-      const bboxResult = validateOptionalBBox(feature, result, path, context)
-      const crsResult = validateOptionalCRS(feature, bboxResult, path)
-      return {
-        ...crsResult,
-        statistics: {
-          Feature: 1,
-          FeatureCollection: 0,
-          // Geometry counting is owned by validateGeometry.
-          geometries: { ...result.statistics.geometries }
-        }
+      const geometryResult = validateGeometry(feature.geometry, `${path}/geometry`, context)
+      result = {
+        valid: geometryResult.valid,
+        errors: geometryResult.errors,
+        warnings: geometryResult.warnings,
+        // Geometry counting is owned by validateGeometry.
+        statistics: { Feature: 1, FeatureCollection: 0, geometries: { ...geometryResult.statistics.geometries } }
+      }
+    } else {
+      // A null/absent geometry is a valid unlocated Feature (RFC 7946).
+      result = {
+        valid: true,
+        errors: [],
+        warnings: [{ code: VALIDATION_CODES.MISSING_GEOMETRY, path }],
+        statistics: { Feature: 1, FeatureCollection: 0, geometries: {} }
       }
     }
-    return {
-      valid: true,
-      errors: [],
-      warnings: [{ code: VALIDATION_CODES.MISSING_GEOMETRY, path }],
-      statistics: { Feature: 1, FeatureCollection: 0, geometries: {} }
-    }
+    // Optional bbox/crs are validated regardless of the geometry being present.
+    const withBBox = validateOptionalBBox(feature, result, path, context)
+    return validateOptionalCRS(feature, withBBox, path)
   }
   if (feature.type === FEATURE_TYPES.FEATURE_COLLECTION) {
+    let result
     if (is.nonEmptyArray(feature.features)) {
-      const result = validateArray(feature.features, (f, p) => validateFeature(f, p, context), `${path}/features`)
-      const bboxResult = validateOptionalBBox(feature, result, path, context)
-      const crsResult = validateOptionalCRS(feature, bboxResult, path)
-      return {
-        ...crsResult,
-        statistics: { ...result.statistics, FeatureCollection: result.statistics.FeatureCollection + 1 }
+      const arrayResult = validateArray(feature.features, (f, p) => validateFeature(f, p, context), `${path}/features`)
+      result = {
+        ...arrayResult,
+        statistics: { ...arrayResult.statistics, FeatureCollection: arrayResult.statistics.FeatureCollection + 1 }
+      }
+    } else if (is.array(feature.features)) {
+      // An empty FeatureCollection is valid (RFC 7946).
+      result = {
+        valid: true,
+        errors: [],
+        warnings: [],
+        statistics: { Feature: 0, FeatureCollection: 1, geometries: {} }
+      }
+    } else {
+      result = {
+        valid: false,
+        errors: [{ code: VALIDATION_CODES.INVALID_FEATURES_ARRAY, path }],
+        warnings: [],
+        statistics: emptyStatistics()
       }
     }
-    return {
-      valid: false,
-      errors: [{ code: VALIDATION_CODES.INVALID_FEATURES_ARRAY, path }],
-      warnings: [],
-      statistics: emptyStatistics()
-    }
+    // Optional bbox/crs are validated even for an empty or invalid features array.
+    const withBBox = validateOptionalBBox(feature, result, path, context)
+    return validateOptionalCRS(feature, withBBox, path)
   }
   return {
     valid: false,

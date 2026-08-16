@@ -32,6 +32,7 @@
     "EXCESSIVE_LATITUDE_PRECISION": "La précision de la latitude est excessive",
     "INVALID_BBOX_LENGTH": "Le nombre de coordonnées de la boîte englobante est invalide",
     "INVALID_BBOX_LATITUDE_ORDER": "L'ordre des latitudes de la boîte englobante est invalide",
+    "INVALID_BBOX_LONGITUDE_ORDER": "L'ordre des longitudes de la boîte englobante est invalide",
     "INVALID_BBOX_ALTITUDE_ORDER": "L'ordre des altitudes de la boîte englobante est invalide",
     "BBOX_ANTIMERIDIAN_CROSSING": "La boîte englobante traverse l'antiméridien",
     "INVALID_CRS_OBJECT": "L'objet CRS est invalide",

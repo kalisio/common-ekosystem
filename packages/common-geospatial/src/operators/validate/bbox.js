@@ -32,6 +32,14 @@ export function validateBBox (bbox, path = '', context = {}) {
       warnings: []
     }
   }
+  // For a projected CRS there is no antimeridian, so X must be ordered too.
+  if (!geodesic && west > east) {
+    return {
+      valid: false,
+      errors: [{ code: VALIDATION_CODES.INVALID_BBOX_LONGITUDE_ORDER, path, params: { west, east } }],
+      warnings: []
+    }
+  }
   if (!is2D) {
     const minAlt = bbox[2]
     const maxAlt = bbox[5]

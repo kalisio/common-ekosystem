@@ -32,6 +32,7 @@
     "EXCESSIVE_LATITUDE_PRECISION": "Latitude precision is excessive",
     "INVALID_BBOX_LENGTH": "Bounding box length is invalid",
     "INVALID_BBOX_LATITUDE_ORDER": "Bounding box latitude order is invalid",
+    "INVALID_BBOX_LONGITUDE_ORDER": "Bounding box longitude order is invalid",
     "INVALID_BBOX_ALTITUDE_ORDER": "Bounding box altitude order is invalid",
     "BBOX_ANTIMERIDIAN_CROSSING": "Bounding box crosses the antimeridian",
     "INVALID_CRS_OBJECT": "CRS object is invalid",

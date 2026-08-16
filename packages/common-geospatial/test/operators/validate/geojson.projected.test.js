@@ -70,11 +70,6 @@ describe('validateGeoJson — projected CRS', () => {
       const result = validateGeoJson(projected({ type: 'Point', coordinates: [700000, 6600000] }, { bbox: [700000, 6600000, 710000, 6610000] }))
       expect(result.valid).toBe(true)
     })
-    it('rejects an inconsistent projected bbox (min/max order)', () => {
-      const result = validateBBox([700000, 6610000, 710000, 6600000], '', { geodesic: false })
-      expect(result.valid).toBe(false)
-      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_BBOX_LATITUDE_ORDER)
-    })
   })
 
   describe('geodesic-only checks are skipped', () => {
@@ -92,6 +87,46 @@ describe('validateGeoJson — projected CRS', () => {
     it('does not apply longitude/latitude ranges through validatePosition', () => {
       const result = validatePosition([700000, 6600000], '', { geodesic: false })
       expect(result.valid).toBe(true)
+    })
+  })
+
+  describe('optional CRS/bbox are not skipped', () => {
+    it('validates the CRS of a Feature with null geometry', () => {
+      const result = validateGeoJson({ type: 'Feature', geometry: null, properties: {}, crs: { type: 'link', properties: { href: 'https://example.com/crs' } } })
+      expect(result.valid).toBe(false)
+      expect(result.errors.some(e => e.code === VALIDATION_CODES.UNSUPPORTED_LINK_CRS)).toBe(true)
+      expect(result.warnings.some(w => w.code === VALIDATION_CODES.MISSING_GEOMETRY)).toBe(true)
+    })
+    it('validates the CRS of an empty FeatureCollection', () => {
+      const result = validateGeoJson({ type: 'FeatureCollection', features: [], crs: { type: 'link', properties: { href: 'https://example.com/crs' } } })
+      expect(result.valid).toBe(false)
+      expect(result.errors.some(e => e.code === VALIDATION_CODES.UNSUPPORTED_LINK_CRS)).toBe(true)
+    })
+    it('accepts an empty FeatureCollection', () => {
+      const result = validateGeoJson({ type: 'FeatureCollection', features: [], crs: lambert93 })
+      expect(result.valid).toBe(true)
+      expect(result.errors).toHaveLength(0)
+    })
+    it('rejects a projected bbox whose minX exceeds maxX', () => {
+      const result = validateBBox([710000, 6600000, 700000, 6610000], '', { geodesic: false })
+      expect(result.valid).toBe(false)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_BBOX_LONGITUDE_ORDER)
+    })
+    it('rejects a projected bbox whose south exceeds north', () => {
+      const result = validateBBox([700000, 6610000, 710000, 6600000], '', { geodesic: false })
+      expect(result.valid).toBe(false)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_BBOX_LATITUDE_ORDER)
+    })
+    it('rejects a projected 3D bbox whose min altitude exceeds max altitude', () => {
+      const result = validateBBox([700000, 6600000, 100, 710000, 6610000, 50], '', { geodesic: false })
+      expect(result.valid).toBe(false)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_BBOX_ALTITUDE_ORDER)
+    })
+    it('keeps a WGS84 west>east bbox an antimeridian warning, not a projected-X error', () => {
+      const result = validateBBox([170, 40, -170, 50], '', { geodesic: true })
+      expect(result.valid).toBe(true)
+      expect(result.warnings.some(w => w.code === VALIDATION_CODES.BBOX_ANTIMERIDIAN_CROSSING)).toBe(true)
+      expect(result.errors.some(e => e.code === VALIDATION_CODES.INVALID_BBOX_LONGITUDE_ORDER)).toBe(false)
     })
   })
 })
