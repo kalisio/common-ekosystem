@@ -129,4 +129,50 @@ describe('validateGeoJson — projected CRS', () => {
       expect(result.errors.some(e => e.code === VALIDATION_CODES.INVALID_BBOX_LONGITUDE_ORDER)).toBe(false)
     })
   })
+
+  describe('root CRS is the only supported CRS', () => {
+    const named = name => ({ type: 'name', properties: { name } })
+    const link = { type: 'link', properties: { href: 'https://example.com/crs' } }
+    const nestedError = result => result.errors.find(e => e.code === VALIDATION_CODES.UNSUPPORTED_NESTED_CRS)
+    it('accepts a root named CRS', () => {
+      const result = validateGeoJson({ type: 'Point', coordinates: [700000, 6600000], crs: lambert93 })
+      expect(result.valid).toBe(true)
+      expect(result.errors).toHaveLength(0)
+    })
+    it('rejects a root link CRS as UNSUPPORTED_LINK_CRS', () => {
+      const result = validateGeoJson({ type: 'Point', coordinates: [2, 48], crs: link })
+      expect(result.valid).toBe(false)
+      expect(result.errors.some(e => e.code === VALIDATION_CODES.UNSUPPORTED_LINK_CRS)).toBe(true)
+    })
+    it('rejects a nested named CRS identical to the root', () => {
+      const result = validateGeoJson({ type: 'FeatureCollection', crs: lambert93, features: [{ type: 'Feature', geometry: { type: 'Point', coordinates: [700000, 6600000] }, properties: {}, crs: lambert93 }] })
+      expect(result.valid).toBe(false)
+      expect(nestedError(result).path).toBe('/features/0/crs')
+    })
+    it('rejects a nested named CRS different from the root', () => {
+      const result = validateGeoJson({ type: 'FeatureCollection', crs: lambert93, features: [{ type: 'Feature', geometry: { type: 'Point', coordinates: [700000, 6600000] }, properties: {}, crs: named('EPSG:3857') }] })
+      expect(result.valid).toBe(false)
+      expect(nestedError(result).path).toBe('/features/0/crs')
+    })
+    it('rejects a nested link CRS', () => {
+      const result = validateGeoJson({ type: 'FeatureCollection', features: [{ type: 'Feature', geometry: { type: 'Point', coordinates: [2, 48] }, properties: {}, crs: link }] })
+      expect(result.valid).toBe(false)
+      expect(nestedError(result).path).toBe('/features/0/crs')
+    })
+    it('rejects a nested CRS declared on a Feature', () => {
+      const result = validateGeoJson({ type: 'FeatureCollection', features: [{ type: 'Feature', geometry: { type: 'Point', coordinates: [2, 48] }, properties: {}, crs: named('EPSG:4326') }] })
+      expect(result.valid).toBe(false)
+      expect(nestedError(result).path).toBe('/features/0/crs')
+    })
+    it('rejects a nested CRS declared on a Geometry inside a Feature', () => {
+      const result = validateGeoJson({ type: 'Feature', geometry: { type: 'Point', coordinates: [2, 48], crs: named('EPSG:4326') }, properties: {} })
+      expect(result.valid).toBe(false)
+      expect(nestedError(result).path).toBe('/geometry/crs')
+    })
+    it('rejects a deeply nested CRS inside a GeometryCollection', () => {
+      const result = validateGeoJson({ type: 'GeometryCollection', geometries: [{ type: 'Point', coordinates: [2, 48], crs: named('EPSG:4326') }] })
+      expect(result.valid).toBe(false)
+      expect(nestedError(result).path).toBe('/geometries/0/crs')
+    })
+  })
 })

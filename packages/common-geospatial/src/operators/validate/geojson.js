@@ -3,7 +3,7 @@ import { DEFAULT_COORDINATE_PRECISION, WGS84, isWGS84Projection } from '../../fo
 import { FEATURE_TYPES, GEOMETRY_TYPES, isLikeGeoJson } from '../is-like.js'
 import { extractGeoJsonCRS } from '../extract/index.js'
 import { VALIDATION_CODES } from './codes.js'
-import { emptyStatistics, validateArray, validateOptionalBBox, validateOptionalCRS } from './utils.js'
+import { emptyStatistics, validateArray, validateOptionalBBox, validateRootCRS, validateNestedCRS } from './utils.js'
 import { validateGeometry } from './geometry.js'
 
 // Resolve the validation context once, at the top of the stack, then propagate
@@ -16,6 +16,9 @@ function createValidationContext (geoJson, precision) {
 }
 
 function validateFeature (feature, path = '', context = {}) {
+  // The root object is the only one validated with an empty path; a crs found on
+  // any descendant is a nested declaration, which is unsupported.
+  const isRoot = path === ''
   if (!is.nonEmptyObject(feature)) {
     return {
       valid: false,
@@ -44,9 +47,9 @@ function validateFeature (feature, path = '', context = {}) {
         statistics: { Feature: 1, FeatureCollection: 0, geometries: {} }
       }
     }
-    // Optional bbox/crs are validated regardless of the geometry being present.
+    // Optional bbox is validated regardless of the geometry being present.
     const withBBox = validateOptionalBBox(feature, result, path, context)
-    return validateOptionalCRS(feature, withBBox, path)
+    return isRoot ? validateRootCRS(feature, withBBox, path) : validateNestedCRS(feature, withBBox, path)
   }
   if (feature.type === FEATURE_TYPES.FEATURE_COLLECTION) {
     let result
@@ -72,9 +75,9 @@ function validateFeature (feature, path = '', context = {}) {
         statistics: emptyStatistics()
       }
     }
-    // Optional bbox/crs are validated even for an empty or invalid features array.
+    // Optional bbox is validated even for an empty or invalid features array.
     const withBBox = validateOptionalBBox(feature, result, path, context)
-    return validateOptionalCRS(feature, withBBox, path)
+    return isRoot ? validateRootCRS(feature, withBBox, path) : validateNestedCRS(feature, withBBox, path)
   }
   return {
     valid: false,
@@ -91,7 +94,7 @@ export function validateGeoJson (geoJson, options = {}) {
   if (is.oneOf(geoJson.type, Object.values(GEOMETRY_TYPES))) {
     const result = validateGeometry(geoJson, '', context)
     const withBBox = validateOptionalBBox(geoJson, result, '', context)
-    const withCRS = validateOptionalCRS(geoJson, withBBox, '')
+    const withCRS = validateRootCRS(geoJson, withBBox, '')
     return {
       ...withCRS,
       // Geometry counting is owned by validateGeometry.

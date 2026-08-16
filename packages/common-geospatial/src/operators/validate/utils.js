@@ -1,6 +1,7 @@
 import { is } from '@kalisio/common-core'
 import { validateBBox } from './bbox.js'
 import { validateCRS } from './crs.js'
+import { VALIDATION_CODES } from './codes.js'
 
 export function emptyStatistics () {
   return { Feature: 0, FeatureCollection: 0, geometries: {} }
@@ -44,7 +45,7 @@ export function validateArray (items, validator, path = '') {
   return response
 }
 
-export function validateOptionalCRS (obj, result, path = '') {
+export function validateRootCRS (obj, result, path = '') {
   if (!is.defined(obj.crs)) return result
   const crsResult = validateCRS(obj.crs)
   if (!crsResult.valid) {
@@ -52,6 +53,13 @@ export function validateOptionalCRS (obj, result, path = '') {
     result.errors.push(...crsResult.errors.map(e => ({ ...e, path: `${path}/crs` })))
   }
   result.warnings.push(...crsResult.warnings.map(w => ({ ...w, path: `${path}/crs` })))
+  return result
+}
+
+export function validateNestedCRS (obj, result, path = '') {
+  if (!is.defined(obj.crs)) return result
+  result.valid = false
+  result.errors.push({ code: VALIDATION_CODES.UNSUPPORTED_NESTED_CRS, path: `${path}/crs` })
   return result
 }
 

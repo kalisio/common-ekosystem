@@ -155,7 +155,7 @@ describe('validateGeoJson', () => {
       expect(result.errors).toHaveLength(0)
     })
 
-    it('should path a nested invalid CRS to the inner feature', () => {
+    it('should reject a nested CRS and path it to the inner object', () => {
       const result = validateGeoJson({
         type: 'FeatureCollection',
         features: [{
@@ -169,7 +169,7 @@ describe('validateGeoJson', () => {
         }]
       })
       expect(result.valid).toBe(false)
-      const crsError = result.errors.find(e => e.code === VALIDATION_CODES.INVALID_CRS_TYPE)
+      const crsError = result.errors.find(e => e.code === VALIDATION_CODES.UNSUPPORTED_NESTED_CRS)
       expect(crsError).toBeDefined()
       expect(crsError.path).toBe('/features/0/crs')
     })
@@ -194,9 +194,11 @@ describe('validateGeoJson', () => {
       expect(result.valid).toBe(false)
       const windingErrors = result.errors.filter(e => e.code === VALIDATION_CODES.INVALID_WINDING_ORDER)
       expect(windingErrors).toHaveLength(4)
-      // Every error is a winding error; the nested FeatureCollection is otherwise valid.
-      expect(result.errors.every(e => e.code === VALIDATION_CODES.INVALID_WINDING_ORDER)).toBe(true)
       expect(windingErrors.every(e => /^\/features\/0\/features\/\d+\/geometry\/coordinates\/0$/.test(e.path))).toBe(true)
+      // The inner FeatureCollection declares a nested crs, which is unsupported.
+      const nestedCrsErrors = result.errors.filter(e => e.code === VALIDATION_CODES.UNSUPPORTED_NESTED_CRS)
+      expect(nestedCrsErrors).toHaveLength(1)
+      expect(nestedCrsErrors[0].path).toBe('/features/0/crs')
     })
   })
 })

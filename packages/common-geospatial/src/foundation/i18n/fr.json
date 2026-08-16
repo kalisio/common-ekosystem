@@ -40,6 +40,7 @@
     "INVALID_CRS_LINK": "Le lien du CRS est invalide",
     "INVALID_CRS_TYPE": "Le type de CRS est invalide",
     "UNSUPPORTED_CRS": "Le CRS n'est pas pris en charge",
-    "UNSUPPORTED_LINK_CRS": "Le lien CRS n'est pas pris en charge"
+    "UNSUPPORTED_LINK_CRS": "Le lien CRS n'est pas pris en charge",
+    "UNSUPPORTED_NESTED_CRS": "Le CRS imbriqué n'est pas pris en charge"
   }
 }

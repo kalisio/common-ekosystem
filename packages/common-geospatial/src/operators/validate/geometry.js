@@ -10,7 +10,7 @@ import {
 import { GEOMETRY_TYPES } from '../is-like.js'
 import { VALIDATION_CODES } from './codes.js'
 import { validatePosition } from './position.js'
-import { validateOptionalBBox, validateArray } from './utils.js'
+import { validateOptionalBBox, validateArray, validateNestedCRS } from './utils.js'
 
 function findConsecutiveDuplicateIndex (positions, startAt = 0, precision = DEFAULT_COORDINATE_PRECISION) {
   for (let i = startAt; i < positions.length - 1; i++) {
@@ -201,6 +201,9 @@ export function validateGeometry (geometry, path = '', context = {}) {
       }
   }
   result = validateOptionalBBox(geometry, result, path, context)
+  // The root object is the only one validated with an empty path; any crs on a
+  // deeper geometry is a nested declaration and is unsupported.
+  if (path !== '') result = validateNestedCRS(geometry, result, path)
   // Count this geometry by its own type. A GeometryCollection counts as one
   // and its members are NOT decomposed, so we overwrite any statistics that
   // bubbled up from the members.

@@ -40,6 +40,7 @@
     "INVALID_CRS_LINK": "CRS link is invalid",
     "INVALID_CRS_TYPE": "CRS type is invalid",
     "UNSUPPORTED_CRS": "CRS is not supported",
-    "UNSUPPORTED_LINK_CRS": "CRS link is not supported"
+    "UNSUPPORTED_LINK_CRS": "CRS link is not supported",
+    "UNSUPPORTED_NESTED_CRS": "Nested CRS is not supported"
   }
 }
