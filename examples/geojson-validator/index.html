@@ -5,13 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GeoJSON Validator</title>
 </head>
-
 <body>
   <main>
     <header>
       <h1>GeoJSON Validator</h1>
       <p>
-        Validate, fix and preview GeoJSON using
+        Validate, reproject, fix and preview GeoJSON using
         <code>@kalisio/common-geospatial</code>.
       </p>
     </header>
@@ -19,33 +18,23 @@
     <section id="drop-zone" class="drop-zone">
       <strong>Drop a GeoJSON file here</strong>
       <span id="file-name">or click to select a file</span>
-      <input
-        id="file-input"
-        type="file"
-        accept=".json,.geojson,application/json"
-      >
+      <input id="file-input" type="file" accept=".json,.geojson,application/json">
     </section>
 
     <section class="geojson">
       <div class="section-header">
         <h2>GeoJSON</h2>
+        <div class="crs-info">
+          <span>Source CRS <strong id="source-crs">—</strong></span>
+          <span>Output CRS <strong id="output-crs">—</strong></span>
+        </div>
       </div>
-
       <div class="tabs">
-        <button id="code-tab" class="tab active" type="button">
-          Code
-        </button>
-        <button id="map-tab" class="tab" type="button">
-          Map
-        </button>
+        <button id="code-tab" class="tab active" type="button">Code</button>
+        <button id="map-tab" class="tab" type="button">Map</button>
       </div>
-
       <div id="code-panel" class="view-panel active">
-        <textarea
-          id="input"
-          spellcheck="false"
-          placeholder="Paste your GeoJSON here..."
-        >{
+        <textarea id="input" spellcheck="false" placeholder="Paste your GeoJSON here...">{
   "type": "Polygon",
   "coordinates": [
     [
@@ -58,53 +47,35 @@
   ]
 }</textarea>
       </div>
-
       <div id="map-panel" class="view-panel">
         <div id="map"></div>
       </div>
     </section>
 
     <div class="actions">
-      <button id="validate" type="button">
-        Validate GeoJSON
-      </button>
-      <button id="fix" type="button">
-        Fix GeoJSON
-      </button>
-      <button id="export" type="button">
-        Export GeoJSON
-      </button>
+      <button id="fix" type="button" disabled>Fix GeoJSON</button>
+      <button id="export" type="button" disabled>Export WGS84</button>
     </div>
 
     <section class="validation">
       <div class="section-header">
-        <h2>Validation result</h2>
+        <h2>WGS84 validation result</h2>
         <span id="status"></span>
       </div>
-
       <div class="tabs">
         <button id="errors-tab" class="tab active" type="button">
-          Errors
-          <span id="errors-count">0</span>
+          Errors <span id="errors-count">0</span>
         </button>
         <button id="warnings-tab" class="tab" type="button">
-          Warnings
-          <span id="warnings-count">0</span>
+          Warnings <span id="warnings-count">0</span>
         </button>
       </div>
-
       <div id="errors-panel" class="tab-panel active">
-        <div id="errors">
-          <p class="empty">None</p>
-        </div>
+        <div id="errors"><p class="empty">None</p></div>
       </div>
-
       <div id="warnings-panel" class="tab-panel">
-        <div id="warnings">
-          <p class="empty">None</p>
-        </div>
+        <div id="warnings"><p class="empty">None</p></div>
       </div>
-
       <div class="statistics">
         <h3>Statistics</h3>
         <pre id="statistics"></pre>
@@ -112,35 +83,23 @@
     </section>
 
     <section class="fix-result">
-      <div class="section-header">
-        <h2>Fix result</h2>
-      </div>
-
+      <div class="section-header"><h2>Fix result</h2></div>
       <div class="tabs">
         <button id="corrections-tab" class="tab active" type="button">
-          Corrections
-          <span id="corrections-count">0</span>
+          Corrections <span id="corrections-count">0</span>
         </button>
         <button id="unfixed-tab" class="tab" type="button">
-          Unfixed
-          <span id="unfixed-count">0</span>
+          Unfixed <span id="unfixed-count">0</span>
         </button>
       </div>
-
       <div id="corrections-panel" class="tab-panel active">
-        <div id="corrections">
-          <p class="empty">None</p>
-        </div>
+        <div id="corrections"><p class="empty">None</p></div>
       </div>
-
       <div id="unfixed-panel" class="tab-panel">
-        <div id="unfixed">
-          <p class="empty">None</p>
-        </div>
+        <div id="unfixed"><p class="empty">None</p></div>
       </div>
     </section>
   </main>
-
   <script type="module" src="./src/main.js"></script>
 </body>
 </html>

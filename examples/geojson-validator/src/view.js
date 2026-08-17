@@ -3,13 +3,14 @@ export const elements = {
   fileInput: document.querySelector('#file-input'),
   fileName: document.querySelector('#file-name'),
   dropZone: document.querySelector('#drop-zone'),
-  validateButton: document.querySelector('#validate'),
   fixButton: document.querySelector('#fix'),
   exportButton: document.querySelector('#export'),
   codeTab: document.querySelector('#code-tab'),
   mapTab: document.querySelector('#map-tab'),
   codePanel: document.querySelector('#code-panel'),
   mapPanel: document.querySelector('#map-panel'),
+  sourceCrs: document.querySelector('#source-crs'),
+  outputCrs: document.querySelector('#output-crs'),
   status: document.querySelector('#status'),
   errorsTab: document.querySelector('#errors-tab'),
   warningsTab: document.querySelector('#warnings-tab'),
@@ -63,7 +64,6 @@ function renderIssues (container, issues) {
     container.appendChild(empty)
     return
   }
-
   for (const issue of issues) {
     const item = document.createElement('div')
     item.className = 'issue'
@@ -91,6 +91,11 @@ function renderIssues (container, issues) {
   }
 }
 
+export function renderCrs (sourceCrs, outputCrs) {
+  elements.sourceCrs.textContent = sourceCrs ?? '—'
+  elements.outputCrs.textContent = outputCrs ?? '—'
+}
+
 export function renderValidation (result) {
   const errors = result.errors ?? []
   const warnings = result.warnings ?? []
@@ -100,11 +105,7 @@ export function renderValidation (result) {
   elements.warningsCount.textContent = warnings.length
   renderIssues(elements.errors, errors)
   renderIssues(elements.warnings, warnings)
-  elements.statistics.textContent = JSON.stringify(
-    result.statistics ?? {},
-    null,
-    2
-  )
+  elements.statistics.textContent = JSON.stringify(result.statistics ?? {}, null, 2)
   if (errors.length) selectValidationResult('errors')
   else if (warnings.length) selectValidationResult('warnings')
   else selectValidationResult('errors')
@@ -125,10 +126,7 @@ export function renderError (error) {
   elements.status.className = 'invalid'
   elements.errorsCount.textContent = '1'
   elements.warningsCount.textContent = '0'
-  renderIssues(elements.errors, [{
-    code: 'INVALID_JSON',
-    message: error.message
-  }])
+  renderIssues(elements.errors, [{ code: 'INVALID_JSON', message: error.message }])
   renderIssues(elements.warnings, [])
   elements.statistics.textContent = ''
   selectValidationResult('errors')
@@ -140,4 +138,14 @@ export function clearFixResult () {
   renderIssues(elements.corrections, [])
   renderIssues(elements.unfixed, [])
   selectFixResult('corrections')
+}
+
+export function updateActions (validation, reprojected = false) {
+  const issueCount = validation
+    ? (validation.errors?.length ?? 0) +
+      (validation.warnings?.length ?? 0)
+    : 0
+  elements.fixButton.disabled = issueCount === 0
+  elements.exportButton.disabled =
+    !reprojected || !validation?.valid
 }
