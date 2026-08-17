@@ -39,6 +39,6 @@ Or use it directly from a CDN:
 
 ```html
 <script type="module">
-  import { shapes } from 'https://unpkg.com/@kalisio/common-graphics/dist/index.es.js'
+  import { shapes } from 'https://unpkg.com/@kalisio/common-graphics/dist/index.mjs'
 </script>
 ```

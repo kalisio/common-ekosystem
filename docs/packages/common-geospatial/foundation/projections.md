@@ -1,10 +1,10 @@
 ---
-
 title: projections
-description: Registration and lookup of coordinate reference system (CRS) definitions using proj4.
+description: Registration, normalization, and lookup of coordinate reference system (CRS) definitions using proj4.
 ---
 
 # projections
+
 This module wraps **proj4** to manage coordinate reference system (CRS) definitions.
 
 The `WGS84` constant (`'WGS84'`) is the canonical name used by the library for the 
@@ -12,6 +12,49 @@ WGS84 geographic coordinate reference system.
 
 In addition to the projections provided by proj4, several common WGS84 aliases used by 
 GeoJSON and OGC specifications are automatically registered when the module is loaded.
+
+## normalizeCrsName
+
+### Signature
+
+```js
+normalizeCrsName(name)
+```
+
+### Description
+
+Normalizes an OGC EPSG URN to its short `EPSG:<code>` form.
+
+Other CRS names are returned unchanged.
+
+### Parameters
+
+| Name   | Type     | Required | Description           |
+| ------ | -------- | -------- | --------------------- |
+| `name` | `string` | yes      | CRS name to normalize |
+
+### Returns
+
+| Type     | Description             |
+| -------- | ----------------------- |
+| `string` | The normalized CRS name |
+
+### Throws
+
+Throws if `name` is not a non-empty string.
+
+### Examples
+
+```js
+normalizeCrsName('urn:ogc:def:crs:EPSG::4326')
+// 'EPSG:4326'
+
+normalizeCrsName('EPSG:2154')
+// 'EPSG:2154'
+
+normalizeCrsName('CRS:84')
+// 'CRS:84'
+```
 
 ## listProjections
 
@@ -25,7 +68,8 @@ listProjections()
 
 Returns the names of all registered projections.
 
-This includes the projections built into proj4 as well as any projections defined through `defineProjection()`.
+This includes the projections built into proj4 as well as any projections 
+defined through `defineProjection()`.
 
 ### Returns
 
@@ -40,8 +84,6 @@ listProjections()
 // ['EPSG:4326', 'CRS:84', 'EPSG:3857', ...]
 ```
 
----
-
 ## defineProjection
 
 ### Signature
@@ -54,13 +96,14 @@ defineProjection(name, definition)
 
 Defines a projection under the given name.
 
-The definition may be either a Proj4 definition string or a Proj4 definition object. If a projection with the same name already exists, it is replaced.
+The definition may be either a Proj4 definition string or a Proj4 definition object. 
+If a projection with the same name already exists, it is replaced.
 
 ### Parameters
 
 | Name         | Type               | Required | Description                                  |
 | ------------ | ------------------ | -------- | -------------------------------------------- |
-| `name`       | `string`           | yes      | Projection name (for example `EPSG:2154`)    |
+| `name`       | `string`           | yes      | Projection name, for example `EPSG:2154`     |
 | `definition` | `string \| object` | yes      | Proj4 definition string or definition object |
 
 ### Throws
@@ -74,17 +117,7 @@ defineProjection(
   'EPSG:2154',
   '+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 ...'
 )
-
-defineProjection(
-  'MY_PROJECTION',
-  {
-    proj: 'merc',
-    datumCode: 'WGS84'
-  }
-)
 ```
-
----
 
 ## hasProjection
 
@@ -120,14 +153,9 @@ Throws if `name` is not a non-empty string.
 hasProjection('EPSG:4326')
 // true
 
-hasProjection('EPSG:2154')
-// true
-
 hasProjection('UNKNOWN')
 // false
 ```
-
----
 
 ## getProjection
 
@@ -167,8 +195,6 @@ getProjection('UNKNOWN')
 // undefined
 ```
 
----
-
 ## isWGS84Projection
 
 ### Signature
@@ -179,7 +205,7 @@ isWGS84Projection(name)
 
 ### Description
 
-Returns whether the specified projection is equivalent to the WGS84 geographic coordinate reference system.
+Returns whether the specified registered projection is equivalent to the WGS84 geographic coordinate reference system.
 
 The comparison is performed against the registered `EPSG:4326` definition.
 

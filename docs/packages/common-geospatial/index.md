@@ -20,15 +20,15 @@ Install with your preferred package manager:
 ::: code-group
 
 ```bash [pnpm]
-pnpm add @kalisio/common-core
+pnpm add @kalisio/common-geospatial
 ```
 
 ```bash [npm]
-npm install @kalisio/common-core
+npm install @kalisio/common-geospatial
 ```
 
 ```bash [yarn]
-yarn add @kalisio/common-core
+yarn add @kalisio/common-geospatial
 ```
 
 :::
@@ -37,6 +37,6 @@ Or use it directly from a CDN:
 
 ```html
 <script type="module">
-  import { url } from 'https://unpkg.com/@kalisio/common-core/dist/index.es.js'
+  import { validateGeoJson } from 'https://unpkg.com/@kalisio/common-geospatial/dist/index.mjs'
 </script>
 ```

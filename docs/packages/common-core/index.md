@@ -40,6 +40,6 @@ Or use it directly from a CDN:
 
 ```html
 <script type="module">
-  import { url } from 'https://unpkg.com/@kalisio/common-core/dist/index.es.js'
+  import { url } from 'https://unpkg.com/@kalisio/common-core/dist/index.mjs'
 </script>
 ```

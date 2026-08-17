@@ -1,6 +1,6 @@
 import { coordAll } from '@turf/meta'
 import { assert, is, optional, conform } from '@kalisio/common-core/predicates'
-import { computeBBox } from '../../../src/foundation/index.js'
+import { computeBBox } from '../../foundation/index.js'
 import { FEATURE_TYPES, isLikeGeoJson } from '../is-like.js'
 
 const BOUNDING_BOX_OPTIONS_SCHEMA = {

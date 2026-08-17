@@ -51,7 +51,7 @@
   "bugs": {
     "url": "https://github.com/kalisio/common-ekosystem/issues"
   },
-  "homepage": "https://github.com/kalisio/common-ekosystem/tree/master/packages/common-graphikcs",
+  "homepage": "https://github.com/kalisio/common-ekosystem/tree/master/packages/common-graphics",
   "peerDependencies": {
     "@kalisio/common-core": "workspace:*",
     "@logtape/logtape": "catalog:",
