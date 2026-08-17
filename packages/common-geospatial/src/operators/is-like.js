@@ -1,4 +1,5 @@
-import { is } from '@kalisio/common-core'
+import { is } from '@kalisio/common-core/predicates'
+import { isValidPosition } from '../foundation/index.js'
 
 export const CRS_TYPES = {
   NAME: 'name',
@@ -32,8 +33,7 @@ export function isLikeCRS (object) {
 }
 
 export function isLikePosition (object) {
-  if (!is.arrayOfLengthBetween(object, 2, 3)) return false
-  return object.every(is.number)
+  return isValidPosition(object)
 }
 
 export function isLikeBBox (object) {

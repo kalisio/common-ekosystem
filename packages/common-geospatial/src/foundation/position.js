@@ -57,9 +57,7 @@ export function parsePosition (pattern) {
 
 export function isValidPosition (coordinates) {
   if (!is.arrayOfLengthBetween(coordinates, 2, 3)) return false
-  if (!is.number(coordinates[0]) || !is.number(coordinates[1])) return false
-  if (coordinates.length === 3 && !is.number(coordinates[2])) return false
-  return true
+  return coordinates.every(is.number)
 }
 
 export function is3DPosition (position) {
