@@ -10,12 +10,17 @@ description: Simplify the coordinates of GeoJSON objects using the Visvalingam-W
 ### Signature
 
 ```js
-simplifyGeoJson (geoJson, options)
+simplifyGeoJson (geoJson, options = {})
 ```
 
 ### Description
 
-Simplifies all coordinate sequences of any GeoJSON object using the Visvalingam-Whyatt algorithm. Accepts a plain geometry, a `Feature`, or a `FeatureCollection`. Supports `LineString`, `Polygon`, `MultiLineString`, `MultiPolygon`, and `GeometryCollection`. `Point` and `MultiPoint` geometries are left unchanged. Features with a `null` geometry are skipped silently. The operation is performed **in place** — the original object is mutated and returned.
+Simplifies all coordinate sequences of any GeoJSON object using the Visvalingam-Whyatt algorithm. 
+Accepts a plain geometry, a `Feature`, or a `FeatureCollection`. Supports `LineString`, `Polygon`, 
+`MultiLineString`, `MultiPolygon`, and `GeometryCollection`. `Point` and `MultiPoint` geometries 
+are left unchanged. Features with a `null` geometry are skipped silently. 
+
+The operation is performed **in place** — the original object is mutated and returned.
 
 ### Parameters
 

@@ -9,6 +9,13 @@ A position is a `[longitude, latitude]` or `[longitude, latitude, altitude]` arr
 
 This module provides helpers to parse, validate, compare and manipulate GeoJSON positions, as well as basic geodesic operations such as computing distances and destinations.
 
+## EARTH_RADIUS
+
+Mean Earth radius in meters used by geodesic computations.
+
+```js
+EARTH_RADIUS // 6371008.8
+
 ## parsePosition
 
 ### Signature

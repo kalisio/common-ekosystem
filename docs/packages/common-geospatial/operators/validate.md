@@ -15,7 +15,7 @@ Validation results use stable codes from `VALIDATION_CODES` and can include erro
 
 ```js
 validateGeoJson (geoJson, options = {})
-````
+```
 
 ### Description
 

@@ -280,6 +280,34 @@ isLikeFeatureCollection(null)
 // false
 ```
 
+## isLikeFeatureOrFeatureCollection
+
+### Signature
+
+```js
+isLikeFeatureOrFeatureCollection (value)
+````
+
+### Description
+
+Returns whether a value structurally resembles a GeoJSON `Feature` or `FeatureCollection`.
+
+This is a lightweight structural check and does not perform full GeoJSON validation.
+
+### Parameters
+
+| Name    | Type  | Required | Description   |
+| ------- | ----- | -------- | ------------- |
+| `value` | `any` | yes      | Value to test |
+
+### Returns
+
+| Type      | Description                                                  |
+| --------- | ------------------------------------------------------------ |
+| `boolean` | `true` if the value resembles a Feature or FeatureCollection |
+
+```
+
 ## isLikeGeoJson
 
 ### Signature
