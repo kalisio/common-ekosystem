@@ -98,8 +98,8 @@ Extracts the `bbox` member declared by a GeoJSON object.
 The bounding box is returned as stored in the GeoJSON object. No bounding box is 
 computed when the `bbox` member is absent; in that case, `undefined` is returned.
 
-Use `computeGeoJsonBoundingBox` when a bounding box must be computed from the c
-oordinates of a GeoJSON object.
+Use `computeGeoJsonBoundingBox` when a bounding box must be computed from the 
+coordinates of a GeoJSON object.
 
 ### Parameters
 
