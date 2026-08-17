@@ -286,7 +286,7 @@ isLikeFeatureCollection(null)
 
 ```js
 isLikeFeatureOrFeatureCollection (value)
-````
+```
 
 ### Description
 
@@ -305,8 +305,6 @@ This is a lightweight structural check and does not perform full GeoJSON validat
 | Type      | Description                                                  |
 | --------- | ------------------------------------------------------------ |
 | `boolean` | `true` if the value resembles a Feature or FeatureCollection |
-
-```
 
 ## isLikeGeoJson
 
