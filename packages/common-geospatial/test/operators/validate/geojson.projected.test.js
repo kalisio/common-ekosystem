@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeAll } from 'vitest'
-import { validateGeoJson, validateBBox, validatePosition } from '../../../src/operators'
+import { validatePosition } from '../../../src/operators/validate/position.js'
+import { validateBBox } from '../../../src/operators/validate/bbox.js'
+import { validateGeoJson } from '../../../src/operators'
 import { defineProjection } from '../../../src/foundation/index.js'
 import { VALIDATION_CODES } from '../../../src/operators/validate/codes.js'
 

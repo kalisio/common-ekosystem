@@ -17,7 +17,8 @@ extractGeoJsonNode (geoJson, path)
 
 ### Description
 
-Extracts the node reachable through a dot-separated path within a GeoJSON object. The path can traverse both object properties and array indexes.
+Extracts the node reachable through a dot-separated path within a GeoJSON object. 
+The path can traverse both object properties and array indexes.
 
 Returns `undefined` if the path cannot be resolved.
 
@@ -94,9 +95,11 @@ extractGeoJsonBBox (geoJson)
 
 Extracts the `bbox` member declared by a GeoJSON object.
 
-The bounding box is returned as stored in the GeoJSON object. No bounding box is computed when the `bbox` member is absent; in that case, `undefined` is returned.
+The bounding box is returned as stored in the GeoJSON object. No bounding box is 
+computed when the `bbox` member is absent; in that case, `undefined` is returned.
 
-Use `computeGeoJsonBoundingBox` when a bounding box must be computed from the coordinates of a GeoJSON object.
+Use `computeGeoJsonBoundingBox` when a bounding box must be computed from the c
+oordinates of a GeoJSON object.
 
 ### Parameters
 
@@ -155,11 +158,16 @@ extractGeoJsonCRS (geoJson)
 
 ### Description
 
-Extracts and resolves the coordinate reference system (CRS) of a GeoJSON object.
+Extracts and resolves the coordinate reference system (CRS) declared by a GeoJSON object.
 
 When no `crs` member is declared, `WGS84` is returned.
 
-EPSG URN designations such as `urn:ogc:def:crs:EPSG::2154` are normalized to their short `EPSG:2154` form. Other CRS names are returned as-is.
+EPSG URN designations such as `urn:ogc:def:crs:EPSG::2154` are normalized to their 
+short `EPSG:2154` form. Other CRS names are returned as-is.
+
+For complete GeoJSON documents, `validateGeoJson` and `reprojectGeoJson` support a single 
+CRS declaration on the root object. Nested CRS declarations are not supported by the validation 
+contract.
 
 ### Parameters
 

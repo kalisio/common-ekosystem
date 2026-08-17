@@ -17,19 +17,32 @@ reprojectGeoJson (geoJson, target)
 
 ### Description
 
-Reprojects a GeoJSON object in place to the specified target coordinate reference system.
+Reprojects a GeoJSON object in place to the specified target coordinate reference 
+system.
 
-The source CRS is automatically extracted from the GeoJSON object using `extractGeoJsonCRS`. When no CRS is declared, WGS84 is assumed.
+The source CRS is automatically extracted from the root GeoJSON object using 
+`extractGeoJsonCRS`. When no CRS is declared, WGS84 is assumed.
 
-All geometry types, `Feature`, `FeatureCollection`, and nested `GeometryCollection` objects are supported.
+The whole GeoJSON document is expected to use this single root CRS. Nested CRS 
+declarations are not supported by `validateGeoJson` and should be rejected before 
+reprojection.
+
+All geometry types, `Feature`, `FeatureCollection`, and nested `GeometryCollection` 
+objects are supported.
 
 Existing `bbox` members are removed because they become invalid after reprojection.
 
-When the target projection is equivalent to WGS84, the `crs` member is removed. Otherwise, the target CRS is stored as a named CRS. EPSG identifiers are written using the OGC URN form, for example `EPSG:3857` becomes `urn:ogc:def:crs:EPSG::3857`.
+When the target projection is equivalent to WGS84, the `crs` member is removed. 
+Otherwise, the target CRS is stored as a named CRS. EPSG identifiers are written 
+using the OGC URN form, for example `EPSG:3857` becomes `urn:ogc:def:crs:EPSG::3857`.
 
 Altitude values are preserved.
 
 The input object is mutated and returned.
+
+The operator checks that the input is GeoJSON-like and that both source and target 
+projections are registered. It does not perform the full coordinate and topology validation
+provided by `validateGeoJson`; validate external or untrusted data before reprojection.
 
 ### Parameters
 

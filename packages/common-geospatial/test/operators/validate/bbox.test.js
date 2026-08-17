@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { validateBBox } from '../../../src/operators'
+import { validateBBox } from '../../../src/operators/validate/bbox.js'
 import { VALIDATION_CODES } from '../../../src/operators/validate/codes.js'
 import { bboxes } from '../data/bbox.fixtures.js'
 

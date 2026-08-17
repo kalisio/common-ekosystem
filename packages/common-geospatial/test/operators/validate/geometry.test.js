@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { validateGeometry } from '../../../src/operators'
+import { validateGeometry } from '../../../src/operators/validate/geometry.js'
 import { VALIDATION_CODES } from '../../../src/operators/validate/codes.js'
 import { geometries } from '../data/geometry.fixtures.js'
 import { points } from '../data/point.fixtures.js'
