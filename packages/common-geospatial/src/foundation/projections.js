@@ -1,19 +1,24 @@
 import proj4 from 'proj4'
 import { assert, is } from '@kalisio/common-core/predicates'
 
-// Register the GeoJSON WGS84 aliases proj4 doesn't know natively
-const WGS84_DEF = '+proj=longlat +datum=WGS84 +no_defs'
-for (const alias of ['CRS:84', 'CRS84', 'WGS84',
-  'urn:ogc:def:crs:OGC:1.3:CRS84',
-  'urn:ogc:def:crs:OGC:2:84',
-  'urn:ogc:def:crs:EPSG::4326']) {
-  if (!proj4.defs(alias)) proj4.defs(alias, WGS84_DEF)
-}
-
 export const WGS84 = 'WGS84'
 
-// EPSG URN designations are normalised to their short EPSG:<code> form so a
-// single spelling reaches the projection registry.
+const WGS84_DEFINITION = '+proj=longlat +datum=WGS84 +no_defs'
+
+const DEFAULT_PROJECTIONS = {
+  WGS84: WGS84_DEFINITION,
+  'CRS:84': WGS84_DEFINITION,
+  CRS84: WGS84_DEFINITION,
+  'urn:ogc:def:crs:OGC:1.3:CRS84': WGS84_DEFINITION,
+  'urn:ogc:def:crs:OGC:2:84': WGS84_DEFINITION,
+  'urn:ogc:def:crs:EPSG::4326': WGS84_DEFINITION,
+  'EPSG:2154': '+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +units=m +no_defs'
+}
+
+for (const [name, definition] of Object.entries(DEFAULT_PROJECTIONS)) {
+  if (!proj4.defs(name)) proj4.defs(name, definition)
+}
+
 const EPSG_URN_REGEXP = /^urn:ogc:def:crs:EPSG::(\d+)$/i
 
 export function normalizeCrsName (name) {
@@ -54,8 +59,9 @@ export function getProjection (name) {
 
 export function isWGS84Projection (name) {
   assert.that(name, is.nonEmptyString, 'name must be a non empty string')
-  const def = proj4.defs(name)
-  if (!def) return false
-  const ref = proj4.defs('EPSG:4326')
-  return def.projName === ref.projName && def.datumCode === ref.datumCode
+  const definition = proj4.defs(name)
+  if (!definition) return false
+  const wgs84 = proj4.defs('EPSG:4326')
+  return definition.projName === wgs84.projName &&
+    definition.datumCode === wgs84.datumCode
 }

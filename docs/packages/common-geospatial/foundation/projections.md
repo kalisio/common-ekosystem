@@ -7,11 +7,26 @@ description: Registration, normalization, and lookup of coordinate reference sys
 
 This module wraps **proj4** to manage coordinate reference system (CRS) definitions.
 
-The `WGS84` constant (`'WGS84'`) is the canonical name used by the library for the 
+The `WGS84` constant (`'WGS84'`) is the canonical name used by the library for the
 WGS84 geographic coordinate reference system.
 
-In addition to the projections provided by proj4, several common WGS84 aliases used by 
-GeoJSON and OGC specifications are automatically registered when the module is loaded.
+In addition to the projections provided by proj4, several common projections and
+WGS84 aliases are automatically registered when the module is loaded.
+
+The following projections are available by default:
+
+| Name        | Description                  |
+| ----------- | ---------------------------- |
+| `WGS84`     | WGS84 geographic CRS         |
+| `EPSG:4326` | WGS84 geographic CRS         |
+| `CRS:84`    | OGC WGS84 geographic CRS     |
+| `CRS84`     | Alias for `CRS:84`           |
+| `EPSG:3857` | Web Mercator                 |
+| `EPSG:2154` | RGF93 / Lambert-93            |
+
+Common OGC URN aliases for WGS84 are also supported.
+
+Additional projections can be registered using `defineProjection()`.
 
 ## normalizeCrsName
 
@@ -46,8 +61,8 @@ Throws if `name` is not a non-empty string.
 ### Examples
 
 ```js
-normalizeCrsName('urn:ogc:def:crs:EPSG::4326')
-// 'EPSG:4326'
+normalizeCrsName('urn:ogc:def:crs:EPSG::2154')
+// 'EPSG:2154'
 
 normalizeCrsName('EPSG:2154')
 // 'EPSG:2154'
@@ -68,8 +83,8 @@ listProjections()
 
 Returns the names of all registered projections.
 
-This includes the projections built into proj4 as well as any projections 
-defined through `defineProjection()`.
+This includes projections provided by proj4, projections registered by
+`common-geospatial`, and projections added through `defineProjection()`.
 
 ### Returns
 
@@ -81,7 +96,7 @@ defined through `defineProjection()`.
 
 ```js
 listProjections()
-// ['EPSG:4326', 'CRS:84', 'EPSG:3857', ...]
+// ['EPSG:4326', 'EPSG:3857', 'WGS84', 'CRS:84', 'EPSG:2154', ...]
 ```
 
 ## defineProjection
@@ -96,7 +111,7 @@ defineProjection(name, definition)
 
 Defines a projection under the given name.
 
-The definition may be either a Proj4 definition string or a Proj4 definition object. 
+The definition may be either a Proj4 definition string or a Proj4 definition object.
 If a projection with the same name already exists, it is replaced.
 
 ### Parameters
@@ -114,8 +129,8 @@ Throws if `name` is not a non-empty string or if `definition` is neither a non-e
 
 ```js
 defineProjection(
-  'EPSG:2154',
-  '+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 ...'
+  'EPSG:32631',
+  '+proj=utm +zone=31 +datum=WGS84 +units=m +no_defs'
 )
 ```
 
@@ -150,7 +165,7 @@ Throws if `name` is not a non-empty string.
 ### Examples
 
 ```js
-hasProjection('EPSG:4326')
+hasProjection('EPSG:2154')
 // true
 
 hasProjection('UNKNOWN')
@@ -188,8 +203,8 @@ Throws if `name` is not a non-empty string.
 ### Examples
 
 ```js
-getProjection('EPSG:4326')
-// { projName: 'longlat', datumCode: 'WGS84', ... }
+getProjection('EPSG:2154')
+// { projName: 'lcc', ... }
 
 getProjection('UNKNOWN')
 // undefined
@@ -235,6 +250,9 @@ isWGS84Projection('CRS:84')
 // true
 
 isWGS84Projection('EPSG:3857')
+// false
+
+isWGS84Projection('EPSG:2154')
 // false
 
 isWGS84Projection('UNKNOWN')
