@@ -255,3 +255,22 @@ export function fixGeoJson (geoJson, options) {
   const result = fixGeometryIssues(geoJson, relevant, '', options)
   return { fixed: geoJson, corrections: result.corrections, unfixed: [...unfixed, ...result.unfixed] }
 }
+
+export function isGeoJsonFixable (validation) {
+  assert.all([
+    {
+      value: validation,
+      validator: is.nonEmptyObject,
+      message: 'validation must be a non-empty object'
+    },
+    {
+      value: validation?.errors,
+      validator: is.array,
+      message: 'validation.errors must be an array'
+    }
+  ])
+  if (validation.errors.length === 0) return false
+  return validation.errors.every(error =>
+    FIXABLE_CODES.includes(error.code)
+  )
+}

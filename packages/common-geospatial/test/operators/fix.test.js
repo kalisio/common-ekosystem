@@ -1,10 +1,65 @@
 import { describe, it, expect } from 'vitest'
-import { fixGeoJson, validateGeoJson } from '../../src/operators'
+import { isGeoJsonFixable, fixGeoJson, validateGeoJson } from '../../src/operators'
 import { VALIDATION_CODES } from '../../src/operators/validate/codes.js'
 import { lineStrings } from './data/linestring.fixtures.js'
 import { polygons } from './data/polygon.fixtures.js'
 import { geometries } from './data/geometry.fixtures.js'
 import { features } from './data/feature.fixtures.js'
+
+describe('isGeoJsonFixable', () => {
+  it('returns false when there are no errors', () => {
+    expect(isGeoJsonFixable({ errors: [] })).toBe(false)
+  })
+  it('returns true when all errors are fixable', () => {
+    expect(isGeoJsonFixable({
+      errors: [
+        { code: VALIDATION_CODES.INVALID_WINDING_ORDER },
+        { code: VALIDATION_CODES.HOLE_INTERSECTS_SHELL }
+      ]
+    })).toBe(true)
+  })
+  it('returns false when at least one error is not fixable', () => {
+    expect(isGeoJsonFixable({
+      errors: [
+        { code: VALIDATION_CODES.INVALID_WINDING_ORDER },
+        { code: VALIDATION_CODES.INVALID_POSITION_COORDINATES }
+      ]
+    })).toBe(false)
+  })
+  it('returns false when no error is fixable', () => {
+    expect(isGeoJsonFixable({
+      errors: [
+        { code: VALIDATION_CODES.INVALID_POSITION_LENGTH },
+        { code: VALIDATION_CODES.UNSUPPORTED_CRS }
+      ]
+    })).toBe(false)
+  })
+  it('ignores warnings', () => {
+    expect(isGeoJsonFixable({
+      errors: [
+        { code: VALIDATION_CODES.INVALID_WINDING_ORDER }
+      ],
+      warnings: [
+        { code: VALIDATION_CODES.BBOX_ANTIMERIDIAN_CROSSING }
+      ]
+    })).toBe(true)
+  })
+  it('throws when validation is not a non-empty object', () => {
+    expect(() => isGeoJsonFixable()).toThrow()
+    expect(() => isGeoJsonFixable(null)).toThrow()
+    expect(() => isGeoJsonFixable({})).toThrow()
+  })
+  it('throws when validation.errors is not an array', () => {
+    expect(() => isGeoJsonFixable({
+      errors: 'INVALID_WINDING_ORDER'
+    })).toThrow()
+  })
+  it('works with a validateGeoJson result', () => {
+    const validation = validateGeoJson(polygons.holeIntersectsShell)
+    expect(validation.valid).toBe(false)
+    expect(isGeoJsonFixable(validation)).toBe(true)
+  })
+})
 
 describe('fixGeoJson', () => {
   describe('argument validation', () => {

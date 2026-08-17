@@ -5,6 +5,95 @@ description: Automatic correction of common GeoJSON geometry issues (winding ord
 
 # fix
 
+## isGeoJsonFixable
+
+### Signature
+
+```js
+isGeoJsonFixable (validation)
+```
+
+### Description
+
+Returns whether all errors reported by a GeoJSON validation can be automatically fixed by `fixGeoJson`.
+
+Warnings are ignored.
+
+A validation result with no errors is not considered fixable and returns `false`.
+
+### Parameters
+
+| Name         | Type     | Required | Description                                      |
+| ------------ | -------- | -------- | ------------------------------------------------ |
+| `validation` | `object` | yes      | Validation result returned by `validateGeoJson()` |
+
+### Returns
+
+| Type      | Description                                                       |
+| --------- | ----------------------------------------------------------------- |
+| `boolean` | `true` if all validation errors can be fixed by `fixGeoJson()` |
+
+### Throws
+
+Throws if `validation` is not a non-empty object or if `validation.errors` is not an array.
+
+### Examples
+
+```js
+const validation = validateGeoJson(geoJson)
+
+if (!validation.valid && isGeoJsonFixable(validation)) {
+  const result = fixGeoJson(geoJson, { validation })
+}
+```
+
+A validation containing only fixable errors returns `true`:
+
+```js
+isGeoJsonFixable({
+  errors: [
+    { code: 'INVALID_WINDING_ORDER' },
+    { code: 'HOLE_INTERSECTS_SHELL' }
+  ]
+})
+// true
+```
+
+If at least one error cannot be fixed automatically, it returns `false`:
+
+```js
+isGeoJsonFixable({
+  errors: [
+    { code: 'INVALID_WINDING_ORDER' },
+    { code: 'INVALID_POSITION_COORDINATES' }
+  ]
+})
+// false
+```
+
+A validation without errors also returns `false`:
+
+```js
+isGeoJsonFixable({
+  errors: []
+})
+// false
+```
+
+Warnings do not affect the result:
+
+```js
+isGeoJsonFixable({
+  errors: [
+    { code: 'INVALID_WINDING_ORDER' }
+  ],
+  warnings: [
+    { code: 'EXCESSIVE_LONGITUDE_PRECISION' }
+  ]
+})
+// true
+```
+
 ## fixGeoJson
 
 ### Signature
