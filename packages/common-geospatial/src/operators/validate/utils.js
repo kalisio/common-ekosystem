@@ -1,10 +1,17 @@
 import { is } from '@kalisio/common-core'
-import { validateBBox } from './bbox.js'
-import { validateCRS } from './crs.js'
-import { VALIDATION_CODES } from './codes.js'
 
 export function emptyStatistics () {
   return { Feature: 0, FeatureCollection: 0, geometries: {} }
+}
+
+export function emptyResult () {
+  return {
+    crs: undefined,
+    valid: true,
+    errors: [],
+    warnings: [],
+    statistics: emptyStatistics()
+  }
 }
 
 function mergeStatistics (...results) {
@@ -19,6 +26,18 @@ function mergeStatistics (...results) {
     }
   }
   return statistics
+}
+
+export function mergeResult (result, ...others) {
+  for (const other of others) {
+    // if (other === result) continue // guard against self-merge
+    result.valid = result.valid && (other.valid ?? true)
+    if (other.errors) result.errors.push(...other.errors)
+    if (other.warnings) result.warnings.push(...other.warnings)
+    if (other.crs !== undefined) result.crs = other.crs
+  }
+  result.statistics = mergeStatistics(result, ...others)
+  return result
 }
 
 export function validateArray (items, validator, path = '') {
@@ -43,33 +62,4 @@ export function validateArray (items, validator, path = '') {
     }
   }
   return response
-}
-
-export function validateRootCRS (obj, result, path = '') {
-  if (!is.defined(obj.crs)) return result
-  const crsResult = validateCRS(obj.crs)
-  if (!crsResult.valid) {
-    result.valid = false
-    result.errors.push(...crsResult.errors.map(e => ({ ...e, path: `${path}/crs` })))
-  }
-  result.warnings.push(...crsResult.warnings.map(w => ({ ...w, path: `${path}/crs` })))
-  return result
-}
-
-export function validateNestedCRS (obj, result, path = '') {
-  if (!is.defined(obj.crs)) return result
-  result.valid = false
-  result.errors.push({ code: VALIDATION_CODES.UNSUPPORTED_NESTED_CRS, path: `${path}/crs` })
-  return result
-}
-
-export function validateOptionalBBox (obj, result, path = '', context = {}) {
-  if (!is.defined(obj.bbox)) return result
-  const bboxResult = validateBBox(obj.bbox, '', context)
-  if (!bboxResult.valid) {
-    result.valid = false
-    result.errors.push(...bboxResult.errors.map(e => ({ ...e, path: `${path}/bbox` })))
-  }
-  result.warnings.push(...bboxResult.warnings.map(w => ({ ...w, path: `${path}/bbox` })))
-  return result
 }

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 import { validatePosition } from '../../../src/operators/validate/position.js'
-import { validateBBox } from '../../../src/operators/validate/bbox.js'
+import { validateOptionalBBox } from '../../../src/operators/validate/bbox.js'
 import { validateGeoJson } from '../../../src/operators'
 import { defineProjection } from '../../../src/foundation/index.js'
 import { VALIDATION_CODES } from '../../../src/operators/validate/codes.js'
@@ -110,22 +110,22 @@ describe('validateGeoJson — projected CRS', () => {
       expect(result.errors).toHaveLength(0)
     })
     it('rejects a projected bbox whose minX exceeds maxX', () => {
-      const result = validateBBox([710000, 6600000, 700000, 6610000], '', { geodesic: false })
+      const result = validateOptionalBBox([710000, 6600000, 700000, 6610000], '', { geodesic: false })
       expect(result.valid).toBe(false)
       expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_BBOX_LONGITUDE_ORDER)
     })
     it('rejects a projected bbox whose south exceeds north', () => {
-      const result = validateBBox([700000, 6610000, 710000, 6600000], '', { geodesic: false })
+      const result = validateOptionalBBox([700000, 6610000, 710000, 6600000], '', { geodesic: false })
       expect(result.valid).toBe(false)
       expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_BBOX_LATITUDE_ORDER)
     })
     it('rejects a projected 3D bbox whose min altitude exceeds max altitude', () => {
-      const result = validateBBox([700000, 6600000, 100, 710000, 6610000, 50], '', { geodesic: false })
+      const result = validateOptionalBBox([700000, 6600000, 100, 710000, 6610000, 50], '', { geodesic: false })
       expect(result.valid).toBe(false)
       expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_BBOX_ALTITUDE_ORDER)
     })
     it('keeps a WGS84 west>east bbox an antimeridian warning, not a projected-X error', () => {
-      const result = validateBBox([170, 40, -170, 50], '', { geodesic: true })
+      const result = validateOptionalBBox([170, 40, -170, 50], '', { geodesic: true })
       expect(result.valid).toBe(true)
       expect(result.warnings.some(w => w.code === VALIDATION_CODES.BBOX_ANTIMERIDIAN_CROSSING)).toBe(true)
       expect(result.errors.some(e => e.code === VALIDATION_CODES.INVALID_BBOX_LONGITUDE_ORDER)).toBe(false)

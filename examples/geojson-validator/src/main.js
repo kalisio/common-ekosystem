@@ -1,5 +1,6 @@
 import './style.css'
 
+import { isGeoJsonFixable } from '@kalisio/common-geospatial'
 import {
   parseGeoJson,
   processGeoJson,
@@ -29,17 +30,15 @@ import {
 
 let current = {
   sourceCrs: null,
-  outputCrs: null,
   geoJson: null,
   validation: null
 }
 
-let validationTimer
+let processTimer
 
 function resetCurrent () {
   current = {
     sourceCrs: null,
-    outputCrs: null,
     geoJson: null,
     validation: null
   }
@@ -49,25 +48,29 @@ function resetCurrent () {
   updateActions(null)
 }
 
-function processInput ({ replaceInput = true, sourceCrs } = {}) {
+function processInput ({ replaceInput = true } = {}) {
+  if (!elements.input.value.trim()) {
+    resetCurrent()
+    return
+  }
   try {
     const geoJson = parseGeoJson(elements.input.value)
     const result = processGeoJson(geoJson)
-    current = {
-      ...result,
-      sourceCrs: sourceCrs ?? result.sourceCrs
-    }
-    renderCrs(current.sourceCrs, result.outputCrs)
+    current = { ...result }
+    renderCrs(current.sourceCrs)
     renderValidation(result.validation)
     if (!result.validation.valid) {
       clearMap()
-      updateActions(result.validation, false)
+      updateActions(result.validation, {
+        exportable: false,
+        fixable: isGeoJsonFixable(result.validation)
+      })
       return
     }
     if (replaceInput) {
       elements.input.value = serializeGeoJson(result.geoJson)
     }
-    updateActions(result.validation, true)
+    updateActions(result.validation, { exportable: true, fixable: false })
     updateMap(result.geoJson)
   } catch (error) {
     resetCurrent()
@@ -77,12 +80,12 @@ function processInput ({ replaceInput = true, sourceCrs } = {}) {
 
 function fixInput () {
   if (!current.geoJson || !current.validation) return
+  if (!isGeoJsonFixable(current.validation)) return
   try {
-    const sourceCrs = current.sourceCrs
     const result = fix(current.geoJson, current.validation)
     renderFix(result)
     elements.input.value = serializeGeoJson(result.fixed)
-    processInput({ sourceCrs })
+    processInput()
   } catch (error) {
     resetCurrent()
     renderError(error)
@@ -92,54 +95,43 @@ function fixInput () {
 
 function exportGeoJson () {
   if (!current.geoJson || !current.validation?.valid) return
-
   const blob = new Blob(
     [serializeGeoJson(current.geoJson)],
     { type: 'application/geo+json' }
   )
-
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
   const name = elements.fileName.textContent
-
   link.href = url
   link.download = name && name !== 'or click to select a file'
     ? name.replace(/(\.geojson|\.json)$/i, '-wgs84.geojson')
     : 'wgs84.geojson'
-
   document.body.appendChild(link)
   link.click()
   link.remove()
-
   URL.revokeObjectURL(url)
 }
 
 function loadFile (file) {
   const reader = new FileReader()
-
   reader.addEventListener('load', () => {
     elements.fileName.textContent = file.name
     elements.input.value = reader.result
-
     clearFixResult()
     updateActions(null)
-
     processInput()
   })
-
   reader.addEventListener('error', () => {
     resetCurrent()
     renderError(new Error(`Unable to read ${file.name}`))
   })
-
   reader.readAsText(file)
 }
 
 elements.input.addEventListener('input', () => {
-  clearTimeout(validationTimer)
+  clearTimeout(processTimer)
   updateActions(null)
-
-  validationTimer = setTimeout(() => {
+  processTimer = setTimeout(() => {
     clearFixResult()
     processInput({ replaceInput: false })
   }, 400)
@@ -151,10 +143,8 @@ elements.codeTab.addEventListener('click', () => {
 
 elements.mapTab.addEventListener('click', () => {
   selectView('map')
-
   requestAnimationFrame(() => {
     resizeMap()
-
     if (current.geoJson && current.validation?.valid) {
       updateMap(current.geoJson)
     } else {

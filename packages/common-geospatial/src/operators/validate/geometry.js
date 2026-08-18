@@ -10,7 +10,9 @@ import {
 import { GEOMETRY_TYPES } from '../is-like.js'
 import { VALIDATION_CODES } from './codes.js'
 import { validatePosition } from './position.js'
-import { validateOptionalBBox, validateArray, validateNestedCRS } from './utils.js'
+import { validateOptionalCRS } from './crs.js'
+import { validateOptionalBBox } from './bbox.js'
+import { emptyResult, mergeResult, validateArray } from './utils.js'
 
 function findConsecutiveDuplicateIndex (positions, startAt = 0, precision = DEFAULT_COORDINATE_PRECISION) {
   for (let i = startAt; i < positions.length - 1; i++) {
@@ -156,57 +158,52 @@ function validateGeometryCollectionGeometries (geometries, path = '', context = 
 }
 
 export function validateGeometry (geometry, path = '', context = {}) {
+  let result = emptyResult()
+  // check whether the geometry is a non empty object
   if (!is.nonEmptyObject(geometry)) {
-    return {
-      valid: false,
-      errors: [{ code: VALIDATION_CODES.INVALID_GEOMETRY, path }],
-      warnings: []
-    }
+    result.valid = false
+    result.errors.push({ code: VALIDATION_CODES.INVALID_GEOMETRY, path })
+    return result
   }
+  // Handle the CRS first: it poses context.geodesic, which the coordinate
+  // checks below read. A nested crs (deeper than root) is rejected inside
+  // validateOptionalCRS; its absence is a no-op that leaves geodesic untouched.
+  result = mergeResult(result, validateOptionalCRS(geometry.crs, `${path}/crs`, context))
+  // handle the bbox
+  result = mergeResult(result, validateOptionalBBox(geometry.bbox, `${path}/bbox`, context))
+  // handle the coordinates by geometry type
   const coordsPath = `${path}/coordinates`
-  let result
   switch (geometry.type) {
-    case GEOMETRY_TYPES.POINT: {
-      const positionResult = validatePosition(geometry.coordinates, coordsPath, context)
-      result = {
-        valid: positionResult.valid,
-        errors: positionResult.errors,
-        warnings: positionResult.warnings
-      }
+    case GEOMETRY_TYPES.POINT:
+      result = mergeResult(result, validatePosition(geometry.coordinates, coordsPath, context))
       break
-    }
     case GEOMETRY_TYPES.MULTI_POINT:
-      result = validateCoordinatesArray(geometry.coordinates, 0, coordsPath, context)
+      result = mergeResult(result, validateCoordinatesArray(geometry.coordinates, 0, coordsPath, context))
       break
     case GEOMETRY_TYPES.LINESTRING:
-      result = validateLineStringCoordinates(geometry.coordinates, coordsPath, context)
+      result = mergeResult(result, validateLineStringCoordinates(geometry.coordinates, coordsPath, context))
       break
     case GEOMETRY_TYPES.MULTI_LINESTRING:
-      result = validateMultiLineStringCoordinates(geometry.coordinates, coordsPath, context)
+      result = mergeResult(result, validateMultiLineStringCoordinates(geometry.coordinates, coordsPath, context))
       break
     case GEOMETRY_TYPES.POLYGON:
-      result = validatePolygonCoordinates(geometry.coordinates, coordsPath, context)
+      result = mergeResult(result, validatePolygonCoordinates(geometry.coordinates, coordsPath, context))
       break
     case GEOMETRY_TYPES.MULTI_POLYGON:
-      result = validateMultiPolygonCoordinates(geometry.coordinates, coordsPath, context)
+      result = mergeResult(result, validateMultiPolygonCoordinates(geometry.coordinates, coordsPath, context))
       break
     case GEOMETRY_TYPES.GEOMETRY_COLLECTION:
-      result = validateGeometryCollectionGeometries(geometry.geometries, `${path}/geometries`, context)
+      result = mergeResult(result, validateGeometryCollectionGeometries(geometry.geometries, `${path}/geometries`, context))
       break
     default:
-      return {
-        valid: false,
-        errors: [{ code: VALIDATION_CODES.INVALID_GEOMETRY_TYPE, path, params: { type: geometry.type } }],
-        warnings: []
-      }
+      // Unknown type: report it and do not count it in statistics.
+      result.valid = false
+      result.errors.push({ code: VALIDATION_CODES.INVALID_GEOMETRY_TYPE, path, params: { type: geometry.type } })
+      return result
   }
-  result = validateOptionalBBox(geometry, result, path, context)
-  // The root object is the only one validated with an empty path; any crs on a
-  // deeper geometry is a nested declaration and is unsupported.
-  if (path !== '') result = validateNestedCRS(geometry, result, path)
-  // Count this geometry by its own type. A GeometryCollection counts as one
-  // and its members are NOT decomposed, so we overwrite any statistics that
-  // bubbled up from the members.
-  result.statistics = { geometries: { [geometry.type]: 1 } }
+  // Count this geometry by its own type. A GeometryCollection counts as one and
+  // its members are NOT decomposed, so we overwrite any statistics that bubbled
+  // up from the members.
+  result.statistics = { Feature: 0, FeatureCollection: 0, geometries: { [geometry.type]: 1 } }
   return result
 }

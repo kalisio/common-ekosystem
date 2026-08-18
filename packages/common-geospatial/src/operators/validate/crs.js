@@ -1,9 +1,29 @@
 import { is } from '@kalisio/common-core'
-import { hasProjection, normalizeCrsName } from '../../foundation/index.js'
+import { WGS84, hasProjection, normalizeCrsName, isWGS84Projection } from '../../foundation/index.js'
 import { CRS_TYPES } from '../is-like.js'
 import { VALIDATION_CODES } from './codes.js'
 
-export function validateCRS (crs, path = '') {
+const ROOT_CRS_PATH = '/crs'
+
+export function validateOptionalCRS (crs, path = '', context = {}) {
+  // CRS is optional; absence defaults to WGS84 and drives geodesic validation.
+  if (!is.defined(crs)) {
+    if (path === ROOT_CRS_PATH) {
+      context.geodesic = true
+      return { crs: WGS84, valid: true }
+    }
+    return { valid: true }
+  }
+  // A present crs is only supported at the root; anything deeper is nested and
+  // rejected regardless of its shape.
+  if (path !== ROOT_CRS_PATH) {
+    return {
+      valid: false,
+      errors: [{ code: VALIDATION_CODES.UNSUPPORTED_NESTED_CRS, path }],
+      warnings: []
+    }
+  }
+  // Check CRS structure
   if (!is.plainObject(crs)) {
     return {
       valid: false,
@@ -11,6 +31,7 @@ export function validateCRS (crs, path = '') {
       warnings: []
     }
   }
+  // Check CRS type
   switch (crs.type) {
     case CRS_TYPES.NAME: {
       if (!is.nonEmptyString(crs.properties?.name)) {
@@ -22,14 +43,25 @@ export function validateCRS (crs, path = '') {
       }
       // A named CRS is valid as long as its projection is registered, whatever
       // the datum. URN normalization stays consistent with extractGeoJsonCRS.
-      if (!hasProjection(normalizeCrsName(crs.properties.name))) {
+      const crsName = normalizeCrsName(crs.properties.name)
+      if (!hasProjection(crsName)) {
         return {
           valid: false,
-          errors: [{ code: VALIDATION_CODES.UNSUPPORTED_CRS, path, params: { name: crs.properties.name } }],
+          errors: [{
+            code: VALIDATION_CODES.UNSUPPORTED_CRS,
+            path,
+            params: { name: crs.properties.name }
+          }],
           warnings: []
         }
       }
-      return { valid: true, errors: [], warnings: [] }
+      context.geodesic = isWGS84Projection(crsName)
+      return {
+        crs: crsName,
+        valid: true,
+        errors: [],
+        warnings: []
+      }
     }
     case CRS_TYPES.LINK: {
       if (!is.nonEmptyString(crs.properties?.href)) {
@@ -50,7 +82,11 @@ export function validateCRS (crs, path = '') {
     default:
       return {
         valid: false,
-        errors: [{ code: VALIDATION_CODES.INVALID_CRS_TYPE, path, params: { type: crs.type } }],
+        errors: [{
+          code: VALIDATION_CODES.INVALID_CRS_TYPE,
+          path,
+          params: { type: crs.type }
+        }],
         warnings: []
       }
   }

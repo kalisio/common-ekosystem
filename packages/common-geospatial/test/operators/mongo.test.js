@@ -8,7 +8,7 @@ import { isClosedRing, sphericalRingArea } from '../../src/foundation/index.js'
 
 // Integration test: runs ONLY when MONGO_TEST_URL is set, so it never breaks the
 // unit suite in CI. Locally:
-//   MONGO_TEST_URL=mongodb://localhost:27017 pnpm test
+//   export MONGO_TEST_URL=mongodb://localhost:27017
 //
 // Goal: prove that our own validate -> fix pipeline produces a geometry that
 // MongoDB's 2dsphere index accepts (no "Can't extract geo keys"). Findings on

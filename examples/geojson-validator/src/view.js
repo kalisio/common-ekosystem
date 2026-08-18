@@ -10,7 +10,6 @@ export const elements = {
   codePanel: document.querySelector('#code-panel'),
   mapPanel: document.querySelector('#map-panel'),
   sourceCrs: document.querySelector('#source-crs'),
-  outputCrs: document.querySelector('#output-crs'),
   status: document.querySelector('#status'),
   errorsTab: document.querySelector('#errors-tab'),
   warningsTab: document.querySelector('#warnings-tab'),
@@ -91,9 +90,12 @@ function renderIssues (container, issues) {
   }
 }
 
-export function renderCrs (sourceCrs, outputCrs) {
-  elements.sourceCrs.textContent = sourceCrs ?? '—'
-  elements.outputCrs.textContent = outputCrs ?? '—'
+export function renderCrs (sourceCrs) {
+  if (!sourceCrs) {
+    elements.sourceCrs.textContent = ''
+    return
+  }
+  elements.sourceCrs.textContent = sourceCrs
 }
 
 export function renderValidation (result) {

@@ -1,6 +1,5 @@
 import {
   WGS84,
-  extractGeoJsonCRS,
   fixGeoJson,
   isWGS84Projection,
   reprojectGeoJson,
@@ -12,12 +11,17 @@ export function parseGeoJson (text) {
 }
 
 export function processGeoJson (geoJson) {
-  const crs = extractGeoJsonCRS(geoJson)
   const validation = validateGeoJson(geoJson)
-  if (!validation.valid || isWGS84Projection(crs)) {
+  if (!validation.valid) {
     return {
-      sourceCrs: crs,
-      outputCrs: crs,
+      geoJson,
+      validation
+    }
+  }
+  const sourceCrs = validation.crs
+  if (isWGS84Projection(sourceCrs)) {
+    return {
+      sourceCrs,
       geoJson,
       validation
     }
@@ -25,8 +29,7 @@ export function processGeoJson (geoJson) {
   const reprojected = structuredClone(geoJson)
   reprojectGeoJson(reprojected, WGS84)
   return {
-    sourceCrs: crs,
-    outputCrs: WGS84,
+    sourceCrs,
     geoJson: reprojected,
     validation: validateGeoJson(reprojected)
   }

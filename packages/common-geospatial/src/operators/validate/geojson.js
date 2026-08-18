@@ -1,113 +1,73 @@
 import { assert, is } from '@kalisio/common-core'
-import { DEFAULT_COORDINATE_PRECISION, WGS84, isWGS84Projection } from '../../foundation/index.js'
-import { FEATURE_TYPES, GEOMETRY_TYPES, isLikeGeoJson } from '../is-like.js'
-import { extractGeoJsonCRS } from '../extract/index.js'
+import { DEFAULT_COORDINATE_PRECISION } from '../../foundation/index.js'
+import { FEATURE_TYPES, GEOMETRY_TYPES } from '../is-like.js'
 import { VALIDATION_CODES } from './codes.js'
-import { emptyStatistics, validateArray, validateOptionalBBox, validateRootCRS, validateNestedCRS } from './utils.js'
+import { validateOptionalCRS } from './crs.js'
+import { validateOptionalBBox } from './bbox.js'
+import { emptyResult, mergeResult, validateArray } from './utils.js'
 import { validateGeometry } from './geometry.js'
 
-// Resolve the validation context once, at the top of the stack, then propagate
-// it down. Only the root CRS is considered: it determines whether geodesic
-// (WGS84-only) checks apply. Lower-level validators never re-resolve the CRS.
-function createValidationContext (geoJson, precision) {
-  const crs = isLikeGeoJson(geoJson) ? extractGeoJsonCRS(geoJson) : WGS84
-  const geodesic = is.nonEmptyString(crs) ? isWGS84Projection(crs) : false
-  return { geodesic, precision }
-}
-
-function validateFeature (feature, path = '', context = {}) {
-  // The root object is the only one validated with an empty path; a crs found on
-  // any descendant is a nested declaration, which is unsupported.
-  const isRoot = path === ''
+function validateFeature (feature, path, context) {
+  let result = emptyResult()
+  // check whether the feature is a non empty object
   if (!is.nonEmptyObject(feature)) {
-    return {
-      valid: false,
-      errors: [{ code: VALIDATION_CODES.EMPTY_OBJECT, path }],
-      warnings: [],
-      statistics: emptyStatistics()
-    }
+    result.valid = false
+    result.errors.push({
+      code: VALIDATION_CODES.EMPTY_OBJECT,
+      path
+    })
+    return result
   }
+  // handle the CRS
+  result = mergeResult(result, validateOptionalCRS(feature.crs, `${path}/crs`, context))
+  // handle the bbox
+  result = mergeResult(result, validateOptionalBBox(feature.bbox, `${path}/bbox`, context))
+  // handle the Feature type
   if (feature.type === FEATURE_TYPES.FEATURE) {
-    let result
+    result.statistics.Feature++
     if (is.nonEmptyObject(feature.geometry)) {
-      const geometryResult = validateGeometry(feature.geometry, `${path}/geometry`, context)
-      result = {
-        valid: geometryResult.valid,
-        errors: geometryResult.errors,
-        warnings: geometryResult.warnings,
-        // Geometry counting is owned by validateGeometry.
-        statistics: { Feature: 1, FeatureCollection: 0, geometries: { ...geometryResult.statistics.geometries } }
-      }
+      result = mergeResult(result, validateGeometry(feature.geometry, `${path}/geometry`, context))
     } else {
-      // A null/absent geometry is a valid unlocated Feature (RFC 7946).
-      result = {
-        valid: true,
-        errors: [],
-        warnings: [{ code: VALIDATION_CODES.MISSING_GEOMETRY, path }],
-        statistics: { Feature: 1, FeatureCollection: 0, geometries: {} }
-      }
+      result.warnings.push({
+        code: VALIDATION_CODES.MISSING_GEOMETRY,
+        path
+      })
     }
-    // Optional bbox is validated regardless of the geometry being present.
-    const withBBox = validateOptionalBBox(feature, result, path, context)
-    return isRoot ? validateRootCRS(feature, withBBox, path) : validateNestedCRS(feature, withBBox, path)
+    return result
   }
-  if (feature.type === FEATURE_TYPES.FEATURE_COLLECTION) {
-    let result
-    if (is.nonEmptyArray(feature.features)) {
-      const arrayResult = validateArray(feature.features, (f, p) => validateFeature(f, p, context), `${path}/features`)
-      result = {
-        ...arrayResult,
-        statistics: { ...arrayResult.statistics, FeatureCollection: arrayResult.statistics.FeatureCollection + 1 }
-      }
-    } else if (is.array(feature.features)) {
-      // An empty FeatureCollection is valid (RFC 7946).
-      result = {
-        valid: true,
-        errors: [],
-        warnings: [],
-        statistics: { Feature: 0, FeatureCollection: 1, geometries: {} }
-      }
-    } else {
-      result = {
-        valid: false,
-        errors: [{ code: VALIDATION_CODES.INVALID_FEATURES_ARRAY, path }],
-        warnings: [],
-        statistics: emptyStatistics()
-      }
-    }
-    // Optional bbox is validated even for an empty or invalid features array.
-    const withBBox = validateOptionalBBox(feature, result, path, context)
-    return isRoot ? validateRootCRS(feature, withBBox, path) : validateNestedCRS(feature, withBBox, path)
+  // handle the FeatureCollection type
+  result.statistics.FeatureCollection++
+  if (is.nonEmptyArray(feature.features)) {
+    result = mergeResult(result, validateArray(feature.features, (f, p) => validateFeature(f, p, context), `${path}/features`))
+  } else if (!is.array(feature.features)) {
+    result.valid = false
+    result.errors.push({
+      code: VALIDATION_CODES.INVALID_FEATURES_ARRAY,
+      path
+    })
   }
-  return {
-    valid: false,
-    errors: [{ code: VALIDATION_CODES.UNKNOWN_TYPE, path, params: { type: feature.type } }],
-    warnings: [],
-    statistics: emptyStatistics()
-  }
+  return result
 }
 
 export function validateGeoJson (geoJson, options = {}) {
   assert.that(geoJson, is.nonEmptyObject, 'geojson must be a non empty object')
   const { precision = DEFAULT_COORDINATE_PRECISION } = options
-  const context = createValidationContext(geoJson, precision)
-  if (is.oneOf(geoJson.type, Object.values(GEOMETRY_TYPES))) {
-    const result = validateGeometry(geoJson, '', context)
-    const withBBox = validateOptionalBBox(geoJson, result, '', context)
-    const withCRS = validateRootCRS(geoJson, withBBox, '')
-    return {
-      ...withCRS,
-      // Geometry counting is owned by validateGeometry.
-      statistics: { Feature: 0, FeatureCollection: 0, geometries: { ...result.statistics.geometries } }
-    }
-  }
+  // handle whether the geoJson is a Feature
   if (geoJson.type === FEATURE_TYPES.FEATURE || geoJson.type === FEATURE_TYPES.FEATURE_COLLECTION) {
-    return validateFeature(geoJson, '', context)
+    return validateFeature(geoJson, '', { precision })
   }
+  // handle whether the geoJson is a Geometry
+  if (is.oneOf(geoJson.type, Object.values(GEOMETRY_TYPES))) {
+    return validateGeometry(geoJson, '', { precision })
+  }
+  // If none, the geoJson is invalid
   return {
+    ...emptyResult(),
     valid: false,
-    errors: [{ code: VALIDATION_CODES.UNKNOWN_TYPE, path: '', params: { type: geoJson.type } }],
-    warnings: [],
-    statistics: emptyStatistics()
+    errors: [{
+      code: VALIDATION_CODES.UNKNOWN_TYPE,
+      path: '',
+      params: { type: geoJson.type }
+    }]
   }
 }

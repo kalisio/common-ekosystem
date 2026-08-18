@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { validateGeometry } from '../../../src/operators/validate/geometry.js'
 import { VALIDATION_CODES } from '../../../src/operators/validate/codes.js'
+import { WGS84 } from '../../../src/foundation/index.js'
 import { geometries } from '../data/geometry.fixtures.js'
 import { points } from '../data/point.fixtures.js'
 import { multiPoints } from '../data/multi-point.fixtures.js'
@@ -10,8 +11,19 @@ import { polygons } from '../data/polygon.fixtures.js'
 import { multiPolygons } from '../data/multi-polygon.fixtures.js'
 import { geometryCollections } from '../data/geometry-collection.fixtures.js'
 
+// A registered projected CRS (proven by the crs tests, which assert geodesic:false
+// on it). Swap for EPSG:2154 if Lambert-93 is registered in foundation.
+const PROJECTED_CRS = { type: 'name', properties: { name: 'EPSG:3857' } }
+
 describe('validateGeometry', () => {
   describe('invalid inputs', () => {
+    const r = validateGeometry(
+      { type: 'Polygon', coordinates: [[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]] }, // CW ring
+      '',
+      { geodesic: true }
+    )
+    console.log(r.errors.filter(e => e.code === 'INVALID_WINDING_ORDER').length)
+
     it('should return invalid for null', () => {
       const result = validateGeometry(null)
       expect(result.valid).toBe(false)
@@ -284,6 +296,98 @@ describe('validateGeometry', () => {
       const precisionWarnings = result.warnings.filter((w) => w.code === VALIDATION_CODES.EXCESSIVE_LONGITUDE_PRECISION)
       expect(precisionWarnings.length).toBeGreaterThan(0)
       expect(precisionWarnings.every((w) => w.params.max === 6)).toBe(true)
+    })
+  })
+
+  describe('projected CRS (geodesic: false)', () => {
+    // A root geometry carrying a projected named CRS resolves it in-place and
+    // switches the whole coordinate validation to planar. Coordinates are in
+    // Web Mercator metres, well outside the geographic ranges.
+    it('accepts a Point outside the geographic ranges', () => {
+      const geometry = { type: 'Point', coordinates: [261848.15, 6250566.72], crs: PROJECTED_CRS }
+      const result = validateGeometry(geometry)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toHaveLength(0)
+    })
+    it('does not emit precision warnings for long projected decimals', () => {
+      const geometry = { type: 'Point', coordinates: [261848.12345678, 6250566.87654321], crs: PROJECTED_CRS }
+      const result = validateGeometry(geometry)
+      expect(result.warnings).toHaveLength(0)
+    })
+    it('does not check winding order on a projected polygon', () => {
+      // Ring is closed and long enough; winding is not evaluated in planar mode,
+      // so a clockwise outer ring must NOT raise INVALID_WINDING_ORDER.
+      const geometry = {
+        type: 'Polygon',
+        coordinates: [[
+          [0, 0], [1000000, 0], [1000000, 1000000], [0, 1000000], [0, 0]
+        ]],
+        crs: PROJECTED_CRS
+      }
+      const result = validateGeometry(geometry)
+      expect(result.errors.some(e => e.code === VALIDATION_CODES.INVALID_WINDING_ORDER)).toBe(false)
+      expect(result.errors.some(e => e.code === VALIDATION_CODES.SELF_INTERSECTION)).toBe(false)
+    })
+    it('does not warn on a large longitude jump (no antimeridian in planar)', () => {
+      const geometry = {
+        type: 'LineString',
+        coordinates: [[0, 0], [2000000, 0]],
+        crs: PROJECTED_CRS
+      }
+      const result = validateGeometry(geometry)
+      expect(result.warnings.some(w => w.code === VALIDATION_CODES.ANTIMERIDIAN_CROSSING)).toBe(false)
+    })
+    it('still enforces CRS-independent structure: an unclosed ring is rejected', () => {
+      const geometry = {
+        type: 'Polygon',
+        coordinates: [[
+          [0, 0], [1000000, 0], [1000000, 1000000], [0, 1000000]
+        ]],
+        crs: PROJECTED_CRS
+      }
+      const result = validateGeometry(geometry)
+      expect(result.valid).toBe(false)
+      expect(result.errors.some(e => e.code === VALIDATION_CODES.RING_NOT_CLOSED)).toBe(true)
+    })
+    it('still enforces CRS-independent structure: a ring that is too short is rejected', () => {
+      const geometry = {
+        type: 'Polygon',
+        coordinates: [[[0, 0], [1000000, 0], [0, 0]]],
+        crs: PROJECTED_CRS
+      }
+      const result = validateGeometry(geometry)
+      expect(result.valid).toBe(false)
+      expect(result.errors.some(e => e.code === VALIDATION_CODES.INVALID_COORDINATES_LENGTH)).toBe(true)
+    })
+  })
+
+  describe('root / nested CRS', () => {
+    it('defaults a root geometry with no CRS to WGS84', () => {
+      const result = validateGeometry(points.valid)
+      expect(result.valid).toBe(true)
+      expect(result.crs).toBe(WGS84)
+    })
+    it('resolves a projected root CRS and reports it (not WGS84)', () => {
+      const geometry = { type: 'Point', coordinates: [261848.15, 6250566.72], crs: PROJECTED_CRS }
+      const result = validateGeometry(geometry)
+      expect(result.valid).toBe(true)
+      expect(result.crs).toBeDefined()
+      expect(result.crs).not.toBe(WGS84)
+    })
+    it('rejects a CRS declared on a GeometryCollection member', () => {
+      const geometry = {
+        type: 'GeometryCollection',
+        geometries: [
+          { type: 'Point', coordinates: [0, 0], crs: { type: 'name', properties: { name: 'EPSG:4326' } } }
+        ]
+      }
+      const result = validateGeometry(geometry)
+      expect(result.valid).toBe(false)
+      expect(result.errors.some(e => e.code === VALIDATION_CODES.UNSUPPORTED_NESTED_CRS)).toBe(true)
+    })
+    it('counts a GeometryCollection as one, without decomposing its members', () => {
+      const result = validateGeometry(geometryCollections.valid)
+      expect(result.statistics.geometries).toEqual({ GeometryCollection: 1 })
     })
   })
 })

@@ -3,8 +3,7 @@ import { getCoordinatePrecision, DEFAULT_COORDINATE_PRECISION } from '../../foun
 import { VALIDATION_CODES } from './codes.js'
 
 export function validatePosition (coordinates, path = '', context = {}) {
-  const precision = context.precision ?? DEFAULT_COORDINATE_PRECISION
-  const geodesic = context.geodesic ?? true
+  const geodesic = context.geodesic
   if (!is.arrayOfLengthBetween(coordinates, 2, 3)) {
     return {
       valid: false,
@@ -47,6 +46,7 @@ export function validatePosition (coordinates, path = '', context = {}) {
   const response = { valid: true, errors: [], warnings: [] }
   // Precision warnings assume degrees, so they are geodesic-only too.
   if (geodesic) {
+    const precision = context.precision ?? DEFAULT_COORDINATE_PRECISION
     const lonPrecision = getCoordinatePrecision(coordinates[0])
     if (lonPrecision > precision) {
       response.warnings.push({ code: VALIDATION_CODES.EXCESSIVE_LONGITUDE_PRECISION, path, params: { precision: lonPrecision, max: precision } })

@@ -2,8 +2,15 @@ import { is } from '@kalisio/common-core'
 import { validatePosition } from './position.js'
 import { VALIDATION_CODES } from './codes.js'
 
-export function validateBBox (bbox, path = '', context = {}) {
-  const geodesic = context.geodesic ?? true
+export function validateOptionalBBox (bbox, path = '', context = {}) {
+  const geodesic = context?.geodesic
+  // bbox is optional
+  if (!is.defined(bbox)) {
+    return {
+      valid: true
+    }
+  }
+  // test the bbox values
   if (!is.arrayOfLength(bbox, 4) && !is.arrayOfLength(bbox, 6)) {
     return {
       valid: false,
@@ -51,12 +58,12 @@ export function validateBBox (bbox, path = '', context = {}) {
       }
     }
   }
-  const response = { valid: true, errors: [], warnings: [] }
+  const result = { valid: true, errors: [], warnings: [] }
   // An antimeridian-crossing bbox (west > east) only makes sense in WGS84.
   if (geodesic && west > east) {
-    response.warnings.push({ code: VALIDATION_CODES.BBOX_ANTIMERIDIAN_CROSSING, path, params: { west, east } })
+    result.warnings.push({ code: VALIDATION_CODES.BBOX_ANTIMERIDIAN_CROSSING, path, params: { west, east } })
   }
-  response.warnings.push(...minResult.warnings)
-  response.warnings.push(...maxResult.warnings)
-  return response
+  result.warnings.push(...minResult.warnings)
+  result.warnings.push(...maxResult.warnings)
+  return result
 }
