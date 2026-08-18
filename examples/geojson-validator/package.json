@@ -24,7 +24,7 @@
   "dependencies": {
     "@kalisio/common-core": "workspace:*",
     "@kalisio/common-geospatial": "workspace:*",
-    "maplibre-gl": "^5.0.0"
+    "maplibre-gl": "catalog:"
   },
   "engines": {
     "node": "^24 || ^22 || ^20",

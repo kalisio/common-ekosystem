@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026-present KALISIO <contact@kalisio.com>
+Copyright (c) 2026-present KALISIO
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
