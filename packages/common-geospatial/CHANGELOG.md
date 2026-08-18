@@ -1,5 +1,12 @@
 # @kalisio/common-geospatial
 
+## [0.9.0](https://github.com/kalisio/common-ekosystem/milestone/9?closed=1)
+
+### Patch Changes
+
+- Updated dependencies
+  - @kalisio/common-core@1.0.0
+
 ## 0.8.0
 
 ### Minor Changes
