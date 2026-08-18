@@ -1,5 +1,8 @@
-import maplibregl from 'maplibre-gl'
+import * as maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
+import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
+
+maplibregl.setWorkerUrl(workerUrl)
 
 const EMPTY_GEOJSON = {
   type: 'FeatureCollection',
@@ -115,7 +118,7 @@ function addGeoJsonLayers () {
     id: 'geojson-fill',
     type: 'fill',
     source: 'geojson',
-    filter: ['==', '$type', 'Polygon'],
+    filter: ['==', ['geometry-type'], 'Polygon'],
     paint: {
       'fill-color': '#2563eb',
       'fill-opacity': 0.2
@@ -125,7 +128,7 @@ function addGeoJsonLayers () {
     id: 'geojson-line',
     type: 'line',
     source: 'geojson',
-    filter: ['in', '$type', 'LineString', 'Polygon'],
+    filter: ['in', ['geometry-type'], ['literal', ['LineString', 'Polygon']]],
     paint: {
       'line-color': '#2563eb',
       'line-width': 2
@@ -135,7 +138,7 @@ function addGeoJsonLayers () {
     id: 'geojson-point',
     type: 'circle',
     source: 'geojson',
-    filter: ['==', '$type', 'Point'],
+    filter: ['==', ['geometry-type'], 'Point'],
     paint: {
       'circle-radius': 6,
       'circle-color': '#2563eb',
