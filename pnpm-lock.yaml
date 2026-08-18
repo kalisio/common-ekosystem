@@ -198,7 +198,7 @@ importers:
         specifier: 'catalog:'
         version: 6.4.0
 
-  examples/shape-editor:
+  examples/shape-studio:
     dependencies:
       '@kalisio/common-core':
         specifier: workspace:*

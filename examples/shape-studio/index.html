@@ -5,6 +5,9 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet" type="text/css">
     <link href="https://use.fontawesome.com/releases/v6.1.1/css/all.css" rel="stylesheet" type="text/css">
     <link href="https://cdn.jsdelivr.net/npm/quasar@2.18.5/dist/quasar.prod.css" rel="stylesheet" type="text/css">
+    <style>
+      .shape-svg svg { width: 100%; height: auto; display: block; }
+    </style>
   </head>
 
   <body>
@@ -13,7 +16,7 @@
       <q-layout view="lhh LpR lff">
         <q-header class="q-pa-md">
           <q-banner class="bg-primary text-white">
-            <span class="text-h4">Shapes</span>
+            <span class="text-h4">Shape Studio</span>
             <template v-slot:avatar>
               <q-icon name="category" color="white"></q-icon>
             </template>
@@ -44,8 +47,8 @@
     <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/quasar@2.18.5/dist/quasar.umd.prod.js"></script>
     <script type="module">
-      import Gallery from './components/gallery.js'
-      import Editor from './components/editor.js'
+      import Gallery from './src/components/gallery.js'
+      import Editor from './src/components/editor.js'
       const app = Vue.createApp({
         components: {
           Gallery,

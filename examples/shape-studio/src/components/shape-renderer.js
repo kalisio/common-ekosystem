@@ -15,7 +15,6 @@ export default {
   setup (props) {
     // Data
     const { computed } = Vue
-
     const svg = computed(() => {
       const shape = shapeFactory.build(props.params)
       if (!shape) return

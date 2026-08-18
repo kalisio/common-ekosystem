@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 export default defineConfig({
-  root: resolve(__dirname, 'src'),
+  root: resolve(__dirname),
   server: {
     port: 8080
   }

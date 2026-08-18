@@ -54,8 +54,8 @@ export default {
 
     const params = ref({
       shape: 'circle',
-      zoom: 3,
       color: 'orange',
+      radius: 100,
       opacity: 1.0,
       stroke: { color: 'black', width: 2 }
     })
@@ -98,7 +98,7 @@ export default {
       qCopyToClipboard(code.value)
         .then(() => {
           $q.notify({
-            message: 'Code copied',
+            message: 'Shape copied',
             color: 'positive',
             icon: 'check',
             position: 'bottom',
