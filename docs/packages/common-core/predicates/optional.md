@@ -1,7 +1,7 @@
 ---
 title: optional
 description: Create optional predicates for schema validation
--------------------------------------------------------------
+---
 
 # optional
 
@@ -11,25 +11,25 @@ description: Create optional predicates for schema validation
 optional (validator)
 ```
 
-## Description
+### Description
 
 Create a predicate that accepts `undefined` or any value accepted by the provided validator.
 
 It is typically used with `conform` to define optional properties in a schema.
 
-## Parameters
+### Parameters
 
 | Name        | Type       | Required | Description                                                    |
 | ----------- | ---------- | -------- | -------------------------------------------------------------- |
 | `validator` | `Function` | yes      | The predicate used to validate the property when it is defined |
 
-## Returns
+### Returns
 
 | Type       | Description                                                                      |
 | ---------- | -------------------------------------------------------------------------------- |
 | `Function` | A predicate that accepts `undefined` or values satisfying the provided validator |
 
-## Examples
+### Examples
 
 ```js
 import { conform, optional, is } from '@kalisio/common-core'

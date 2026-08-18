@@ -43,7 +43,7 @@ export function parsePosition (pattern) {
   }
   if (firstAxis === AXES.LONGITUDE && secondAxis === AXES.LATITUDE) return [signedDegrees(firstDD), signedDegrees(secondDD)]
   if (secondAxis === AXES.LONGITUDE && firstAxis === AXES.LATITUDE) return [signedDegrees(secondDD), signedDegrees(firstDD)]
-  if (firstAxis === AXES.LONGITUDE && !secondAxis) return [signedDegrees(firstDD), secondDD]
+  if (firstAxis === AXES.LONGITUDE && !secondAxis) return [signedDegrees(firstDD), signedDegrees(secondDD)]
   if (firstAxis === AXES.LATITUDE && !secondAxis) return [signedDegrees(secondDD), signedDegrees(firstDD)]
   if (secondAxis === AXES.LONGITUDE && !firstAxis) return [signedDegrees(secondDD), signedDegrees(firstDD)]
   if (secondAxis === AXES.LATITUDE && !firstAxis) return [signedDegrees(firstDD), signedDegrees(secondDD)]
@@ -53,6 +53,7 @@ export function parsePosition (pattern) {
       [signedDegrees(secondDD), signedDegrees(firstDD)]
     ]
   }
+  return null
 }
 
 export function isValidPosition (coordinates) {

@@ -91,7 +91,7 @@ getCoordinatePrecision(coord)
 
 ### Description
 
-Returns the number of significant decimal digits of a coordinate value.
+Returns the number of decimal places in a coordinate.
 
 ### Parameters
 

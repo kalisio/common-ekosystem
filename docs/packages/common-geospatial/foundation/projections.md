@@ -220,9 +220,11 @@ isWGS84Projection(name)
 
 ### Description
 
-Returns whether the specified registered projection is equivalent to the WGS84 geographic coordinate reference system.
+Returns whether the registered projection is recognized as a WGS84 geographic projection based on its projection and datum definitions.
 
+::: info
 The comparison is performed against the registered `EPSG:4326` definition.
+:::
 
 ### Parameters
 
