@@ -8,6 +8,7 @@
     "build:common-core": "pnpm --filter @kalisio/common-core build",
     "build:common-geospatial": "pnpm --filter @kalisio/common-geospatial build",
     "build:common-graphics": "pnpm --filter @kalisio/common-graphics build",
+    "prebump": "changeset",
     "bump": "changeset version",
     "change": "changeset",
     "clear": "pnpm -r exec rimraf node_modules dist coverage",
