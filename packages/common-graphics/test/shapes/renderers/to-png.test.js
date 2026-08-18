@@ -1,25 +1,23 @@
-import { describe, it, expect, vi, beforeAll, beforeEach, afterEach, afterAll } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-describe('toPNG – Node', () => {
-  let toPNG, image
+vi.mock('#utilities', () => ({
+  image: {
+    fromSVG: vi.fn(),
+    toDataURL: vi.fn()
+  }
+}))
 
-  beforeAll(async () => {
-    vi.stubGlobal('window', undefined)
-    vi.resetModules()
-    ;({ toPNG } = await import('../../../src/shapes/renderers'))
-    ;({ image } = await import('../../../src/utilities'))
-  })
+const { toPNG } = await import('../../../src/shapes/renderers')
+const { image } = await import('#utilities')
 
-  afterAll(() => vi.unstubAllGlobals())
+describe('toPNG', () => {
+  const makeContext = () => ({ pngCache: new Map(), svgCache: new Map() })
 
   beforeEach(() => {
-    vi.spyOn(image, 'fromSVG').mockResolvedValue(Buffer.from('fake-png'))
-    vi.spyOn(image, 'toDataURL').mockResolvedValue('data:image/png;base64,abc123')
+    vi.clearAllMocks()
+    image.fromSVG.mockResolvedValue(Buffer.from('fake-png'))
+    image.toDataURL.mockResolvedValue('data:image/png;base64,abc123')
   })
-
-  afterEach(() => vi.restoreAllMocks())
-
-  const makeContext = () => ({ pngCache: new Map(), svgCache: new Map() })
 
   it('converts SVG to a PNG data URL', async () => {
     const result = await toPNG({}, makeContext())

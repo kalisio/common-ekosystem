@@ -7,9 +7,24 @@
   "private": false,
   "exports": {
     ".": {
-      "development": "./src/index.js",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
+      "development": {
+        "browser": "./src/index.browser.js",
+        "default": "./src/index.node.js"
+      },
+      "browser": "./dist/index.browser.mjs",
+      "import": "./dist/index.node.mjs",
+      "require": "./dist/index.node.cjs"
+    }
+  },
+  "imports": {
+    "#utilities": {
+      "development": {
+        "browser": "./src/utilities/index.browser.js",
+        "default": "./src/utilities/index.node.js"
+      },
+      "browser": "./dist/utilities/index.browser.mjs",
+      "import": "./dist/utilities/index.node.mjs",
+      "require": "./dist/utilities/index.node.cjs"
     }
   },
   "files": [
@@ -74,8 +89,16 @@
     "access": "public",
     "exports": {
       ".": {
-        "import": "./dist/index.mjs",
-        "require": "./dist/index.cjs"
+        "browser": "./dist/index.browser.mjs",
+        "import": "./dist/index.node.mjs",
+        "require": "./dist/index.node.cjs"
+      }
+    },
+    "imports": {
+      "#utilities": {
+        "browser": "./dist/utilities/index.browser.mjs",
+        "import": "./dist/utilities/index.node.mjs",
+        "require": "./dist/utilities/index.node.cjs"
       }
     }
   }

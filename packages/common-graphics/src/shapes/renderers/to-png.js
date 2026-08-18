@@ -1,5 +1,5 @@
 import { getLogger } from '@logtape/logtape'
-import { image } from '../../utilities'
+import { image } from '#utilities'
 import { toSVG } from './to-svg.js'
 
 const logger = getLogger(['graphiks', 'png'])

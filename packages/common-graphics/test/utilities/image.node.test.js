@@ -31,7 +31,7 @@ describe('image – Node', () => {
   beforeAll(async () => {
     vi.stubGlobal('window', undefined)
     vi.resetModules()
-    ;({ image } = await import('../../src/utilities'))
+    ;({ image } = await import('../../src/utilities/index.node'))
     ;({ readFile } = await import('node:fs/promises'))
   })
 

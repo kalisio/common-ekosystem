@@ -39,7 +39,7 @@ describe('image – Browser', () => {
     URL.revokeObjectURL = vi.fn()
     // Reset modules after stubs
     vi.resetModules()
-    ;({ image } = await import('../../src/utilities'))
+    ;({ image } = await import('../../src/utilities/index.browser'))
   })
 
   afterAll(() => {

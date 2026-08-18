@@ -1,19 +1,10 @@
 import { getLogger } from '@logtape/logtape'
-import { is } from '@kalisio/common-core'
 
 const logger = getLogger(['common-graphics', 'to-svg'])
 
 export function toSVG (params, context) {
-  if (!is.defined(params)) {
-    logger.error('Invalid argument: \'params\' must be defined')
-    return
-  }
-  if (!is.defined(context)) {
-    logger.error('Invalid argument: \'params\' must be defined')
-    return
-  }
   const { svgCache } = context
-  // check whether this shape is already in the cache
+  // Check whether this shape is already in the cache
   if (params.key) {
     const svg = svgCache.get(params.key)
     if (svg) {
@@ -21,10 +12,9 @@ export function toSVG (params, context) {
       return svg
     }
   }
-  // otherwise setup the svg string
-  const zoom = params.zoom || 1
-  const width = params.width * zoom
-  const height = params.height * zoom
+  // Otherwise setup the svg string
+  const width = params.width
+  const height = params.height
   const margin = params.margin
   let attributes = 'xmlns="http://www.w3.org/2000/svg"'
   attributes += ` width="${width}" height="${height}"`
@@ -67,6 +57,11 @@ export function toSVGTextElement (params) {
 export function toSVGIconElement (params) {
   const { icon, height } = params
   if (!icon || (!icon.classes && !icon.url)) return ''
+  if (icon.url) {
+    const size = icon.size != null ? icon.size * (100 / height) : 100
+    const offset = (100 - size) / 2
+    return `<image href="${icon.url}" x="${offset}" y="${offset}" width="${size}" height="${size}" preserveAspectRatio="xMidYMid meet"/>`
+  }
   const fontScale = 100 / height
   const size = (icon.size ?? 12) * fontScale
   let iconStyle = `font-size:${size}px;`

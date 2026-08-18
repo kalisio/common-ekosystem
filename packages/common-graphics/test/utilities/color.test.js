@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { color } from '../../src/utilities'
+import { color } from '#utilities'
 
 // ─── is ─────────────────────────────────────────────────────────────────────
 

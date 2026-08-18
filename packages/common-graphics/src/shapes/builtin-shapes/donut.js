@@ -1,5 +1,5 @@
 import { getLogger } from '@logtape/logtape'
-import { is } from '@kalisio/common-core'
+import { is } from '@kalisio/common-core/predicates'
 import { toSVGStyleAttributes, toSVGTitleElement, toSVGTransformAttribute } from '../renderers/to-svg.js'
 
 const logger = getLogger(['graphiks', 'donut'])

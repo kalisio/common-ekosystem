@@ -49,12 +49,9 @@ export class ShapeFactory {
 
   build (params) {
     assert.that(params, (v) => has.key(v, 'shape'), 'params must be an object with the property shape')
-    const zoom = params.zoom ?? 1
-    assert.that(zoom, is.positive, 'zoom must be a positive number')
-    // generate the shape
     const buildFn = this.registry.get(params.shape)
     assert.that(buildFn, is.function, 'param.shape must be a known shape')
-    const shape = { zoom, ...params, ...buildFn(params) }
+    const shape = { ...params, ...buildFn(params) }
     assert.all([
       { value: shape.width, validator: is.positiveInteger, message: 'shape.width must be a positive integer' },
       { value: shape.height, validator: is.positiveInteger, message: 'shape.height must be a positive integer' },

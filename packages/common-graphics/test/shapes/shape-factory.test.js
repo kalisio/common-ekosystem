@@ -107,11 +107,6 @@ describe('ShapeFactory', () => {
       expect(shape.shape).toBe('circle')
     })
 
-    it('defaults zoom to 1 when not provided', () => {
-      const shape = factory.build({ shape: 'circle' })
-      expect(shape.zoom).toBe(1)
-    })
-
     it('passes the provided zoom through', () => {
       const shape = factory.build({ shape: 'circle', zoom: 2 })
       expect(shape.zoom).toBe(2)
@@ -131,11 +126,6 @@ describe('ShapeFactory', () => {
 
     it('throws when shape type is not registered', () => {
       expect(() => factory.build({ shape: 'triangle' })).toThrow()
-    })
-
-    it('throws when zoom is not a positive number', () => {
-      expect(() => factory.build({ shape: 'circle', zoom: -1 })).toThrow()
-      expect(() => factory.build({ shape: 'circle', zoom: 0 })).toThrow()
     })
 
     it('throws when buildFn returns a non-positive-integer width', () => {

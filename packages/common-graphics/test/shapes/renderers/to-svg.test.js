@@ -33,12 +33,6 @@ describe('SVG', () => {
       expect(svg).toContain(mockParams.shape)
     })
 
-    it('should apply zoom factor', () => {
-      mockParams.zoom = 2
-      const svg = toSVG(mockParams, { svgCache })
-      expect(svg).toContain('width="200" height="200"')
-    })
-
     it('should apply margin to viewBox', () => {
       const svg = toSVG(mockParams, { svgCache })
       expect(svg).toContain('viewBox="-10 -10 120 120"')
