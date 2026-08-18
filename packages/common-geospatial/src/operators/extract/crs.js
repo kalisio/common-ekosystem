@@ -1,4 +1,4 @@
-import { is } from '@kalisio/common-core'
+import { is } from '@kalisio/common-core/predicates'
 import { WGS84, normalizeCrsName } from '../../foundation/index.js'
 import { extractGeoJsonNode } from './node.js'
 

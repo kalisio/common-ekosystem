@@ -1,5 +1,5 @@
 import buffer from '@turf/buffer'
-import { is, assert, conform, optional } from '@kalisio/common-core'
+import { is, assert, conform, optional } from '@kalisio/common-core/predicates'
 import {
   deduplicatePositions,
   isClockwiseRing,

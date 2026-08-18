@@ -1,4 +1,4 @@
-import { is } from '@kalisio/common-core'
+import { is } from '@kalisio/common-core/predicates'
 import { getCoordinatePrecision, DEFAULT_COORDINATE_PRECISION } from '../../foundation/index.js'
 import { VALIDATION_CODES } from './codes.js'
 

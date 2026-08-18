@@ -1,4 +1,4 @@
-import { is } from '@kalisio/common-core'
+import { is } from '@kalisio/common-core/predicates'
 import {
   DEFAULT_COORDINATE_PRECISION,
   isSamePosition,

@@ -1,5 +1,5 @@
 import { Heap } from 'heap-js'
-import { assert, is, optional, conform } from '@kalisio/common-core'
+import { assert, is, optional, conform } from '@kalisio/common-core/predicates'
 import { FEATURE_TYPES, GEOMETRY_TYPES, isLikeGeoJson } from './is-like.js'
 
 const SIMPLIFY_OPTIONS_SCHEMA = {

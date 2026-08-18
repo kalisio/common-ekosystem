@@ -1,4 +1,5 @@
-import { assert, object } from '@kalisio/common-core'
+import { assert } from '@kalisio/common-core/predicates'
+import { object } from '@kalisio/common-core/utilities'
 import { isLikeGeoJson } from '../is-like.js'
 
 export function extractGeoJsonNode (geoJson, path) {

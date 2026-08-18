@@ -1,4 +1,4 @@
-import { is, conform } from '@kalisio/common-core'
+import { is, conform } from '@kalisio/common-core/predicates'
 import { AXES } from '../axes.js'
 import { isValidDirection, isEast, isWest, getDirectionSymbols } from '../directions.js'
 import { DD } from './dd.js'

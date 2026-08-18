@@ -1,4 +1,4 @@
-import { is } from '@kalisio/common-core'
+import { is } from '@kalisio/common-core/predicates'
 
 export function emptyStatistics () {
   return { Feature: 0, FeatureCollection: 0, geometries: {} }

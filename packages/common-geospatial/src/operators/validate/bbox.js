@@ -1,4 +1,4 @@
-import { is } from '@kalisio/common-core'
+import { is } from '@kalisio/common-core/predicates'
 import { validatePosition } from './position.js'
 import { VALIDATION_CODES } from './codes.js'
 

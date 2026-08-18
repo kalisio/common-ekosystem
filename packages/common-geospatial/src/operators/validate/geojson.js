@@ -1,4 +1,4 @@
-import { assert, is } from '@kalisio/common-core'
+import { assert, is } from '@kalisio/common-core/predicates'
 import { DEFAULT_COORDINATE_PRECISION } from '../../foundation/index.js'
 import { FEATURE_TYPES, GEOMETRY_TYPES } from '../is-like.js'
 import { VALIDATION_CODES } from './codes.js'

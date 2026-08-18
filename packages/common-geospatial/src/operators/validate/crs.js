@@ -1,4 +1,4 @@
-import { is } from '@kalisio/common-core'
+import { is } from '@kalisio/common-core/predicates'
 import { WGS84, hasProjection, normalizeCrsName, isWGS84Projection } from '../../foundation/index.js'
 import { CRS_TYPES } from '../is-like.js'
 import { VALIDATION_CODES } from './codes.js'

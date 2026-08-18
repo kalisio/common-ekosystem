@@ -1,4 +1,4 @@
-import { assert } from '@kalisio/common-core'
+import { assert } from '@kalisio/common-core/predicates'
 import { DDM } from './ddm.js'
 import { DDMAero } from './ddm-aero.js'
 import { DMS } from './dms.js'

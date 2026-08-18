@@ -1,4 +1,4 @@
-import { assert, is, conform, optional } from '@kalisio/common-core'
+import { assert, is, conform, optional } from '@kalisio/common-core/predicates'
 import { isValidDirection, getDirectionSymbols } from '../directions.js'
 
 const SCHEMA = {
