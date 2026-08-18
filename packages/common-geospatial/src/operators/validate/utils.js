@@ -30,7 +30,6 @@ function mergeStatistics (...results) {
 
 export function mergeResult (result, ...others) {
   for (const other of others) {
-    // if (other === result) continue // guard against self-merge
     result.valid = result.valid && (other.valid ?? true)
     if (other.errors) result.errors.push(...other.errors)
     if (other.warnings) result.warnings.push(...other.warnings)
