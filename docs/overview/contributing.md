@@ -141,7 +141,7 @@ pnpm changeset
 pnpm changeset version
 ```
 
-During the interactive changeset step:
+During the interactive **changeset** step:
 - Select the package(s) affected by the changes,
 - Specify the type of version bump (major, minor, or patch) according to **Semantic Versioning**
 - Use the changeset description to reference the **milestone** containing the issues included in the release.
