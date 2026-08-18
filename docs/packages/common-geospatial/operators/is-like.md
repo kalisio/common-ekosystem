@@ -170,7 +170,11 @@ isLikeGeometry (object)
 
 ### Description
 
-Returns `true` if `object` is a valid GeoJSON geometry. Checks that the object has a recognized `type` from `GEOMETRY_TYPES`, and that it has a `coordinates` array (or a `geometries` array for `GeometryCollection`). Does not deeply validate coordinate values.
+Returns `true` if `object` is a valid GeoJSON geometry. Checks that the object has a recognized `type` from `GEOMETRY_TYPES`, and that it has a `coordinates` array (or a `geometries` array for `GeometryCollection`).
+
+::: warning
+It does not deeply validate coordinate values.
+:::
 
 ### Parameters
 
@@ -213,7 +217,11 @@ isLikeFeature (object)
 
 ### Description
 
-Returns `true` if `object` is a GeoJSON `Feature`, i.e. a plain object with `type === 'Feature'`. Does not validate the `geometry` or `properties` fields.
+Returns `true` if `object` is a GeoJSON `Feature`, i.e. a plain object with `type === 'Feature'`.
+
+::: warning
+It does not validate the `geometry` or `properties` fields.
+:::
 
 ### Parameters
 
@@ -250,7 +258,11 @@ isLikeFeatureCollection (object)
 
 ### Description
 
-Returns `true` if `object` is a GeoJSON `FeatureCollection`, i.e. a plain object with `type === 'FeatureCollection'` and a `features` array. Does not validate the contents of `features`.
+Returns `true` if `object` is a GeoJSON `FeatureCollection`, i.e. a plain object with `type === 'FeatureCollection'` and a `features` array.
+
+::: warning
+It does not validate the contents of `features`.
+:::
 
 ### Parameters
 
@@ -292,8 +304,6 @@ isLikeFeatureOrFeatureCollection (value)
 
 Returns whether a value structurally resembles a GeoJSON `Feature` or `FeatureCollection`.
 
-This is a lightweight structural check and does not perform full GeoJSON validation.
-
 ### Parameters
 
 | Name    | Type  | Required | Description   |
@@ -316,7 +326,7 @@ isLikeGeoJson (object)
 
 ### Description
 
-Returns `true` if `object` is any valid GeoJSON object: a geometry, a `Feature`, or a `FeatureCollection`. Delegates to `isLikeGeometry`, `isLikeFeature`, and `isLikeFeatureCollection`.
+Returns `true` if `object` is any valid GeoJSON object: a geometry, a `Feature`, or a `FeatureCollection`.
 
 ### Parameters
 
