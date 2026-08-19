@@ -149,7 +149,6 @@ Builds a shape object from the given params. Looks up the registered builder for
 Throws if:
 - `params` does not have a `shape` property
 - `params.shape` is not a registered type
-- `params.zoom` is provided but is not a positive number
 - The builder function does not return positive integer values for `width`, `height`, and `margin`
 
 ### Parameters
@@ -184,12 +183,16 @@ Throws if:
 
 | Property | Description | Default |
 |----------|-------------|---------|
-| **classes** | Icon classes to display. If `undefined` or empty, all icon properties are ignored | `undefined` |
+| **classes** | Icon classes to display | `undefined` |
 | **url** | URL of the image to display as the icon | `undefined` |
 | **color** | Icon color. Any valid HTML color | `'black'` |
 | **opacity** | Icon opacity, from `0.0` to `1.0` | `1.0` |
 | **size** | [Font size](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/font-size) used to render the icon | `'1em'` |
 | **transform** | [SVG transform](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/transform) applied to the icon | `undefined` |
+
+::: info
+An icon can be defined using either `classes` or `url`. When both are provided, `classes` takes precedence. The `color` property is ignored for icons defined using `url`.
+:::
 
 #### text sub-object
 
@@ -212,7 +215,6 @@ A shape object with the following properties:
 | Name | Type | Description |
 |------|------|-------------|
 | `shape` | `string` | The shape type identifier |
-| `zoom` | `number` | The zoom factor used |
 | `width` | `number` | Positive integer width returned by the builder |
 | `height` | `number` | Positive integer height returned by the builder |
 | `margin` | `number` | Positive integer margin returned by the builder |
@@ -229,12 +231,8 @@ factory.register('circle', (params) => ({
 }))
 
 const shape = factory.build({ shape: 'circle', color: 'red' })
-// { shape: 'circle', zoom: 1, color: 'red', width: 32, height: 32, margin: 4, toSVG: fn, toPNG: fn }
+// { shape: 'circle', color: 'red', width: 32, height: 32, margin: 4, toSVG: fn, toPNG: fn }
 
 const svg = shape.toSVG()
 const png = shape.toPNG()
-
-// With zoom
-const shape = factory.build({ shape: 'circle', zoom: 2 })
-// { shape: 'circle', zoom: 2, width: 32, height: 32, margin: 4, toSVG: fn, toPNG: fn }
 ```
