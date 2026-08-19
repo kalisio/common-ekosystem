@@ -166,7 +166,6 @@ Throws if:
 | `params.icon` | `object` | no | Icon element to group with the shape. See [icon sub-object](#icon-sub-object) below |
 | `params.text` | `object` | no | Text element to group with the shape. See [text sub-object](#text-sub-object) below |
 | `params.style` | `string` | no | A SVG `style` element to assign to the shape |
-| `params.zoom` | `number` | no | Overall zoom factor. Must be a positive number. Defaults to `1` |
 
 #### stroke sub-object
 
@@ -186,6 +185,7 @@ Throws if:
 | Property | Description | Default |
 |----------|-------------|---------|
 | **classes** | Icon classes to display. If `undefined` or empty, all icon properties are ignored | `undefined` |
+| **url** | URL of the image to display as the icon | `undefined` |
 | **color** | Icon color. Any valid HTML color | `'black'` |
 | **opacity** | Icon opacity, from `0.0` to `1.0` | `1.0` |
 | **size** | [Font size](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/font-size) used to render the icon | `'1em'` |

@@ -57,19 +57,19 @@ export function toSVGTextElement (params) {
 export function toSVGIconElement (params) {
   const { icon, height } = params
   if (!icon || (!icon.classes && !icon.url)) return ''
-  if (icon.url) {
-    const size = icon.size != null ? icon.size * (100 / height) : 100
-    const offset = (100 - size) / 2
-    return `<image href="${icon.url}" x="${offset}" y="${offset}" width="${size}" height="${size}" preserveAspectRatio="xMidYMid meet"/>`
+  if (icon.classes) {
+    const fontScale = 100 / height
+    const size = (icon.size ?? 12) * fontScale
+    let iconStyle = `font-size:${size}px;`
+    if (icon.color) iconStyle += `color:${icon.color};`
+    const iconElement = `<i style="${iconStyle}" class="${icon.classes}"></i>`
+    const divStyle = 'display:flex;align-items:center;justify-content:center;height:100%;width:100%;'
+    const divElement = `<div xmlns="http://www.w3.org/1999/xhtml" style="${divStyle}">${iconElement}</div>`
+    return `<foreignObject width="100" height="100">${divElement}</foreignObject>`
   }
-  const fontScale = 100 / height
-  const size = (icon.size ?? 12) * fontScale
-  let iconStyle = `font-size:${size}px;`
-  if (icon.color) iconStyle += `color:${icon.color};`
-  const iconElement = `<i style="${iconStyle}" class="${icon.classes}"></i>`
-  const divStyle = 'display:flex;align-items:center;justify-content:center;height:100%;width:100%;'
-  const divElement = `<div xmlns="http://www.w3.org/1999/xhtml" style="${divStyle}">${iconElement}</div>`
-  return `<foreignObject width="100" height="100">${divElement}</foreignObject>`
+  const size = icon.size != null ? icon.size * (100 / height) : 100
+  const offset = (100 - size) / 2
+  return `<image href="${icon.url}" x="${offset}" y="${offset}" width="${size}" height="${size}" preserveAspectRatio="xMidYMid meet"/>`
 }
 
 export function toSVGTitleElement (params) {
