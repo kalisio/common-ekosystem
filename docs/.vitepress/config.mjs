@@ -27,12 +27,12 @@ export default withMermaid(
       logo: 'https://kalisio.github.io/kalisioscope/kalisio/kalisio-icon-light.svg',
       socialLinks: [{ icon: 'github', link: 'https://github.com/kalisio/common-ekosystem' }],
       nav: [
-        { text: 'Overview', link: '/overview/about' }
-        ,
-        {
-          text: 'Packages',
-          items: sortedPackagesNavBar
-        }
+        { text: 'Overview', link: '/overview/about' },
+        { text: 'Packages', items: sortedPackagesNavBar },
+        { text: 'Playground', items: [
+          { text: 'GeoJson validator', link: '/playground/geojson-validator/' },
+          { text: 'Shape Studio', link: '/playground/shape-studio/' },
+        ]}
       ],
       sidebar: {
         '/overview/': [

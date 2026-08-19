@@ -8,5 +8,8 @@ export default defineConfig({
   root: resolve(__dirname),
   server: {
     port: 8080
+  },
+  resolve: {
+    conditions: ['development', 'module', 'browser', 'import']
   }
 })

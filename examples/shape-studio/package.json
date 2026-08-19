@@ -12,6 +12,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "build": "vite build --outDir ../../docs/public/examples/shape-studio --emptyOutDir --base ./",
     "lint": "standard --fix"
   },
   "author": {
