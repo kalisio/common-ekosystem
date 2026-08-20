@@ -5,7 +5,12 @@ description: Factory class for registering, building, and rendering shapes.
 
 # ShapeFactory
 
-Factory class for registering shape builders and producing shape objects that can be rendered as SVG or PNG.
+Factory class for registering shape builders and producing shape objects that can be rendered
+as SVG or PNG.
+
+The shape factory provides a collection of predefined built-in shapes that can be used directly
+without defining custom shape parameters. You can browse and preview the available built-in
+shapes in the [Shape Studio](../../../playground/shape-studio).
 
 ## constructor
 
