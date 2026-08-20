@@ -46,24 +46,6 @@
     <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/quasar@2.18.5/dist/quasar.umd.prod.js"></script>
-    <script type="module">
-      import Gallery from './src/components/gallery.js'
-      import Editor from './src/components/editor.js'
-      const app = Vue.createApp({
-        components: {
-          Gallery,
-          Editor
-        },
-        setup () {
-          const { ref } = Vue
-          const page = ref('gallery')
-          return {
-            page
-          }
-        }
-      })
-      app.use(Quasar)
-      app.mount('#q-app')
-    </script>
+    <script type="module" src="./src/main.js"></script>
   </body>
 </html>

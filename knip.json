@@ -1,9 +1,4 @@
 {
   "exclude": ["catalog"],
-  "ignore": ["docs/**"],
-  "workspaces": {
-    "examples/graphics": {
-      "entry": ["src/index.html"]
-    }
-  }
+  "ignore": ["docs/**"]
 }

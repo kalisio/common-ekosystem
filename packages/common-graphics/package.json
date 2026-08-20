@@ -79,9 +79,6 @@
       "optional": true
     }
   },
-  "devDependencies": {
-    "happy-dom": "catalog:"
-  },
   "engines": {
     "node": ">=20"
   },
