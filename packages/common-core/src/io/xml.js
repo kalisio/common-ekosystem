@@ -6,7 +6,7 @@ const PARSE_OPTIONS_SCHEMA = {
 }
 
 async function getDomParser () {
-  if (typeof DOMParser !== 'undefined') return new DOMParser()
+  if (typeof globalThis.DOMParser !== 'undefined') return new globalThis.DOMParser()
   const { DOMParser: NodeDomParser } = await import(/* webpackIgnore: true */ '@xmldom/xmldom')
   return new NodeDomParser()
 }
