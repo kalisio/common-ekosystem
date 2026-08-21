@@ -17,6 +17,7 @@ export class ShapeFactory {
     this.registry.set('pentagon', BUILTIN_SHAPES.pentagon)
     this.registry.set('hexagon', BUILTIN_SHAPES.hexagon)
     this.registry.set('polygon', BUILTIN_SHAPES.polygon)
+    this.registry.set('polyline', BUILTIN_SHAPES.polyline)
     this.registry.set('rect', BUILTIN_SHAPES.rect)
     this.registry.set('rounded-rect', BUILTIN_SHAPES.roundedRect)
     this.registry.set('star4', BUILTIN_SHAPES.star4)
@@ -57,7 +58,7 @@ export class ShapeFactory {
     assert.all([
       { value: shape.width, validator: is.positiveInteger, message: 'shape.width must be a positive integer' },
       { value: shape.height, validator: is.positiveInteger, message: 'shape.height must be a positive integer' },
-      { value: shape.margin, validator: is.positiveInteger, message: 'shape.margin must be a positive integer' }
+      { value: shape.margin, validator: is.nonNegativeInteger, message: 'shape.margin must be a positive integer' }
     ])
     return {
       ...shape,

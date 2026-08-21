@@ -227,8 +227,16 @@ function fixGeometryIssues (geometry, relevantIssues, path, options) {
 
 export function fixGeoJson (geoJson, options) {
   assert.all([
-    { value: geoJson, validator: isLikeGeoJson, message: 'geoJson must be a GeoJson object' },
-    { value: options, validator: (v) => conform.schema(v, FIX_OPTIONS_SCHEMA), message: 'options must be a valid options object, with a mandatory validation result' }
+    {
+      value: geoJson,
+      validator: isLikeGeoJson,
+      message: 'geoJson must be a GeoJson object'
+    },
+    {
+      value: options,
+      validator: (v) => conform.schema(v, FIX_OPTIONS_SCHEMA),
+      message: 'options must be a valid options object, with a mandatory validation result'
+    }
   ])
   const allIssues = [...options.validation.errors, ...options.validation.warnings]
   const fixableIssues = allIssues.filter(issue => FIXABLE_CODES.includes(issue.code))

@@ -49,6 +49,7 @@ export default {
         { shape: 'pentagon', color: 'yellow' },
         { shape: 'hexagon', color: 'yellow' },
         { shape: 'polygon', color: 'yellow' },
+        { shape: 'polyline', color: 'orange' },
         {
           shape: 'donut',
           slices: [

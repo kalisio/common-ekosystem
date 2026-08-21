@@ -5,6 +5,7 @@ import { donut, pie } from './donut.js'
 import { heart } from './heart.js'
 import { markerPin, squarePin } from './pin.js'
 import { pentagon, hexagon, polygon } from './polygon.js'
+import { polyline } from './polyline.js'
 import { rect, roundedRect } from './rect.js'
 import { star4, star5, star6 } from './star.js'
 import { triangle, triangleDown, triangleRight, triangleLeft } from './triangle.js'
@@ -21,6 +22,7 @@ export const BUILTIN_SHAPES = {
   pentagon,
   hexagon,
   polygon,
+  polyline,
   rect,
   roundedRect,
   star4,
