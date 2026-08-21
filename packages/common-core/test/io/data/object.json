@@ -1,0 +1,7 @@
+{
+  "name": "station-01",
+  "active": true,
+  "count": 3,
+  "tags": ["a", "b"],
+  "location": { "lon": 2.35, "lat": 48.85 }
+}

@@ -19,6 +19,11 @@
       "development": "./src/utilities/index.js",
       "import": "./dist/utilities/index.mjs",
       "require": "./dist/utilities/index.cjs"
+    },
+    "./io": {
+      "development": "./src/io/index.js",
+      "import": "./dist/io/index.mjs",
+      "require": "./dist/io/index.cjs"
     }
   },
   "files": [
@@ -28,7 +33,8 @@
     "globals": [
       "self",
       "WorkerGlobalScope",
-      "ServiceWorkerGlobalScope"
+      "ServiceWorkerGlobalScope",
+      "DOMParser"
     ],
     "ignore": [
       "dist/**"
@@ -62,8 +68,10 @@
     "lodash-es": "catalog:",
     "mathjs": "catalog:",
     "moment": "catalog:",
+    "papaparse": "catalog:",
     "sanitize-html": "catalog:",
-    "sift": "catalog:"
+    "sift": "catalog:",
+    "@xmldom/xmldom": "catalog:"
   },
   "peerDependenciesMeta": {
     "lodash-es": {
@@ -75,10 +83,16 @@
     "moment": {
       "optional": true
     },
+    "papaparse": {
+      "optional": true
+    },
     "sanitize-html": {
       "optional": true
     },
     "sift": {
+      "optional": true
+    },
+    "@xmldom/xmldom": {
       "optional": true
     }
   },
@@ -99,6 +113,10 @@
       "./utilities": {
         "import": "./dist/utilities/index.mjs",
         "require": "./dist/utilities/index.cjs"
+      },
+      "./io": {
+        "import": "./dist/io/index.mjs",
+        "require": "./dist/io/index.cjs"
       }
     }
   }

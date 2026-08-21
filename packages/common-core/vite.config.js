@@ -15,7 +15,8 @@ export default mergeConfig(baseConfig, defineConfig({
       entry: {
         index: 'src/index.js',
         'predicates/index': 'src/predicates/index.js',
-        'utilities/index': 'src/utilities/index.js'
+        'utilities/index': 'src/utilities/index.js',
+        'io/index': 'src/io/index.js'
       },
       formats: ['es', 'cjs'],
       fileName: (format, entryName) =>
