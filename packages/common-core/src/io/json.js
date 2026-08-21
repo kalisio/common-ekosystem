@@ -1,6 +1,10 @@
 import { is, assert, conform, optional } from '../predicates/index.js'
 import { source } from './source.js'
 
+const PARSE_OPTIONS_SCHEMA = {
+  reviver: optional(is.function)
+}
+
 export const json = {
 
   ERROR_CODES: {
@@ -8,16 +12,12 @@ export const json = {
     PARSE_FAILED: 'PARSE_FAILED'
   },
 
-  PARSE_OPTIONS_SCHEMA: {
-    reviver: optional(is.function)
-  },
-
   parse (text, options = {}) {
     assert.all([
       { value: text, validator: is.string, message: 'text must be a string' },
       {
         value: options,
-        validator: (v) => conform.schema(v, json.PARSE_OPTIONS_SCHEMA),
+        validator: (v) => conform.schema(v, PARSE_OPTIONS_SCHEMA),
         message: 'options must be a valid options object'
       }
     ])
