@@ -22,6 +22,8 @@ export class ShapeFactory {
     this.registry.set('star4', BUILTIN_SHAPES.star4)
     this.registry.set('star5', BUILTIN_SHAPES.star5)
     this.registry.set('star6', BUILTIN_SHAPES.star6)
+    // Alias if we don't care about the number of branches
+    this.registry.set('star', BUILTIN_SHAPES.star5)
     this.registry.set('triangle', BUILTIN_SHAPES.triangle)
     this.registry.set('triangle-down', BUILTIN_SHAPES.triangleDown)
     this.registry.set('triangle-right', BUILTIN_SHAPES.triangleRight)
