@@ -13,9 +13,18 @@ The native `DOMParser` is used when available. In Node.js, `@xmldom/xmldom` is l
 
 | Name | Type | Description |
 | --- | --- | --- |
-| `PARSE_FAILED` | `string` | Error code returned when XML parsing fails |
-| `INVALID_XML` | `string` | Error code used when the parser reports an invalid XML document |
+| `ERROR_CODES` | `object` | Error codes exposed by the XML namespace |
 | `PARSE_OPTIONS_SCHEMA` | `object` | Validation schema for XML parsing options |
+
+### ERROR_CODES
+
+| Name | Description |
+| --- | --- |
+| `UNSUPPORTED_SOURCE` | The source type is not supported |
+| `READ_FAILED` | Reading the source failed |
+| `HTTP_ERROR` | An HTTP request returned an unsuccessful response |
+| `PARSE_FAILED` | XML parsing failed |
+| `INVALID_XML` | The parser reported an invalid XML document |
 
 ## parse
 
@@ -28,8 +37,6 @@ xml.parse(text, options = {})
 ### Description
 
 Parses an XML string and returns a DOM `Document`.
-
-A custom DOM parser can be provided through `options.domParser`. It must expose a `parseFromString` function.
 
 ### Parameters
 
@@ -49,9 +56,9 @@ A custom DOM parser can be provided through `options.domParser`. It must expose 
 
 Throws a `TypeError` if `text` is not a string or if `options` does not conform to the expected schema.
 
-Throws an error with code `xml.PARSE_FAILED` if parsing fails. The original parser error is available through the `cause` property.
+Throws an error with code `xml.ERROR_CODES.PARSE_FAILED` if parsing fails.
 
-When the parser returns a document containing a `parsererror` element, the cause has code `xml.INVALID_XML`.
+When the parser returns a document containing a `parsererror` element, the cause has code `xml.ERROR_CODES.INVALID_XML`.
 
 ### Examples
 
@@ -59,12 +66,6 @@ When the parser returns a document containing a `parsererror` element, the cause
 import { xml } from '@kalisio/common-core'
 
 const document = await xml.parse('<note><to>World</to></note>')
-
-document.documentElement.nodeName
-// 'note'
-
-document.getElementsByTagName('to')[0].textContent
-// 'World'
 ```
 
 ## read
@@ -72,18 +73,20 @@ document.getElementsByTagName('to')[0].textContent
 ### Signature
 
 ```js
-xml.read(source, options = {})
+xml.read(input, options = {})
 ```
 
 ### Description
 
-Reads an external source as text using `source.readAsText`, then parses the resulting text as XML.
+Reads an external source as text, then parses the resulting content as XML.
+
+A source can be a local file path in Node.js, a URL provided as a string or `URL` instance, or a `Blob`/`File` when supported by the runtime.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `source` | `string \| URL \| Blob \| File` | yes | Source containing XML data |
+| `input` | `string \| URL \| Blob \| File` | yes | Source containing XML data |
 | `options` | `object` | no | Reading and parsing options |
 | `options.encoding` | `string` | no | Character encoding used when reading a local file in Node.js. Defaults to `'utf-8'` |
 | `options.domParser` | `object` | no | DOM parser exposing a `parseFromString` function |
@@ -96,7 +99,13 @@ Reads an external source as text using `source.readAsText`, then parses the resu
 
 ### Throws
 
-Propagates errors thrown by `source.readAsText` and `xml.parse`.
+Throws an error with code `xml.ERROR_CODES.UNSUPPORTED_SOURCE` if the source type is not supported.
+
+Throws an error with code `xml.ERROR_CODES.READ_FAILED` if the source cannot be read.
+
+For failed HTTP responses, the cause has code `xml.ERROR_CODES.HTTP_ERROR` and exposes the HTTP `status` and `statusText`.
+
+Also propagates errors thrown by `xml.parse`.
 
 ### Examples
 
