@@ -7,24 +7,19 @@ description: Utility functions for parsing and reading XML data.
 
 Utility functions for parsing XML text and reading XML data from external sources.
 
-The native `DOMParser` is used when available. In Node.js, `@xmldom/xmldom` is loaded dynamically.
+It exposes the following error codes:
 
-## Properties
-
-| Name | Type | Description |
-| --- | --- | --- |
-| `ERROR_CODES` | `object` | Error codes exposed by the XML namespace |
-| `PARSE_OPTIONS_SCHEMA` | `object` | Validation schema for XML parsing options |
-
-### ERROR_CODES
-
-| Name | Description |
+| Error code | Description |
 | --- | --- |
 | `UNSUPPORTED_SOURCE` | The source type is not supported |
 | `READ_FAILED` | Reading the source failed |
 | `HTTP_ERROR` | An HTTP request returned an unsuccessful response |
 | `PARSE_FAILED` | XML parsing failed |
 | `INVALID_XML` | The parser reported an invalid XML document |
+
+::: tip
+The native `DOMParser` is used when available. In Node.js, `@xmldom/xmldom` is loaded dynamically.
+:::
 
 ## parse
 

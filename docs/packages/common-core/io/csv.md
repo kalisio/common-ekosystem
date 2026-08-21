@@ -7,16 +7,9 @@ description: Utility functions for parsing and reading CSV data.
 
 Utility functions for parsing CSV text and reading CSV data from external sources using Papa Parse.
 
-## Properties
+It exposes the following error codes:
 
-| Name | Type | Description |
-| --- | --- | --- |
-| `ERROR_CODES` | `object` | Error codes exposed by the CSV namespace |
-| `PARSE_OPTIONS_SCHEMA` | `object` | Validation schema for CSV parsing options |
-
-### ERROR_CODES
-
-| Name | Description |
+| Error code | Description |
 | --- | --- |
 | `UNSUPPORTED_SOURCE` | The source type is not supported |
 | `READ_FAILED` | Reading the source failed |
