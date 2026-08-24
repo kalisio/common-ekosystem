@@ -12,6 +12,7 @@ _Geospatial utilities for the Kalisio ekosystem_
 **common-geospatial** is organized around two modules:
 - [foundation](foundation/axes.md) — fundamental definitions and utilities
 - [operators](operators/is-like.md) — hih-level data processing functions
+- [io](io/geojson.md) - helpers for reading external data sources
 
 ## Installation
 
