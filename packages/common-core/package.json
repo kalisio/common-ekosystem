@@ -65,15 +65,18 @@
   },
   "homepage": "https://github.com/kalisio/common-ekosystem/tree/master/packages/common-core",
   "peerDependencies": {
+    "@xmldom/xmldom": "catalog:",
     "lodash-es": "catalog:",
     "mathjs": "catalog:",
     "moment": "catalog:",
     "papaparse": "catalog:",
     "sanitize-html": "catalog:",
-    "sift": "catalog:",
-    "@xmldom/xmldom": "catalog:"
+    "sift": "catalog:"
   },
   "peerDependenciesMeta": {
+    "@xmldom/xmldom": {
+      "optional": true
+    },
     "lodash-es": {
       "optional": true
     },
@@ -90,9 +93,6 @@
       "optional": true
     },
     "sift": {
-      "optional": true
-    },
-    "@xmldom/xmldom": {
       "optional": true
     }
   },
