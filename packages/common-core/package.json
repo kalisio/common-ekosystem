@@ -74,27 +74,13 @@
     "sift": "catalog:"
   },
   "peerDependenciesMeta": {
-    "@xmldom/xmldom": {
-      "optional": true
-    },
-    "lodash-es": {
-      "optional": true
-    },
-    "mathjs": {
-      "optional": true
-    },
-    "moment": {
-      "optional": true
-    },
-    "papaparse": {
-      "optional": true
-    },
-    "sanitize-html": {
-      "optional": true
-    },
-    "sift": {
-      "optional": true
-    }
+    "@xmldom/xmldom": { "optional": true },
+    "lodash-es": { "optional": true },
+    "mathjs": { "optional": true },
+    "moment": { "optional": true },
+    "papaparse": { "optional": true },
+    "sanitize-html": { "optional": true },
+    "sift": { "optional": true }
   },
   "engines": {
     "node": ">=20"
