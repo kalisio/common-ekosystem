@@ -1,4 +1,4 @@
-import { assert, is } from '@kalisio/common-core/predicates'
+import { assert, is, conform, optional } from '@kalisio/common-core/predicates'
 import { DEFAULT_COORDINATE_PRECISION } from '../../foundation/index.js'
 import { FEATURE_TYPES, GEOMETRY_TYPES } from '../is-like.js'
 import { VALIDATION_CODES } from './codes.js'
@@ -6,6 +6,10 @@ import { validateOptionalCRS } from './crs.js'
 import { validateOptionalBBox } from './bbox.js'
 import { emptyResult, mergeResult, validateArray } from './utils.js'
 import { validateGeometry } from './geometry.js'
+
+const VALIDATE_OPTIONS_SCHEMA = {
+  precision: optional(is.positiveInteger)
+}
 
 function validateFeature (feature, path, context) {
   let result = emptyResult()
@@ -50,8 +54,30 @@ function validateFeature (feature, path, context) {
 }
 
 export function validateGeoJson (geoJson, options = {}) {
-  assert.that(geoJson, is.nonEmptyObject, 'geojson must be a non empty object')
+  assert.that(options, (v) => conform.schema(v, VALIDATE_OPTIONS_SCHEMA), 'options must be a valid options object')
   const { precision = DEFAULT_COORDINATE_PRECISION } = options
+  // handle whether the geoJson is an object
+  if (!is.plainObject(geoJson)) {
+    return {
+      ...emptyResult(),
+      valid: false,
+      errors: [{
+        code: VALIDATION_CODES.INVALID_CONTENT,
+        path: ''
+      }]
+    }
+  }
+  // handle whether the geoJson is a non empty object
+  if (is.emptyObject(geoJson)) {
+    return {
+      ...emptyResult(),
+      valid: false,
+      errors: [{
+        code: VALIDATION_CODES.EMPTY_OBJECT,
+        path: ''
+      }]
+    }
+  }
   // handle whether the geoJson is a Feature
   if (geoJson.type === FEATURE_TYPES.FEATURE || geoJson.type === FEATURE_TYPES.FEATURE_COLLECTION) {
     return validateFeature(geoJson, '', { precision })

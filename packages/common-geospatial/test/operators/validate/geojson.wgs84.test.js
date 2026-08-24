@@ -12,16 +12,24 @@ import { crsObjects } from '../data/crs.fixtures.js'
 describe('validateGeoJson', () => {
   describe('invalid inputs', () => {
     it('should throw for null', () => {
-      expect(() => validateGeoJson(null)).toThrow()
+      const result = validateGeoJson(null)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_CONTENT)
+    })
+    it('should throw for undefined', () => {
+      const result = validateGeoJson(undefined)
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_CONTENT)
     })
     it('should throw for a string', () => {
-      expect(() => validateGeoJson('{"type":"Point"}')).toThrow()
+      const result = validateGeoJson('{"type":"Point"}')
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_CONTENT)
     })
     it('should throw for an array', () => {
-      expect(() => validateGeoJson([])).toThrow()
+      const result = validateGeoJson([])
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.INVALID_CONTENT)
     })
     it('should throw for an empty object', () => {
-      expect(() => validateGeoJson({})).toThrow()
+      const result = validateGeoJson({})
+      expect(result.errors[0].code).toBe(VALIDATION_CODES.EMPTY_OBJECT)
     })
     it('should return invalid for an unknown type', () => {
       const result = validateGeoJson({ type: 'Unknown' })

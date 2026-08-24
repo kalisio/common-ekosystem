@@ -52,15 +52,20 @@
   "homepage": "https://github.com/kalisio/common-ekosystem/tree/master/packages/common-geospatial",
   "peerDependencies": {
     "@kalisio/common-core": "workspace:*",
-    "@logtape/logtape": "catalog:",
+    "@tmcw/togeojson": "catalog:",
     "@turf/buffer": "catalog:",
     "@turf/convex": "catalog:",
     "@turf/helpers": "catalog:",
     "@turf/meta": "catalog:",
+    "@xmldom/xmldom": "catalog:",
     "heap-js": "catalog:",
     "proj4": "catalog:"
   },
+  "peerDependenciesMeta": {
+    "@tmcw/togeojson": { "optional": true }
+  },
   "devDependencies": {
+    "@tmcw/togeojson": "catalog:",
     "chroma-js": "catalog:",
     "mongodb": "catalog:"
   },

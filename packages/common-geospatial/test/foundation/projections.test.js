@@ -6,7 +6,8 @@ import {
   hasProjection,
   getProjection,
   isWGS84Projection,
-  normalizeCrsName
+  normalizeCrsName,
+  denormalizeCrsName
 } from '../../src/foundation/projections.js'
 
 const EPSG_3857_DEF = '+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs'
@@ -220,5 +221,26 @@ describe('normalizeCrsName', () => {
     it('throws when name is a number', () => {
       expect(() => normalizeCrsName(42)).toThrow('name must be a non empty string')
     })
+  })
+})
+
+describe('denormalizeCrsName', () => {
+  it('converts an EPSG name to its URN form', () => {
+    expect(denormalizeCrsName('EPSG:2154')).toBe('urn:ogc:def:crs:EPSG::2154')
+  })
+  it('is case-insensitive on the EPSG prefix', () => {
+    expect(denormalizeCrsName('epsg:3857')).toBe('urn:ogc:def:crs:EPSG::3857')
+  })
+  it('leaves a non-EPSG name unchanged', () => {
+    expect(denormalizeCrsName('WGS84')).toBe('WGS84')
+  })
+  it('leaves an already URN name unchanged', () => {
+    expect(denormalizeCrsName('urn:ogc:def:crs:EPSG::2154')).toBe('urn:ogc:def:crs:EPSG::2154')
+  })
+  it('is the inverse of normalizeCrsName for EPSG names', () => {
+    expect(normalizeCrsName(denormalizeCrsName('EPSG:2154'))).toBe('EPSG:2154')
+  })
+  it('throws when name is an empty string', () => {
+    expect(() => denormalizeCrsName('')).toThrow('name must be a non empty string')
   })
 })

@@ -1,0 +1,10 @@
+{
+  "type": "Feature",
+  "properties": {
+    "name": "Paris"
+  },
+  "geometry": {
+    "type": "Point",
+    "coordinates": [2.3522, 48.8566]
+  }
+}

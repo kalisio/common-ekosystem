@@ -6,8 +6,9 @@
     "WEST":  { "label": "Ouest", "symbol": "O" }
   },
   "VALIDATION": {
+    "INVALID_CONTENT": "Le contenu est invalide",
     "EMPTY_OBJECT": "L'objet est vide",
-    "UNKNOWN_TYPE": "Le type GeoJSON est inconnu",
+    "UNKNOWN_TYPE": "Le type de l'objet est inconnu",
     "MISSING_GEOMETRY": "La géométrie est manquante",
     "INVALID_FEATURES_ARRAY": "Le tableau de features est invalide",
     "INVALID_GEOMETRY": "La géométrie est invalide",

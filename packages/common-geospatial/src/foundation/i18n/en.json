@@ -6,8 +6,9 @@
     "WEST":  { "label": "West", "symbol": "W" }
   },
   "VALIDATION": {
+    "INVALID_CONTENT": "Contant is invalid",
     "EMPTY_OBJECT": "Object is empty",
-    "UNKNOWN_TYPE": "Unknown GeoJSON type",
+    "UNKNOWN_TYPE": "Unknown object type",
     "MISSING_GEOMETRY": "Geometry is missing",
     "INVALID_FEATURES_ARRAY": "Features array is invalid",
     "INVALID_GEOMETRY": "Geometry is invalid",

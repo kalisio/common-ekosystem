@@ -12,6 +12,7 @@ import { VALIDATION_CODES } from './validate/codes.js'
 
 // Winding order / self-intersection / hole overlap only apply to ring-based geometries.
 const RING_TYPES = [GEOMETRY_TYPES.POLYGON, GEOMETRY_TYPES.MULTI_POLYGON]
+
 // Duplicate position removal applies to any coordinate path, ring or line.
 const DEDUPABLE_TYPES = [
   GEOMETRY_TYPES.LINESTRING,
@@ -31,10 +32,7 @@ const FIX_OPTIONS_SCHEMA = {
   selfIntersection: optional(is.boolean),
   holeIntersectsShell: optional(is.boolean),
   duplicatePosition: optional(is.boolean),
-  // Coordinate precision (decimal places) used to decide when two positions are
-  // the same during deduplication -- the same notion validate uses, so fix and
-  // validate stay in lockstep on duplicates.
-  precision: optional(is.number)
+  precision: optional(is.positive)
 }
 
 // Winding order is computed spherically (isClockwiseRing), identical to what

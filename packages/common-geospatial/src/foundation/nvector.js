@@ -4,8 +4,6 @@ const DEG_TO_RAD = math.to.radians(1)
 
 const ANGULAR_TOLERANCE = 1e-12
 
-// ─── Conversion & vector algebra ─────────────────────────────────────────────
-
 export function positionToNVector (position) {
   const lon = position[0] * DEG_TO_RAD
   const lat = position[1] * DEG_TO_RAD
@@ -47,8 +45,6 @@ export function normalizeNVector (vector) {
   const norm = getNVectorNorm(vector)
   return [vector[0] / norm, vector[1] / norm, vector[2] / norm]
 }
-
-// ─── Spherical geometry ──────────────────────────────────────────────────────
 
 export function angleBetweenNVectors (v1, v2) {
   return Math.atan2(getNVectorNorm(crossNVectors(v1, v2)), dotNVectors(v1, v2))

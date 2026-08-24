@@ -158,6 +158,7 @@ The second-axis (latitude/northing) order is always an error when reversed (`INV
 | `UNKNOWN_TYPE`                          | `{ type }`             | Unknown **top-level GeoJSON** type                                     |
 | `INVALID_FEATURES_ARRAY`                | —                      | `FeatureCollection.features` is not an array                           |
 | `EMPTY_OBJECT`                          | —                      | A `Feature`/`FeatureCollection` object (including a member of a `features` array) is empty or not an object |
+| `INVALID_OBJECT`                        | —                      | Invalid GeoJson object |
 
 These three related codes split by the object being checked:
 

@@ -27,6 +27,12 @@ export function normalizeCrsName (name) {
   return match ? `EPSG:${match[1]}` : name
 }
 
+export function denormalizeCrsName (name) {
+  assert.that(name, is.nonEmptyString, 'name must be a non empty string')
+  const match = name.match(/^EPSG:(\d+)$/i)
+  return match ? `urn:ogc:def:crs:EPSG::${match[1]}` : name
+}
+
 export function listProjections () {
   return Object.keys(proj4.defs)
 }
