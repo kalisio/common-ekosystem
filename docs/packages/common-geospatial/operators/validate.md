@@ -25,10 +25,10 @@ The set of checks applied depends on the document's coordinate reference system:
 
 ### Parameters
 
-| Name                | Type     | Required | Description                                                                                                            |
+| Name                | Type     | Required | Description                                                            |
 | ------------------- | -------- | -------- | -------------------------------------------------------------------------------------------------------------------- |
-| `geoJson`           | `object` | yes      | GeoJSON object to validate                                                                                            |
-| `options`           | `object` | no       | Validation options                                                                                                    |
+| `geoJson`           | `object` | yes      | GeoJSON object to validate                                             |
+| `options`           | `object` | no       | Validation options                                                     |
 | `options.precision` | `number` | no       | Maximum recommended precision for geodesic longitude/latitude coordinates. Defaults to `DEFAULT_COORDINATE_PRECISION` |
 
 ### Returns
@@ -69,7 +69,9 @@ Paths use a JSON Pointer-like notation such as `/coordinates/0`, `/features/2/ge
 
 ### Throws
 
-Throws only if `geoJson` is not a non-empty object. Options are not validated (a non-numeric `precision` is used as-is, not rejected). All other problems are reported through `errors`/`warnings`, never thrown.
+Throws only if options is invalid.
+
+Invalid geoJson content is reported through errors/warnings and is never thrown. This includes undefined, null, non-object values, empty objects, unknown GeoJSON types, and invalid geometries.
 
 ## Coordinate reference systems
 
@@ -158,7 +160,7 @@ The second-axis (latitude/northing) order is always an error when reversed (`INV
 | `UNKNOWN_TYPE`                          | `{ type }`             | Unknown **top-level GeoJSON** type                                     |
 | `INVALID_FEATURES_ARRAY`                | —                      | `FeatureCollection.features` is not an array                           |
 | `EMPTY_OBJECT`                          | —                      | A `Feature`/`FeatureCollection` object (including a member of a `features` array) is empty or not an object |
-| `INVALID_OBJECT`                        | —                      | Invalid GeoJson object |
+| `INVALID_CONTENT`                        | —                      | Invalid GeoJson content |
 
 These three related codes split by the object being checked:
 
