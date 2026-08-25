@@ -1,7 +1,7 @@
 import { toSVGStyleAttributes, toSVGTitleElement, toSVGTransformAttribute } from '../renderers/to-svg.js'
 import { setupStandardShape } from '../helpers.js'
 
-export function windBarb (params = {}) {
+export function windBarb (params) {
   const speed = Math.max(0, Math.round((params.speed ?? 0) / 5) * 5)
   const center = 50
   const shaftTop = 5

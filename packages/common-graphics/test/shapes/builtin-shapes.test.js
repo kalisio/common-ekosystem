@@ -3,6 +3,7 @@ import { dirname } from 'node:path'
 import { PNG } from 'pngjs'
 import pixelmatch from 'pixelmatch'
 import { describe, expect, it } from 'vitest'
+import { string } from '@kalisio/common-core/utilities'
 import * as BUILTIN_SHAPES from '../../src/shapes/builtin-shapes/index.js'
 import { ShapeFactory } from '../../src/shapes/shape-factory.js'
 
@@ -25,10 +26,6 @@ const PARAMS = {
   windBarb: {
     speed: 25
   }
-}
-
-function toKebabCase (value) {
-  return value.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()
 }
 
 function dataURLToBuffer (dataURL) {
@@ -67,7 +64,7 @@ describe('built-in shapes', () => {
   for (const name of Object.keys(BUILTIN_SHAPES)) {
     it(`renders ${name}`, async () => {
       const shape = factory.build({
-        shape: toKebabCase(name),
+        shape: string.kebabCase(name),
         color: 'red',
         stroke: {
           color: 'green',

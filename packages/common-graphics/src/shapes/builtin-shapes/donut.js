@@ -1,38 +1,24 @@
-import { getLogger } from '@logtape/logtape'
-import { is } from '@kalisio/common-core/predicates'
 import { toSVGStyleAttributes, toSVGTitleElement, toSVGTransformAttribute } from '../renderers/to-svg.js'
 import { setupStandardShape } from '../helpers.js'
-
-const logger = getLogger(['common-graphics', 'donut'])
 
 const DEFAULT_STYLE = `
   .graphiks-donut-slice { cursor: pointer; transition: opacity 0.2s, transform 0.2s; }
   .graphiks-donut-slice:hover { opacity: 0.8; transform-origin: center; transform: scale(1.05); }
 `
 
-export function donut (params) {
-  if (!is.defined(params)) {
-    logger.error('Invalid arguments: \'params\' must be defined')
-    return
-  }
-  if (!is.defined(params.slices)) {
-    logger.error('Invalid arguments: \'params.slices\' must be defined')
-    return
-  }
+export function donut (params = {}) {
+  const slices = params.slices ?? []
   const outerRadius = 50
   const innerRadius = params.innerRadius ?? 20
   const center = outerRadius
-  const sum = params.slices.reduce((sum, slice) => {
+  const sum = slices.reduce((sum, slice) => {
     return sum + (slice.value || 0)
   }, 0)
-  if (sum === 0) {
-    logger.error('Invalid arguments: slices sum value must be non null')
-    return
-  }
+  if (sum === 0) return
   let shape = `<g ${toSVGTransformAttribute(params.transform)}>`
   let currentAngle = -Math.PI / 2
-  if (params.slices.length === 1) {
-    const slice = params.slices[0]
+  if (slices.length === 1) {
+    const slice = slices[0]
     const pathData = `
       M ${center} ${center - outerRadius}
       A ${outerRadius} ${outerRadius} 0 1 1 ${center} ${center + outerRadius}
@@ -43,7 +29,7 @@ export function donut (params) {
     `
     shape += `<path d="${pathData.trim()}" ${toSVGStyleAttributes(params)}>${toSVGTitleElement(slice)}</path>`
   } else {
-    for (const slice of params.slices) {
+    for (const slice of slices) {
       const percentage = slice.value / sum
       const angle = percentage * Math.PI * 2
       if (angle <= 0) continue
