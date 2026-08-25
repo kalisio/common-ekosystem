@@ -148,3 +148,187 @@ describe('string.initials', () => {
     expect(() => string.initials(42)).toThrow('str must be a string')
   })
 })
+
+describe('string.words', () => {
+  it('splits on spaces', () => {
+    expect(string.words('hello world')).toEqual(['hello', 'world'])
+  })
+  it('splits on case transitions (camelCase)', () => {
+    expect(string.words('helloWorld')).toEqual(['hello', 'World'])
+  })
+  it('keeps acronyms whole and splits at the acronym boundary', () => {
+    expect(string.words('getHTTPResponse')).toEqual(['get', 'HTTP', 'Response'])
+  })
+  it('splits on mixed separators and case', () => {
+    expect(string.words('__FOO_barBaz__')).toEqual(['FOO', 'bar', 'Baz'])
+  })
+  it('treats digit runs as their own words', () => {
+    expect(string.words('foo123bar')).toEqual(['foo', '123', 'bar'])
+    expect(string.words('version2Point0')).toEqual(['version', '2', 'Point', '0'])
+  })
+  it('treats accented letters as letters, not separators', () => {
+    expect(string.words('café déjà')).toEqual(['café', 'déjà'])
+  })
+  it('returns an empty array for an empty string', () => {
+    expect(string.words('')).toEqual([])
+  })
+  it('returns an empty array when there is nothing to match', () => {
+    expect(string.words('___')).toEqual([])
+  })
+  it('throws if str is not a string', () => {
+    expect(() => string.words(123)).toThrow('str must be a string')
+  })
+})
+
+describe('string.capitalize', () => {
+  it('uppercases the first letter and lowercases the rest', () => {
+    expect(string.capitalize('hello')).toBe('Hello')
+    expect(string.capitalize('HELLO')).toBe('Hello')
+    expect(string.capitalize('hELLO')).toBe('Hello')
+  })
+  it('handles a single character', () => {
+    expect(string.capitalize('a')).toBe('A')
+  })
+  it('returns an empty string for an empty string (no crash)', () => {
+    expect(string.capitalize('')).toBe('')
+  })
+  it('leaves a leading digit untouched', () => {
+    expect(string.capitalize('123abc')).toBe('123abc')
+  })
+  it('throws if str is not a string', () => {
+    expect(() => string.capitalize(123)).toThrow('str must be a string')
+  })
+})
+
+describe('string.camelCase', () => {
+  it('camelCases a space separated string', () => {
+    expect(string.camelCase('hello world')).toBe('helloWorld')
+  })
+  it('normalizes mixed separators', () => {
+    expect(string.camelCase('foo-bar_baz')).toBe('fooBarBaz')
+    expect(string.camelCase('__FOO_barBaz__')).toBe('fooBarBaz')
+  })
+  it('flattens acronyms', () => {
+    expect(string.camelCase('getHTTPResponse')).toBe('getHttpResponse')
+  })
+  it('removes diacritics', () => {
+    expect(string.camelCase('déjà-vu')).toBe('dejaVu')
+  })
+  it('returns an empty string for an empty string', () => {
+    expect(string.camelCase('')).toBe('')
+  })
+  it('throws if str is not a string', () => {
+    expect(() => string.camelCase(123)).toThrow('str must be a string')
+  })
+})
+
+describe('string.pascalCase', () => {
+  it('pascalCases a space separated string', () => {
+    expect(string.pascalCase('hello world')).toBe('HelloWorld')
+  })
+  it('flattens acronyms', () => {
+    expect(string.pascalCase('getHTTPResponse')).toBe('GetHttpResponse')
+  })
+  it('removes diacritics', () => {
+    expect(string.pascalCase('déjà-vu')).toBe('DejaVu')
+  })
+  it('returns an empty string for an empty string', () => {
+    expect(string.pascalCase('')).toBe('')
+  })
+  it('throws if str is not a string', () => {
+    expect(() => string.pascalCase(123)).toThrow('str must be a string')
+  })
+})
+
+describe('string.kebabCase', () => {
+  it('kebabCases from camelCase input', () => {
+    expect(string.kebabCase('helloWorld')).toBe('hello-world')
+  })
+  it('splits acronyms', () => {
+    expect(string.kebabCase('getHTTPResponse')).toBe('get-http-response')
+  })
+  it('normalizes mixed separators', () => {
+    expect(string.kebabCase('__FOO_barBaz__')).toBe('foo-bar-baz')
+  })
+  it('removes diacritics', () => {
+    expect(string.kebabCase('Héllo Wörld')).toBe('hello-world')
+  })
+  it('separates digit runs', () => {
+    expect(string.kebabCase('version2Point0')).toBe('version-2-point-0')
+  })
+  it('returns an empty string for an empty string', () => {
+    expect(string.kebabCase('')).toBe('')
+  })
+  it('throws if str is not a string', () => {
+    expect(() => string.kebabCase(123)).toThrow('str must be a string')
+  })
+})
+
+describe('string.snakeCase', () => {
+  it('snakeCases from camelCase input', () => {
+    expect(string.snakeCase('helloWorld')).toBe('hello_world')
+  })
+  it('splits acronyms', () => {
+    expect(string.snakeCase('getHTTPResponse')).toBe('get_http_response')
+  })
+  it('separates digit runs', () => {
+    expect(string.snakeCase('version2Point0')).toBe('version_2_point_0')
+  })
+  it('returns an empty string for an empty string', () => {
+    expect(string.snakeCase('')).toBe('')
+  })
+  it('throws if str is not a string', () => {
+    expect(() => string.snakeCase(123)).toThrow('str must be a string')
+  })
+})
+
+describe('string.constantCase', () => {
+  it('constantCases from camelCase input', () => {
+    expect(string.constantCase('maxRetryCount')).toBe('MAX_RETRY_COUNT')
+  })
+  it('splits acronyms', () => {
+    expect(string.constantCase('getHTTPResponse')).toBe('GET_HTTP_RESPONSE')
+  })
+  it('normalizes mixed separators', () => {
+    expect(string.constantCase('hello-world foo')).toBe('HELLO_WORLD_FOO')
+  })
+  it('returns an empty string for an empty string', () => {
+    expect(string.constantCase('')).toBe('')
+  })
+  it('throws if str is not a string', () => {
+    expect(() => string.constantCase(123)).toThrow('str must be a string')
+  })
+})
+
+describe('string.dotCase', () => {
+  it('dotCases from camelCase input', () => {
+    expect(string.dotCase('getUserProfile')).toBe('get.user.profile')
+  })
+  it('dotCases a space separated string', () => {
+    expect(string.dotCase('user profile title')).toBe('user.profile.title')
+  })
+  it('returns an empty string for an empty string', () => {
+    expect(string.dotCase('')).toBe('')
+  })
+  it('throws if str is not a string', () => {
+    expect(() => string.dotCase(123)).toThrow('str must be a string')
+  })
+})
+
+describe('string.titleCase', () => {
+  it('titleCases a mixed-separator string', () => {
+    expect(string.titleCase('hello-world_foo')).toBe('Hello World Foo')
+  })
+  it('titleCases from camelCase input', () => {
+    expect(string.titleCase('getUserProfile')).toBe('Get User Profile')
+  })
+  it('removes diacritics (current deburring behavior)', () => {
+    expect(string.titleCase('café crème')).toBe('Café Crème')
+  })
+  it('returns an empty string for an empty string', () => {
+    expect(string.titleCase('')).toBe('')
+  })
+  it('throws if str is not a string', () => {
+    expect(() => string.titleCase(123)).toThrow('str must be a string')
+  })
+})

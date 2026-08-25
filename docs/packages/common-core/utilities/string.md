@@ -254,3 +254,402 @@ string.initials('Jean Pierre Dupont')              // 'JPD'
 string.initials('Jean Pierre Dupont', { max: 2 }) // 'JP'
 string.initials('john doe')                        // 'JD'
 ```
+
+## words
+
+### Signature
+
+```js
+string.words (str)
+````
+
+### Description
+
+Splits a string into words using Unicode-aware rules.
+
+The function recognizes words from common naming conventions such as camel case, Pascal case, acronyms, separators, spaces, and digits.
+
+### Parameters
+
+| Name  | Type     | Required | Description                    |
+| ----- | -------- | -------- | ------------------------------ |
+| `str` | `string` | yes      | The string to split into words |
+
+### Returns
+
+| Type       | Description        |
+| ---------- | ------------------ |
+| `string[]` | The detected words |
+
+### Throws
+
+Throws a `TypeError` if `str` is not a string.
+
+### Examples
+
+```js
+string.words('roundedRect')
+// ['rounded', 'Rect']
+
+string.words('XMLHttpRequest')
+// ['XML', 'Http', 'Request']
+
+string.words('triangle-down')
+// ['triangle', 'down']
+
+string.words('hello_world')
+// ['hello', 'world']
+
+string.words('star5')
+// ['star', '5']
+```
+
+## capitalize
+
+### Signature
+
+```js
+string.capitalize (str)
+```
+
+### Description
+
+Capitalizes the first character of a string and lowercases the remaining characters.
+
+### Parameters
+
+| Name  | Type     | Required | Description              |
+| ----- | -------- | -------- | ------------------------ |
+| `str` | `string` | yes      | The string to capitalize |
+
+### Returns
+
+| Type     | Description            |
+| -------- | ---------------------- |
+| `string` | The capitalized string |
+
+### Throws
+
+Throws a `TypeError` if `str` is not a string.
+
+### Examples
+
+```js
+string.capitalize('hello')
+// 'Hello'
+
+string.capitalize('HELLO')
+// 'Hello'
+
+string.capitalize('hELLO')
+// 'Hello'
+```
+
+## camelCase
+
+### Signature
+
+```js
+string.camelCase (str)
+```
+
+### Description
+
+Converts a string to camel case.
+
+The input is split using `string.words`. Detected words are normalized by removing diacritics.
+The first word is lowercased and subsequent words are capitalized.
+
+### Parameters
+
+| Name  | Type     | Required | Description           |
+| ----- | -------- | -------- | --------------------- |
+| `str` | `string` | yes      | The string to convert |
+
+### Returns
+
+| Type     | Description           |
+| -------- | --------------------- |
+| `string` | The camel-case string |
+
+### Throws
+
+Throws a `TypeError` if `str` is not a string.
+
+### Examples
+
+```js
+string.camelCase('rounded-rect')
+// 'roundedRect'
+
+string.camelCase('XML HTTP parser')
+// 'xmlHttpParser'
+
+string.camelCase('Éléphant Bleu')
+// 'elephantBleu'
+```
+
+## pascalCase
+
+### Signature
+
+```js
+string.pascalCase (str)
+```
+
+### Description
+
+Converts a string to Pascal case.
+
+The input is split using `string.words`. Detected words are normalized by removing diacritics
+and each word is capitalized.
+
+### Parameters
+
+| Name  | Type     | Required | Description           |
+| ----- | -------- | -------- | --------------------- |
+| `str` | `string` | yes      | The string to convert |
+
+### Returns
+
+| Type     | Description            |
+| -------- | ---------------------- |
+| `string` | The Pascal-case string |
+
+### Throws
+
+Throws a `TypeError` if `str` is not a string.
+
+### Examples
+
+```js
+string.pascalCase('rounded-rect')
+// 'RoundedRect'
+
+string.pascalCase('XML HTTP parser')
+// 'XmlHttpParser'
+
+string.pascalCase('éléphant bleu')
+// 'ElephantBleu'
+```
+
+## kebabCase
+
+### Signature
+
+```js
+string.kebabCase (str)
+```
+
+### Description
+
+Converts a string to kebab case.
+
+The input is split using `string.words`. Detected words are normalized by removing
+diacritics, lowercased, and joined with `-`.
+
+### Parameters
+
+| Name  | Type     | Required | Description           |
+| ----- | -------- | -------- | --------------------- |
+| `str` | `string` | yes      | The string to convert |
+
+### Returns
+
+| Type     | Description           |
+| -------- | --------------------- |
+| `string` | The kebab-case string |
+
+### Throws
+
+Throws a `TypeError` if `str` is not a string.
+
+### Examples
+
+```js
+string.kebabCase('roundedRect')
+// 'rounded-rect'
+
+string.kebabCase('XMLHttpRequest')
+// 'xml-http-request'
+
+string.kebabCase('ÉléphantBleu')
+// 'elephant-bleu'
+```
+
+## snakeCase
+
+### Signature
+
+```js
+string.snakeCase (str)
+```
+
+### Description
+
+Converts a string to snake case.
+
+The input is split using `string.words`. Detected words are normalized by
+removing diacritics, lowercased, and joined with `_`.
+
+### Parameters
+
+| Name  | Type     | Required | Description           |
+| ----- | -------- | -------- | --------------------- |
+| `str` | `string` | yes      | The string to convert |
+
+### Returns
+
+| Type     | Description           |
+| -------- | --------------------- |
+| `string` | The snake-case string |
+
+### Throws
+
+Throws a `TypeError` if `str` is not a string.
+
+### Examples
+
+```js
+string.snakeCase('roundedRect')
+// 'rounded_rect'
+
+string.snakeCase('triangle-down')
+// 'triangle_down'
+
+string.snakeCase('ÉléphantBleu')
+// 'elephant_bleu'
+```
+
+## constantCase
+
+### Signature
+
+```js
+string.constantCase (str)
+```
+
+### Description
+
+Converts a string to constant case.
+
+The input is split using `string.words`. Detected words are normalized by
+removing diacritics, uppercased, and joined with `_`.
+
+### Parameters
+
+| Name  | Type     | Required | Description           |
+| ----- | -------- | -------- | --------------------- |
+| `str` | `string` | yes      | The string to convert |
+
+### Returns
+
+| Type     | Description              |
+| -------- | ------------------------ |
+| `string` | The constant-case string |
+
+### Throws
+
+Throws a `TypeError` if `str` is not a string.
+
+### Examples
+
+```js
+string.constantCase('roundedRect')
+// 'ROUNDED_RECT'
+
+string.constantCase('triangle-down')
+// 'TRIANGLE_DOWN'
+
+string.constantCase('ÉléphantBleu')
+// 'ELEPHANT_BLEU'
+```
+
+## dotCase
+
+### Signature
+
+```js
+string.dotCase (str)
+```
+
+### Description
+
+Converts a string to dot case.
+
+The input is split using `string.words`. Detected words are normalized by
+removing diacritics, lowercased, and joined with `.`.
+
+### Parameters
+
+| Name  | Type     | Required | Description           |
+| ----- | -------- | -------- | --------------------- |
+| `str` | `string` | yes      | The string to convert |
+
+### Returns
+
+| Type     | Description         |
+| -------- | ------------------- |
+| `string` | The dot-case string |
+
+### Throws
+
+Throws a `TypeError` if `str` is not a string.
+
+### Examples
+
+```js
+string.dotCase('roundedRect')
+// 'rounded.rect'
+
+string.dotCase('triangle-down')
+// 'triangle.down'
+
+string.dotCase('ÉléphantBleu')
+// 'elephant.bleu'
+```
+
+## titleCase
+
+### Signature
+
+```js
+string.titleCase (str)
+````
+
+### Description
+
+Converts a string to title case.
+
+The input is split using `string.words()`. Each detected word is capitalized and joined with spaces.
+
+Unlike the other case conversion helpers, `titleCase()` preserves diacritics.
+
+### Parameters
+
+| Name  | Type     | Required | Description           |
+| ----- | -------- | -------- | --------------------- |
+| `str` | `string` | yes      | The string to convert |
+
+### Returns
+
+| Type     | Description           |
+| -------- | --------------------- |
+| `string` | The title-case string |
+
+### Throws
+
+Throws a `TypeError` if `str` is not a string.
+
+### Examples
+
+```js
+string.titleCase('roundedRect')
+// 'Rounded Rect'
+
+string.titleCase('XML HTTP parser')
+// 'Xml Http Parser'
+
+string.titleCase('éléphantBleu')
+// 'Éléphant Bleu'
+```

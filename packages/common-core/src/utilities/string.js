@@ -11,6 +11,12 @@ const COMPARE_OPTIONS_SCHEMA = {
   ...NORMALIZE_OPTIONS_SCHEMA
 }
 
+function transformWords (str, transform, sep) {
+  return string.words(str)
+    .map((word, i) => transform(string.normalize(word, { ignoreDiacritics: true }), i))
+    .join(sep)
+}
+
 export const string = {
 
   DIACRITICS: {
@@ -85,6 +91,22 @@ export const string = {
     return result
   },
 
+  initials (str, options = {}) {
+    assert.that(str, is.string, 'str must be a string')
+    const { max = undefined } = options
+    const result = str
+      .trim()
+      .split(/[\s-]+/)
+      .filter(Boolean)
+      .map(word => word[0].toUpperCase())
+    return (max ? result.slice(0, max) : result).join('')
+  },
+
+  words (str) {
+    assert.that(str, is.string, 'str must be a string')
+    return str.match(/\p{Lu}+(?=\p{Lu}\p{Ll})|\p{Lu}?\p{Ll}+|\p{Lu}+|\p{Nd}+/gu) ?? []
+  },
+
   slugify (str, separator = '-') {
     assert.all([
       { value: str, validator: is.string, message: 'str must be a string' },
@@ -96,14 +118,46 @@ export const string = {
       .replace(new RegExp(`^${separator}|${separator}$`, 'g'), '')
   },
 
-  initials (str, options = {}) {
+  capitalize (str) {
     assert.that(str, is.string, 'str must be a string')
-    const { max = undefined } = options
-    const result = str
-      .trim()
-      .split(/\s+/)
-      .map(word => word[0].toUpperCase())
-    return (max ? result.slice(0, max) : result).join('')
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
+  },
+
+  camelCase (str) {
+    assert.that(str, is.string, 'str must be a string')
+    return transformWords(str, (w, i) => (i === 0 ? w.toLowerCase() : string.capitalize(w)), '')
+  },
+
+  pascalCase (str) {
+    assert.that(str, is.string, 'str must be a string')
+    return transformWords(str, w => string.capitalize(w), '')
+  },
+
+  kebabCase (str) {
+    assert.that(str, is.string, 'str must be a string')
+    return transformWords(str, w => w.toLowerCase(), '-')
+  },
+
+  snakeCase (str) {
+    assert.that(str, is.string, 'str must be a string')
+    return transformWords(str, w => w.toLowerCase(), '_')
+  },
+
+  constantCase (str) {
+    assert.that(str, is.string, 'str must be a string')
+    return transformWords(str, w => w.toUpperCase(), '_')
+  },
+
+  dotCase (str) {
+    assert.that(str, is.string, 'str must be a string')
+    return transformWords(str, w => w.toLowerCase(), '.')
+  },
+
+  titleCase (str) {
+    assert.that(str, is.string, 'str must be a string')
+    return string.words(str)
+      .map(w => string.capitalize(w))
+      .join(' ')
   }
 
 }
