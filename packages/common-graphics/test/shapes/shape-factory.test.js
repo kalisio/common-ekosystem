@@ -24,8 +24,6 @@ describe('ShapeFactory', () => {
     factory = new ShapeFactory()
   })
 
-  // ── constructor ──────────────────────────────────────────────────────────
-
   describe('constructor', () => {
     it('uses default cache sizes when no options are provided', () => {
       const f = new ShapeFactory()
@@ -40,8 +38,6 @@ describe('ShapeFactory', () => {
       expect(f.pngCache.max).toBe(30)
     })
   })
-
-  // ── register / has / list ────────────────────────────────────────────────
 
   describe('register', () => {
     it('registers a shape type', () => {
@@ -80,8 +76,6 @@ describe('ShapeFactory', () => {
       expect(factory.list()).toEqual(expect.arrayContaining(['circle', 'rect']))
     })
   })
-
-  // ── build ────────────────────────────────────────────────────────────────
 
   describe('build', () => {
     beforeEach(() => {

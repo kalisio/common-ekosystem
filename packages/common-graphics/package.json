@@ -79,6 +79,10 @@
       "optional": true
     }
   },
+  "devDependencies": {
+    "pixelmatch": "catalog:",
+    "pngjs": "catalog:"
+  },
   "engines": {
     "node": ">=20"
   },
