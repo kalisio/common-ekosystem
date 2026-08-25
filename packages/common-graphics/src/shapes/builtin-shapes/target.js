@@ -1,9 +1,22 @@
 import { toSVGStyleAttributes, toSVGTitleElement, toSVGTransformAttribute } from '../renderers/to-svg.js'
 import { setupStandardShape } from '../helpers.js'
 
-export function heart (params) {
+export function target (params) {
   const shape =
-    `<path d="M50 100 C50 100 0 65 0 35 C0 15 10 0 25 0 C37 0 50 10 50 10 C50 10 63 0 75 0 C90 0 100 15 100 35 C100 65 50 100 50 100 Z"
+    `<path
+      d="M50 0
+         A50 50 0 1 0 50 100
+         A50 50 0 1 0 50 0
+         Z
+         M50 20
+         A30 30 0 1 1 50 80
+         A30 30 0 1 1 50 20
+         Z
+         M50 38
+         A12 12 0 1 0 50 62
+         A12 12 0 1 0 50 38
+         Z"
+      fill-rule="evenodd"
       ${toSVGStyleAttributes(params)}
       ${toSVGTransformAttribute(params.transform)}
     >${toSVGTitleElement(params)}</path>`

@@ -1,6 +1,6 @@
 import { LRUCache } from 'lru-cache'
 import { assert, is, has } from '@kalisio/common-core/predicates'
-import { BUILTIN_SHAPES } from './builtin-shapes/index.js'
+import * as BUILTIN_SHAPES from './builtin-shapes/index.js'
 import { toSVG, toPNG } from './renderers/index.js'
 
 export class ShapeFactory {
@@ -10,12 +10,17 @@ export class ShapeFactory {
     this.pngCache = new LRUCache({ max: options?.pngCacheSize || 100 })
     this.registry.set('circle', BUILTIN_SHAPES.circle)
     this.registry.set('cross', BUILTIN_SHAPES.cross)
+    this.registry.set('x', BUILTIN_SHAPES.x)
+    this.registry.set('compass', BUILTIN_SHAPES.compass)
     this.registry.set('diamond', BUILTIN_SHAPES.diamond)
     this.registry.set('donut', BUILTIN_SHAPES.donut)
     this.registry.set('pie', BUILTIN_SHAPES.pie)
     this.registry.set('heart', BUILTIN_SHAPES.heart)
+    this.registry.set('flag', BUILTIN_SHAPES.flag)
+    this.registry.set('target', BUILTIN_SHAPES.target)
     this.registry.set('pentagon', BUILTIN_SHAPES.pentagon)
     this.registry.set('hexagon', BUILTIN_SHAPES.hexagon)
+    this.registry.set('octagon', BUILTIN_SHAPES.octagon)
     this.registry.set('polygon', BUILTIN_SHAPES.polygon)
     this.registry.set('polyline', BUILTIN_SHAPES.polyline)
     this.registry.set('rect', BUILTIN_SHAPES.rect)
@@ -31,6 +36,7 @@ export class ShapeFactory {
     this.registry.set('triangle-left', BUILTIN_SHAPES.triangleLeft)
     this.registry.set('marker-pin', BUILTIN_SHAPES.markerPin)
     this.registry.set('square-pin', BUILTIN_SHAPES.squarePin)
+    this.registry.set('wind-barb', BUILTIN_SHAPES.windBarb)
   }
 
   list () {

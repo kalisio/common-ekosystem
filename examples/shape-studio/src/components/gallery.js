@@ -19,7 +19,7 @@ export default {
         ...shape,
         label: shape.shape,
         radius: 30,
-        stroke: {},
+        stroke: shape.stroke ? shape.stroke : {},
         text: {
           label: shape.shape,
           size: 12,
@@ -33,7 +33,11 @@ export default {
       shapes: [
         { shape: 'circle', color: 'red', icon: { url: 'https://raw.githubusercontent.com/kalisio/kalisioscope/refs/heads/gh-pages/kalisio/kalisio-icon-dark-256x256.png' } },
         { shape: 'cross', color: 'red' },
-        { shape: 'heart', color: 'red' },
+        { shape: 'x', color: 'red' },
+        { shape: 'heart', color: 'red', stroke: { color: 'green', width: 2 } },
+        { shape: 'flag', color: 'red' },
+        { shape: 'target', color: 'grey', stroke: { color: 'red', width: 2 } },
+        { shape: 'compass', color: 'grey' },
         { shape: 'rect', color: 'green' },
         { shape: 'rounded-rect', color: 'green' },
         { shape: 'diamond', color: 'green' },
@@ -48,6 +52,7 @@ export default {
         { shape: 'star6', color: 'lime' },
         { shape: 'pentagon', color: 'yellow' },
         { shape: 'hexagon', color: 'yellow' },
+        { shape: 'octagon', color: 'yellow' },
         { shape: 'polygon', color: 'yellow' },
         { shape: 'polyline', color: 'orange' },
         {
@@ -65,6 +70,44 @@ export default {
             { value: 30, label: 'slice b', color: 'green' },
             { value: 10, label: 'slice c', color: 'blue' }
           ]
+        },
+        {
+          shape: 'wind-barb',
+          speed: 0
+        },
+        {
+          shape: 'wind-barb',
+          speed: 5,
+          transform: {
+            rotate: [45, 50, 50]
+          }
+        },
+        {
+          shape: 'wind-barb',
+          speed: 25,
+          transform: {
+            rotate: [60, 50, 50]
+          }
+        },
+        {
+          shape: 'wind-barb',
+          speed: 50
+        },
+        {
+          shape: 'wind-barb',
+          speed: 75,
+          color: 'red',
+          transform: {
+            rotate: [75, 50, 50]
+          }
+        },
+        {
+          shape: 'wind-barb',
+          speed: 100
+        },
+        {
+          shape: 'wind-barb',
+          speed: 125
         }
       ]
     }

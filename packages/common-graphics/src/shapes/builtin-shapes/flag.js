@@ -1,9 +1,9 @@
 import { toSVGStyleAttributes, toSVGTitleElement, toSVGTransformAttribute } from '../renderers/to-svg.js'
 import { setupStandardShape } from '../helpers.js'
 
-export function heart (params) {
+export function flag (params) {
   const shape =
-    `<path d="M50 100 C50 100 0 65 0 35 C0 15 10 0 25 0 C37 0 50 10 50 10 C50 10 63 0 75 0 C90 0 100 15 100 35 C100 65 50 100 50 100 Z"
+    `<path d="M15 0 L25 0 L25 8 L90 8 L72 34 L90 60 L25 60 L25 100 L15 100 Z"
       ${toSVGStyleAttributes(params)}
       ${toSVGTransformAttribute(params.transform)}
     >${toSVGTitleElement(params)}</path>`
