@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
-import { dirname, join } from 'node:path'
 import { xml } from '../../src/io/index.js'
 
-const dataDir = join(dirname(fileURLToPath(import.meta.url)), 'data')
-const fixture = (name) => join(dataDir, name)
+const fixture = (name) => fileURLToPath(
+  new URL(`./fixtures/${name}`, import.meta.url)
+)
 
 const hasDomParser = await (async () => {
   if (typeof globalThis.DOMParser !== 'undefined') return true

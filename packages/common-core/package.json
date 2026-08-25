@@ -66,6 +66,7 @@
   "homepage": "https://github.com/kalisio/common-ekosystem/tree/master/packages/common-core",
   "peerDependencies": {
     "@xmldom/xmldom": "catalog:",
+    "ajv": "catalog:",
     "lodash-es": "catalog:",
     "mathjs": "catalog:",
     "moment": "catalog:",
@@ -75,6 +76,7 @@
   },
   "peerDependenciesMeta": {
     "@xmldom/xmldom": { "optional": true },
+    "ajv": { "optional": true },
     "lodash-es": { "optional": true },
     "mathjs": { "optional": true },
     "moment": { "optional": true },

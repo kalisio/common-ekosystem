@@ -5,7 +5,7 @@ import { dirname, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { source } from '../../src/io/source.js'
 
-const dataDir = join(dirname(fileURLToPath(import.meta.url)), 'data')
+const fixturesDir = join(dirname(fileURLToPath(import.meta.url)), 'fixtures')
 
 afterEach(() => {
   vi.unstubAllGlobals()
@@ -13,7 +13,7 @@ afterEach(() => {
 
 describe('source.readAsText', () => {
   it('reads a fixture file from a string path', async () => {
-    const path = join(dataDir, 'object.json')
+    const path = join(fixturesDir, 'object.json')
     const text = await source.readAsText(path)
     expect(text).toContain('"name": "station-01"')
     expect(text).toBe(await readFile(path, 'utf-8'))
@@ -48,7 +48,7 @@ describe('source.readAsText', () => {
     }
   })
   it('throws READ_FAILED with the original cause on a missing file', async () => {
-    await expect(source.readAsText(join(dataDir, 'does-not-exist.json'))).rejects.toMatchObject({
+    await expect(source.readAsText(join(fixturesDir, 'does-not-exist.json'))).rejects.toMatchObject({
       code: source.ERROR_CODES.READ_FAILED,
       cause: expect.any(Error)
     })
