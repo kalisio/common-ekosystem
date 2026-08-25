@@ -32,7 +32,7 @@ describe('csv.parse', () => {
     expect(parseMeta.fields).toEqual(['name', 'lon', 'lat', 'active'])
   })
   it('counts a trailing empty line as a row when skipEmptyLines is off', async () => {
-    const { data } = csv.parse(await text('points.csv'), { header: true })
+    const { data } = csv.parse(await text('points.csv'), { header: true, parser: { skipEmptyLines: false } })
     expect(data).toHaveLength(3)
   })
   it('honors a custom delimiter via parser', async () => {

@@ -2,33 +2,72 @@ import { assert, conform, is, optional } from '@kalisio/common-core/predicates'
 import { csv } from '@kalisio/common-core/io'
 import { validateGeoJson } from '../operators/validate/geojson.js'
 
+const COORDINATES_SCHEMA = {
+  longitude: is.nonEmptyString,
+  latitude: is.nonEmptyString
+}
+
 const READ_OPTIONS_SCHEMA = {
-  coordinates: optional({
-    longitude: is.nonEmptyString,
-    latitude: is.nonEmptyString
-  }),
+  header: optional((value) =>
+    value === true ||
+    (
+      is.nonEmptyArray(value) &&
+      value.every(is.nonEmptyString) &&
+      new Set(value).size === value.length
+    )
+  ),
+  parser: optional(is.plainObject),
+  rowSchema: optional(is.plainObject),
+  coordinates: optional((value) => conform.schema(value, COORDINATES_SCHEMA)),
   preserveCoordinates: optional(is.boolean)
 }
 
 export async function readCsv (source, options = {}) {
-  assert.that(options, (v) => conform.schema(v, READ_OPTIONS_SCHEMA), 'options must be a valid options object')
+  assert.that(
+    options,
+    (value) => conform.schema(value, READ_OPTIONS_SCHEMA),
+    'options must be a valid options object'
+  )
   const {
+    header = true,
+    parser = {},
+    rowSchema,
     coordinates = {
       longitude: 'longitude',
       latitude: 'latitude'
     },
-    preserveCoordinates = true,
-    ...csvOptions
+    preserveCoordinates = true
   } = options
-  const result = await csv.read(source, {
-    ...csvOptions,
-    header: true,
-    skipEmptyLines: true
-  })
   const { longitude, latitude } = coordinates
+  const coordinateSchema = {
+    type: 'object',
+    properties: {
+      [longitude]: { type: 'number' },
+      [latitude]: { type: 'number' }
+    },
+    required: [longitude, latitude]
+  }
+  const effectiveSchema = rowSchema
+    ? {
+        allOf: [
+          coordinateSchema,
+          rowSchema
+        ]
+      }
+    : coordinateSchema
+  const {
+    data,
+    parseErrors,
+    parseMeta,
+    validationErrors
+  } = await csv.read(source, {
+    header,
+    parser,
+    rowSchema: effectiveSchema
+  })
   const geojson = {
     type: 'FeatureCollection',
-    features: result.data.map((row) => {
+    features: data.map((row) => {
       const properties = { ...row }
       if (!preserveCoordinates) {
         delete properties[longitude]
@@ -39,13 +78,19 @@ export async function readCsv (source, options = {}) {
         geometry: {
           type: 'Point',
           coordinates: [
-            Number(row[longitude]),
-            Number(row[latitude])
+            row[longitude],
+            row[latitude]
           ]
         },
         properties
       }
     })
   }
-  return { geojson, ...validateGeoJson(geojson) }
+  return {
+    geojson,
+    parseErrors,
+    parseMeta,
+    validationErrors,
+    ...validateGeoJson(geojson)
+  }
 }

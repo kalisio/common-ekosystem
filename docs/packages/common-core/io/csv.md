@@ -51,7 +51,7 @@ Rows that do not conform to the schema remain in `data`. Validation errors are c
 | `text`              | `string`           | yes      | CSV content to parse                                                                     |
 | `options`           | `object`           | no       | Parsing options                                                                          |
 | `options.header`    | `true \| string[]` | no       | If `true`, uses the first CSV row as the header. If an array is provided, uses these values as column names without consuming a row from the CSV |
-| `options.parser`    | `object`           | no       | PapaParse configuration options passed directly to `Papa.parse`                          |
+| `options.parser`    | `object`           | no       | PapaParse configuration options. `skipEmptyLines` defaults to `true` but can be overridden.                      |
 | `options.rowSchema` | `object`           | no       | JSON Schema applied to every parsed row                                                  |
 
 Header names supplied as an array must be non-empty strings and must be unique.

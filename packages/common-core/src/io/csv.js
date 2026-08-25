@@ -36,11 +36,9 @@ function getValidator (rowSchema) {
 function mapRows (rows, header, parseErrors) {
   return rows.map((row, index) => {
     const mapped = {}
-
     header.forEach((name, column) => {
       mapped[name] = row[column]
     })
-
     if (row.length < header.length) {
       parseErrors.push({
         type: 'FieldMismatch',
@@ -49,11 +47,9 @@ function mapRows (rows, header, parseErrors) {
         row: index
       })
     }
-
     if (row.length > header.length) {
       // Match PapaParse behavior when header: true
       mapped.__parsed_extra = row.slice(header.length)
-
       parseErrors.push({
         type: 'FieldMismatch',
         code: 'TooManyFields',
@@ -61,7 +57,6 @@ function mapRows (rows, header, parseErrors) {
         row: index
       })
     }
-
     return mapped
   })
 }
@@ -69,7 +64,6 @@ function mapRows (rows, header, parseErrors) {
 function validateRows (data, rowSchema) {
   const validate = getValidator(rowSchema)
   const validationErrors = []
-
   data.forEach((row, index) => {
     if (!validate(row)) {
       validationErrors.push({
@@ -81,11 +75,11 @@ function validateRows (data, rowSchema) {
       })
     }
   })
-
   return validationErrors
 }
 
 export const csv = {
+
   ERROR_CODES: {
     ...source.ERROR_CODES
   },
@@ -103,13 +97,7 @@ export const csv = {
         message: 'options must be a valid options object'
       }
     ])
-
-    const {
-      header,
-      parser = {},
-      rowSchema
-    } = options
-
+    const { header, parser = {}, rowSchema } = options
     if (
       rowSchema !== undefined &&
       parser.dynamicTyping !== undefined &&
@@ -117,36 +105,26 @@ export const csv = {
     ) {
       throw new TypeError('dynamicTyping cannot be used with rowSchema')
     }
-
     const customHeader = is.array(header)
-
     const {
       data,
       errors: parseErrors,
       meta: parseMeta
     } = Papa.parse(text, {
+      skipEmptyLines: true,
       ...parser,
       header: customHeader ? false : header === true
     })
-
-    const rows = customHeader
-      ? mapRows(data, header, parseErrors)
-      : data
-
+    const rows = customHeader ? mapRows(data, header, parseErrors) : data
     if (customHeader) {
       parseMeta.fields = [...header]
     }
-
     const result = {
       data: rows,
       parseErrors,
       parseMeta
     }
-
-    if (rowSchema === undefined) {
-      return result
-    }
-
+    if (rowSchema === undefined) return result
     return {
       ...result,
       validationErrors: validateRows(rows, rowSchema)
