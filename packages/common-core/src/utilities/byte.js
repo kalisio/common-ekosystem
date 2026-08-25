@@ -1,5 +1,12 @@
-// src/utilities/byte.js
 import { assert, is } from '../predicates/index.js'
+
+function asBytes (value) {
+  if (value instanceof ArrayBuffer) return new Uint8Array(value)
+  if (ArrayBuffer.isView(value)) {
+    return new Uint8Array(value.buffer, value.byteOffset, value.byteLength)
+  }
+  return new TextEncoder().encode(value) // string
+}
 
 export const byte = {
 
@@ -9,12 +16,7 @@ export const byte = {
       (v) => typeof v === 'string' || v instanceof ArrayBuffer || ArrayBuffer.isView(v),
       'value must be a string, ArrayBuffer or ArrayBufferView'
     )
-    const bytes = typeof value === 'string'
-      ? new TextEncoder().encode(value)
-      : value
-    const raw = ArrayBuffer.isView(bytes)
-      ? new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength)
-      : new Uint8Array(bytes)
+    const raw = asBytes(value)
     const CHUNK_SIZE = 0x8000
     const chunks = []
     for (let i = 0; i < raw.length; i += CHUNK_SIZE) {
@@ -39,7 +41,7 @@ export const byte = {
       (v) => v instanceof ArrayBuffer || ArrayBuffer.isView(v),
       'value must be an ArrayBuffer or ArrayBufferView'
     )
-    return Array.from(new Uint8Array(value))
+    return Array.from(asBytes(value))
       .map(b => b.toString(16).padStart(2, '0'))
       .join('')
   },
@@ -57,13 +59,7 @@ export const byte = {
     assert.that(value, is.dataUri, 'value must be a valid data URI')
     const [header, data] = value.split(',')
     const mimeType = header.split(':')[1].split(';')[0]
-    const byteString = atob(data)
-    const ab = new ArrayBuffer(byteString.length)
-    const ia = new Uint8Array(ab)
-    for (let i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i)
-    }
-    return new Blob([ab], { type: mimeType })
+    return new Blob([byte.fromBase64Bytes(data)], { type: mimeType })
   }
 
 }
