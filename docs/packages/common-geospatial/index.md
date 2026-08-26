@@ -63,6 +63,8 @@ import { ... } from '@kalisio/common-geospatial/io'
 
 ### Examples
 
+See the module documentation for detailed usage examples of all available functions.
+
 #### Validating and fixing a GeoJSON
 
 ```js
