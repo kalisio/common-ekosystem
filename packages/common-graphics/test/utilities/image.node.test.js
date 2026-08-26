@@ -62,7 +62,7 @@ describe('image – Node', () => {
       expect(received.toString('base64')).toBe(INPUT_BUF.toString('base64'))
     })
     it('throws on an unsupported type', async () => {
-      await expect(image.metadata({ not: 'supported' })).rejects.toThrow('Unsupported node image')
+      await expect(image.metadata({ not: 'supported' })).rejects.toThrow('unsupported node image')
     })
   })
 
@@ -89,7 +89,7 @@ describe('image – Node', () => {
       expect(buf.toString()).toBe(INPUT_BUF.toString())
     })
     it('throws on unsupported input type', async () => {
-      await expect(image.metadata(42)).rejects.toThrow('Unsupported node image')
+      await expect(image.metadata(42)).rejects.toThrow('unsupported node image')
     })
   })
 

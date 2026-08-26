@@ -69,7 +69,7 @@ describe('image – Browser', () => {
       expect(createImageBitmap).toHaveBeenCalledWith(fetchBlob)
     })
     it('throws on unsupported input', async () => {
-      await expect(image.metadata(42)).rejects.toThrow('Unsupported browser image')
+      await expect(image.metadata(42)).rejects.toThrow('unsupported browser image')
     })
   })
 

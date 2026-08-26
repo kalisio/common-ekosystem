@@ -1,19 +1,27 @@
-import { is, assert } from '@kalisio/common-core/predicates'
+import { is, assert, conform, optional } from '@kalisio/common-core/predicates'
 import { byte } from '@kalisio/common-core/utilities'
 
-async function resolveImage (img) {
-  if (img instanceof Blob) return img
-  if (is.string(img)) {
-    const res = await fetch(img)
-    return res.blob()
-  }
-  throw new Error('Unsupported browser image')
+const SUPPORTED_FORMATS = ['png', 'jpeg', 'webp']
+
+const FROM_SVG_OPTIONS_SCHEMA = {
+  format: optional(v => SUPPORTED_FORMATS.includes(v)),
+  quality: optional(v => is.inRange(v, 0, 1))
 }
 
 export const image = {
 
+  async resolve (img) {
+    assert.that(img, is.defined, 'img must be defined')
+    if (img instanceof Blob) return img
+    if (is.string(img)) {
+      const res = await fetch(img)
+      return res.blob()
+    }
+    throw new Error('unsupported browser image')
+  },
+
   async metadata (img) {
-    const blob = await resolveImage(img)
+    const blob = await image.resolve(img)
     const bitmap = await createImageBitmap(blob)
     const result = {
       width: bitmap.width,
@@ -31,7 +39,7 @@ export const image = {
       { value: height, validator: is.positiveInteger, message: 'height must be a positive integer' },
       { value: quality, validator: (v) => is.inRange(v, 0, 1), message: 'quality must be a number within the range [0,1]' }
     ])
-    const blob = await resolveImage(img)
+    const blob = await image.resolve(img)
     const bitmap = await createImageBitmap(blob, {
       resizeWidth: width,
       resizeHeight: height,
@@ -49,26 +57,44 @@ export const image = {
   },
 
   async toDataURL (img) {
-    const blob = await resolveImage(img)
+    const blob = await image.resolve(img)
     const buffer = await blob.arrayBuffer()
     const base64 = byte.toBase64(buffer)
     return `data:${blob.type};base64,${base64}`
   },
 
-  async fromSVG (svg, { format = 'png', quality = 1 } = {}) {
+  async fromSVG (svg, options = {}) {
+    assert.all([
+      {
+        value: svg,
+        validator: is.defined,
+        message: 'svg must be defined'
+      },
+      {
+        value: options,
+        validator: v => conform.schema(v, FROM_SVG_OPTIONS_SCHEMA),
+        message: 'invalid options'
+      }
+    ])
+    const { format = 'png', quality = 1 } = options
     const mimeType = `image/${format}`
     const blob = new Blob([svg], { type: 'image/svg+xml' })
     const url = URL.createObjectURL(blob)
-    const img = new Image()
-    await new Promise((resolve, reject) => {
-      img.onload = resolve
-      img.onerror = reject
-      img.src = url
-    })
-    const canvas = new OffscreenCanvas(img.naturalWidth, img.naturalHeight)
-    canvas.getContext('2d').drawImage(img, 0, 0)
-    URL.revokeObjectURL(url)
-    return canvas.convertToBlob({ type: mimeType, quality })
+    try {
+      const img = new Image()
+      await new Promise((resolve, reject) => {
+        img.onload = resolve
+        img.onerror = () => reject(new Error('invalid SVG'))
+        img.src = url
+      })
+      const canvas = new OffscreenCanvas(img.naturalWidth, img.naturalHeight)
+      const ctx = canvas.getContext('2d')
+      if (!ctx) throw new Error('2D context not available')
+      ctx.drawImage(img, 0, 0)
+      return canvas.convertToBlob({ type: mimeType, quality })
+    } finally {
+      URL.revokeObjectURL(url)
+    }
   }
 
 }
