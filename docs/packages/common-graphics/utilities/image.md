@@ -1,13 +1,74 @@
 ---
 title: image
-description: Utility functions for processing and transforming images, running in both browser and Node.js environments.
+description: Utility functions for resolving, inspecting, processing, and transforming images in browser and Node.js environments.
 ---
 
 # image
 
-> Inputs accept a `Blob` or a URL/data URL string in the browser, and a `Buffer`, a file path, or a data URL string in Node.js.
-> Outputs are a `Blob` in the browser and a `Buffer` in Node.js.
+The `image` utility provides a common API for image processing in browser and Node.js environments.
+
+> In the browser, image inputs can be provided as a `Blob` or a string that can be fetched as an image resource, including URLs and data URLs.
+> In Node.js, image inputs can be provided as a `Buffer`, a file path, or a base64-encoded data URL.
+>
+> Outputs are returned as a `Blob` in the browser and a `Buffer` in Node.js.
+>
 > Node.js usage requires [`sharp`](https://sharp.pixelplumbing.com/) as a peer dependency (`npm install sharp`).
+
+## Supported formats
+
+Supported output formats for `fromSVG` depend on the runtime:
+
+| Environment | Formats |
+|-------------|---------|
+| Browser | `png`, `jpeg`, `webp` |
+| Node.js | `png`, `jpeg`, `jpg`, `webp`, `avif`, `tiff` |
+
+## resolve
+
+### Signature
+
+```js
+image.resolve(img)
+```
+
+### Description
+
+Resolves an image source to the native binary representation used by the current environment.
+
+In the browser, an existing `Blob` is returned as-is. String inputs are retrieved using `fetch()` and converted to a `Blob`.
+
+In Node.js, an existing `Buffer` is returned as-is. String inputs are interpreted either as file paths or as base64-encoded data URLs.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `img` | `Blob \| string` (browser) or `Buffer \| string` (Node) | yes | The image source |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `Promise<Blob>` (browser) | Resolved image as a Blob |
+| `Promise<Buffer>` (Node.js) | Resolved image as a Buffer |
+
+### Examples
+
+```js
+// Browser
+const blob = await image.resolve('/images/photo.png')
+
+// Browser — existing Blob
+const sameBlob = await image.resolve(blob)
+
+// Node.js — file path
+const buffer = await image.resolve('/path/to/photo.jpg')
+
+// Node.js — base64 data URL
+const buffer = await image.resolve('data:image/png;base64,...')
+```
+
+> In Node.js, only base64-encoded data URLs are supported.
 
 ## metadata
 
@@ -19,7 +80,11 @@ image.metadata(img)
 
 ### Description
 
-Returns the dimensions and basic metadata of an image. In Node.js, returns the full metadata object from sharp.
+Returns the dimensions and basic metadata of an image.
+
+In the browser, the returned object contains the image dimensions, size, and MIME subtype.
+
+In Node.js, the full metadata object returned by `sharp` is exposed, with a guaranteed `size` field that falls back to the resolved buffer size when necessary.
 
 ### Parameters
 
@@ -68,7 +133,7 @@ image.resize(img, width, height, quality = 0.8)
 
 ### Description
 
-Resizes an image to the given dimensions. The output format matches the input format. Uses GPU-accelerated resizing in the browser (`createImageBitmap`) and `sharp` in Node.js.
+Resizes an image to the given dimensions while preserving its input format. In the browser, resizing uses `createImageBitmap()` and `OffscreenCanvas`. In Node.js, resizing is performed by `sharp`.
 
 ### Parameters
 
@@ -83,8 +148,8 @@ Resizes an image to the given dimensions. The output format matches the input fo
 
 | Type | Description |
 |------|-------------|
-| `Blob` (browser) | Resized image as a Blob, preserving the original MIME type |
-| `Buffer` (Node.js) | Resized image as a Buffer, preserving the original format |
+| `Blob` (browser) | Resized image as a Blob |
+| `Buffer` (Node.js) | Resized image as a Buffer |
 
 ### Examples
 
@@ -120,7 +185,7 @@ image.toDataURL(img)
 
 ### Description
 
-Converts an image to a base64-encoded data URL. The MIME type is inferred from the source image.
+Converts an image to a base64-encoded data URL. In the browser, the MIME type comes from the resolved `Blob`. In Node.js, the image format is detected using `sharp`.
 
 ### Parameters
 
@@ -159,7 +224,7 @@ image.fromSVG(svg, options = {})
 
 ### Description
 
-Converts an SVG string to a raster image. Uses `createImageBitmap` and `OffscreenCanvas` in the browser, and `sharp` in Node.js.
+Converts SVG markup to a raster image. In the browser, the SVG is loaded into an `Image` and rendered to an `OffscreenCanvas`. In Node.js, conversion is performed by `sharp`.
 
 ### Parameters
 
@@ -167,8 +232,8 @@ Converts an SVG string to a raster image. Uses `createImageBitmap` and `Offscree
 |------|------|----------|-------------|
 | `svg` | `string` | yes | The SVG markup to convert |
 | `options` | `object` | no | Conversion options |
-| `options.format` | `string` | no | Output format (`'png'`, `'jpeg'`, `'webp'`, etc.). Defaults to `'png'` |
-| `options.quality` | `number` | no | Compression quality between `0` and `1`. Defaults to `1`. Ignored for PNG in the browser |
+| `options.format` | `string` | no | Output format. Defaults to `'png'`. Supported formats depend on the runtime |
+| `options.quality` | `number` | no | Compression quality between `0` and `1`. Defaults to `1` |
 
 ### Returns
 

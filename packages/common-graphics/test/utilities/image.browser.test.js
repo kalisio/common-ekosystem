@@ -56,20 +56,22 @@ describe('image – Browser', () => {
     URL.createObjectURL.mockReturnValue('blob:fake-url')
   })
 
-  describe('resolveBrowserImage()', () => {
+  describe('resolve()', () => {
     it('accepts a Blob directly', async () => {
-      await image.metadata(JPEG_BLOB)
-      expect(createImageBitmap).toHaveBeenCalledWith(JPEG_BLOB)
+      expect(await image.resolve(JPEG_BLOB)).toBe(JPEG_BLOB)
     })
     it('fetches a URL and returns its blob', async () => {
       const fetchBlob = new Blob(['fetched'], { type: 'image/png' })
       vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ blob: () => Promise.resolve(fetchBlob) }))
-      await image.metadata('https://example.com/img.png')
+      const result = await image.resolve('https://example.com/img.png')
       expect(fetch).toHaveBeenCalledWith('https://example.com/img.png')
-      expect(createImageBitmap).toHaveBeenCalledWith(fetchBlob)
+      expect(result).toBe(fetchBlob)
+    })
+    it('throws when img is undefined', async () => {
+      await expect(image.resolve(undefined)).rejects.toThrow('img must be defined')
     })
     it('throws on unsupported input', async () => {
-      await expect(image.metadata(42)).rejects.toThrow('unsupported browser image')
+      await expect(image.resolve(42)).rejects.toThrow('unsupported browser image')
     })
   })
 
@@ -122,6 +124,10 @@ describe('image – Browser', () => {
         quality: 0.8
       })
     })
+    it('throws when the 2D context is unavailable', async () => {
+      mockCanvas.getContext.mockReturnValueOnce(null)
+      await expect(image.resize(JPEG_BLOB, 320, 240)).rejects.toThrow('2D context not available')
+    })
     it('throws when width is not a positive integer', async () => {
       await expect(image.resize(JPEG_BLOB, -1, 240)).rejects.toThrow('width')
     })
@@ -165,6 +171,20 @@ describe('image – Browser', () => {
       await image.fromSVG(SVG)
       expect(OffscreenCanvas).toHaveBeenCalledWith(200, 100)
       expect(mockCtx.drawImage).toHaveBeenCalled()
+    })
+    it('throws on an unsupported format', async () => {
+      await expect(image.fromSVG(SVG, { format: 'gif' })).rejects.toThrow()
+    })
+    it('throws on out-of-range quality', async () => {
+      await expect(image.fromSVG(SVG, { quality: 2 })).rejects.toThrow()
+    })
+    it('throws when svg is undefined', async () => {
+      await expect(image.fromSVG(undefined)).rejects.toThrow('svg must be defined')
+    })
+    it('revokes the blob URL even when rendering fails', async () => {
+      mockCanvas.getContext.mockReturnValueOnce(null)
+      await expect(image.fromSVG(SVG)).rejects.toThrow('2D context not available')
+      expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:fake-url')
     })
   })
 })

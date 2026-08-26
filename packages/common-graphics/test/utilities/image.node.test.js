@@ -47,22 +47,31 @@ describe('image – Node', () => {
     mockSharpInstance.toBuffer.mockResolvedValue(mockBuffer)
   })
 
-  describe('resolveNodeImage()', () => {
+  describe('resolve()', () => {
     it('passes a Buffer through unchanged', async () => {
-      await image.metadata(INPUT_BUF)
-      expect(mockSharp).toHaveBeenCalledWith(INPUT_BUF)
+      expect(await image.resolve(INPUT_BUF)).toBe(INPUT_BUF)
     })
     it('reads a file path with fs.readFile', async () => {
-      await image.metadata('/tmp/img.png')
+      await image.resolve('/tmp/img.png')
       expect(readFile).toHaveBeenCalledWith('/tmp/img.png')
     })
     it('decodes a base64 data URL to a Buffer', async () => {
-      await image.metadata(JPEG_DATA_URL)
-      const [received] = mockSharp.mock.calls[0]
-      expect(received.toString('base64')).toBe(INPUT_BUF.toString('base64'))
+      const buf = await image.resolve(JPEG_DATA_URL)
+      expect(Buffer.isBuffer(buf)).toBe(true)
+      expect(buf.toString('base64')).toBe(INPUT_BUF.toString('base64'))
+    })
+    it('throws when img is undefined', async () => {
+      await expect(image.resolve(undefined)).rejects.toThrow('img must be defined')
+    })
+    it('throws on a data URL without comma', async () => {
+      await expect(image.resolve('data:image/png;base64')).rejects.toThrow('invalid data URL')
+    })
+    it('rejects non-base64 data URLs', async () => {
+      await expect(image.resolve('data:image/svg+xml,%3Csvg%3E'))
+        .rejects.toThrow('only base64 data URLs are supported')
     })
     it('throws on an unsupported type', async () => {
-      await expect(image.metadata({ not: 'supported' })).rejects.toThrow('unsupported node image')
+      await expect(image.resolve({ not: 'supported' })).rejects.toThrow('unsupported node image')
     })
   })
 
@@ -164,6 +173,15 @@ describe('image – Node', () => {
       const [buf] = mockSharp.mock.calls[0]
       expect(Buffer.isBuffer(buf)).toBe(true)
       expect(buf.toString()).toBe(SVG)
+    })
+    it('throws on an unsupported format', async () => {
+      await expect(image.fromSVG(SVG, { format: 'gif' })).rejects.toThrow()
+    })
+    it('throws on out-of-range quality', async () => {
+      await expect(image.fromSVG(SVG, { quality: 2 })).rejects.toThrow()
+    })
+    it('throws when svg is undefined', async () => {
+      await expect(image.fromSVG(undefined)).rejects.toThrow('svg must be defined')
     })
   })
 })
