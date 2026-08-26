@@ -214,3 +214,81 @@ Throws if:
 | **opacity** | Icon opacity, from `0.0` to `1.0` | `1.0` |
 | **size** | [Font size](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/font-size) used to render the icon | `'1em'` |
 | **transform** | [SVG transform](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/transform) applied to the icon | `undefined` |
+
+#### text sub-object
+
+If `text.label` is omitted or empty, no text element is rendered.
+
+| Property | Description | Default |
+| --- | --- | --- |
+| **label** | Text content to display | `undefined` |
+| **size** | Font size before scaling to the shape height | `12` |
+| **color** | Text fill color. Any valid HTML color | inherited |
+| **font** | Font family | inherited |
+| **style** | Font style, for example `normal` or `italic` | inherited |
+| **weight** | Font weight, for example `normal`, `bold`, or a numeric weight | inherited |
+| **variant** | Font variant | inherited |
+| **cursor** | CSS cursor displayed when hovering the text, for example `pointer`, `default`, or `text` | inherited |
+| **transform** | SVG transform applied to the text | `undefined` |
+
+The text is horizontally centered and vertically aligned around its origin using:
+
+```svg
+text-anchor="middle"
+alignment-baseline="central"
+```
+
+The font size is automatically scaled according to the shape height.
+
+```js
+text: {
+  label: 'i',
+  size: 12,
+  color: 'white',
+  font: 'Arial',
+  weight: 'bold',
+  cursor: 'pointer',
+  transform: {
+    translate: [50, 50]
+  }
+}
+```
+
+#### transform sub-object
+
+The `transform` object defines SVG transformations applied to the shape.
+
+| Property | Description |
+| --- | --- |
+| **rotate** | Rotation as an array passed to the SVG `rotate()` transform, for example `[angle]` or `[angle, cx, cy]` |
+| **translate** | Translation as an array passed to the SVG `translate()` transform, typically `[x, y]` |
+| **scale** | Scaling as an array passed to the SVG `scale()` transform, for example `[factor]` or `[x, y]` |
+| **skewX** | Horizontal skew angle in degrees |
+| **skewY** | Vertical skew angle in degrees |
+
+Multiple transformations can be combined in the same object.
+
+They are rendered in the following order: `rotate`, `translate`, `scale`, `skewX`, `skewY`.
+
+```js
+transform: {
+  rotate: [45, 50, 50],
+  translate: [10, 20],
+  scale: [0.8, 0.8]
+}
+```
+
+#### style
+
+The `style` property defines CSS rules embedded in the generated SVG.
+
+It can be used to customize the rendering of SVG elements, for example to define hover states or other CSS-based effects.
+
+```js
+style: `
+  path:hover {
+    opacity: 0.8;
+  }
+`
+```
+

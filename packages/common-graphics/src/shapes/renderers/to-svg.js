@@ -50,6 +50,7 @@ export function toSVGTextElement (params) {
   if (text.style) attrs += ` font-style="${text.style}"`
   if (text.weight) attrs += ` font-weight="${text.weight}"`
   if (text.variant) attrs += ` font-variant="${text.variant}"`
+  if (text.cursor) attrs += ` cursor="${text.cursor}"`
   if (text.transform) attrs += ` ${toSVGTransformAttribute(text.transform)}`
   return `<text ${attrs}>${text.label}</text>`
 }
