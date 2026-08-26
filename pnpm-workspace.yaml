@@ -156,7 +156,7 @@ catalog:
   loglevel: ~1.9.2
   lru-cache: ~11.3.5
   maplibre-gl: ~6.4.0
-  mathjs: ~15.1.1
+  mathjs: ~15.2.0
   memory-blob-store: ~5.0.1
   mermaid: ~10.8.0
   minimatch: ~10.2.5
@@ -195,7 +195,7 @@ catalog:
   socket.io-client: ~4.8.2
   standard: ~17.1.2
   superagent: ~10.3.0
-  tar: ~7.5.13
+  tar: ~7.5.22
   tough-cookie: ~6.0.2
   typescript: ~6.0.3
   unzipper: ~0.12.3
