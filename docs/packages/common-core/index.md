@@ -11,11 +11,11 @@ _Core utilities for the Kalisio ekosystem_
 
 **common-core** is a lightweight library that provides core utilities that work in both **browsers** and **Node.js**.
 
-It is organized around 3 modules:
-- [predicates](./predicates/assert.md) — minimalist conditional and assertion functions
-- [utilities](./utilities/byte.md) — general purpose utility functions
+It is organized around four modules:
+- [predicates](./predicates/assert.md) - minimalist conditional and assertion functions
+- [utilities](./utilities/byte.md) - general purpose utility functions
 - [io](./io/csv.md) - helpers for reading and parsing external data sources
-- [operators](./operators/compare.md) — higher-order functions that process data
+- [operators](./operators/compare.md) - higher-order functions that process data
 
 ## Installation
 
@@ -44,3 +44,27 @@ Or use it directly from a CDN:
   import { url } from 'https://unpkg.com/@kalisio/common-core/dist/index.mjs'
 </script>
 ```
+
+
+## Usage
+
+### Imports
+
+The package can be imported from its root entry point:
+
+```js
+import { is, assert, string, csv } from '@kalisio/common-core'
+```
+
+For more explicit imports, each module is also exposed as a dedicated subpath:
+
+```js
+import { is, assert } from '@kalisio/common-core/predicates'
+import { string, object } from '@kalisio/common-core/utilities'
+import { csv, xml } from '@kalisio/common-core/io'
+import { ... } from '@kalisio/common-core/operators'
+```
+
+### Examples
+
+See the module documentation for detailed usage examples of all available functions.

@@ -5,14 +5,17 @@ description: Utility functions for resolving, inspecting, processing, and transf
 
 # image
 
-The `image` utility provides a common API for image processing in browser and Node.js environments.
+The `image` utility provides a common API for image processing in **browser** and **Node.js** environments.
 
-> In the browser, image inputs can be provided as a `Blob` or a string that can be fetched as an image resource, including URLs and data URLs.
-> In Node.js, image inputs can be provided as a `Buffer`, a file path, or a base64-encoded data URL.
->
-> Outputs are returned as a `Blob` in the browser and a `Buffer` in Node.js.
->
-> Node.js usage requires [`sharp`](https://sharp.pixelplumbing.com/) as a peer dependency (`npm install sharp`).
+In the browser, image inputs can be provided as a `Blob` or a string that can be fetched as an image resource, including URLs and data URLs.
+
+In Node.js, image inputs can be provided as a `Buffer`, a file path, or a base64-encoded data URL.
+
+Outputs are returned as a `Blob` in the browser and a `Buffer` in Node.js.
+
+::: warning
+Node.js usage requires [`sharp`](https://sharp.pixelplumbing.com/) as a peer dependency (`npm install sharp`).
+:::
 
 ## Supported formats
 

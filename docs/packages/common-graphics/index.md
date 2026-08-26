@@ -13,7 +13,7 @@ _Graphics utilities for the Kalisio ekosystem_
 
 It is organized around 2 modules:
 - [utilities](./utilities/color.md) — general purpose utility functions
-- [shapes](./shapes/shape-factory.md) — build marker shapes and render them as SVG or PNG.
+- [shapes](./shapes/shape-factory.md) — build marker shapes and render them as SVG or PNG
 
 ## Installation
 
@@ -42,3 +42,45 @@ Or use it directly from a CDN:
   import { shapes } from 'https://unpkg.com/@kalisio/common-graphics/dist/index.mjs'
 </script>
 ```
+
+## Usage
+
+### Imports
+
+The package can be imported from its root entry point:
+
+```js
+import { image, ShapeFactory } from '@kalisio/common-graphics'
+```
+
+For more explicit imports, each module is also exposed as a dedicated subpath:
+
+```js
+import { image } from '@kalisio/common-graphics/utilities'
+import { ShapeFactory } from '@kalisio/common-graphics/shapes'
+```
+
+### Examples
+
+#### Rendering shapes
+
+```js
+import { ShapeFactory } from '@kalisio/common-graphics/shapes'
+
+const factory = new ShapeFactory()
+
+const shape = factory.build({
+  shape: 'circle',
+  size: [50, 50],
+  color: 'red',
+  stroke: {
+    color: 'black',
+    width: 2
+  }
+})
+
+const svg = await shape.toSVG()
+```
+
+Built-in shapes can be used directly without explicit registration.
+Custom shapes can also be registered with `factory.register()`.

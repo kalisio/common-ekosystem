@@ -15,16 +15,54 @@ const shape = factory.build({
 ```
 
 All built-in shapes support the common build parameters documented in [`ShapeFactory.build()`](./shape-factory.md#build).
+And Some shapes accept additional parameters or have specific behavior, as described [below](#parameterized-shapes).
 
-Some built-in shapes are parameterized and accept additional properties documented below.
+## Available shapes
 
-The complete collection can be browsed and previewed in the [Shape Studio](../../../playground/shape-studio).
+The following shapes are registered by default:
 
-## donut
+| Shape | Description |
+| --- | --- |
+| `circle` | Circle |
+| `compass` | Compass marker |
+| `cross` | Cross |
+| `x` | Diagonal cross |
+| `diamond` | Diamond |
+| `donut` | Donut chart composed of slices |
+| `pie` | Pie chart composed of slices |
+| `flag` | Flag marker |
+| `heart` | Heart |
+| `marker-pin` | Map marker pin anchored at the bottom center |
+| `square-pin` | Square map pin anchored at the bottom center |
+| `pentagon` | Regular-style pentagon |
+| `hexagon` | Regular-style hexagon |
+| `octagon` | Regular-style octagon |
+| `polygon` | Generic polygon |
+| `polyline` | Polyline symbol |
+| `rect` | Rectangle |
+| `rounded-rect` | Rectangle with rounded corners |
+| `star-4` | Four-branch star |
+| `star-5` | Five-branch star |
+| `star-6` | Six-branch star |
+| `star` | Alias for `star-5` |
+| `target` | Target symbol |
+| `triangle` | Upward-pointing triangle |
+| `triangle-down` | Downward-pointing triangle |
+| `triangle-left` | Left-pointing triangle |
+| `triangle-right` | Right-pointing triangle |
+| `wind-barb` | Meteorological wind barb |
+
+::: tip
+The complete collection can also be browsed and previewed in the [Shape Studio](../../../playground/shape-studio).
+:::
+
+## Parameterized shapes
+
+### donut
 
 Creates a donut chart from a collection of slices.
 
-### Additional parameters
+#### Additional parameters
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -40,7 +78,7 @@ The stroke defined on the shape is applied to each slice.
 
 The sum of the slice values must be greater than zero.
 
-### Example
+#### Example
 
 ```js
 const shape = factory.build({
@@ -57,13 +95,13 @@ const shape = factory.build({
 })
 ```
 
-## pie
+### pie
 
 Creates a pie chart from a collection of slices.
 
 `pie` accepts the same parameters as [`donut`](#donut), except that the inner radius is forced to `0`.
 
-### Example
+#### Example
 
 ```js
 const shape = factory.build({
@@ -76,11 +114,11 @@ const shape = factory.build({
 })
 ```
 
-## wind-barb
+### wind-barb
 
 Creates a meteorological wind barb representing wind speed.
 
-### Additional parameters
+#### Additional parameters
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -101,7 +139,7 @@ These elements are combined to represent higher speeds. For example, `65 kt` is 
 
 The generic `transform` parameter can be used to orient the wind barb.
 
-### Examples
+#### Examples
 
 ```js
 const shape = factory.build({

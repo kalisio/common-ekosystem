@@ -9,7 +9,9 @@ Factory class for registering shape builders and producing shape objects that ca
 
 Built-in shape builders are automatically registered when the factory is created. See [Built-in shapes](./builtin-shapes.md) for the complete list of available shapes and their specific parameters.
 
+::: tip
 The complete collection can also be browsed and previewed in the [Shape Studio](../../../playground/shape-studio).
+:::
 
 ## constructor
 
@@ -47,21 +49,6 @@ const factory = new ShapeFactory({
   pngCacheSize: 200
 })
 ```
-
-## Built-in shapes
-
-Built-in shapes can be used directly with `build()` without explicit registration.
-
-```js
-const shape = factory.build({
-  shape: 'flag',
-  color: 'red'
-})
-```
-
-See [Built-in shapes](./builtin-shapes.md) for the complete list of available shapes and their specific parameters.
-
-The complete collection can also be browsed and previewed in the [Shape Studio](../../../playground/shape-studio).
 
 ## list
 
