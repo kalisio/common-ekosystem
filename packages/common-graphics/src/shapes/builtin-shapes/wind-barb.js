@@ -3,40 +3,95 @@ import { setupStandardShape } from '../helpers.js'
 
 export function windBarb (params) {
   const speed = Math.max(0, Math.round((params.speed ?? 0) / 5) * 5)
-  const center = 50
-  const shaftTop = 5
-  const shaftBottom = 95
+  const direction = params.direction ?? 0
+  const showAnchor = params.showAnchor ?? true
+  const anchorRadius = params.anchorRadius ?? 8
+  const x = 50
+  const tip = 10
+  const anchor = 90
+  const barbLength = 28
+  const halfBarbLength = 12
+  const barbDrop = 12
+  const spacing = 10
+  const halfBarbOffset = 8
+  const pennantWidth = 28
+  const pennantHeight = 14
+  const transform = {
+    rotate: [direction, x, anchor]
+  }
   if (speed === 0) {
-    const shape =
-      `<circle cx="${center}" cy="${center}" r="15"
+    let shape = `<g ${toSVGTransformAttribute(transform)}>`
+    shape += `
+      <circle
+        cx="${x}"
+        cy="${anchor}"
+        r="15"
+        fill="none"
         ${toSVGStyleAttributes(params)}
-        ${toSVGTransformAttribute(params.transform)}
-      >${toSVGTitleElement(params)}</circle>`
+      />
+    `
+    if (showAnchor) {
+      shape += `
+        <circle
+          cx="${x}"
+          cy="${anchor}"
+          r="${anchorRadius}"
+          ${toSVGStyleAttributes(params)}
+        />
+      `
+    }
+    shape += toSVGTitleElement(params)
+    shape += '</g>'
     return setupStandardShape(params, shape)
   }
-  const flags = Math.floor(speed / 50)
+  const pennants = Math.floor(speed / 50)
   const remainder = speed % 50
-  const barbs = Math.floor(remainder / 10)
+  const fullBarbs = Math.floor(remainder / 10)
   const halfBarb = remainder % 10 === 5
-  const flagHeight = 14
-  const flagWidth = 28
-  const barbSpacing = 8
-  const barbLength = 30
-  const halfBarbLength = 18
-  let shape = `<g ${toSVGTransformAttribute(params.transform)}>`
-  shape += `<path d="M${center} ${shaftBottom} L${center} ${shaftTop}" ${toSVGStyleAttributes(params)} />`
-  let y = shaftTop + 2
-  for (let i = 0; i < flags; i++) {
-    shape += `<path d="M${center} ${y} L${center + flagWidth} ${y + flagHeight / 2} L${center} ${y + flagHeight} Z" ${toSVGStyleAttributes(params)} />`
-    y += flagHeight
+  let shape = `<g ${toSVGTransformAttribute(transform)}>`
+  shape += `
+    <path
+      d="M${x} ${anchor} L${x} ${tip}"
+      ${toSVGStyleAttributes(params)}
+    />
+  `
+  if (showAnchor) {
+    shape += `
+      <circle
+        cx="${x}"
+        cy="${anchor}"
+        r="${anchorRadius}"
+        ${toSVGStyleAttributes(params)}
+      />
+    `
   }
-  if (flags > 0 && (barbs > 0 || halfBarb)) y += 3
-  for (let i = 0; i < barbs; i++) {
-    shape += `<path d="M${center} ${y} L${center + barbLength} ${y + 9}" ${toSVGStyleAttributes(params)} />`
-    y += barbSpacing
+  let y = tip
+  for (let i = 0; i < pennants; i++) {
+    shape += `
+      <path
+        d="M${x} ${y} L${x + pennantWidth} ${y + pennantHeight} L${x} ${y + pennantHeight} Z"
+        ${toSVGStyleAttributes(params)}
+      />
+    `
+    y += pennantHeight
+  }
+  for (let i = 0; i < fullBarbs; i++) {
+    shape += `
+      <path
+        d="M${x} ${y} L${x + barbLength} ${y + barbDrop}"
+        ${toSVGStyleAttributes(params)}
+      />
+    `
+    y += spacing
   }
   if (halfBarb) {
-    shape += `<path d="M${center} ${y} L${center + halfBarbLength} ${y + 5}" ${toSVGStyleAttributes(params)} />`
+    y += halfBarbOffset
+    shape += `
+      <path
+        d="M${x} ${y} L${x + halfBarbLength} ${y + barbDrop / 2}"
+        ${toSVGStyleAttributes(params)}
+      />
+    `
   }
   shape += toSVGTitleElement(params)
   shape += '</g>'

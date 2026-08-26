@@ -123,6 +123,9 @@ Creates a meteorological wind barb representing wind speed.
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `speed` | `number` | no | Wind speed in knots. Defaults to `0` |
+| `direction` | `number` | no | Wind direction in degrees, indicating the direction from which the wind is coming. Defaults to `0` |
+| `showAnchor` | `boolean` | no | Displays a small circle at the wind-barb anchor point. Defaults to `false` |
+| `anchorRadius` | `number` | no | Radius of the anchor circle when `showAnchor` is enabled. Defaults to `5` |
 
 The speed is clamped to zero for negative values and rounded to the nearest multiple of `5` knots.
 
