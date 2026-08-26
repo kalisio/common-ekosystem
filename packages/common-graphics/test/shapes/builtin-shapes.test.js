@@ -72,53 +72,21 @@ describe('built-in shapes', () => {
     })
   }
   describe('windBarb', () => {
-    const render = speed => BUILTIN_SHAPES.windBarb({
-      speed,
-      color: 'red',
-      stroke: {
-        color: 'black',
-        width: 1
+    describe('windBarb', () => {
+      for (let speed = 0; speed <= 150; speed += 5) {
+        it(`renders ${speed} knots`, async () => {
+          const shape = factory.build({
+            shape: 'wind-barb',
+            speed,
+            color: 'red',
+            stroke: {
+              color: 'red'
+            }
+          })
+          expect(shape).toBeDefined()
+          await compareWithFixture(shape, `wind-barb-${speed}`)
+        })
       }
-    })
-    it('renders calm wind', () => {
-      expect(render(0).shape).toContain('<circle')
-    })
-    it('rounds speed to the nearest 5 knots', () => {
-      expect(render(24).shape).toBe(render(25).shape)
-      expect(render(26).shape).toBe(render(25).shape)
-    })
-    it('renders 5 knots', () => {
-      expect(render(5).shape).toContain('<path')
-    })
-    it('renders 10 knots', () => {
-      expect(render(10).shape).toContain('<path')
-    })
-    it('renders 15 knots', () => {
-      expect(render(15).shape).toContain('<path')
-    })
-    it('renders 50 knots', () => {
-      expect(render(50).shape).toContain('Z')
-    })
-    it('renders 65 knots', () => {
-      expect(render(65).shape).toContain('Z')
-    })
-    it('renders 100 knots', () => {
-      expect((render(100).shape.match(/Z/g) || []).length).toBe(2)
-    })
-    it('renders 145 knots', () => {
-      expect(render(145).shape).toContain('</g>')
-    })
-    it('clamps negative speeds to calm wind', () => {
-      expect(render(-10).shape).toContain('<circle')
-    })
-    it('supports transforms', () => {
-      const result = BUILTIN_SHAPES.windBarb({
-        speed: 25,
-        transform: {
-          rotate: [90, 50, 50]
-        }
-      })
-      expect(result.shape).toContain('rotate')
     })
   })
 })

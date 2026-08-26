@@ -12,7 +12,7 @@ export class ShapeFactory {
     for (const [name, shape] of Object.entries(BUILTIN_SHAPES)) {
       this.registry.set(string.kebabCase(name), shape)
     }
-    // Alias if we don't care about the number of branches
+    // Alias for compatibility
     this.registry.set('star', BUILTIN_SHAPES.star5)
   }
 
