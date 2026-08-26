@@ -4,7 +4,7 @@
   "packageManager": "pnpm@10.1.0",
   "type": "module",
   "scripts": {
-    "build": "pnpm -r build",
+    "build": "pnpm -r --filter './packages/*' build",
     "build:common-core": "pnpm --filter @kalisio/common-core build",
     "build:common-geospatial": "pnpm --filter @kalisio/common-geospatial build",
     "build:common-graphics": "pnpm --filter @kalisio/common-graphics build",

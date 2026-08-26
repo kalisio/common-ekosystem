@@ -12,16 +12,23 @@ export default mergeConfig(baseConfig, defineConfig({
   root: __dirname,
   build: {
     lib: {
-      entry: 'src/index.js',
+      entry: {
+        'index.browser': 'src/index.browser.js',
+        'index.node': 'src/index.node.js',
+        'utilities/index.browser': 'src/utilities/index.browser.js',
+        'utilities/index.node': 'src/utilities/index.node.js',
+        'shapes/index': 'src/shapes/index.js'
+      },
       formats: ['es', 'cjs'],
-      fileName: (format) => format === 'es' ? 'index.mjs' : 'index.cjs'
+      fileName: (format, name) => format === 'es' ? `${name}.mjs` : `${name}.cjs`
     },
     rollupOptions: {
       external: [
         ...builtinModules,
         ...builtinModules.map(m => `node:${m}`),
         ...Object.keys(packageJson.dependencies ?? {}),
-        ...Object.keys(packageJson.peerDependencies ?? {})
+        ...Object.keys(packageJson.peerDependencies ?? {}),
+        /^#/
       ]
     }
   }

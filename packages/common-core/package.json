@@ -20,6 +20,11 @@
       "import": "./dist/utilities/index.mjs",
       "require": "./dist/utilities/index.cjs"
     },
+    "./operators": {
+      "development": "./src/operators/index.js",
+      "import": "./dist/operators/index.mjs",
+      "require": "./dist/operators/index.cjs"
+    },
     "./io": {
       "development": "./src/io/index.js",
       "import": "./dist/io/index.mjs",
@@ -101,6 +106,10 @@
       "./utilities": {
         "import": "./dist/utilities/index.mjs",
         "require": "./dist/utilities/index.cjs"
+      },
+      "./operators": {
+        "import": "./dist/operators/index.mjs",
+        "require": "./dist/operators/index.cjs"
       },
       "./io": {
         "import": "./dist/io/index.mjs",

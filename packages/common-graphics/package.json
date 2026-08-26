@@ -14,6 +14,20 @@
       "browser": "./dist/index.browser.mjs",
       "import": "./dist/index.node.mjs",
       "require": "./dist/index.node.cjs"
+    },
+    "./utilities": {
+      "development": {
+        "browser": "./src/utilities/index.browser.js",
+        "default": "./src/utilities/index.node.js"
+      },
+      "browser": "./dist/utilities/index.browser.mjs",
+      "import": "./dist/utilities/index.node.mjs",
+      "require": "./dist/utilities/index.node.cjs"
+    },
+    "./shapes": {
+      "development": "./src/shapes/index.js",
+      "import": "./dist/shapes/index.mjs",
+      "require": "./dist/shapes/index.cjs"
     }
   },
   "imports": {
@@ -93,6 +107,15 @@
         "browser": "./dist/index.browser.mjs",
         "import": "./dist/index.node.mjs",
         "require": "./dist/index.node.cjs"
+      },
+      "./utilities": {
+        "browser": "./dist/utilities/index.browser.mjs",
+        "import": "./dist/utilities/index.node.mjs",
+        "require": "./dist/utilities/index.node.cjs"
+      },
+      "./shapes": {
+        "import": "./dist/shapes/index.mjs",
+        "require": "./dist/shapes/index.cjs"
       }
     },
     "imports": {

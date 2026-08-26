@@ -12,9 +12,14 @@ export default mergeConfig(baseConfig, defineConfig({
   root: __dirname,
   build: {
     lib: {
-      entry: 'src/index.js',
+      entry: {
+        index: 'src/index.js',
+        'foundation/index': 'src/foundation/index.js',
+        'operators/index': 'src/operators/index.js',
+        'io/index': 'src/io/index.js'
+      },
       formats: ['es', 'cjs'],
-      fileName: (format) => format === 'es' ? 'index.mjs' : 'index.cjs'
+      fileName: (format, name) => format === 'es' ? `${name}.mjs` : `${name}.cjs`
     },
     rollupOptions: {
       external: [

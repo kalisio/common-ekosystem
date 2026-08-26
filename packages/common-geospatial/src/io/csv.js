@@ -1,6 +1,6 @@
 import { assert, conform, is, optional } from '@kalisio/common-core/predicates'
 import { csv } from '@kalisio/common-core/io'
-import { validateGeoJson } from '../operators/validate/geojson.js'
+import { validateGeoJson } from '../operators/index.js'
 
 const COORDINATES_SCHEMA = {
   longitude: is.nonEmptyString,

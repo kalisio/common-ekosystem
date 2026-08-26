@@ -16,11 +16,11 @@ export default mergeConfig(baseConfig, defineConfig({
         index: 'src/index.js',
         'predicates/index': 'src/predicates/index.js',
         'utilities/index': 'src/utilities/index.js',
+        'operators/index': 'src/operators/index.js',
         'io/index': 'src/io/index.js'
       },
       formats: ['es', 'cjs'],
-      fileName: (format, entryName) =>
-        format === 'es' ? `${entryName}.mjs` : `${entryName}.cjs`
+      fileName: (format, name) => format === 'es' ? `${name}.mjs` : `${name}.cjs`
     },
     rollupOptions: {
       external: [

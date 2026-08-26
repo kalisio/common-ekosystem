@@ -1,6 +1,6 @@
 import { gpx } from '@tmcw/togeojson'
 import { xml } from '@kalisio/common-core/io'
-import { validateGeoJson } from '../operators/validate/geojson.js'
+import { validateGeoJson } from '../operators/index.js'
 
 export async function readGpx (source, options = {}) {
   const document = await xml.read(source, options)
