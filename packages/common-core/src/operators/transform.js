@@ -28,7 +28,8 @@ function convert (value, units) {
     return isNumber(units.asString) ? value.toString(units.asString) : value.toString()
   }
   if (units.asNumber) {
-    if (typeof value === 'string') value = value.replace(' ', '')
+    // Large numbers are sometimes written with space separators, e.g. '120 000 500'
+    if (typeof value === 'string') value = value.replace(/ /g, '')
     return toNumber(value)
   }
   return unit(value, units.from).toNumber(units.to)
@@ -40,7 +41,7 @@ function mapping (array, mapping) {
     const outputPath = isOutputObject ? output.path : output
     const shouldDelete = isOutputObject ? (output.delete ?? true) : true
     for (const object of array) {
-      if (!has(object, inputPath)) return
+      if (!has(object, inputPath)) continue
       let value = get(object, inputPath)
       if (isOutputObject && output.values) value = output.values[value]
       set(object, outputPath, value)
@@ -57,7 +58,9 @@ function unitMapping (array, unitMapping) {
         let value = convert(get(obj, inputPath), units)
         if (units.asCase && typeof value === 'string') {
           const caseFn = CASE_FUNCTIONS[units.asCase]
-          value = caseFn ? caseFn(value) : value
+          // asCase accepts a lodash case function or a native String method, e.g. toUpperCase.
+          if (caseFn) value = caseFn(value)
+          else if (typeof value[units.asCase] === 'function') value = value[units.asCase]()
         }
         set(obj, inputPath, value)
       } else if (has(units, 'empty')) {

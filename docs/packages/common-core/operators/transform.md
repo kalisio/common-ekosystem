@@ -83,7 +83,7 @@ options.unitMapping = {
 | `asDate` | `'utc' \| boolean` | Parse value as a date. Use `'utc'` for UTC parsing |
 | `from` | `string` | Input format (moment format string) or source unit for physical conversion |
 | `to` | `string` | Output format (moment format string) or target unit for physical conversion |
-| `asCase` | `string` | Apply a lodash case function after conversion (e.g. `'camelCase'`, `'snakeCase'`, `'kebabCase'`) |
+| `asCase` | `string` | Apply a case function after conversion: either a lodash one (e.g. `'camelCase'`, `'snakeCase'`, `'kebabCase'`) or a native `String` method (e.g. `'toUpperCase'`). An unknown name leaves the value untouched |
 | `empty` | `*` | Fallback value to set if the path is missing from the object |
 
 ---

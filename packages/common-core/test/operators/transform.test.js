@@ -73,6 +73,15 @@ describe('transform', () => {
       expect(result.flat).toBe(1)
       expect(result.a).toEqual({})
     })
+
+    it('skips only the objects that do not carry the input path', () => {
+      const result = transform([{ a: 1, z: 9 }, { z: 8 }, { a: 3, z: 7 }], { mapping: { a: 'A', z: 'Z' } })
+      expect(result).toEqual([{ A: 1, Z: 9 }, { Z: 8 }, { A: 3, Z: 7 }])
+    })
+
+    it('still applies the next mappings when an object lacks the first input path', () => {
+      expect(transform([{ z: 8 }], { mapping: { a: 'A', z: 'Z' } })).toEqual([{ Z: 8 }])
+    })
   })
 
   describe('unitMapping', () => {
@@ -97,6 +106,20 @@ describe('transform', () => {
     it('applies asCase after conversion', () => {
       const result = transform({ label: 'hello world' }, { unitMapping: { label: { asString: true, asCase: 'camelCase' } } })
       expect(result.label).toBe('helloWorld')
+    })
+
+    it('strips every space when converting a string to a number', () => {
+      expect(transform({ n: '120 000 500' }, { unitMapping: { n: { asNumber: true } } })).toEqual({ n: 120000500 })
+    })
+
+    it('applies a native String case method', () => {
+      const result = transform({ label: 'abc' }, { unitMapping: { label: { asString: true, asCase: 'toUpperCase' } } })
+      expect(result.label).toBe('ABC')
+    })
+
+    it('leaves the value unchanged when the case function is unknown', () => {
+      const result = transform({ label: 'abc' }, { unitMapping: { label: { asString: true, asCase: 'nope' } } })
+      expect(result.label).toBe('abc')
     })
 
     it('sets the empty value when path is missing', () => {
