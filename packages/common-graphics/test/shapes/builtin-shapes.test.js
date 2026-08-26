@@ -4,6 +4,7 @@ import { PNG } from 'pngjs'
 import pixelmatch from 'pixelmatch'
 import { describe, expect, it } from 'vitest'
 import { string } from '@kalisio/common-core/utilities'
+import { image } from '#utilities'
 import * as BUILTIN_SHAPES from '../../src/shapes/builtin-shapes/index.js'
 import { ShapeFactory } from '../../src/shapes/shape-factory.js'
 
@@ -28,14 +29,8 @@ const PARAMS = {
   }
 }
 
-function dataURLToBuffer (dataURL) {
-  const match = dataURL.match(/^data:image\/png;base64,(.+)$/)
-  if (!match) throw new Error('Invalid PNG data URL')
-  return Buffer.from(match[1], 'base64')
-}
-
 async function compareWithFixture (shape, name) {
-  const actualBuffer = dataURLToBuffer(await shape.toPNG())
+  const actualBuffer = await image.resolve(await shape.toPNG())
   const fixtureUrl = new URL(`./fixtures/${name}.png`, import.meta.url)
   if (UPDATE_FIXTURES) {
     await mkdir(dirname(fixtureUrl.pathname), { recursive: true })
