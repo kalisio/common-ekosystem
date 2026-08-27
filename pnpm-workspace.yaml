@@ -49,10 +49,10 @@ catalog:
   "@mapbox/mbtiles": ~0.12.1
   "@mapbox/vtquery": ~0.6.0
   "@modelcontextprotocol/sdk": ~1.29.0
-  "@pdfme/common": ~6.1.2
-  "@pdfme/generator": ~6.1.2
-  "@pdfme/schemas": ~6.1.2
-  "@pdfme/ui": ~6.1.2
+  "@pdfme/common": ~6.1.12
+  "@pdfme/generator": ~6.1.12
+  "@pdfme/schemas": ~6.1.12
+  "@pdfme/ui": ~6.1.12
   "@quasar/app-vite": ~2.5.1
   "@quasar/extras": ~1.17.0
   "@quasar/quasar-app-extension-testing-unit-vitest": ~1.2.4

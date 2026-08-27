@@ -41,7 +41,7 @@ export class ShapeFactory {
     assert.all([
       { value: shape.width, validator: is.positiveInteger, message: 'shape.width must be a positive integer' },
       { value: shape.height, validator: is.positiveInteger, message: 'shape.height must be a positive integer' },
-      { value: shape.margin, validator: is.nonNegativeInteger, message: 'shape.margin must be a positive integer' }
+      { value: shape.margin, validator: is.nonNegativeInteger, message: 'shape.margin must be a non negative integer' }
     ])
     return {
       ...shape,
