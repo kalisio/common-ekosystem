@@ -64,8 +64,8 @@ catalogs:
       specifier: ~4.18.1
       version: 4.18.1
     lru-cache:
-      specifier: ~11.3.5
-      version: 11.3.5
+      specifier: ~11.5.2
+      version: 11.5.2
     maplibre-gl:
       specifier: ~6.4.0
       version: 6.4.0
@@ -299,7 +299,7 @@ importers:
         version: 3.2.0
       lru-cache:
         specifier: 'catalog:'
-        version: 11.3.5
+        version: 11.5.2
       sharp:
         specifier: 'catalog:'
         version: 0.34.5
@@ -3056,6 +3056,10 @@ packages:
 
   lru-cache@11.3.5:
     resolution: {integrity: sha512-NxVFwLAnrd9i7KUBxC4DrUhmgjzOs+1Qm50D3oF1/oL+r1NpZ4gA7xvG0/zJ8evR7zIKn4vLf7qTNduWFtCrRw==}
+    engines: {node: 20 || >=22}
+
+  lru-cache@11.5.2:
+    resolution: {integrity: sha512-4pfM1Ff0x50o0tQwb5ucw/RzNyD0/YJME6IVcStalZuMWxdt3sR3huStTtxz4PUmvZfRguvDejasvQ2kifR11g==}
     engines: {node: 20 || >=22}
 
   lucide-vue-next@1.0.0:
@@ -7164,6 +7168,8 @@ snapshots:
       js-tokens: 4.0.0
 
   lru-cache@11.3.5: {}
+
+  lru-cache@11.5.2: {}
 
   lucide-vue-next@1.0.0(vue@3.5.33):
     dependencies:
