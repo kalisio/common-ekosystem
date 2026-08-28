@@ -14,8 +14,6 @@
     "docs:prepare": "pnpm --filter './examples/*' build",
     "docs:dev": "pnpm docs:prepare && pnpm --filter docs run dev",
     "docs:build": "pnpm docs:prepare && pnpm --filter docs run build",
-    "docs:prepare:geojson-validator": "vite build examples/geojson-validator --outDir ../../docs/public/examples/geojson-validator --emptyOutDir --base ./",
-    "docs:prepare:shape-studio": "vite build examples/shape-studio --outDir ../../docs/public/examples/shape-studio --emptyOutDir --base ./",
     "inspect": "knip || true",
     "lint": "pnpm -r lint",
     "lint:common-core": "pnpm --filter @kalisio/common-core lint",
