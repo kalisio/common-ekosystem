@@ -10,8 +10,8 @@ catalogs:
       specifier: ~2.30.0
       version: 2.30.0
     '@kalisio/vitepress-theme':
-      specifier: ~2.0.0
-      version: 2.0.0
+      specifier: ~2.1.0
+      version: 2.1.0
     '@logtape/logtape':
       specifier: ~0.7.0
       version: 0.7.2
@@ -169,7 +169,7 @@ importers:
     devDependencies:
       '@kalisio/vitepress-theme':
         specifier: 'catalog:'
-        version: 2.0.0(quasar@2.18.7)(vitepress@1.6.4(@algolia/client-search@5.57.0)(@types/node@25.6.0)(jwt-decode@4.0.0)(postcss@8.5.26)(search-insights@2.17.3))(vue@3.5.42)
+        version: 2.1.0(quasar@2.18.7)(vitepress@1.6.4(@algolia/client-search@5.57.0)(@types/node@25.6.0)(jwt-decode@4.0.0)(postcss@8.5.26)(search-insights@2.17.3))(vue@3.5.42)
       mermaid:
         specifier: 'catalog:'
         version: 10.8.0
@@ -1027,8 +1027,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@kalisio/vitepress-theme@2.0.0':
-    resolution: {integrity: sha512-S1JbeZyw+dkrhiwuo+aZQX8pK6341QpQoQfJ0V2nUUGlVNOKPuCcOdHCeh3+LGBo3sKEo1jmoZiJOmm5yQnNuw==}
+  '@kalisio/vitepress-theme@2.1.0':
+    resolution: {integrity: sha512-J9H2qnp0JIwgSCZRW7ICAPwP4ZQeT5YUPybwtatDyv3PbvR7ENW+AXOYA8REPDjOz4IOwaHkT8aMBSpyEkV5yA==}
     engines: {node: '>=20'}
     peerDependencies:
       quasar: ~2.14.0
@@ -4975,7 +4975,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@kalisio/vitepress-theme@2.0.0(quasar@2.18.7)(vitepress@1.6.4(@algolia/client-search@5.57.0)(@types/node@25.6.0)(jwt-decode@4.0.0)(postcss@8.5.26)(search-insights@2.17.3))(vue@3.5.42)':
+  '@kalisio/vitepress-theme@2.1.0(quasar@2.18.7)(vitepress@1.6.4(@algolia/client-search@5.57.0)(@types/node@25.6.0)(jwt-decode@4.0.0)(postcss@8.5.26)(search-insights@2.17.3))(vue@3.5.42)':
     dependencies:
       keycloak-js: 23.0.7
       lodash-es: 4.18.1

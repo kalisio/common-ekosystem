@@ -45,7 +45,7 @@ catalog:
   "@kalisio/feathers-webpush": ~1.0.1
   "@kalisio/geo-pixel-stream": https://github.com/kalisio/geo-pixel-stream#gdal-async
   "@kalisio/kdk": ~2.7.0
-  "@kalisio/vitepress-theme": ~2.0.0
+  "@kalisio/vitepress-theme": ~2.1.0
   "@logtape/logtape": ~0.7.0
   "@mapbox/mbtiles": ~0.12.1
   "@mapbox/vtquery": ~0.6.0
