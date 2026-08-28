@@ -31,11 +31,11 @@
     "test:common-graphics": "pnpm --filter @kalisio/common-graphics test"
   },
   "keywords": [
-    "core",
-    "graphics",
-    "geospatial",
+    "kalisio",
     "ekosystem",
-    "kalisio"
+    "common-core",
+    "common-graphics",
+    "common-geospatial"
   ],
   "author": {
     "name": "KALISIO",
