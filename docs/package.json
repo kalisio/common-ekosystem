@@ -15,14 +15,11 @@
   "contributors": [],
   "license": "MIT",
   "devDependencies": {
-    "keycloak-js": "catalog:",
-    "lodash": "catalog:",
+    "@kalisio/vitepress-theme": "catalog:",
     "mermaid": "catalog:",
-    "moment": "catalog:",
     "quasar": "catalog:",
     "vitepress": "catalog:",
-    "vitepress-openapi": "catalog:",
     "vitepress-plugin-mermaid": "catalog:",
-    "vitepress-theme-kalisio": "catalog:"
+    "vue": "catalog:"
   }
 }

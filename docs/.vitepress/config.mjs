@@ -1,6 +1,6 @@
 import { defineConfig } from 'vitepress'
 import { withMermaid } from 'vitepress-plugin-mermaid'
-import { generateSideBar } from 'vitepress-theme-kalisio/sidebar'
+import { generatePackageSidebar } from '@kalisio/vitepress-theme/sidebar'
 import packages from './packages.json'
 
 const sortedPackages = [...packages].sort()
@@ -10,7 +10,7 @@ const sortedPackagesNavBar = sortedPackages.map(pkg => {
 })
 
 const sortedPackageSidebar = Object.fromEntries(
-  sortedPackages.map(pkg => [`/packages/${pkg}/`, generateSideBar(pkg)])
+  sortedPackages.map(pkg => [`/packages/${pkg}/`, generatePackageSidebar(pkg)])
 )
 
 export default withMermaid(
@@ -51,11 +51,11 @@ export default withMermaid(
     },
     vite: {
       optimizeDeps: {
-        include: ['keycloak-js', 'lodash', 'dayjs', 'mermaid', 'cytoscape', 'cytoscape-cose-bilkent'],
-      },
-      ssr: {
-        noExternal: ['vitepress-theme-kalisio', 'dayjs', 'mermaid', 'cytoscape', 'cytoscape-cose-bilkent']
-      }
+        include: ['dayjs', 'mermaid', 'cytoscape', 'cytoscape-cose-bilkent'],
+      }/*,
+      /*ssr: {
+        noExternal: ['@kalisio/vitepress-theme', 'dayjs', 'mermaid', 'cytoscape', 'cytoscape-cose-bilkent']
+      }*/
     }
   })
 )

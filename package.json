@@ -10,7 +10,6 @@
     "build:common-graphics": "pnpm --filter @kalisio/common-graphics build",
     "prebump": "changeset",
     "bump": "changeset version",
-    "change": "changeset",
     "clear": "pnpm -r exec rimraf node_modules dist coverage",
     "docs:prepare": "pnpm --filter './examples/*' build",
     "docs:dev": "pnpm docs:prepare && pnpm --filter docs run dev",
@@ -71,11 +70,12 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "esbuild"
+      "esbuild",
+      "sharp"
     ]
   },
   "metaCatalog": {
     "version": "0.10.0",
-    "syncedAt": "2026-08-27T14:35:44.310Z"
+    "syncedAt": "2026-08-28T08:34:17.321Z"
   }
 }
