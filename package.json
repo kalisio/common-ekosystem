@@ -69,7 +69,8 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild",
-      "sharp"
+      "sharp",
+      "vue-demi"
     ]
   },
   "metaCatalog": {
