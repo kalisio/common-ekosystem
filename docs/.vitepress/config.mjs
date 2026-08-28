@@ -52,10 +52,10 @@ export default withMermaid(
     vite: {
       optimizeDeps: {
         include: ['dayjs', 'mermaid', 'cytoscape', 'cytoscape-cose-bilkent'],
-      }/*,
-      /*ssr: {
-        noExternal: ['@kalisio/vitepress-theme', 'dayjs', 'mermaid', 'cytoscape', 'cytoscape-cose-bilkent']
-      }*/
+      },
+      ssr: {
+        noExternal: ['vitepress-openapi']
+      }
     }
   })
 )
