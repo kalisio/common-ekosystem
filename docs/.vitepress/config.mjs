@@ -54,7 +54,7 @@ export default withMermaid(
         include: ['dayjs', 'mermaid', 'cytoscape', 'cytoscape-cose-bilkent'],
       },
       ssr: {
-        noExternal: ['vitepress-openapi']
+        noExternal: ['@kalisio/vitepress-theme']
       }
     }
   })
