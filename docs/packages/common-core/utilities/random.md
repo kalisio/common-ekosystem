@@ -2,11 +2,20 @@
 
 title: random
 description: Utility functions for generating random numbers, selecting values, sampling generators, and shuffling arrays.
---------------------------------------------------------------------------------------------------------------------------
+---
 
 # random
 
 Utility functions for generating random numbers, selecting values, sampling generators, and shuffling arrays.
+
+::: warning Security considerations
+
+This utility is intended for non-security-sensitive use cases such as data sampling, array shuffling,
+and test fixtures.It relies on `Math.random()`, which is appropriate for this type and volume of
+random generation and works consistently in both browser and Node.js environments. Do not use this module
+to generate tokens, keys, secrets, session identifiers, or any other value requiring cryptographic unpredictability.
+
+:::
 
 ## integer
 
