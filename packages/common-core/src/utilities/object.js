@@ -83,10 +83,10 @@ export const object = {
     function recurse (object, current) {
       for (const [key, value] of Object.entries(object)) {
         const newKey = current ? `${current}.${key}` : key
-        if (value && typeof value === 'object' && !isEmpty(value)) {
+        if (value && typeof value === 'object' && !Array.isArray(value) && !isEmpty(value)) {
           recurse(value, newKey) // it's a nested object, so do it again
         } else {
-          result[newKey] = value // it's not an object or {}, so set the property
+          result[newKey] = value // it's not an object, an array or {}, so set the property
         }
       }
     }

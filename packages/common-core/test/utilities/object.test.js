@@ -301,6 +301,15 @@ describe('object', () => {
     it('handles string values', () => {
       expect(object.dotify({ a: { b: 'hello' } })).toEqual({ 'a.b': 'hello' })
     })
+    it('keeps nested arrays as arrays', () => {
+      expect(object.dotify({ geometry: { type: 'Point', coordinates: [1, 2] } })).toEqual({
+        'geometry.type': 'Point',
+        'geometry.coordinates': [1, 2]
+      })
+    })
+    it('handles nested empty arrays', () => {
+      expect(object.dotify({ a: { b: [] } })).toEqual({ 'a.b': [] })
+    })
     it('throws if obj is not a plain object', () => {
       expect(() => object.dotify(null)).toThrow('obj must be a plain object')
       expect(() => object.dotify([])).toThrow('obj must be a plain object')
