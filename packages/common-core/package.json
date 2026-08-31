@@ -1,7 +1,7 @@
 {
   "name": "@kalisio/common-core",
   "description": "Core utilities for the Kalisio ekosystem",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "packageManager": "pnpm@10.34.5",
   "type": "module",
   "exports": {
@@ -80,14 +80,30 @@
     "sift": "catalog:"
   },
   "peerDependenciesMeta": {
-    "@xmldom/xmldom": { "optional": true },
-    "ajv": { "optional": true },
-    "lodash-es": { "optional": true },
-    "mathjs": { "optional": true },
-    "moment": { "optional": true },
-    "papaparse": { "optional": true },
-    "sanitize-html": { "optional": true },
-    "sift": { "optional": true }
+    "@xmldom/xmldom": {
+      "optional": true
+    },
+    "ajv": {
+      "optional": true
+    },
+    "lodash-es": {
+      "optional": true
+    },
+    "mathjs": {
+      "optional": true
+    },
+    "moment": {
+      "optional": true
+    },
+    "papaparse": {
+      "optional": true
+    },
+    "sanitize-html": {
+      "optional": true
+    },
+    "sift": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=20"
