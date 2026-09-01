@@ -6,17 +6,7 @@ import { MongoClient } from 'mongodb'
 import { truncateGeoJson, validateGeoJson, fixGeoJson } from '../../src/index.js'
 import { isClosedRing, sphericalRingArea } from '../../src/foundation/index.js'
 
-// Integration test: runs ONLY when MONGO_TEST_URL is set, so it never breaks the
-// unit suite in CI. Locally:
-//   export MONGO_TEST_URL=mongodb://localhost:27017
-//
-// Goal: prove that our own validate -> fix pipeline produces a geometry that
-// MongoDB's 2dsphere index accepts (no "Can't extract geo keys"). Findings on
-// this fixture: raw and truncate-alone are rejected; validate+fix is accepted,
-// area-preserving (the degenerate hole becomes the gap between two polygons).
-
-const MONGO_URL = process.env.MONGO_TEST_URL
-const describeMongo = MONGO_URL ? describe : describe.skip
+const MONGO_URL = process.env.MONGO_URL || 'mongodb://127.0.0.1:27017'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const FIXTURE = path.join(__dirname, 'data', 'hole-intersects-shell.geojson')
@@ -33,7 +23,7 @@ function geometryArea (geometry) {
   }, 0)
 }
 
-describeMongo('geometry repair against MongoDB 2dsphere', () => {
+describe('geometry repair against MongoDB 2dsphere', () => {
   let client
   let col
   let rawFeature
