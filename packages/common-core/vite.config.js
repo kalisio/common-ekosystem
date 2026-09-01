@@ -16,8 +16,11 @@ export default mergeConfig(baseConfig, defineConfig({
         index: 'src/index.js',
         'predicates/index': 'src/predicates/index.js',
         'utilities/index': 'src/utilities/index.js',
-        'operators/index': 'src/operators/index.js',
-        'io/index': 'src/io/index.js'
+        'io/index': 'src/io/index.js',
+        'operators/compare': 'src/operators/compare.js',
+        'operators/quantify': 'src/operators/quantify.js',
+        'operators/sanitize': 'src/operators/sanitize.js',
+        'operators/transform': 'src/operators/transform.js'
       },
       formats: ['es', 'cjs'],
       fileName: (format, name) => format === 'es' ? `${name}.mjs` : `${name}.cjs`
