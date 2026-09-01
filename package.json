@@ -66,13 +66,6 @@
     "vite": "catalog:",
     "vitest": "catalog:"
   },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "sharp",
-      "vue-demi"
-    ]
-  },
   "metaCatalog": {
     "version": "0.10.0",
     "syncedAt": "2026-09-01T12:19:49.636Z"
