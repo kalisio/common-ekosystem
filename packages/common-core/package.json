@@ -1,7 +1,7 @@
 {
   "name": "@kalisio/common-core",
   "description": "Core utilities for the Kalisio ekosystem",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "packageManager": "pnpm@10.34.5",
   "type": "module",
   "exports": {
@@ -30,7 +30,6 @@
       "import": "./dist/operators/quantify.mjs",
       "require": "./dist/operators/quantify.cjs"
     },
-
     "./operators/sanitize": {
       "development": "./src/operators/sanitize.js",
       "import": "./dist/operators/sanitize.mjs",
@@ -142,7 +141,6 @@
         "import": "./dist/operators/quantify.mjs",
         "require": "./dist/operators/quantify.cjs"
       },
-
       "./operators/sanitize": {
         "import": "./dist/operators/sanitize.mjs",
         "require": "./dist/operators/sanitize.cjs"

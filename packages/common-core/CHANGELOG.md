@@ -1,5 +1,7 @@
 # @kalisio/common-core
 
+## [v0.11.0](https://github.com/kalisio/common-ekosystem/milestone/12?closed=1)
+
 ## [v0.10.0](https://github.com/kalisio/common-ekosystem/milestone/10?closed=1)
 
 ## [0.9.0](https://github.com/kalisio/common-ekosystem/milestone/9?closed=1)
