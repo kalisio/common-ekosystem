@@ -50,19 +50,23 @@ Or use it directly from a CDN:
 
 ### Imports
 
-The package can be imported from its root entry point:
+Each module is exposed as a dedicated subpath. Operators are further split into one subpath per operator:
 
 ```js
-import { is, assert, string, csv } from '@kalisio/common-core'
-```
-
-For more explicit imports, each module is also exposed as a dedicated subpath:
-
-```js
+// Predicates
 import { is, assert } from '@kalisio/common-core/predicates'
+
+// Utilities
 import { string, object } from '@kalisio/common-core/utilities'
+
+// IO
 import { csv, xml } from '@kalisio/common-core/io'
-import { ... } from '@kalisio/common-core/operators'
+
+// Operators
+import { compare } from '@kalisio/common-core/operators/compare'
+import { quantify } from '@kalisio/common-core/operators/quantify'
+import { sanitize } from '@kalisio/common-core/operators/sanitize'
+import { transform } from '@kalisio/common-core/operators/transform'
 ```
 
 ### Examples
