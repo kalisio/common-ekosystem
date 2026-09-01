@@ -19,7 +19,7 @@
     "lint:common-core": "pnpm --filter @kalisio/common-core lint",
     "lint:common-geospatial": "pnpm --filter @kalisio/common-geospatial lint",
     "lint:common-graphics": "pnpm --filter @kalisio/common-graphics lint",
-    "prepare": "husky",
+    "prepare": "node scripts/prepare.mjs",
     "prerelease": "pnpm build",
     "release": "changeset publish",
     "postrelease": "git push --follow-tags",
