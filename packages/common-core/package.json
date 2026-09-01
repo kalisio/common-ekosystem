@@ -20,15 +20,31 @@
       "import": "./dist/utilities/index.mjs",
       "require": "./dist/utilities/index.cjs"
     },
-    "./operators": {
-      "development": "./src/operators/index.js",
-      "import": "./dist/operators/index.mjs",
-      "require": "./dist/operators/index.cjs"
-    },
     "./io": {
       "development": "./src/io/index.js",
       "import": "./dist/io/index.mjs",
       "require": "./dist/io/index.cjs"
+    },
+    "./operators/compare": {
+      "development": "./src/operators/compare.js",
+      "import": "./dist/operators/compare.mjs",
+      "require": "./dist/operators/compare.cjs"
+    },
+    "./operators/quantify": {
+      "development": "./src/operators/quantify.js",
+      "import": "./dist/operators/quantify.mjs",
+      "require": "./dist/operators/quantify.cjs"
+    },
+
+    "./operators/sanitize": {
+      "development": "./src/operators/sanitize.js",
+      "import": "./dist/operators/sanitize.mjs",
+      "require": "./dist/operators/sanitize.cjs"
+    },
+    "./operators/transform": {
+      "development": "./src/operators/transform.js",
+      "import": "./dist/operators/transform.mjs",
+      "require": "./dist/operators/transform.cjs"
     }
   },
   "files": [
@@ -123,13 +139,26 @@
         "import": "./dist/utilities/index.mjs",
         "require": "./dist/utilities/index.cjs"
       },
-      "./operators": {
-        "import": "./dist/operators/index.mjs",
-        "require": "./dist/operators/index.cjs"
-      },
       "./io": {
         "import": "./dist/io/index.mjs",
         "require": "./dist/io/index.cjs"
+      },
+      "./operators/compare": {
+        "import": "./dist/operators/compare.mjs",
+        "require": "./dist/operators/compare.cjs"
+      },
+      "./operators/quantify": {
+        "import": "./dist/operators/quantify.mjs",
+        "require": "./dist/operators/quantify.cjs"
+      },
+
+      "./operators/sanitize": {
+        "import": "./dist/operators/sanitize.mjs",
+        "require": "./dist/operators/sanitize.cjs"
+      },
+      "./operators/transform": {
+        "import": "./dist/operators/transform.mjs",
+        "require": "./dist/operators/transform.cjs"
       }
     }
   }
