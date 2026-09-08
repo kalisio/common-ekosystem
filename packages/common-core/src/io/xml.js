@@ -1,18 +1,17 @@
+import { XMLParser, XMLValidator } from 'fast-xml-parser'
 import { is, assert, conform, optional } from '../predicates/index.js'
 import { source } from './source.js'
 
 const PARSE_OPTIONS_SCHEMA = {
-  domParser: optional((v) => is.function(v?.parseFromString))
+  output: optional((v) => is.oneOf(v, ['json', 'dom'])),
+  domParser: optional((v) => is.function(v?.parseFromString)),
+  parser: optional(is.plainObject)
 }
 
 async function getDomParser () {
   if (typeof globalThis.DOMParser !== 'undefined') return new globalThis.DOMParser()
-  const { DOMParser: NodeDomParser } = await import(/* webpackIgnore: true */ '@xmldom/xmldom')
+  const { DOMParser: NodeDomParser } = await import('@xmldom/xmldom')
   return new NodeDomParser()
-}
-
-function hasParserError (document) {
-  return document.getElementsByTagName('parsererror').length > 0
 }
 
 export const xml = {
@@ -32,15 +31,27 @@ export const xml = {
         message: 'options must be a valid options object'
       }
     ])
+    const validation = XMLValidator.validate(text)
+    if (validation !== true) {
+      const error = new Error('Invalid XML')
+      error.code = xml.ERROR_CODES.INVALID_XML
+      throw error
+    }
     try {
-      const parser = options.domParser ?? await getDomParser()
-      const document = parser.parseFromString(text, 'text/xml')
-      if (hasParserError(document)) {
-        const error = new Error('Invalid XML')
-        error.code = xml.ERROR_CODES.INVALID_XML
-        throw error
+      const {
+        output = 'json',
+        domParser,
+        parser = {}
+      } = options
+      if (output === 'dom') {
+        const domInstance = domParser ?? await getDomParser()
+        return domInstance.parseFromString(text, 'text/xml')
       }
-      return document
+      const xmlParser = new XMLParser({
+        ignoreAttributes: false,
+        ...parser
+      })
+      return xmlParser.parse(text)
     } catch (cause) {
       const error = new Error('Failed to parse XML', { cause })
       error.code = xml.ERROR_CODES.PARSE_FAILED
@@ -51,5 +62,4 @@ export const xml = {
   async read (input, options = {}) {
     return xml.parse(await source.readAsText(input, options), options)
   }
-
 }

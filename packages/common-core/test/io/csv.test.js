@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
-import { csv } from '../../src/io/index.js'
+import { csv } from '../../src/io/csv.js'
 
 const fixture = (name) => fileURLToPath(new URL(`./fixtures/${name}`, import.meta.url))
 const text = (name) => readFile(fixture(name), 'utf8')

@@ -20,6 +20,26 @@
       "import": "./dist/io/index.mjs",
       "require": "./dist/io/index.cjs"
     },
+    "./io/json": {
+      "development": "./src/io/json.js",
+      "import": "./dist/io/json.mjs",
+      "require": "./dist/io/json.cjs"
+    },
+    "./io/csv": {
+      "development": "./src/io/csv.js",
+      "import": "./dist/io/csv.mjs",
+      "require": "./dist/io/csv.cjs"
+    },
+    "./io/xml": {
+      "development": "./src/io/xml.js",
+      "import": "./dist/io/xml.mjs",
+      "require": "./dist/io/xml.cjs"
+    },
+    "./io/yaml": {
+      "development": "./src/io/yaml.js",
+      "import": "./dist/io/yaml.mjs",
+      "require": "./dist/io/yaml.cjs"
+    },
     "./operators/compare": {
       "development": "./src/operators/compare.js",
       "import": "./dist/operators/compare.mjs",
@@ -82,6 +102,8 @@
   "peerDependencies": {
     "@xmldom/xmldom": "catalog:",
     "ajv": "catalog:",
+    "fast-xml-parser": "catalog:",
+    "js-yaml": "catalog:",
     "lodash-es": "catalog:",
     "mathjs": "catalog:",
     "moment": "catalog:",
@@ -94,6 +116,9 @@
       "optional": true
     },
     "ajv": {
+      "optional": true
+    },
+    "fast-xml-parser": {
       "optional": true
     },
     "lodash-es": {
@@ -112,6 +137,9 @@
       "optional": true
     },
     "sift": {
+      "optional": true
+    },
+    "js-yaml": {
       "optional": true
     }
   },
@@ -132,6 +160,22 @@
       "./io": {
         "import": "./dist/io/index.mjs",
         "require": "./dist/io/index.cjs"
+      },
+      "./io/json": {
+        "import": "./dist/io/json.mjs",
+        "require": "./dist/io/json.cjs"
+      },
+      "./io/csv": {
+        "import": "./dist/io/csv.mjs",
+        "require": "./dist/io/csv.cjs"
+      },
+      "./io/xml": {
+        "import": "./dist/io/xml.mjs",
+        "require": "./dist/io/xml.cjs"
+      },
+      "./io/yaml": {
+        "import": "./dist/io/yaml.mjs",
+        "require": "./dist/io/yaml.cjs"
       },
       "./operators/compare": {
         "import": "./dist/operators/compare.mjs",
