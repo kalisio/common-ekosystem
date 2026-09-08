@@ -60,7 +60,10 @@ import { is, assert } from '@kalisio/common-core/predicates'
 import { string, object } from '@kalisio/common-core/utilities'
 
 // IO
-import { csv, xml } from '@kalisio/common-core/io'
+import { json } from '@kalisio/common-core/io/json'
+import { csv } from '@kalisio/common-core/io/csv'
+import { xml } from '@kalisio/common-core/io/xml'
+import { yaml } from '@kalisio/common-core/io/yaml'
 
 // Operators
 import { compare } from '@kalisio/common-core/operators/compare'

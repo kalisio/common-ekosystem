@@ -1,4 +1,4 @@
-import { json } from '@kalisio/common-core/io'
+import { json } from '@kalisio/common-core/io/json'
 import { validateGeoJson } from '../operators/index.js'
 
 export async function readGeoJson (source, options = {}) {

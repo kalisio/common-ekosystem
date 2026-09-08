@@ -1,5 +1,5 @@
 import { assert, conform, is, optional } from '@kalisio/common-core/predicates'
-import { csv } from '@kalisio/common-core/io'
+import { csv } from '@kalisio/common-core/io/csv'
 import { validateGeoJson } from '../operators/index.js'
 
 const COORDINATES_SCHEMA = {

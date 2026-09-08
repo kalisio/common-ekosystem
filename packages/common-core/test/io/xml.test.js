@@ -100,9 +100,9 @@ describe('xml.parse', () => {
       cause
     })
   })
-  it('rejects malformed XML with INVALID_XML', async () => {
+  it('rejects malformed XML with PARSE_FAILED', async () => {
     await expect(xml.parse('<root><child></root>')).rejects.toMatchObject({
-      code: xml.ERROR_CODES.INVALID_XML
+      code: xml.ERROR_CODES.PARSE_FAILED
     })
   })
   it('rejects a non-string input', async () => {

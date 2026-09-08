@@ -18,8 +18,7 @@ export const xml = {
 
   ERROR_CODES: {
     ...source.ERROR_CODES,
-    PARSE_FAILED: 'PARSE_FAILED',
-    INVALID_XML: 'INVALID_XML'
+    PARSE_FAILED: 'PARSE_FAILED'
   },
 
   async parse (text, options = {}) {
@@ -34,7 +33,7 @@ export const xml = {
     const validation = XMLValidator.validate(text)
     if (validation !== true) {
       const error = new Error('Invalid XML')
-      error.code = xml.ERROR_CODES.INVALID_XML
+      error.code = xml.ERROR_CODES.PARSE_FAILED
       throw error
     }
     try {
