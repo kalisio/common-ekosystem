@@ -50,6 +50,11 @@
       "import": "./dist/operators/quantify.mjs",
       "require": "./dist/operators/quantify.cjs"
     },
+    "./operators/request": {
+      "development": "./src/operators/request.js",
+      "import": "./dist/operators/request.mjs",
+      "require": "./dist/operators/request.cjs"
+    },
     "./operators/sanitize": {
       "development": "./src/operators/sanitize.js",
       "import": "./dist/operators/sanitize.mjs",
@@ -193,6 +198,10 @@
       "./operators/quantify": {
         "import": "./dist/operators/quantify.mjs",
         "require": "./dist/operators/quantify.cjs"
+      },
+      "./operators/request": {
+        "import": "./dist/operators/request.mjs",
+        "require": "./dist/operators/request.cjs"
       },
       "./operators/sanitize": {
         "import": "./dist/operators/sanitize.mjs",

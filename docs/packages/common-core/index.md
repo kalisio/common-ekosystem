@@ -50,27 +50,58 @@ Or use it directly from a CDN:
 
 ### Imports
 
-Each module is exposed as a dedicated subpath. Operators are further split into one subpath per operator:
+Each module is exposed as a dedicated subpath. Operators are further split into one subpath per operator.
+
+#### Predicates
 
 ```js
-// Predicates
 import { is, assert } from '@kalisio/common-core/predicates'
+```
 
-// Utilities
-import { string, object } from '@kalisio/common-core/utilities'
+Predicates have no additional dependencies.
 
-// IO
+#### Utilities
+
+```js
+import { string, object, schedule } from '@kalisio/common-core/utilities'
+```
+
+Utilities have no additional dependencies.
+
+#### IO
+
+```js
 import { json } from '@kalisio/common-core/io/json'
 import { csv } from '@kalisio/common-core/io/csv'
 import { xml } from '@kalisio/common-core/io/xml'
 import { yaml } from '@kalisio/common-core/io/yaml'
+```
 
-// Operators
+Some IO formats require additional dependencies:
+
+| Module    | Dependency                          |
+| --------- | ----------------------------------- |
+| `io/csv`  | `papaparse`                         |
+| `io/xml`  | `fast-xml-parser`, `@xmldom/xmldom` |
+| `io/yaml` | `yaml`                              |
+
+#### Operators
+
+```js
 import { compare } from '@kalisio/common-core/operators/compare'
 import { quantify } from '@kalisio/common-core/operators/quantify'
+import { request } from '@kalisio/common-core/operators/request'
 import { sanitize } from '@kalisio/common-core/operators/sanitize'
 import { transform } from '@kalisio/common-core/operators/transform'
 ```
+
+Some operators require additional dependencies:
+
+| Operator    | Dependency                              |
+| ----------- | --------------------------------------- |
+| `compare`   | `lodash-es`                             |
+| `sanitize`  | `sanitize-html`                         |
+| `transform` | `lodash-es`, `mathjs`, `moment`, `sift` |
 
 ### Examples
 

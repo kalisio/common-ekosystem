@@ -26,7 +26,7 @@ describe('source.readAsText', () => {
     const input = new URL('https://example.test/data')
     expect(await source.readAsText(input)).toBe('fetched')
     expect(fetchMock).toHaveBeenCalledOnce()
-    expect(fetchMock).toHaveBeenCalledWith(input)
+    expect(fetchMock).toHaveBeenCalledWith(input, expect.objectContaining({ signal: expect.any(AbortSignal) }))
   })
   it('fetches a URL string', async () => {
     const fetchMock = vi.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve('fetched') })
@@ -34,7 +34,7 @@ describe('source.readAsText', () => {
     const input = 'https://example.test/data'
     expect(await source.readAsText(input)).toBe('fetched')
     expect(fetchMock).toHaveBeenCalledOnce()
-    expect(fetchMock).toHaveBeenCalledWith(input)
+    expect(fetchMock).toHaveBeenCalledWith(input, expect.objectContaining({ signal: expect.any(AbortSignal) }))
   })
   it('honors the encoding option when reading a file', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'io-enc-'))

@@ -1,8 +1,9 @@
 import { is, assert, conform, optional } from '../predicates/index.js'
 import { env } from '../utilities/index.js'
+import { request } from '../operators/request.js'
 
-async function fetchText (input) {
-  const response = await fetch(input)
+async function fetchText (input, options = {}) {
+  const response = await request(options).fetch(input)
   if (!response.ok) {
     const error = new Error(`HTTP ${response.status} ${response.statusText}`)
     error.code = source.ERROR_CODES.HTTP_ERROR
@@ -14,9 +15,9 @@ async function fetchText (input) {
 }
 
 function getReadFn (input, options = {}) {
-  const { encoding = 'utf-8' } = options
+  const { encoding = 'utf-8', ...net } = options
   if (typeof Blob !== 'undefined' && input instanceof Blob) return () => input.text()
-  if (input instanceof URL) return () => fetchText(input)
+  if (input instanceof URL) return () => fetchText(input, net)
   if (is.string(input)) {
     if (env.node && !is.url(input)) {
       return async () => {
@@ -24,7 +25,7 @@ function getReadFn (input, options = {}) {
         return readFile(input, encoding)
       }
     }
-    return () => fetchText(input)
+    return () => fetchText(input, net)
   }
   const error = new Error('source must be a URL, a string locator or a File/Blob')
   error.code = source.ERROR_CODES.UNSUPPORTED_SOURCE
@@ -32,7 +33,6 @@ function getReadFn (input, options = {}) {
 }
 
 export const source = {
-
   ERROR_CODES: {
     UNSUPPORTED_SOURCE: 'UNSUPPORTED_SOURCE',
     READ_FAILED: 'READ_FAILED',
@@ -40,7 +40,9 @@ export const source = {
   },
 
   READ_OPTIONS_SCHEMA: {
-    encoding: optional(is.nonEmptyString)
+    encoding: optional(is.nonEmptyString),
+    retries: optional(is.number),
+    retryDelay: optional(is.number)
   },
 
   async readAsText (input, options = {}) {
