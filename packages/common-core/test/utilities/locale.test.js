@@ -1,4 +1,3 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { locale } from '../../src/utilities/index.js'
 
 describe('locale.get', () => {

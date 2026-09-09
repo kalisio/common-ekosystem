@@ -1,7 +1,3 @@
-import { describe, it, expect, vi, beforeEach, beforeAll, afterAll } from 'vitest'
-
-// ─── Fixtures ─────────────────────────────────────────────────────────────────
-
 const JPEG_BLOB = new Blob(['fake-jpeg'], { type: 'image/jpeg' })
 const PNG_BLOB = new Blob(['fake-png'], { type: 'image/png' })
 

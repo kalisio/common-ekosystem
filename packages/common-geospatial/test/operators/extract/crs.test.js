@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest'
 import { WGS84 } from '../../../src/foundation/index.js'
 import { extractGeoJsonCRS } from '../../../src/operators/index.js'
 import { features } from '../data/feature.fixtures.js'

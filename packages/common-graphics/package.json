@@ -48,7 +48,16 @@
     "globals": [
       "Image",
       "createImageBitmap",
-      "OffscreenCanvas"
+      "OffscreenCanvas",
+      "describe",
+      "it",
+      "test",
+      "expect",
+      "beforeAll",
+      "afterAll",
+      "beforeEach",
+      "afterEach",
+      "vi"
     ],
     "ignore": [
       "dist/**"

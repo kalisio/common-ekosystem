@@ -1,4 +1,3 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { ShapeFactory } from '../../src/shapes'
 
 // --- helpers ---

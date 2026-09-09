@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest'
 import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { FAILSAFE_SCHEMA } from 'js-yaml'

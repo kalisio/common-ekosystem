@@ -1,6 +1,5 @@
 import path from 'node:path'
 import fs from 'node:fs'
-import { describe, it, expect } from 'vitest'
 import { validateGeoJson } from '../../../src/operators/index.js'
 import { VALIDATION_CODES } from '../../../src/operators/validate/codes.js'
 import { points } from '../data/point.fixtures.js'

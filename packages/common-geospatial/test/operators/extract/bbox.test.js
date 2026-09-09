@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest'
 import { extractGeoJsonBBox } from '../../../src/operators/index.js'
 import { geometries } from '../data/geometry.fixtures.js'
 import { features } from '../data/feature.fixtures.js'

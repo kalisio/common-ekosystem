@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest'
 import { validateGeometry } from '../../../src/operators/validate/geometry.js'
 import { VALIDATION_CODES } from '../../../src/operators/validate/codes.js'
 import { WGS84 } from '../../../src/foundation/index.js'

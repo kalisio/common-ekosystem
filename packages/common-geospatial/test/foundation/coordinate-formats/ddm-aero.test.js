@@ -1,4 +1,3 @@
-import { describe, it, expect, beforeEach } from 'vitest'
 import { setLocale } from '../../../src/foundation/index.js'
 import { DDMAero } from '../../../src/foundation/coordinate-formats/ddm-aero.js'
 

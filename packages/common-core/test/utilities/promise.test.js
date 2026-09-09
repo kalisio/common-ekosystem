@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest'
 import { AssertionError } from '../../src/predicates/index.js'
 import { promise } from '../../src/utilities/index.js'
 

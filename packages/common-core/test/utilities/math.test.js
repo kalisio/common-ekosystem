@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest'
 import { math } from '../../src/utilities/index.js'
 
 describe('math', () => {

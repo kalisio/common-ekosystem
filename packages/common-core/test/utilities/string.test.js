@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest'
 import { string } from '../../src/utilities/index.js'
 
 describe('string.normalize', () => {

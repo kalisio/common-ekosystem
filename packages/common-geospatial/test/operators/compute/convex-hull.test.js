@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest'
 import { computeGeoJsonConvexHull } from '../../../src/operators/index.js'
 import { points } from '../data/point.fixtures.js'
 import { lineStrings } from '../data/linestring.fixtures.js'

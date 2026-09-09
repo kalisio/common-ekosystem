@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest'
 import { fileURLToPath } from 'node:url'
 import { readCsv } from '../../src/io/csv.js'
 

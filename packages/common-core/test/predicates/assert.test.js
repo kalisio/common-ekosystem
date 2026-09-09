@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest'
 import { assert, is, AssertionError } from '../../src/predicates'
 
 describe('assert.that', () => {

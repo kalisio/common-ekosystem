@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest'
 import { match } from '../../src/predicates/index.js'
 
 describe('match.pattern', () => {

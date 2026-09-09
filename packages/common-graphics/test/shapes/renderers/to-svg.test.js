@@ -1,5 +1,4 @@
 import { LRUCache } from 'lru-cache'
-import { describe, it, expect, beforeEach } from 'vitest'
 import {
   toSVG,
   toSVGStyleElement,

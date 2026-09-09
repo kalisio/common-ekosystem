@@ -1,5 +1,3 @@
-import { describe, it, expect } from 'vitest'
-// TODO adjust to the real module path.
 import { parsePosition } from '../../src/foundation/position.js'
 
 // Hemisphere-suffixed decimal-degree literals.

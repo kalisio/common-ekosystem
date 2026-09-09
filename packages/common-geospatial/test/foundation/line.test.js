@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest'
 import { distanceBetweenPositions } from '../../src/foundation/position.js'
 import { isValidLine, lineLength } from '../../src/foundation/line.js'
 

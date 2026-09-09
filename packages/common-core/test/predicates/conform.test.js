@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest'
 import { conform, is, optional, AssertionError } from '../../src/predicates/index.js'
 
 describe('conform.schema', () => {

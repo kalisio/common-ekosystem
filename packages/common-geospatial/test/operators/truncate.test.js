@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest'
 import { truncateGeoJson } from '../../src/operators/index.js'
 
 describe('truncate', () => {

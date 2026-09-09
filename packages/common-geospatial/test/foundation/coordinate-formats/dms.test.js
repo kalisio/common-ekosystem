@@ -1,4 +1,3 @@
-import { describe, it, expect, beforeEach } from 'vitest'
 import { setLocale } from '../../../src/foundation/index.js'
 import { DMS } from '../../../src/foundation/coordinate-formats/dms.js'
 

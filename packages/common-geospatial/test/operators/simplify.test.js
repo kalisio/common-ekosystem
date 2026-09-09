@@ -1,6 +1,5 @@
 import path from 'node:path'
 import fs from 'node:fs'
-import { describe, it, expect, vi } from 'vitest'
 import chroma from 'chroma-js'
 import { simplifyGeoJson } from '../../src/operators/index.js'
 import { lineStrings } from './data/linestring.fixtures.js'

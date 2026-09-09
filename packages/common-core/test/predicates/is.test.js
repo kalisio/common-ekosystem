@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest'
 import { is } from '../../src/predicates/index.js'
 
 describe('is.defined', () => {

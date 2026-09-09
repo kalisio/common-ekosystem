@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest'
 import { computeStandardSize, setupStandardShape } from '../../src/shapes/helpers.js'
 
 describe('shape helpers', () => {

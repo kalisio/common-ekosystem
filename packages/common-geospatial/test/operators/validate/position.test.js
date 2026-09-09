@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest'
 import { validatePosition } from '../../../src/operators/validate/position.js'
 import { VALIDATION_CODES } from '../../../src/operators/validate/codes.js'
 import { positions } from '../data/position.fixtures.js'

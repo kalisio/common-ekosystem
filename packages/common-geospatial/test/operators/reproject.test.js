@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest'
 import { reprojectGeoJson } from '../../src/operators/index.js'
 import { points } from './data/point.fixtures.js'
 import { multiPoints } from './data/multi-point.fixtures.js'

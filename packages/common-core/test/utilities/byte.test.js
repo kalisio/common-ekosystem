@@ -1,5 +1,4 @@
 // test/utilities/byte.test.js
-import { describe, it, expect } from 'vitest'
 import { AssertionError } from '../../src/predicates/index.js'
 import { byte } from '../../src/utilities/index.js'
 

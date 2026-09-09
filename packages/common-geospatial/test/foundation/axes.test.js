@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest'
 import { AXES, isValidAxis, isLatitude, isLongitude, isAltitude } from '../../src/foundation/axes.js'
 
 describe('AXES', () => {

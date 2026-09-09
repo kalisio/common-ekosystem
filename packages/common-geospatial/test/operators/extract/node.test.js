@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest'
 import { extractGeoJsonNode } from '../../../src/operators/index.js'
 import { features } from '../data/feature.fixtures.js'
 import { featureCollections } from '../data/feature-collection.fixtures.js'

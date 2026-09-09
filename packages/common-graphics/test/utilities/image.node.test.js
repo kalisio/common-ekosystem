@@ -1,7 +1,3 @@
-import { describe, it, expect, vi, beforeAll, beforeEach, afterAll } from 'vitest'
-
-// ─── Sharp mock ───────────────────────────────────────────────────────────────
-
 const mockBuffer = Buffer.from('fake-output')
 const mockSharpInstance = {
   metadata: vi.fn(),
