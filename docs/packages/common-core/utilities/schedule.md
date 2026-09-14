@@ -2,7 +2,7 @@
 
 title: schedule
 description: Utility functions for delaying, repeating, scheduling, and controlling function execution over time.
----
+-----------------------------------------------------------------------------------------------------------------
 
 # schedule
 
@@ -29,9 +29,15 @@ A `Promise` resolved after `duration` milliseconds.
 
 The promise is rejected with `signal.reason` if the signal is aborted.
 
+### Examples
+
+Wait for one second:
+
 ```js
 await schedule.delay(1000)
 ```
+
+Cancel a pending delay:
 
 ```js
 const controller = new AbortController()
@@ -66,6 +72,8 @@ A `Promise` resolved when the target time is reached.
 
 If the target time is already in the past, the promise resolves immediately.
 
+### Example
+
 ```js
 await schedule.at(new Date('2026-09-10T08:00:00'))
 ```
@@ -89,6 +97,8 @@ schedule.until(predicate, options = {})
 ### Returns
 
 A `Promise` resolved with the first truthy value returned by `predicate`.
+
+### Example
 
 ```js
 const service = await schedule.until(
@@ -136,6 +146,10 @@ An object containing:
 * `signal` — Signal associated with the repetition.
 * `abort(reason)` — Stops the repetition.
 
+### Examples
+
+Start and stop a repetition:
+
 ```js
 const polling = schedule.repeat(
   async () => {
@@ -149,7 +163,7 @@ polling.abort()
 await polling.promise
 ```
 
-An external signal can also be provided:
+Use an external signal:
 
 ```js
 const controller = new AbortController()
@@ -177,6 +191,8 @@ schedule.once(callback)
 
 A function wrapping `callback`.
 
+### Example
+
 ```js
 const initialize = schedule.once(init)
 
@@ -202,6 +218,10 @@ schedule.debounce(callback, duration)
 
 A debounced function exposing a `cancel()` method.
 
+### Examples
+
+Execute only the last call:
+
 ```js
 const search = schedule.debounce(load, 300)
 
@@ -212,7 +232,7 @@ search('paris')
 
 Only the last call is executed.
 
-A pending execution can be cancelled:
+Cancel a pending execution:
 
 ```js
 search.cancel()
@@ -235,6 +255,8 @@ schedule.throttle(callback, duration)
 ### Returns
 
 A throttled function.
+
+### Example
 
 ```js
 const refresh = schedule.throttle(update, 1000)
