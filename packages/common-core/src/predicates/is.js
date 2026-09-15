@@ -93,7 +93,7 @@ export const is = {
   },
 
   regularExpression (value) {
-    return is.defined(value) && value instanceof RegExp
+    return value instanceof RegExp
   },
 
   number (value) {
@@ -155,6 +155,11 @@ export const is = {
   nonNegativeInteger (value) {
     return is.integer(value) && is.nonNegative(value)
   },
+
+  date (value) {
+    return value instanceof Date && !isNaN(value.getTime())
+  },
+
   array (value) {
     return Array.isArray(value)
   },
@@ -192,7 +197,7 @@ export const is = {
   },
 
   map (value) {
-    return is.defined(value) && value instanceof Map
+    return value instanceof Map
   },
 
   emptyMap (value) {
@@ -204,7 +209,7 @@ export const is = {
   },
 
   set (value) {
-    return is.defined(value) && value instanceof Set
+    return value instanceof Set
   },
 
   emptySet (value) {
@@ -217,6 +222,10 @@ export const is = {
 
   function (value) {
     return typeof value === 'function'
+  },
+
+  abortSignal (value) {
+    return value instanceof AbortSignal
   },
 
   oneOf (value, allowedValues) {

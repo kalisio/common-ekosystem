@@ -2,7 +2,7 @@
 
 title: schedule
 description: Utility functions for delaying, repeating, scheduling, and controlling function execution over time.
------------------------------------------------------------------------------------------------------------------
+---
 
 # schedule
 
@@ -20,7 +20,7 @@ schedule.delay(duration, options = {})
 
 ### Parameters
 
-* `duration` — Delay in milliseconds.
+* `duration` — Non-negative integer delay in milliseconds.
 * `options.signal` — Optional `AbortSignal` used to cancel the delay.
 
 ### Returns
@@ -63,7 +63,7 @@ schedule.at(date, options = {})
 
 ### Parameters
 
-* `date` — Date, timestamp, or value accepted by `Date`.
+* `date` — Valid `Date` or non-negative integer timestamp in milliseconds.
 * `options.signal` — Optional `AbortSignal` used to cancel the wait.
 
 ### Returns
@@ -72,10 +72,18 @@ A `Promise` resolved when the target time is reached.
 
 If the target time is already in the past, the promise resolves immediately.
 
-### Example
+### Examples
+
+Wait until a given date:
 
 ```js
-await schedule.at(new Date('2026-09-10T08:00:00'))
+await schedule.at(new Date('2026-09-16T08:00:00Z'))
+```
+
+Wait until a given timestamp:
+
+```js
+await schedule.at(Date.now() + 5000)
 ```
 
 ## until
@@ -91,12 +99,14 @@ schedule.until(predicate, options = {})
 ### Parameters
 
 * `predicate` — Function evaluated until it returns a truthy value. It may be asynchronous.
-* `options.interval` — Delay between evaluations in milliseconds. Defaults to `1000`.
+* `options.interval` — Non-negative integer delay between evaluations in milliseconds. Defaults to `1000`.
 * `options.signal` — Optional `AbortSignal` used to cancel the operation.
 
 ### Returns
 
 A `Promise` resolved with the first truthy value returned by `predicate`.
+
+The promise is rejected with `signal.reason` if the signal is aborted.
 
 ### Example
 
@@ -114,9 +124,9 @@ const service = await schedule.until(
 
 ## repeat
 
-Repeatedly executes a callback at a fixed interval.
+Repeatedly executes a callback after a given delay.
 
-The first execution occurs after the initial delay.
+The first execution occurs after the initial delay. When the callback is asynchronous, the next delay starts after the callback completes.
 
 ### Signature
 
@@ -127,7 +137,7 @@ schedule.repeat(callback, duration, options = {})
 ### Parameters
 
 * `callback` — Function to execute. It may be asynchronous.
-* `duration` — Delay between executions in milliseconds.
+* `duration` — Non-negative integer delay between executions in milliseconds.
 * `options.signal` — Optional external `AbortSignal`.
 
 ### Returns
@@ -142,9 +152,9 @@ An object containing:
 }
 ```
 
-* `promise` — Resolves when the repetition is aborted.
-* `signal` — Signal associated with the repetition.
-* `abort(reason)` — Stops the repetition.
+* `promise` — Resolves when the repetition is aborted and rejects if the callback throws.
+* `signal` — `AbortSignal` associated with the repetition.
+* `abort(reason)` — Stops the repetition with an optional reason.
 
 ### Examples
 
@@ -173,11 +183,13 @@ const polling = schedule.repeat(refresh, 5000, {
 })
 
 controller.abort()
+
+await polling.promise
 ```
 
 ## once
 
-Creates a function that executes the callback only once.
+Creates a function that executes a callback only once.
 
 Subsequent calls return the result of the first invocation.
 
@@ -187,9 +199,15 @@ Subsequent calls return the result of the first invocation.
 schedule.once(callback)
 ```
 
+### Parameters
+
+* `callback` — Function to execute once.
+
 ### Returns
 
 A function wrapping `callback`.
+
+Arguments and `this` are forwarded to the callback on the first invocation.
 
 ### Example
 
@@ -214,9 +232,16 @@ The callback is executed only after no new call has occurred during the given du
 schedule.debounce(callback, duration)
 ```
 
+### Parameters
+
+* `callback` — Function to execute.
+* `duration` — Non-negative integer delay in milliseconds.
+
 ### Returns
 
 A debounced function exposing a `cancel()` method.
+
+Arguments and `this` from the latest call are forwarded to the callback.
 
 ### Examples
 
@@ -252,9 +277,16 @@ The implementation is leading-only and does not schedule a trailing execution.
 schedule.throttle(callback, duration)
 ```
 
+### Parameters
+
+* `callback` — Function to execute.
+* `duration` — Non-negative integer interval in milliseconds.
+
 ### Returns
 
 A throttled function.
+
+Arguments and `this` are forwarded to the callback.
 
 ### Example
 
