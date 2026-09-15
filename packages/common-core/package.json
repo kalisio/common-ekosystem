@@ -15,11 +15,6 @@
       "import": "./dist/utilities/index.mjs",
       "require": "./dist/utilities/index.cjs"
     },
-    "./io": {
-      "development": "./src/io/index.js",
-      "import": "./dist/io/index.mjs",
-      "require": "./dist/io/index.cjs"
-    },
     "./io/json": {
       "development": "./src/io/json.js",
       "import": "./dist/io/json.mjs",
@@ -170,10 +165,6 @@
       "./utilities": {
         "import": "./dist/utilities/index.mjs",
         "require": "./dist/utilities/index.cjs"
-      },
-      "./io": {
-        "import": "./dist/io/index.mjs",
-        "require": "./dist/io/index.cjs"
       },
       "./io/json": {
         "import": "./dist/io/json.mjs",
