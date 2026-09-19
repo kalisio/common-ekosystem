@@ -1,4 +1,4 @@
-import { is, assert, AssertionError, conform, optional } from '../predicates/index.js'
+import { is, assert, has, conform, optional, AssertionError } from '../predicates/index.js'
 import { schedule } from '../utilities/index.js'
 
 const durationOrFunction = (value) =>
@@ -76,9 +76,7 @@ export function request (options = {}) {
       } = options
       // Body resolution mirrors the fetch options merge: an explicitly defined
       // body in fetchOptions overrides defaults.body, including body: null.
-      const body = Object.hasOwn(fetchOptions, 'body')
-        ? fetchOptions.body
-        : defaults.body
+      const body = has.key(fetchOptions, 'body') ? fetchOptions.body : defaults.body
       if (requestRetries > 0 && !isReplayableBody(body)) {
         throw new AssertionError(
           'body must be replayable (string, ArrayBuffer, Blob, URLSearchParams or FormData) when retries > 0; ' +
@@ -91,7 +89,8 @@ export function request (options = {}) {
         requestRetries > 0 &&
         typeof Request !== 'undefined' &&
         input instanceof Request &&
-        input.body !== null
+        input.method !== 'GET' &&
+        input.method !== 'HEAD'
       ) {
         throw new AssertionError(
           'a Request with a body cannot be retried; pass the body via fetch options instead, or set retries to 0'

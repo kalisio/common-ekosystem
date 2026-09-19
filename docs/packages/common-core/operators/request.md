@@ -237,13 +237,25 @@ A timeout of `0` is valid and creates an immediate timeout.
 A request context can be cancelled explicitly:
 
 ```js
-const req = request()
+// A request bundles one or more fetch calls that are aborted together.
+// The abort trigger always lives outside the flow that awaits the response —
+// a click, an unmount, a timer — never in the same function that awaits.
+const req = request({ retries: 2 })
 
-const promise = req.fetch(url)
+// Flow that fires the call and awaits it (e.g. a component loading data):
+async function load () {
+  try {
+    const response = await req.fetch('/api/resource')
+    return await response.json()
+  } catch (error) {
+    // A deliberate abort is not a failure; only real errors propagate.
+    if (!req.aborted) throw error
+  }
+}
 
-req.abort()
-
-await promise
+// Somewhere else, on an external event:
+button.addEventListener('click', () => req.abort())
+// aborting req cancels every in-flight call it started.
 ```
 
 An optional reason can be provided:
