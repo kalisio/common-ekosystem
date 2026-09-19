@@ -106,11 +106,11 @@ export const schedule = {
     const promise = (async () => {
       try {
         while (!signal.aborted) {
-          await schedule.delay(duration, { signal })
           await callback()
+          await schedule.delay(duration, { signal })
         }
       } catch (error) {
-        if (!signal.aborted) throw error
+        if (error !== signal.reason) throw error
       }
     })()
     return {
@@ -174,7 +174,7 @@ export const schedule = {
         message: 'duration must be a non negative integer'
       }
     ])
-    let lastCall = 0
+    let lastCall = -Infinity
     return function (...args) {
       const now = Date.now()
       if (now - lastCall < duration) return

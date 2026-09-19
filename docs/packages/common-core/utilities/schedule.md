@@ -126,7 +126,7 @@ const service = await schedule.until(
 
 Repeatedly executes a callback after a given delay.
 
-The first execution occurs after the initial delay. When the callback is asynchronous, the next delay starts after the callback completes.
+The first execution occurs immediately. When the callback is asynchronous, the next delay starts after the callback completes.
 
 ### Signature
 
