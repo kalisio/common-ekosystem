@@ -261,6 +261,42 @@ describe('is.nonEmptyString', () => {
   })
 })
 
+describe('is.char', () => {
+  it('returns true for a single character', () => {
+    expect(is.char('a')).toBe(true)
+  })
+  it('returns true for a digit', () => {
+    expect(is.char('1')).toBe(true)
+  })
+  it('returns true for a special character', () => {
+    expect(is.char('#')).toBe(true)
+  })
+  it('returns true for a unicode character', () => {
+    expect(is.char('é')).toBe(true)
+  })
+  it('returns true for a unicode code point', () => {
+    expect(is.char('😀')).toBe(true)
+  })
+  it('returns false for an empty string', () => {
+    expect(is.char('')).toBe(false)
+  })
+  it('returns false for a string with multiple characters', () => {
+    expect(is.char('ab')).toBe(false)
+  })
+  it('returns false for whitespace with multiple characters', () => {
+    expect(is.char('  ')).toBe(false)
+  })
+  it('returns false for a number', () => {
+    expect(is.char(1)).toBe(false)
+  })
+  it('returns false for null', () => {
+    expect(is.char(null)).toBe(false)
+  })
+  it('returns false for undefined', () => {
+    expect(is.char(undefined)).toBe(false)
+  })
+})
+
 describe('is.regularExpression', () => {
   it('returns true for a RegExp literal', () => {
     expect(is.regularExpression(/abc/)).toBe(true)
@@ -321,6 +357,82 @@ describe('is.number', () => {
   })
   it('returns false for a boolean', () => {
     expect(is.number(true)).toBe(false)
+  })
+})
+
+describe('is.infinity', () => {
+  it('returns true for Infinity', () => {
+    expect(is.infinity(Infinity)).toBe(true)
+    expect(is.infinity(Number.POSITIVE_INFINITY)).toBe(true)
+  })
+  it('returns true for -Infinity', () => {
+    expect(is.infinity(-Infinity)).toBe(true)
+    expect(is.infinity(Number.NEGATIVE_INFINITY)).toBe(true)
+  })
+  it('returns false for finite numbers', () => {
+    expect(is.infinity(0)).toBe(false)
+    expect(is.infinity(1)).toBe(false)
+    expect(is.infinity(-1)).toBe(false)
+    expect(is.infinity(Number.MAX_VALUE)).toBe(false)
+  })
+  it('returns false for NaN', () => {
+    expect(is.infinity(NaN)).toBe(false)
+  })
+  it('returns false for non-number values', () => {
+    expect(is.infinity('Infinity')).toBe(false)
+    expect(is.infinity(null)).toBe(false)
+    expect(is.infinity(undefined)).toBe(false)
+    expect(is.infinity({})).toBe(false)
+    expect(is.infinity([])).toBe(false)
+    expect(is.infinity(true)).toBe(false)
+  })
+})
+
+describe('is.positiveInfinity', () => {
+  it('returns true for Infinity', () => {
+    expect(is.positiveInfinity(Infinity)).toBe(true)
+    expect(is.positiveInfinity(Number.POSITIVE_INFINITY)).toBe(true)
+  })
+  it('returns false for -Infinity', () => {
+    expect(is.positiveInfinity(-Infinity)).toBe(false)
+    expect(is.positiveInfinity(Number.NEGATIVE_INFINITY)).toBe(false)
+  })
+  it('returns false for finite numbers', () => {
+    expect(is.positiveInfinity(0)).toBe(false)
+    expect(is.positiveInfinity(1)).toBe(false)
+    expect(is.positiveInfinity(Number.MAX_VALUE)).toBe(false)
+  })
+  it('returns false for NaN', () => {
+    expect(is.positiveInfinity(NaN)).toBe(false)
+  })
+  it('returns false for non-number values', () => {
+    expect(is.positiveInfinity('Infinity')).toBe(false)
+    expect(is.positiveInfinity(null)).toBe(false)
+    expect(is.positiveInfinity(undefined)).toBe(false)
+  })
+})
+
+describe('is.negativeInfinity', () => {
+  it('returns true for -Infinity', () => {
+    expect(is.negativeInfinity(-Infinity)).toBe(true)
+    expect(is.negativeInfinity(Number.NEGATIVE_INFINITY)).toBe(true)
+  })
+  it('returns false for Infinity', () => {
+    expect(is.negativeInfinity(Infinity)).toBe(false)
+    expect(is.negativeInfinity(Number.POSITIVE_INFINITY)).toBe(false)
+  })
+  it('returns false for finite numbers', () => {
+    expect(is.negativeInfinity(0)).toBe(false)
+    expect(is.negativeInfinity(-1)).toBe(false)
+    expect(is.negativeInfinity(-Number.MAX_VALUE)).toBe(false)
+  })
+  it('returns false for NaN', () => {
+    expect(is.negativeInfinity(NaN)).toBe(false)
+  })
+  it('returns false for non-number values', () => {
+    expect(is.negativeInfinity('-Infinity')).toBe(false)
+    expect(is.negativeInfinity(null)).toBe(false)
+    expect(is.negativeInfinity(undefined)).toBe(false)
   })
 })
 
@@ -447,6 +559,33 @@ describe('is.nonNegativeInteger', () => {
   })
   it('returns false for null', () => {
     expect(is.nonNegativeInteger(null)).toBe(false)
+  })
+})
+
+describe('is.date', () => {
+  it('returns true for a valid Date', () => {
+    expect(is.date(new Date())).toBe(true)
+  })
+  it('returns true for a Date created from a valid timestamp', () => {
+    expect(is.date(new Date(0))).toBe(true)
+  })
+  it('returns true for a Date created from a valid date string', () => {
+    expect(is.date(new Date('2026-01-01'))).toBe(true)
+  })
+  it('returns false for an invalid Date', () => {
+    expect(is.date(new Date('invalid'))).toBe(false)
+  })
+  it('returns false for a timestamp', () => {
+    expect(is.date(Date.now())).toBe(false)
+  })
+  it('returns false for a date string', () => {
+    expect(is.date('2026-01-01')).toBe(false)
+  })
+  it('returns false for null', () => {
+    expect(is.date(null)).toBe(false)
+  })
+  it('returns false for undefined', () => {
+    expect(is.date(undefined)).toBe(false)
   })
 })
 
@@ -777,6 +916,30 @@ describe('is.booleanFalse', () => {
   })
   it('returns false for undefined', () => {
     expect(is.booleanFalse(undefined)).toBe(false)
+  })
+})
+
+describe('is.abortSignal', () => {
+  it('returns true for an AbortSignal', () => {
+    const controller = new AbortController()
+    expect(is.abortSignal(controller.signal)).toBe(true)
+  })
+  it('returns true for an aborted AbortSignal', () => {
+    const controller = new AbortController()
+    controller.abort()
+    expect(is.abortSignal(controller.signal)).toBe(true)
+  })
+  it('returns false for an AbortController', () => {
+    expect(is.abortSignal(new AbortController())).toBe(false)
+  })
+  it('returns false for an object', () => {
+    expect(is.abortSignal({})).toBe(false)
+  })
+  it('returns false for null', () => {
+    expect(is.abortSignal(null)).toBe(false)
+  })
+  it('returns false for undefined', () => {
+    expect(is.abortSignal(undefined)).toBe(false)
   })
 })
 
@@ -1355,10 +1518,10 @@ describe('is.url', () => {
     expect(is.url('not a url')).toBe(false)
   })
   it('returns false for number', () => {
-    expect(is.url(23)).toBe(false)
+    expect(is.email(23)).toBe(false)
   })
   it('returns false for null', () => {
-    expect(is.url(null)).toBe(false)
+    expect(is.email(null)).toBe(false)
   })
   it('returns false for undefined', () => {
     expect(is.url(undefined)).toBe(false)
@@ -1425,12 +1588,12 @@ describe('is.email', () => {
     expect(is.email('')).toBe(false)
   })
   it('returns false for number', () => {
-    expect(is.url(23)).toBe(false)
+    expect(is.email(23)).toBe(false)
   })
   it('returns false for null', () => {
-    expect(is.url(null)).toBe(false)
+    expect(is.email(null)).toBe(false)
   })
   it('returns false for undefined', () => {
-    expect(is.url(undefined)).toBe(false)
+    expect(is.email(undefined)).toBe(false)
   })
 })

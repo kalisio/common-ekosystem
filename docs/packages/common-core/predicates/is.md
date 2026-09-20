@@ -1,1570 +1,593 @@
 ---
 title: is
-description: Functions that return a boolean for checking the type or state of a value.
+description: Predicate helpers for checking values, types, ranges, collections, and common JavaScript objects.
 ---
 
 # is
 
-Functions that return a boolean for checking the type or state of a value.
+Predicate helpers returning `true` when a value matches the expected condition and `false` otherwise.
 
-## defined
+## Values
 
-### Signature
+### defined
+
+Checks whether a value is neither `null` nor `undefined`.
 
 ```js
-is.defined (value)
+is.defined(value)
 ```
-
-### Description
-
-Check if a value is defined (not `null` or `undefined`).
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is not null and not undefined |
-
-### Examples
 
 ```js
 is.defined(0)         // true
-is.defined('')        // true
+is.defined(false)     // true
 is.defined(null)      // false
 is.defined(undefined) // false
 ```
 
-## nil
+### nil
 
-### Signature
+Checks whether a value is `null` or `undefined`.
 
 ```js
-is.nil (value)
+is.nil(value)
 ```
-
-### Description
-
-Check if a value is `null` or `undefined`.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is null or undefined |
-
-### Examples
 
 ```js
 is.nil(null)      // true
 is.nil(undefined) // true
 is.nil(0)         // false
-is.nil('')        // false
 ```
 
-## plainObject
+## Objects
 
-### Signature
+### plainObject
+
+Checks whether a value is a plain object created with the standard `Object` constructor.
 
 ```js
-is.plainObject (value)
+is.plainObject(value)
 ```
 
-### Description
+### emptyObject
 
-Check if a value is a plain object literal (not an array, not `null`, not a class instance).
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is a plain object literal |
-
-### Examples
+Checks whether a value is a plain object with no enumerable own properties.
 
 ```js
-is.plainObject({})                // true
-is.plainObject({ name: 'Alice' }) // true
-is.plainObject([])                // false
-is.plainObject(null)              // false
-is.plainObject(new Date())        // false
+is.emptyObject(value)
 ```
 
-## emptyObject
+### nonEmptyObject
 
-### Signature
+Checks whether a value is a plain object with at least one enumerable own property.
 
 ```js
-is.emptyObject (value)
+is.nonEmptyObject(value)
 ```
 
-### Description
+## Booleans
 
-Check if a value is a plain object with no keys.
+### boolean
 
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is a plain object with no keys |
-
-### Examples
-
-```js
-is.emptyObject({})                // true
-is.emptyObject({ name: 'Alice' }) // false
-is.emptyObject([])                // false
-```
-
-## nonEmptyObject
-
-### Signature
-
-```js
-is.nonEmptyObject (value)
-```
-
-### Description
-
-Check if a value is a plain object with at least one key.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is a plain object with at least one key |
-
-### Examples
-
-```js
-is.nonEmptyObject({ name: 'Alice' }) // true
-is.nonEmptyObject({})                // false
-is.nonEmptyObject([])                // false
-```
-
-## boolean
-
-### Signature
+Checks whether a value is a boolean.
 
 ```js
 is.boolean(value)
 ```
 
-### Description
+### booleanTrue
 
-Check if a value is a boolean.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is a boolean |
-
-### Examples
-
-```js
-is.boolean(true)   // true
-is.boolean(false)  // true
-is.boolean(1)      // false
-is.boolean('true') // false
-```
-## booleanTrue
-
-### Signature
+Checks whether a value is exactly `true`.
 
 ```js
 is.booleanTrue(value)
 ```
 
-### Description
+### booleanFalse
 
-Check if a value is strictly `true`.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is strictly `true` |
-
-### Examples
-
-```js
-is.booleanTrue(true)  // true
-is.booleanTrue(false) // false
-is.booleanTrue(1)     // false
-```
-
-## booleanFalse
-
-### Signature
+Checks whether a value is exactly `false`.
 
 ```js
 is.booleanFalse(value)
 ```
 
-### Description
+## Strings
 
-Check if a value is strictly `false`.
+### string
 
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is strictly `false` |
-
-### Examples
+Checks whether a value is a string.
 
 ```js
-is.booleanFalse(false) // true
-is.booleanFalse(true)  // false
-is.booleanFalse(0)     // false
+is.string(value)
 ```
 
-## string
+### emptyString
 
-### Signature
+Checks whether a value is an empty or whitespace-only string.
 
 ```js
-is.string (value)
+is.emptyString(value)
 ```
 
-### Description
+### nonEmptyString
 
-Check if a value is a string.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is a string |
-
-### Examples
+Checks whether a value is a string containing at least one non-whitespace character.
 
 ```js
-is.string('hello') // true
-is.string('')      // true
-is.string(123)     // false
+is.nonEmptyString(value)
 ```
 
-## emptyString
+### char
 
-### Signature
+Checks whether a value is a string containing exactly one Unicode code point.
 
 ```js
-is.emptyString (value)
+is.char(value)
 ```
-
-### Description
-
-Check if a value is a string containing only whitespace.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is a string with only whitespace |
-
-### Examples
-
-```js
-is.emptyString('')      // true
-is.emptyString('   ')   // true
-is.emptyString('hello') // false
-is.emptyString(null)    // false
-```
-
-## nonEmptyString
-
-### Signature
-
-```js
-is.nonEmptyString (value)
-```
-
-### Description
-
-Check if a value is a string containing at least one non-whitespace character.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is a string with at least one non-whitespace character |
-
-### Examples
-
-```js
-is.nonEmptyString('hello') // true
-is.nonEmptyString('')      // false
-is.nonEmptyString('   ')   // false
-is.nonEmptyString(null)    // false
-```
-
-## char
-
-### Signature
-
-```js
-is.char (value)
-```
-
-### Description
-
-Check if a value is a string containing exactly one character.
-
-### Parameters
-
-| Name    | Type | Required | Description        |
-| ------- | ---- | -------- | ------------------ |
-| `value` | *    | yes      | The value to check |
-
-### Returns
-
-| Type      | Description                                                    |
-| --------- | -------------------------------------------------------------- |
-| `boolean` | True if the value is a string containing exactly one character |
-
-### Examples
 
 ```js
 is.char('a')  // true
-is.char('1')  // true
-is.char('')   // false
+is.char('😀') // true
 is.char('ab') // false
-is.char(1)    // false
+is.char('')   // false
 ```
 
-## regularExpression
+### hex
 
-### Signature
+Checks whether a value is a non-empty hexadecimal string with an even number of characters.
 
 ```js
-is.regularExpression (value)
+is.hex(value)
 ```
-
-### Description
-
-Check if a value is a regular expression (instance of `RegExp`).
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is a RegExp instance |
-
-### Examples
-
-```js
-is.regularExpression(/abc/)             // true
-is.regularExpression(new RegExp('abc')) // true
-is.regularExpression('abc')             // false
-is.regularExpression(null)              // false
-```
-## hex
-
-### Signature
-
-```js
-is.hex (value)
-```
-
-### Description
-
-Check if a value is a valid hexadecimal string (even length, only characters `0-9` and `a-f`/`A-F`).
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | string | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is a non-empty string of even length containing only hex characters |
-
-### Examples
 
 ```js
 is.hex('deadbeef') // true
-is.hex('DEADBEEF') // true
 is.hex('ff')       // true
-is.hex('abc')      // false — odd length
-is.hex('0xff')     // false — 0x prefix not allowed
-is.hex('')         // false — must be a non-empty string
-is.hex(null)       // false — value must be a string
+is.hex('abc')      // false
+is.hex('0xff')     // false
 ```
 
-## dataUri
+### dataUri
 
-### Signature
+Checks whether a value is a base64 data URI.
 
 ```js
-is.dataUri (value)
+is.dataUri(value)
 ```
 
-### Description
+### url
 
-Returns `true` if `value` is a valid base64 data URI, i.e. a string starting with `data:` and containing `;base64,`.
+Checks whether a value is a valid URL.
 
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | `*` | yes | The value to test |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | `true` if `value` is a valid base64 data URI, `false` otherwise |
-
-### Examples
+Standard URLs are validated with `URL.canParse()`. Multi-host authorities such as MongoDB replica-set URLs are also supported.
 
 ```js
-is.dataUri('data:image/png;base64,iVBORw0KGgo=') // true
-is.dataUri('data:text/plain;base64,aGVsbG8=')    // true
-is.dataUri('data:text/plain,hello')               // false
-is.dataUri('https://example.com/image.png')       // false
-is.dataUri('')                                    // false
-is.dataUri(null)                                  // false
+is.url(value)
 ```
-
-## url
-
-### Signature
 
 ```js
-is.url (value)
+is.url('https://example.com') // true
+is.url('mongodb://h1:27017,h2:27017/db') // true
+is.url('example.com') // false
 ```
 
-### Description
+### email
 
-Check if a value is a valid URL. Also accepts multi-host authorities (e.g. MongoDB replica set connection strings),
-where several comma-separated hosts share a single scheme, path and query.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | string | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is a valid URL |
-
-### Examples
-
-```js
-is.url('https://example.com')                                  // true
-is.url('https://example.com/foo?bar=1')                        // true
-is.url('mongodb://h1:27017,h2:27017,h3:27017/db?replicaSet=rs0') // true — multi-host
-is.url('mongodb://user:pass@h1:27017,h2:27017/db')             // true — userinfo on the first host
-is.url('example.com')                                          // false — missing protocol
-is.url('/foo/bar')                                             // false — relative URL
-is.url('mongodb://h1:27017,,h2:27017/db')                      // false — empty host
-is.url('mongodb://h1:27017,user:pass@h2:27017/db')             // false — userinfo only allowed on the first host
-is.url(null)                                                   // false — value must be a string
-```
-
-## email
-
-### Signature
+Checks whether a value is a valid email address according to the predicate validation rules and length limits.
 
 ```js
 is.email(value)
 ```
 
-### Description
+## Regular expressions
 
-Check if a value is a valid email address.
+### regularExpression
 
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | string | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is a valid email address |
-
-### Examples
+Checks whether a value is a `RegExp` instance.
 
 ```js
-is.email('user@example.com')       // true
-is.email('first.last@example.com') // true
-is.email('user+tag@example.com')   // true
-is.email('userexample.com')        // false — missing @
-is.email('user@')                  // false — missing domain
-is.email('@example.com')           // false — missing local part
-is.email(null)                     // false — must be a string
+is.regularExpression(value)
 ```
 
-## number
+## Numbers
 
-### Signature
+### number
+
+Checks whether a value is a finite number.
+
+`NaN`, `Infinity`, and `-Infinity` are rejected.
 
 ```js
-is.number (value)
+is.number(value)
 ```
 
-### Description
-
-Check if a value is a valid finite number (not `NaN`, not `Infinity`).
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is a finite number |
-
-### Examples
-
 ```js
-is.number(42)       // true
-is.number(3.14)     // true
-is.number(NaN)      // false
-is.number(Infinity) // false
-is.number('42')     // false
+is.number(42)        // true
+is.number(1.5)       // true
+is.number(NaN)       // false
+is.number(Infinity)  // false
 ```
 
-## positive
+### positive
 
-### Signature
+Checks whether a value is a finite number strictly greater than zero.
 
 ```js
-is.positive (value)
+is.positive(value)
 ```
 
-### Description
-
-Check if a value is a positive number (strictly greater than 0).
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is a number greater than 0 |
-
-### Examples
-
 ```js
-is.positive(5)   // true
-is.positive(0.1) // true
-is.positive(0)   // false
-is.positive(-5)  // false
+is.positive(1) // true
+is.positive(0) // false
 ```
 
-## nonPositive
+### nonPositive
 
-### Signature
+Checks whether a value is a finite number less than or equal to zero.
 
 ```js
-is.nonPositive (value)
+is.nonPositive(value)
 ```
 
-### Description
-
-Check if a value is a number less than or equal to 0.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is a number ≤ 0 |
-
-### Examples
-
 ```js
+is.nonPositive(-1) // true
 is.nonPositive(0)  // true
-is.nonPositive(-5) // true
 is.nonPositive(1)  // false
 ```
 
-## negative
+### negative
 
-### Signature
+Checks whether a value is a finite number strictly less than zero.
 
 ```js
-is.negative (value)
+is.negative(value)
 ```
 
-### Description
-
-Check if a value is a negative number (strictly less than 0).
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is a number less than 0 |
-
-### Examples
-
 ```js
-is.negative(-5)   // true
-is.negative(-0.1) // true
-is.negative(0)    // false
-is.negative(5)    // false
+is.negative(-1) // true
+is.negative(0)  // false
 ```
 
-## nonNegative
+### nonNegative
 
-### Signature
+Checks whether a value is a finite number greater than or equal to zero.
 
 ```js
-is.nonNegative (value)
+is.nonNegative(value)
 ```
 
-### Description
-
-Check if a value is a number greater than or equal to 0.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is a number ≥ 0 |
-
-### Examples
-
 ```js
+is.nonNegative(1)  // true
 is.nonNegative(0)  // true
-is.nonNegative(5)  // true
 is.nonNegative(-1) // false
 ```
 
-## inRange
+### infinity
 
-### Signature
-
-```js
-is.inRange (value, min, max)
-```
-
-### Description
-
-Check if a value is within a numeric range (inclusive on both ends).
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-| min | number | yes | Minimum value (inclusive) |
-| max | number | yes | Maximum value (inclusive) |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is a number between min and max (inclusive) |
-
-### Examples
+Checks whether a value is positive or negative infinity.
 
 ```js
-is.inRange(5, 1, 10)  // true
-is.inRange(1, 1, 10)  // true
-is.inRange(10, 1, 10) // true
-is.inRange(0, 1, 10)  // false
-is.inRange(11, 1, 10) // false
+is.infinity(value)
 ```
-
-## inRangeExclusive
-
-### Signature
 
 ```js
-is.inRangeExclusive (value, min, max)
+is.infinity(Infinity)  // true
+is.infinity(-Infinity) // true
+is.infinity(0)         // false
 ```
 
-### Description
+### positiveInfinity
 
-Check if a value is strictly within a numeric range (exclusive on both ends).
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-| min | number | yes | Minimum value (exclusive) |
-| max | number | yes | Maximum value (exclusive) |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is a number strictly between min and max |
-
-### Examples
+Checks whether a value is positive infinity.
 
 ```js
-is.inRangeExclusive(5, 1, 10)  // true
-is.inRangeExclusive(1, 1, 10)  // false
-is.inRangeExclusive(10, 1, 10) // false
+is.positiveInfinity(value)
 ```
-
-## inRangeExclusiveMin
-
-### Signature
 
 ```js
-is.inRangeExclusiveMin (value, min, max)
+is.positiveInfinity(Infinity)  // true
+is.positiveInfinity(-Infinity) // false
 ```
 
-### Description
+### negativeInfinity
 
-Check if a value is within a numeric range, exclusive on the lower bound and inclusive on the upper bound.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-| min | number | yes | Minimum value (exclusive) |
-| max | number | yes | Maximum value (inclusive) |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if `min < value <= max` |
-
-### Examples
+Checks whether a value is negative infinity.
 
 ```js
-is.inRangeExclusiveMin(10, 1, 10) // true
-is.inRangeExclusiveMin(1, 1, 10)  // false
-is.inRangeExclusiveMin(5, 1, 10)  // true
+is.negativeInfinity(value)
 ```
-
-## inRangeExclusiveMax
-
-### Signature
 
 ```js
-is.inRangeExclusiveMax (value, min, max)
+is.negativeInfinity(-Infinity) // true
+is.negativeInfinity(Infinity)  // false
 ```
 
-### Description
+## Ranges
 
-Check if a value is within a numeric range, inclusive on the lower bound and exclusive on the upper bound.
+### inRange
 
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-| min | number | yes | Minimum value (inclusive) |
-| max | number | yes | Maximum value (exclusive) |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if `min <= value < max` |
-
-### Examples
+Checks whether a finite number belongs to the inclusive range `[min, max]`.
 
 ```js
-is.inRangeExclusiveMax(1, 1, 10)  // true
-is.inRangeExclusiveMax(10, 1, 10) // false
-is.inRangeExclusiveMax(5, 1, 10)  // true
+is.inRange(value, min, max)
 ```
 
-## integer
+Throws when `max < min`.
 
-### Signature
+### inRangeExclusive
+
+Checks whether a finite number belongs to the exclusive range `(min, max)`.
 
 ```js
-is.integer (value)
+is.inRangeExclusive(value, min, max)
 ```
 
-### Description
+Throws when `max <= min`.
 
-Check if a value is an integer.
+### inRangeExclusiveMin
 
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is an integer |
-
-### Examples
+Checks whether a finite number belongs to the range `(min, max]`.
 
 ```js
-is.integer(42)   // true
-is.integer(0)    // true
-is.integer(3.14) // false
-is.integer('42') // false
+is.inRangeExclusiveMin(value, min, max)
 ```
 
-## positiveInteger
+Throws when `max <= min`.
 
-### Signature
+### inRangeExclusiveMax
+
+Checks whether a finite number belongs to the range `[min, max)`.
 
 ```js
-is.positiveInteger (value)
+is.inRangeExclusiveMax(value, min, max)
 ```
 
-### Description
+Throws when `max < min`.
 
-Check if a value is an integer strictly greater than 0.
+## Integers
 
-### Parameters
+### integer
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is an integer > 0 |
-
-### Examples
+Checks whether a value is a finite integer.
 
 ```js
-is.positiveInteger(1)    // true
-is.positiveInteger(42)   // true
-is.positiveInteger(0)    // false
-is.positiveInteger(-1)   // false
-is.positiveInteger(3.14) // false
+is.integer(value)
 ```
 
-## nonPositiveInteger
+### positiveInteger
 
-### Signature
+Checks whether a value is an integer strictly greater than zero.
 
 ```js
-is.nonPositiveInteger (value)
+is.positiveInteger(value)
 ```
 
-### Description
+### nonPositiveInteger
 
-Check if a value is an integer less than or equal to 0.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is an integer ≤ 0 |
-
-### Examples
+Checks whether a value is an integer less than or equal to zero.
 
 ```js
-is.nonPositiveInteger(0)  // true
-is.nonPositiveInteger(-3) // true
-is.nonPositiveInteger(1)  // false
+is.nonPositiveInteger(value)
 ```
 
-## negativeInteger
+### negativeInteger
 
-### Signature
+Checks whether a value is an integer strictly less than zero.
 
 ```js
-is.negativeInteger (value)
+is.negativeInteger(value)
 ```
 
-### Description
+### nonNegativeInteger
 
-Check if a value is an integer strictly less than 0.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is an integer < 0 |
-
-### Examples
+Checks whether a value is an integer greater than or equal to zero.
 
 ```js
-is.negativeInteger(-1)  // true
-is.negativeInteger(-42) // true
-is.negativeInteger(0)   // false
-is.negativeInteger(1)   // false
+is.nonNegativeInteger(value)
 ```
 
-## nonNegativeInteger
+## Dates
 
-### Signature
+### date
+
+Checks whether a value is a valid `Date` instance.
 
 ```js
-is.nonNegativeInteger (value)
+is.date(value)
 ```
-
-### Description
-
-Check if a value is an integer greater than or equal to 0.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is an integer ≥ 0 |
-
-### Examples
 
 ```js
-is.nonNegativeInteger(0)  // true
-is.nonNegativeInteger(5)  // true
-is.nonNegativeInteger(-1) // false
+is.date(new Date())          // true
+is.date(new Date('invalid')) // false
+is.date(Date.now())          // false
 ```
 
-## array
+## Arrays
 
-### Signature
+### array
+
+Checks whether a value is an array.
 
 ```js
-is.array (value)
+is.array(value)
 ```
 
-### Description
+### emptyArray
 
-Check if a value is an array.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is an array |
-
-### Examples
+Checks whether a value is an empty array.
 
 ```js
-is.array([])        // true
-is.array([1, 2, 3]) // true
-is.array({})        // false
-is.array('hello')   // false
+is.emptyArray(value)
 ```
 
-## emptyArray
+### nonEmptyArray
 
-### Signature
+Checks whether a value is a non-empty array.
 
 ```js
-is.emptyArray (value)
+is.nonEmptyArray(value)
 ```
 
-### Description
+### arrayOfLength
 
-Check if a value is an empty array.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is an array with no elements |
-
-### Examples
+Checks whether an array has exactly the requested length.
 
 ```js
-is.emptyArray([])     // true
-is.emptyArray([1, 2]) // false
-is.emptyArray({})     // false
+is.arrayOfLength(value, length)
 ```
 
-## nonEmptyArray
+`length` must be a non-negative integer.
 
-### Signature
+### arrayOfLengthAtLeast
+
+Checks whether an array has at least `minLength` elements.
 
 ```js
-is.nonEmptyArray (value)
+is.arrayOfLengthAtLeast(value, minLength)
 ```
 
-### Description
+`minLength` must be a non-negative integer.
 
-Check if a value is an array with at least one element.
+### arrayOfLengthAtMost
 
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is an array with at least one element |
-
-### Examples
+Checks whether an array has at most `maxLength` elements.
 
 ```js
-is.nonEmptyArray([1, 2]) // true
-is.nonEmptyArray([])     // false
+is.arrayOfLengthAtMost(value, maxLength)
 ```
 
-## arrayOfLength
+`maxLength` must be a non-negative integer.
 
-### Signature
+### arrayOfLengthBetween
+
+Checks whether an array length belongs to the inclusive range `[minLength, maxLength]`.
 
 ```js
-is.arrayOfLength (value, length)
+is.arrayOfLengthBetween(value, minLength, maxLength)
 ```
 
-### Description
+Both bounds must be non-negative integers and `minLength` must be less than or equal to `maxLength`.
 
-Check if a value is an array of a specific length.
+## Maps
 
-### Parameters
+### map
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-| length | number | yes | The expected length |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is an array with the specified length |
-
-### Examples
+Checks whether a value is a `Map`.
 
 ```js
-is.arrayOfLength([1, 2, 3], 3) // true
-is.arrayOfLength([1, 2], 3)    // false
-is.arrayOfLength([], 0)        // true
+is.map(value)
 ```
 
-## arrayOfLengthAtLeast
+### emptyMap
 
-### Signature
+Checks whether a value is an empty `Map`.
 
 ```js
-is.arrayOfLengthAtLeast (value, minLength)
+is.emptyMap(value)
 ```
 
-### Description
+### nonEmptyMap
 
-Check if a value is an array with at least a given number of elements.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-| minLength | number | yes | Minimum number of elements (inclusive) |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is an array with `length >= minLength` |
-
-### Examples
+Checks whether a value is a non-empty `Map`.
 
 ```js
-is.arrayOfLengthAtLeast([1, 2, 3], 3) // true
-is.arrayOfLengthAtLeast([1, 2, 3], 2) // true
-is.arrayOfLengthAtLeast([1], 2)        // false
+is.nonEmptyMap(value)
 ```
 
-## arrayOfLengthAtMost
+## Sets
 
-### Signature
+### set
+
+Checks whether a value is a `Set`.
 
 ```js
-is.arrayOfLengthAtMost (value, maxLength)
+is.set(value)
 ```
 
-### Description
+### emptySet
 
-Check if a value is an array with at most a given number of elements.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-| maxLength | number | yes | Maximum number of elements (inclusive) |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is an array with `length <= maxLength` |
-
-### Examples
+Checks whether a value is an empty `Set`.
 
 ```js
-is.arrayOfLengthAtMost([1, 2], 3)    // true
-is.arrayOfLengthAtMost([1, 2], 2)    // true
-is.arrayOfLengthAtMost([1, 2, 3], 2) // false
+is.emptySet(value)
 ```
 
-## arrayOfLengthBetween
+### nonEmptySet
 
-### Signature
+Checks whether a value is a non-empty `Set`.
 
 ```js
-is.arrayOfLengthBetween (value, minLength, maxLength)
+is.nonEmptySet(value)
 ```
 
-### Description
+## Functions
 
-Check if a value is an array whose length falls within a given range (inclusive on both ends).
+### function
 
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-| minLength | number | yes | Minimum number of elements (inclusive) |
-| maxLength | number | yes | Maximum number of elements (inclusive) |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is an array with `minLength <= length <= maxLength` |
-
-### Examples
+Checks whether a value is a function.
 
 ```js
-is.arrayOfLengthBetween([1, 2], 1, 3)       // true
-is.arrayOfLengthBetween([1, 2, 3], 1, 3)    // true
-is.arrayOfLengthBetween([], 1, 3)            // false
-is.arrayOfLengthBetween([1, 2, 3, 4], 1, 3) // false
+is.function(value)
 ```
 
-## map
+## Abort signals
 
-### Signature
+### abortSignal
+
+Checks whether a value is an `AbortSignal`.
 
 ```js
-is.map (value)
+is.abortSignal(value)
 ```
-
-### Description
-
-Check if a value is a `Map` instance.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is a Map instance |
-
-### Examples
 
 ```js
-is.map(new Map())           // true
-is.map(new Map([['a', 1]])) // true
-is.map({})                  // false
-is.map(null)                // false
+const controller = new AbortController()
+
+is.abortSignal(controller.signal) // true
+is.abortSignal(controller)        // false
 ```
 
-## emptyMap
+## Enumerations
 
-### Signature
+### oneOf
 
-```js
-is.emptyMap (value)
-```
-
-### Description
-
-Check if a value is a `Map` instance with no entries.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is a Map with no entries |
-
-### Examples
-
-```js
-is.emptyMap(new Map())           // true
-is.emptyMap(new Map([['a', 1]])) // false
-```
-
-## nonEmptyMap
-
-### Signature
-
-```js
-is.nonEmptyMap (value)
-```
-
-### Description
-
-Check if a value is a `Map` instance with at least one entry.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is a Map with at least one entry |
-
-### Examples
-
-```js
-is.nonEmptyMap(new Map([['a', 1]])) // true
-is.nonEmptyMap(new Map())           // false
-```
-
-## set
-
-### Signature
-
-```js
-is.set (value)
-```
-
-### Description
-
-Check if a value is a `Set` instance.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is a Set instance |
-
-### Examples
-
-```js
-is.set(new Set())       // true
-is.set(new Set([1, 2])) // true
-is.set([])              // false
-is.set(null)            // false
-```
-
-## emptySet
-
-### Signature
-
-```js
-is.emptySet (value)
-```
-
-### Description
-
-Check if a value is a `Set` instance with no elements.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is a Set with no elements |
-
-### Examples
-
-```js
-is.emptySet(new Set())       // true
-is.emptySet(new Set([1, 2])) // false
-```
-
-## nonEmptySet
-
-### Signature
-
-```js
-is.nonEmptySet (value)
-```
-
-### Description
-
-Check if a value is a `Set` instance with at least one element.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is a Set with at least one element |
-
-### Examples
-
-```js
-is.nonEmptySet(new Set([1, 2])) // true
-is.nonEmptySet(new Set())       // false
-```
-
-## function
-
-### Signature
-
-```js
-is.function (value)
-```
-
-### Description
-
-Check if a value is a function.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is a function |
-
-### Examples
-
-```js
-is.function(() => {})      // true
-is.function(function() {}) // true
-is.function(Array.isArray) // true
-is.function({})            // false
-```
-
-## oneOf
-
-### Signature
+Checks whether a value belongs to a non-empty list of allowed values.
 
 ```js
 is.oneOf(value, allowedValues)
 ```
 
-### Description
-
-Check if a value is one of the allowed values.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-| allowedValues | Array | yes | Array of allowed values |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is included in allowedValues |
-
-### Examples
-
 ```js
-is.oneOf('red', ['red', 'green', 'blue'])    // true
-is.oneOf('yellow', ['red', 'green', 'blue']) // false
-is.oneOf(2, [1, 2, 3])                       // true
+is.oneOf('b', ['a', 'b', 'c']) // true
+is.oneOf('d', ['a', 'b', 'c']) // false
 ```
 
-## empty
+`allowedValues` must be a non-empty array.
 
-### Signature
+## Empty values
+
+### empty
+
+Checks whether a value is considered empty.
+
+The following values are empty:
+
+- `null` and `undefined`
+- empty or whitespace-only strings
+- empty arrays
+- empty plain objects
+- empty `Map` instances
+- empty `Set` instances
 
 ```js
-is.empty (value)
+is.empty(value)
 ```
-
-### Description
-
-Check if a value is empty. A value is considered empty if it is `null`, `undefined`, a whitespace-only string, an empty array, an empty object, an empty Map, or an empty Set.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `value` | * | yes | The value to check |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `boolean` | True if the value is considered empty |
-
-### Examples
 
 ```js
 is.empty(null)      // true
-is.empty(undefined) // true
-is.empty('')        // true
 is.empty('   ')     // true
 is.empty([])        // true
 is.empty({})        // true
 is.empty(new Map()) // true
-is.empty(new Set()) // true
 is.empty(0)         // false
 is.empty(false)     // false
-is.empty('hello')   // false
 ```

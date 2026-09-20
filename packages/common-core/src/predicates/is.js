@@ -136,6 +136,18 @@ export const is = {
     return is.number(value) && value >= min && value < max
   },
 
+  infinity (value) {
+    return value === Infinity || value === -Infinity
+  },
+
+  positiveInfinity (value) {
+    return value === Infinity
+  },
+
+  negativeInfinity (value) {
+    return value === -Infinity
+  },
+
   integer (value) {
     return is.number(value) && Number.isInteger(value)
   },
