@@ -326,20 +326,50 @@ describe('string.dotCase', () => {
   })
 })
 
-describe('string.titleCase', () => {
-  it('titleCases a mixed-separator string', () => {
-    expect(string.titleCase('hello-world_foo')).toBe('Hello World Foo')
+describe('string.upperCase', () => {
+  it('converts a string to upper case', () => {
+    expect(string.upperCase('Hello World')).toBe('HELLO WORLD')
   })
-  it('titleCases from camelCase input', () => {
-    expect(string.titleCase('getUserProfile')).toBe('Get User Profile')
+  it('returns an empty string unchanged', () => {
+    expect(string.upperCase('')).toBe('')
   })
-  it('removes diacritics (current deburring behavior)', () => {
-    expect(string.titleCase('café crème')).toBe('Café Crème')
+  it('throws if value is not a string', () => {
+    expect(() => string.upperCase(42)).toThrow('str must be a string')
   })
-  it('returns an empty string for an empty string', () => {
-    expect(string.titleCase('')).toBe('')
+})
+
+describe('string.lowerCase', () => {
+  it('converts a string to lower case', () => {
+    expect(string.lowerCase('Hello World')).toBe('hello world')
   })
-  it('throws if str is not a string', () => {
-    expect(() => string.titleCase(123)).toThrow('str must be a string')
+  it('returns an empty string unchanged', () => {
+    expect(string.lowerCase('')).toBe('')
+  })
+  it('throws if value is not a string', () => {
+    expect(() => string.lowerCase(42)).toThrow('str must be a string')
+  })
+})
+
+describe('string.startCase', () => {
+  it('converts words to start case', () => {
+    expect(string.startCase('hello world')).toBe('Hello World')
+  })
+  it('handles camel case words', () => {
+    expect(string.startCase('helloWorld')).toBe('Hello World')
+  })
+  it('handles snake case words', () => {
+    expect(string.startCase('hello_world')).toBe('Hello World')
+  })
+  it('handles kebab case words', () => {
+    expect(string.startCase('hello-world')).toBe('Hello World')
+  })
+  it('handles uppercase words', () => {
+    expect(string.startCase('HELLO WORLD')).toBe('HELLO WORLD')
+  })
+  it('returns an empty string unchanged', () => {
+    expect(string.startCase('')).toBe('')
+  })
+  it('throws if value is not a string', () => {
+    expect(() => string.startCase(42)).toThrow('str must be a string')
   })
 })

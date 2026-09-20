@@ -1,17 +1,21 @@
-import { isNumber, toNumber, has, get, set, unset, pick, merge, camelCase, snakeCase, kebabCase, startCase, upperCase, lowerCase } from 'lodash-es'
+import { isNumber, toNumber, has, get, set, unset, pick, merge } from 'lodash-es'
 import { unit } from 'mathjs'
 import moment from 'moment'
 import sift from 'sift'
 import { assert, is } from '../predicates/index.js'
-import { object } from '../utilities/index.js'
+import { object, string } from '../utilities/index.js'
 
 const CASE_FUNCTIONS = {
-  camelCase,
-  snakeCase,
-  kebabCase,
-  startCase,
-  upperCase,
-  lowerCase
+  camelCase: string.camelCase,
+  pascalCase: string.pascalCase,
+  kebabCase: string.kebabCase,
+  snakeCase: string.snakeCase,
+  constantCase: string.constantCase,
+  dotCase: string.dotCase,
+  startCase: string.startCase,
+  upperCase: string.upperCase,
+  lowerCase: string.lowerCase,
+  capitalize: string.capitalize
 }
 
 function convert (value, units) {
@@ -97,41 +101,39 @@ function unitMapping (array, unitMapping) {
   return array
 }
 
+function toObjects (array, keys) {
+  assert.all([
+    { value: array, validator: (v) => is.arrayOf(v, is.array), message: 'toObjects requires an array of arrays' },
+    { value: keys, validator: (v) => is.nonEmptyArrayOf(v, is.nonEmptyString), message: 'toObjects must be a non empty array of non empty strings' }
+  ])
+  return array.map(arr => Object.fromEntries(keys.map((key, index) => [key, arr[index]])))
+}
+
+function mutate (array, options) {
+  for (const item of array) {
+    if (options.pick) object.replace(item, pick(item, options.pick))
+    if (options.omit) {
+      for (const path of options.omit) unset(item, path)
+    }
+    if (options.merge) merge(item, options.merge)
+  }
+  return array
+}
+
 export function transform (obj, options) {
   assert.all([
     { value: obj, validator: (v) => is.plainObject(v) || is.array(v), message: 'obj must be an object or an array' },
     { value: options, validator: is.plainObject, message: 'options must be an object' }
   ])
   if (options.toArray) obj = Object.values(obj)
-  if (options.toObjects) {
-    assert.all([
-      { value: obj, validator: (v) => is.arrayOf(v, is.array), message: 'toObjects requires an array of arrays' },
-      { value: options.toObjects, validator: (v) => is.nonEmptyArrayOf(v, is.nonEmptyString), message: 'toObjects must be a non empty array of non empty strings' }
-    ])
-    obj = obj.map(arr => Object.fromEntries(options.toObjects.map((key, index) => [key, arr[index]])))
-  }
+  if (options.toObjects) obj = toObjects(obj, options.toObjects)
   const isArray = Array.isArray(obj)
   if (!isArray) obj = [obj]
   if (options.filter) obj = obj.filter(sift(options.filter))
-  if (!(options.inPlace ?? true)) {
-    obj = object.clone(obj)
-  }
+  if (!(options.inPlace ?? true)) obj = object.clone(obj)
   if (options.mapping) mapping(obj, options.mapping)
   if (options.unitMapping) unitMapping(obj, options.unitMapping)
-  if (options.pick || options.omit || options.merge) {
-    for (const item of obj) {
-      if (options.pick) {
-        // keep only picked keys while preserving the object reference
-        const kept = pick(item, options.pick)
-        for (const key of Object.keys(item)) delete item[key]
-        Object.assign(item, kept)
-      }
-      if (options.omit) {
-        for (const path of options.omit) unset(item, path)
-      }
-      if (options.merge) merge(item, options.merge) // lodash merge already mutates in place
-    }
-  }
+  mutate(obj, options)
   if (!isArray) {
     if (!options.asArray) obj = (obj.length > 0 ? obj[0] : {})
   } else if (options.asObject) {

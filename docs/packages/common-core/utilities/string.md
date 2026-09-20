@@ -609,33 +609,29 @@ string.dotCase('ÉléphantBleu')
 // 'elephant.bleu'
 ```
 
-## titleCase
+## upperCase
 
 ### Signature
 
 ```js
-string.titleCase (str)
-````
+string.upperCase(str)
+```
 
 ### Description
 
-Converts a string to title case.
-
-The input is split using `string.words()`. Each detected word is capitalized and joined with spaces.
-
-Unlike the other case conversion helpers, `titleCase()` preserves diacritics.
+Converts a string to upper case.
 
 ### Parameters
 
-| Name  | Type     | Required | Description           |
-| ----- | -------- | -------- | --------------------- |
-| `str` | `string` | yes      | The string to convert |
+| Name  | Type     | Description       |
+| ----- | -------- | ----------------- |
+| `str` | `string` | String to convert |
 
 ### Returns
 
 | Type     | Description           |
 | -------- | --------------------- |
-| `string` | The title-case string |
+| `string` | The upper-case string |
 
 ### Throws
 
@@ -644,12 +640,99 @@ Throws a `TypeError` if `str` is not a string.
 ### Examples
 
 ```js
-string.titleCase('roundedRect')
+string.upperCase('Hello World')
+// 'HELLO WORLD'
+
+string.upperCase('éléphant')
+// 'ÉLÉPHANT'
+```
+
+## lowerCase
+
+### Signature
+
+```js
+string.lowerCase(str)
+```
+
+### Description
+
+Converts a string to lower case.
+
+### Parameters
+
+| Name  | Type     | Description       |
+| ----- | -------- | ----------------- |
+| `str` | `string` | String to convert |
+
+### Returns
+
+| Type     | Description           |
+| -------- | --------------------- |
+| `string` | The lower-case string |
+
+### Throws
+
+Throws a `TypeError` if `str` is not a string.
+
+### Examples
+
+```js
+string.lowerCase('Hello World')
+// 'hello world'
+
+string.lowerCase('ÉLÉPHANT')
+// 'éléphant'
+```
+
+## startCase
+
+### Signature
+
+```js
+string.startCase(str)
+```
+
+### Description
+
+Converts a string to start case.
+
+The input is split using `string.words()`. The first character of each detected word is uppercased and words are joined with spaces.
+
+Unlike the other case conversion helpers based on `transformWords`, `startCase()` preserves diacritics and does not lowercase the remaining characters.
+
+### Parameters
+
+| Name  | Type     | Description       |
+| ----- | -------- | ----------------- |
+| `str` | `string` | String to convert |
+
+### Returns
+
+| Type     | Description           |
+| -------- | --------------------- |
+| `string` | The start-case string |
+
+### Throws
+
+Throws a `TypeError` if `str` is not a string.
+
+### Examples
+
+```js
+string.startCase('roundedRect')
 // 'Rounded Rect'
 
-string.titleCase('XML HTTP parser')
-// 'Xml Http Parser'
+string.startCase('hello_world')
+// 'Hello World'
 
-string.titleCase('éléphantBleu')
+string.startCase('triangle-down')
+// 'Triangle Down'
+
+string.startCase('éléphantBleu')
 // 'Éléphant Bleu'
+
+string.startCase('XML HTTP parser')
+// 'XML HTTP Parser'
 ```
+

@@ -11,6 +11,14 @@ const COMPARE_OPTIONS_SCHEMA = {
   ...NORMALIZE_OPTIONS_SCHEMA
 }
 
+const DIACRITIC_PATTERN_OPTIONS_SCHEMA = {
+  reverse: optional(is.boolean)
+}
+
+const INITIALS_OPTIONS_SCHEMA = {
+  max: optional(is.nonNegativeInteger)
+}
+
 function transformWords (str, transform, sep) {
   return string.words(str)
     .map((word, i) => transform(string.normalize(word, { ignoreDiacritics: true }), i))
@@ -31,7 +39,11 @@ export const string = {
   normalize (str, options = {}) {
     assert.all([
       { value: str, validator: is.string, message: 'str must be a string' },
-      { value: options, validator: (v) => conform.schema(v, NORMALIZE_OPTIONS_SCHEMA) }
+      {
+        value: options,
+        validator: (v) => conform.schema(v, NORMALIZE_OPTIONS_SCHEMA),
+        message: 'options must be valid'
+      }
     ])
     const {
       ignoreSpaces = false,
@@ -58,7 +70,11 @@ export const string = {
     assert.all([
       { value: str1, validator: is.string, message: 'str1 must be a string' },
       { value: str2, validator: is.string, message: 'str2 must be a string' },
-      { value: options, validator: (v) => conform.schema(v, COMPARE_OPTIONS_SCHEMA) }
+      {
+        value: options,
+        validator: (v) => conform.schema(v, COMPARE_OPTIONS_SCHEMA),
+        message: 'options must be valid'
+      }
     ])
     const normalizeOptions = { ignoreDiacritics: true, ignoreCase: true, ...options }
     const nStr1 = string.normalize(str1, normalizeOptions)
@@ -67,39 +83,46 @@ export const string = {
   },
 
   makeDiacriticPattern (pattern, options = {}) {
-    assert.that(pattern, is.string, 'pattern must be a string')
-    const { reverse = false } = options ?? {}
+    assert.all([
+      { value: pattern, validator: is.string, message: 'pattern must be a string' },
+      {
+        value: options,
+        validator: (v) => conform.schema(v, DIACRITIC_PATTERN_OPTIONS_SCHEMA),
+        message: 'options must be valid'
+      }
+    ])
+    const { reverse = false } = options
     let result = ''
     for (const char of pattern) {
       const lower = char.toLowerCase()
       let family = null
-      for (const chars of Object.values(this.DIACRITICS)) {
-        if (
-          (reverse && chars.includes(lower)) ||
-          (!reverse && chars.startsWith(lower))
-        ) {
+      for (const chars of Object.values(string.DIACRITICS)) {
+        if ((reverse && chars.includes(lower)) || (!reverse && chars.startsWith(lower))) {
           family = chars
           break
         }
       }
-      if (!family) {
-        result += char
-      } else {
-        result += `[${family}]`
-      }
+      result += family ? `[${family}]` : char
     }
     return result
   },
 
   initials (str, options = {}) {
-    assert.that(str, is.string, 'str must be a string')
-    const { max = undefined } = options
+    assert.all([
+      { value: str, validator: is.string, message: 'str must be a string' },
+      {
+        value: options,
+        validator: (v) => conform.schema(v, INITIALS_OPTIONS_SCHEMA),
+        message: 'options must be valid'
+      }
+    ])
+    const { max } = options
     const result = str
       .trim()
       .split(/[\s-]+/)
       .filter(Boolean)
       .map(word => word[0].toUpperCase())
-    return (max ? result.slice(0, max) : result).join('')
+    return (max !== undefined ? result.slice(0, max) : result).join('')
   },
 
   words (str) {
@@ -113,11 +136,17 @@ export const string = {
       { value: separator, validator: is.char, message: 'separator must be a char' }
     ])
     const result = string.normalize(str.trim(), { ignoreDiacritics: true }).toLowerCase()
-    return result
-      .replace(/[^a-z0-9]+/gi, separator)
-      .split(separator)
-      .filter(Boolean)
-      .join(separator)
+    return result.split(/[^a-z0-9]+/gi).filter(Boolean).join(separator)
+  },
+
+  upperCase (str) {
+    assert.that(str, is.string, 'str must be a string')
+    return str.toUpperCase()
+  },
+
+  lowerCase (str) {
+    assert.that(str, is.string, 'str must be a string')
+    return str.toLowerCase()
   },
 
   capitalize (str) {
@@ -155,11 +184,9 @@ export const string = {
     return transformWords(str, w => w.toLowerCase(), '.')
   },
 
-  titleCase (str) {
+  startCase (str) {
     assert.that(str, is.string, 'str must be a string')
-    return string.words(str)
-      .map(w => string.capitalize(w))
-      .join(' ')
+    return string.words(str).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
   }
 
 }

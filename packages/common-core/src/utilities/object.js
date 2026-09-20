@@ -48,6 +48,16 @@ export const object = {
     return structuredClone(obj)
   },
 
+  replace (target, source) {
+    assert.all([
+      { value: target, validator: is.plainObject, message: 'target must be an object' },
+      { value: source, validator: is.plainObject, message: 'source must be an object' }
+    ])
+    for (const key of Object.keys(target)) delete target[key]
+    Object.assign(target, source)
+    return target
+  },
+
   normalize (obj, options = {}) {
     assert.all([
       { value: obj, validator: (v) => is.array(v) || is.plainObject(v), message: 'obj must be an array or a plain object' },

@@ -44,6 +44,60 @@ cloned.a.b = 99
 // original.a.b is still 1
 ```
 
+## replace
+
+Replaces the contents of an object while preserving its reference.
+
+### Signature
+
+```js
+object.replace(target, source)
+```
+
+### Parameters
+
+| Name     | Type     | Description                                       |
+| -------- | -------- | ------------------------------------------------- |
+| `target` | `object` | Object to replace                                 |
+| `source` | `object` | Object whose properties replace those of `target` |
+
+### Returns
+
+The modified `target` object.
+
+### Throws
+
+Throws if `target` or `source` is not a plain object.
+
+### Example
+
+```js
+const user = {
+  name: 'Alice',
+  age: 42,
+  role: 'admin'
+}
+
+const reference = user
+
+object.replace(user, {
+  name: 'Alice',
+  role: 'user'
+})
+
+reference === user // true
+
+reference
+// {
+//   name: 'Alice',
+//   role: 'user'
+// }
+
+The existing object reference is preserved, while properties not present in source are removed.
+```
+
+Properties that exist in `target` but not in `source` are removed.
+
 ## normalize
 
 ### Signature
