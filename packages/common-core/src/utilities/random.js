@@ -5,7 +5,8 @@ export const random = {
   integer (min, max) {
     assert.all([
       { value: min, validator: is.integer, message: 'min must be an integer' },
-      { value: max, validator: is.integer, message: 'max must be an integer' }
+      { value: max, validator: is.integer, message: 'max must be an integer' },
+      { value: max, validator: (v) => v >= min, message: 'max must be greater than or equal to min' }
     ])
     return Math.floor(Math.random() * (max - min + 1)) + min
   },
@@ -13,7 +14,8 @@ export const random = {
   number (min, max) {
     assert.all([
       { value: min, validator: is.number, message: 'min must be a number' },
-      { value: max, validator: is.number, message: 'max must be a number' }
+      { value: max, validator: is.number, message: 'max must be a number' },
+      { value: max, validator: (v) => v >= min, message: 'max must be greater than or equal to min' }
     ])
     return Math.random() * (max - min) + min
   },

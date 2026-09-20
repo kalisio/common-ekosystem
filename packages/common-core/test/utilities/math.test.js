@@ -8,6 +8,7 @@ describe('math', () => {
     it('throws if value is not a number', () => expect(() => math.clamp('a', 0, 10)).toThrow('value must be a number'))
     it('throws if min is not a number', () => expect(() => math.clamp(5, 'a', 10)).toThrow('min must be a number'))
     it('throws if max is not a number', () => expect(() => math.clamp(5, 0, 'a')).toThrow('max must be a number'))
+    it('throws if max is less than min', () => expect(() => math.clamp(5, 10, 0)).toThrow('max must be greater than or equal to min'))
   })
 
   describe('round', () => {
@@ -45,7 +46,8 @@ describe('math', () => {
     it('returns the percentage', () => expect(math.percentage(1, 4)).toBe(25))
     it('rounds to 2 decimals', () => expect(math.percentage(1, 3)).toBe(33.33))
     it('throws if value is not a number', () => expect(() => math.percentage('a', 100)).toThrow('value must be a number'))
-    it('throws if total is not a number', () => expect(() => math.percentage(1, 'a')).toThrow('total must be a number'))
+    it('throws if total is not a number', () => expect(() => math.percentage(1, 'a')).toThrow('total must be a positive number'))
+    it('throws if total is not a number', () => expect(() => math.percentage(1, 0)).toThrow('total must be a positive number'))
   })
 
   describe('exponential', () => {
@@ -134,7 +136,9 @@ describe('math', () => {
     it('returns 1 at t=1', () => expect(math.ease.in(1)).toBe(1))
     it('returns a value less than t for default linearity', () => expect(math.ease.in(0.5)).toBeLessThan(0.5))
     it('throws if t is out of range', () => expect(() => math.ease.in(1.5)).toThrow('t must be in range [0, 1]'))
-    it('throws if linearity is not a number', () => expect(() => math.ease.in(0.5, 'a')).toThrow('linearity must be a number'))
+    it('throws if linearity is not a number', () => expect(() => math.ease.in(0.5, 'a')).toThrow('linearity must be a positive number'))
+    it('throws if linearity is zero', () => expect(() => math.ease.in(0.5, 0)).toThrow('linearity must be a positive number'))
+    it('throws if linearity is negative', () => expect(() => math.ease.in(0.5, -1)).toThrow('linearity must be a positive number'))
   })
 
   describe('ease.out', () => {
@@ -142,7 +146,9 @@ describe('math', () => {
     it('returns 1 at t=1', () => expect(math.ease.out(1)).toBe(1))
     it('returns a value greater than t for default linearity', () => expect(math.ease.out(0.5)).toBeGreaterThan(0.5))
     it('throws if t is out of range', () => expect(() => math.ease.out(1.5)).toThrow('t must be in range [0, 1]'))
-    it('throws if linearity is not a number', () => expect(() => math.ease.out(0.5, 'a')).toThrow('linearity must be a number'))
+    it('throws if linearity is not a number', () => expect(() => math.ease.out(0.5, 'a')).toThrow('linearity must be a positive number'))
+    it('throws if linearity is zero', () => expect(() => math.ease.out(0.5, 0)).toThrow('linearity must be a positive number'))
+    it('throws if linearity is negative', () => expect(() => math.ease.out(0.5, -1)).toThrow('linearity must be a positive number'))
   })
 
   describe('ease.cubicBezier', () => {
@@ -158,14 +164,16 @@ describe('math', () => {
   describe('stats.sum', () => {
     it('sums an array of numbers', () => expect(math.stats.sum([1, 2, 3, 4])).toBe(10))
     it('returns 0 for an empty array', () => expect(math.stats.sum([])).toBe(0))
-    it('throws if values is not an array', () => expect(() => math.stats.sum('a')).toThrow('values must be an array'))
+    it('throws if values is not an array', () => expect(() => math.stats.sum('a')).toThrow('values must be an array of numbers'))
+    it('throws if values contains a non-number', () => expect(() => math.stats.sum([1, '2', 3])).toThrow('values must be an array of numbers'))
   })
 
   describe('stats.average', () => {
     it('returns the average of an array', () => expect(math.stats.average([1, 2, 3, 4])).toBe(2.5))
     it('returns the value for a single element array', () => expect(math.stats.average([5])).toBe(5))
-    it('throws if values is empty', () => expect(() => math.stats.average([])).toThrow('values must be a non-empty array'))
-    it('throws if values is not an array', () => expect(() => math.stats.average('a')).toThrow('values must be a non-empty array'))
+    it('throws if values is empty', () => expect(() => math.stats.average([])).toThrow('values must be a non-empty array of numbers'))
+    it('throws if values is not an array', () => expect(() => math.stats.average('a')).toThrow('values must be a non-empty array of numbers'))
+    it('throws if values contains a non-number', () => expect(() => math.stats.average([1, '2', 3])).toThrow('values must be a non-empty array of numbers'))
   })
 
   describe('stats.median', () => {
@@ -173,6 +181,8 @@ describe('math', () => {
     it('returns the median of an even array', () => expect(math.stats.median([1, 2, 3, 4])).toBe(2.5))
     it('returns the value for a single element array', () => expect(math.stats.median([5])).toBe(5))
     it('handles unsorted arrays', () => expect(math.stats.median([5, 1, 3])).toBe(3))
-    it('throws if values is empty', () => expect(() => math.stats.median([])).toThrow('values must be a non-empty array'))
+    it('throws if values is empty', () => expect(() => math.stats.median([])).toThrow('values must be a non-empty array of numbers'))
+    it('throws if values is not an array', () => expect(() => math.stats.median('a')).toThrow('values must be a non-empty array of numbers'))
+    it('throws if values contains a non-number', () => expect(() => math.stats.median([1, '2', 3])).toThrow('values must be a non-empty array of numbers'))
   })
 })

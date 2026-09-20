@@ -6,7 +6,8 @@ export const math = {
     assert.all([
       { value, validator: is.number, message: 'value must be a number' },
       { value: min, validator: is.number, message: 'min must be a number' },
-      { value: max, validator: is.number, message: 'max must be a number' }
+      { value: max, validator: is.number, message: 'max must be a number' },
+      { value: max, validator: (v) => v >= min, message: 'max must be greater than or equal to min' }
     ])
     return Math.min(Math.max(value, min), max)
   },
@@ -33,7 +34,7 @@ export const math = {
   percentage (value, total) {
     assert.all([
       { value, validator: is.number, message: 'value must be a number' },
-      { value: total, validator: is.number, message: 'total must be a number' }
+      { value: total, validator: is.positive, message: 'total must be a positive number' }
     ])
     return math.round(value / total * 100, 2)
   },
@@ -87,7 +88,7 @@ export const math = {
     in (t, linearity = 0.5) {
       assert.all([
         { value: t, validator: (v) => is.inRange(v, 0, 1), message: 't must be in range [0, 1]' },
-        { value: linearity, validator: is.number, message: 'linearity must be a number' }
+        { value: linearity, validator: is.positive, message: 'linearity must be a positive number' }
       ])
       return Math.pow(t, 1 / linearity)
     },
@@ -95,7 +96,7 @@ export const math = {
     out (t, linearity = 0.5) {
       assert.all([
         { value: t, validator: (v) => is.inRange(v, 0, 1), message: 't must be in range [0, 1]' },
-        { value: linearity, validator: is.number, message: 'linearity must be a number' }
+        { value: linearity, validator: is.positive, message: 'linearity must be a positive number' }
       ])
       return 1 - Math.pow(1 - t, 1 / linearity)
     },
@@ -120,17 +121,29 @@ export const math = {
 
   stats: {
     sum (values) {
-      assert.that(values, is.array, 'values must be an array')
+      assert.that(
+        values,
+        (v) => is.array(v) && v.every(is.number),
+        'values must be an array of numbers'
+      )
       return values.reduce((acc, v) => acc + v, 0)
     },
 
     average (values) {
-      assert.that(values, is.nonEmptyArray, 'values must be a non-empty array')
+      assert.that(
+        values,
+        (v) => is.nonEmptyArray(v) && v.every(is.number),
+        'values must be a non-empty array of numbers'
+      )
       return math.stats.sum(values) / values.length
     },
 
     median (values) {
-      assert.that(values, is.nonEmptyArray, 'values must be a non-empty array')
+      assert.that(
+        values,
+        (v) => is.nonEmptyArray(v) && v.every(is.number),
+        'values must be a non-empty array of numbers'
+      )
       const sorted = [...values].sort((a, b) => a - b)
       const mid = Math.floor(sorted.length / 2)
       return sorted.length % 2 === 0

@@ -156,9 +156,11 @@ is.dataUri(value)
 
 ### url
 
-Checks whether a value is a valid URL.
+Checks whether a value is a valid hierarchical URL using the `scheme://authority` form.
 
-Standard URLs are validated with `URL.canParse()`. Multi-host authorities such as MongoDB replica-set URLs are also supported.
+Standard single-host URLs are validated with `URL.canParse()`. Multi-host authorities, such as MongoDB replica-set URLs, are also supported.
+
+URLs without an authority component, such as `mailto:` URLs, are rejected.
 
 ```js
 is.url(value)
@@ -166,9 +168,14 @@ is.url(value)
 
 ```js
 is.url('https://example.com') // true
+is.url('s3://bucket/path/to/file') // true
 is.url('mongodb://h1:27017,h2:27017/db') // true
+
+is.url('mailto:user@example.com') // false
 is.url('example.com') // false
+is.url('/foo/bar') // false
 ```
+
 
 ### email
 

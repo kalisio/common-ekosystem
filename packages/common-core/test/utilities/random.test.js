@@ -26,6 +26,9 @@ describe('random.integer', () => {
     expect(() => random.integer(1.5, 6)).toThrow()
     expect(() => random.integer(1, 6.2)).toThrow()
   })
+  it('throws when max is less than min', () => {
+    expect(() => random.integer(10, 1)).toThrow('max must be greater than or equal to min')
+  })
 })
 
 describe('random.number', () => {
@@ -40,8 +43,15 @@ describe('random.number', () => {
       expect(value).toBeLessThan(1)
     }
   })
+  it('supports min === max', () => {
+    expect(random.number(5, 5)).toBe(5)
+  })
   it('throws on non-number bounds', () => {
     expect(() => random.number('a', 10)).toThrow()
+    expect(() => random.number(1, '10')).toThrow()
+  })
+  it('throws when max is less than min', () => {
+    expect(() => random.number(10, 1)).toThrow('max must be greater than or equal to min')
   })
 })
 
