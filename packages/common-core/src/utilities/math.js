@@ -100,12 +100,21 @@ export const math = {
       return 1 - Math.pow(1 - t, 1 / linearity)
     },
 
-    cubicBezier (t, x1 = 0.42, y1 = 0, x2 = 0.58, y2 = 1) {
-      assert.that(t, (v) => is.inRange(v, 0, 1), 't must be in range [0, 1]')
+    cubicBezier (t, p0 = 0, p1 = 0.42, p2 = 0.58, p3 = 1) {
+      assert.all([
+        { value: t, validator: (v) => is.inRange(v, 0, 1), message: 't must be in range [0, 1]' },
+        { value: p0, validator: is.number, message: 'p0 must be a number' },
+        { value: p1, validator: is.number, message: 'p1 must be a number' },
+        { value: p2, validator: is.number, message: 'p2 must be a number' },
+        { value: p3, validator: is.number, message: 'p3 must be a number' }
+      ])
       const u = 1 - t
-      const tt = t * t
-      const uu = u * u
-      return uu * u * y1 + 3 * uu * t * x1 + 3 * u * tt * x2 + tt * t * y2
+      return (
+        u * u * u * p0 +
+        3 * u * u * t * p1 +
+        3 * u * t * t * p2 +
+        t * t * t * p3
+      )
     }
   },
 

@@ -6,7 +6,7 @@ _Core utilities for the Kalisio ekosystem_
 
 ## Documentation
 
-Detailed documentation is available at the following [link](https://kalisio.github.io/common-ekosystem/packages/kore).
+Detailed documentation is available at the following [link](https://kalisio.github.io/common-ekosystem/packages/commmon-core).
 
 ## License
 

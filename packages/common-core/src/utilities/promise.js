@@ -1,9 +1,9 @@
 import { is, assert, conform, optional } from '../predicates/index.js'
 
-const QUERYABLE_SYMBOL = Symbol('queryablePromise')
+const TRACKABLE_SYMBOL = Symbol('trackablePromise')
 
 const CONCURRENT_OPTIONS_SCHEMA = {
-  concurrency: optional((v) => is.positiveInteger(v) || is.infinity(v))
+  concurrency: optional((v) => is.positiveInteger(v) || is.positiveInfinity(v))
 }
 
 export const promise = {
@@ -17,13 +17,13 @@ export const promise = {
     const p = typeof promiseOrExecutor === 'function'
       ? new Promise(promiseOrExecutor)
       : promiseOrExecutor
-    if (p[QUERYABLE_SYMBOL]) return p
+    if (p[TRACKABLE_SYMBOL]) return p
     let status = 'pending'
     const result = p.then(
       (value) => { status = 'fulfilled'; return value },
       (error) => { status = 'rejected'; throw error }
     )
-    Object.defineProperty(result, QUERYABLE_SYMBOL, {
+    Object.defineProperty(result, TRACKABLE_SYMBOL, {
       value: true,
       enumerable: false
     })
@@ -43,7 +43,7 @@ export const promise = {
     const { concurrency = Infinity } = options
     if (tasks.length === 0) return []
     // No concurrency limit
-    if (concurrency === Infinity) {
+    if (is.positiveInfinity(concurrency)) {
       return Promise.all(tasks.map(task => task()))
     }
     const results = new Array(tasks.length)

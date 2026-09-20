@@ -428,38 +428,45 @@ math.ease.out(1)   // 1
 ### Signature
 
 ```js
-math.ease.cubicBezier (t, x1 = 0.42, y1 = 0, x2 = 0.58, y2 = 1)
+math.ease.cubicBezier(t, p0 = 0, p1 = 0.42, p2 = 0.58, p3 = 1)
 ```
 
 ### Description
 
-Evaluates a cubic Bézier curve at `t`. The default control points (`0.42, 0, 0.58, 1`) produce a standard ease-in-out curve, equivalent to the CSS `ease-in-out` timing function.
+Evaluates a scalar cubic Bézier curve at `t`.
+
+The curve is defined by four control values `p0`, `p1`, `p2`, and `p3`. The default values produce a smooth transition from `0` to `1`.
+
+`t` must be in the range `[0, 1]`.
 
 ### Parameters
 
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `t` | `number` | yes | Normalized progress value in `[0, 1]` |
-| `x1` | `number` | no | X coordinate of the first control point. Defaults to `0.42` |
-| `y1` | `number` | no | Y coordinate of the first control point. Defaults to `0` |
-| `x2` | `number` | no | X coordinate of the second control point. Defaults to `0.58` |
-| `y2` | `number` | no | Y coordinate of the second control point. Defaults to `1` |
+| Name | Type     | Description                          |
+| ---- | -------- | ------------------------------------ |
+| `t`  | `number` | Progress in `[0, 1]`                 |
+| `p0` | `number` | Start value, default `0`             |
+| `p1` | `number` | First control value, default `0.42`  |
+| `p2` | `number` | Second control value, default `0.58` |
+| `p3` | `number` | End value, default `1`               |
 
 ### Returns
 
-| Type | Description |
-|------|-------------|
-| `number` | The Y value of the curve at `t` |
+| Type     | Description               |
+| -------- | ------------------------- |
+| `number` | Interpolated value at `t` |
 
 ### Examples
 
 ```js
 math.ease.cubicBezier(0)   // 0
-math.ease.cubicBezier(0.5) // ~0.5 (symmetric curve)
+math.ease.cubicBezier(0.5) // ~0.5
 math.ease.cubicBezier(1)   // 1
+```
 
-// CSS ease equivalent
-math.ease.cubicBezier(0.5, 0.25, 0.1, 0.25, 1)
+```js
+math.ease.cubicBezier(0, 1, 2, 3, 4)   // 1
+math.ease.cubicBezier(0.5, 1, 2, 3, 4) // 2.5
+math.ease.cubicBezier(1, 1, 2, 3, 4)   // 4
 ```
 
 ## stats.sum

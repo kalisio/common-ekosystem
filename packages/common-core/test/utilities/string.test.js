@@ -118,6 +118,18 @@ describe('string.slugify', () => {
   it('throws if separator is not a char', () => {
     expect(() => string.slugify('hello', '--')).toThrow('separator must be a char')
   })
+  it('supports a regexp special character as separator', () => {
+    expect(string.slugify(' hello world ', '.')).toBe('hello.world')
+  })
+  it('supports a plus sign as separator', () => {
+    expect(string.slugify(' hello world ', '+')).toBe('hello+world')
+  })
+  it('supports brackets as separator', () => {
+    expect(string.slugify(' hello world ', '[')).toBe('hello[world')
+  })
+  it('supports a backslash as separator', () => {
+    expect(string.slugify(' hello world ', '\\')).toBe('hello\\world')
+  })
 })
 
 describe('string.initials', () => {

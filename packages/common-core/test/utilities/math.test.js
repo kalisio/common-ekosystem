@@ -149,6 +149,9 @@ describe('math', () => {
     it('returns 0 at t=0', () => expect(math.ease.cubicBezier(0)).toBe(0))
     it('returns 1 at t=1', () => expect(math.ease.cubicBezier(1)).toBe(1))
     it('returns ~0.5 at t=0.5 for symmetric curve', () => expect(math.ease.cubicBezier(0.5)).toBeCloseTo(0.5, 1))
+    it('returns p0 at t=0', () => expect(math.ease.cubicBezier(0, 1, 2, 3, 4)).toBe(1))
+    it('returns p3 at t=1', () => expect(math.ease.cubicBezier(1, 1, 2, 3, 4)).toBe(4))
+    it('computes an intermediate value', () => expect(math.ease.cubicBezier(0.5, 1, 2, 3, 4)).toBeCloseTo(2.5))
     it('throws if t is out of range', () => expect(() => math.ease.cubicBezier(1.5)).toThrow('t must be in range [0, 1]'))
   })
 

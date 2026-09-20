@@ -115,7 +115,9 @@ export const string = {
     const result = string.normalize(str.trim(), { ignoreDiacritics: true }).toLowerCase()
     return result
       .replace(/[^a-z0-9]+/gi, separator)
-      .replace(new RegExp(`^${separator}|${separator}$`, 'g'), '')
+      .split(separator)
+      .filter(Boolean)
+      .join(separator)
   },
 
   capitalize (str) {

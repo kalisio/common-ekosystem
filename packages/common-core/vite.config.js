@@ -13,7 +13,6 @@ export default mergeConfig(baseConfig, defineConfig({
   build: {
     lib: {
       entry: {
-        index: 'src/index.js',
         'predicates/index': 'src/predicates/index.js',
         'utilities/index': 'src/utilities/index.js',
         'io/json': 'src/io/json.js',
