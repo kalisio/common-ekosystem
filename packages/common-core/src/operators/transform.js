@@ -1,4 +1,4 @@
-import { isNumber, toNumber, has, get, set, unset, pick, omit, merge, camelCase, snakeCase, kebabCase, startCase, upperCase, lowerCase } from 'lodash-es'
+import { isNumber, toNumber, has, get, set, unset, pick, merge, camelCase, snakeCase, kebabCase, startCase, upperCase, lowerCase } from 'lodash-es'
 import { unit } from 'mathjs'
 import moment from 'moment'
 import sift from 'sift'
@@ -32,27 +32,53 @@ function convert (value, units) {
     if (typeof value === 'string') value = value.replace(/ /g, '')
     return toNumber(value)
   }
-  return unit(value, units.from).toNumber(units.to)
+  if (units.from || units.to) {
+    return unit(value, units.from).toNumber(units.to)
+  }
+  return value
 }
 
 function mapping (array, mapping) {
-  for (const [inputPath, output] of Object.entries(mapping)) {
-    const isOutputObject = typeof output === 'object'
-    const outputPath = isOutputObject ? output.path : output
-    const shouldDelete = isOutputObject ? (output.delete ?? true) : true
-    for (const object of array) {
-      if (!has(object, inputPath)) continue
-      let value = get(object, inputPath)
-      if (isOutputObject && output.values) value = output.values[value]
-      set(object, outputPath, value)
-      if (shouldDelete && inputPath !== outputPath) unset(object, inputPath)
+  const entries = Object.entries(mapping).map(([inputPath, output]) => {
+    const isOutputObject = is.plainObject(output)
+    assert.that(
+      output,
+      (v) => is.nonEmptyString(v) || (is.plainObject(v) && is.nonEmptyString(v.path)),
+      `mapping output for '${inputPath}' must be a non empty path or an object with a non empty path`
+    )
+    return {
+      inputPath,
+      outputPath: isOutputObject ? output.path : output,
+      values: isOutputObject ? output.values : undefined,
+      shouldDelete: isOutputObject ? (output.delete ?? true) : true
+    }
+  })
+  for (const item of array) {
+    const writes = entries
+      .filter(e => has(item, e.inputPath))
+      .map(e => {
+        let value = get(item, e.inputPath)
+        if (e.values) value = Object.hasOwn(e.values, value) ? e.values[value] : value
+        return { ...e, value }
+      })
+    const targetPaths = new Set(writes.map(w => w.outputPath))
+    for (const w of writes) set(item, w.outputPath, w.value)
+    for (const w of writes) {
+      if (w.shouldDelete && w.inputPath !== w.outputPath && !targetPaths.has(w.inputPath)) {
+        unset(item, w.inputPath)
+      }
     }
   }
   return array
 }
 
 function unitMapping (array, unitMapping) {
-  for (const [inputPath, units] of Object.entries(unitMapping)) {
+  const entries = Object.entries(unitMapping)
+  // validate every units bag up front, before any mutation
+  for (const [inputPath, units] of entries) {
+    assert.that(units, is.plainObject, `unitMapping '${inputPath}' must be an object`)
+  }
+  for (const [inputPath, units] of entries) {
     for (const obj of array) {
       if (has(obj, inputPath)) {
         let value = convert(get(obj, inputPath), units)
@@ -77,7 +103,13 @@ export function transform (obj, options) {
     { value: options, validator: is.plainObject, message: 'options must be an object' }
   ])
   if (options.toArray) obj = Object.values(obj)
-  if (options.toObjects) obj = obj.map(arr => Object.fromEntries(options.toObjects.map((k, i) => [k, arr[i]])))
+  if (options.toObjects) {
+    assert.all([
+      { value: obj, validator: (v) => is.arrayOf(v, is.array), message: 'toObjects requires an array of arrays' },
+      { value: options.toObjects, validator: (v) => is.nonEmptyArrayOf(v, is.nonEmptyString), message: 'toObjects must be a non empty array of non empty strings' }
+    ])
+    obj = obj.map(arr => Object.fromEntries(options.toObjects.map((key, index) => [key, arr[index]])))
+  }
   const isArray = Array.isArray(obj)
   if (!isArray) obj = [obj]
   if (options.filter) obj = obj.filter(sift(options.filter))
@@ -87,12 +119,17 @@ export function transform (obj, options) {
   if (options.mapping) mapping(obj, options.mapping)
   if (options.unitMapping) unitMapping(obj, options.unitMapping)
   if (options.pick || options.omit || options.merge) {
-    for (let i = 0; i < obj.length; i++) {
-      let tmp = obj[i]
-      if (options.pick) tmp = pick(tmp, options.pick)
-      if (options.omit) tmp = omit(tmp, options.omit)
-      if (options.merge) merge(tmp, options.merge)
-      obj[i] = tmp
+    for (const item of obj) {
+      if (options.pick) {
+        // keep only picked keys while preserving the object reference
+        const kept = pick(item, options.pick)
+        for (const key of Object.keys(item)) delete item[key]
+        Object.assign(item, kept)
+      }
+      if (options.omit) {
+        for (const path of options.omit) unset(item, path)
+      }
+      if (options.merge) merge(item, options.merge) // lodash merge already mutates in place
     }
   }
   if (!isArray) {

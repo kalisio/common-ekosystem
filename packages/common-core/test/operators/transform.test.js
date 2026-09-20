@@ -3,10 +3,8 @@ import { transform } from '../../src/operators'
 describe('transform', () => {
   describe('toArray', () => {
     it('converts a plain object to an array of its values', () => {
-      const result = transform({ a: 1, b: 2 }, { toArray: true })
-      expect(result).toEqual([1, 2])
+      expect(transform({ a: 1, b: 2 }, { toArray: true })).toEqual([1, 2])
     })
-
     it('converts an empty object to an empty array', () => {
       expect(transform({}, { toArray: true })).toEqual([])
     })
@@ -17,22 +15,36 @@ describe('transform', () => {
       const result = transform([[1, 'Alice'], [2, 'Bob']], { toObjects: ['id', 'name'] })
       expect(result).toEqual([{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }])
     })
-
     it('returns an empty array for empty input', () => {
       expect(transform([], { toObjects: ['id', 'name'] })).toEqual([])
+    })
+    it('throws when the input is not an array of arrays', () => {
+      expect(() => transform({ a: 1 }, { toObjects: ['id'] })).toThrow()
+    })
+    it('throws when a row is not an array', () => {
+      expect(() => transform([[1, 'Alice'], 'nope'], { toObjects: ['id', 'name'] })).toThrow()
+    })
+    it('throws when toObjects is not an array', () => {
+      expect(() => transform([['a', 1]], { toObjects: true })).toThrow()
+    })
+    it('throws when toObjects is an empty array', () => {
+      expect(() => transform([['a', 1]], { toObjects: [] })).toThrow()
+    })
+    it('throws when toObjects contains a non-string key', () => {
+      expect(() => transform([['a', 1]], { toObjects: ['id', 2] })).toThrow()
+    })
+    it('throws when toObjects contains an empty string key', () => {
+      expect(() => transform([['a', 1]], { toObjects: ['id', ''] })).toThrow()
     })
   })
 
   describe('filter', () => {
     it('filters objects by query', () => {
-      const result = transform([{ type: 'a' }, { type: 'b' }], { filter: { type: 'a' } })
-      expect(result).toEqual([{ type: 'a' }])
+      expect(transform([{ type: 'a' }, { type: 'b' }], { filter: { type: 'a' } })).toEqual([{ type: 'a' }])
     })
-
     it('returns an empty array when no objects match', () => {
       expect(transform([{ type: 'a' }], { filter: { type: 'z' } })).toEqual([])
     })
-
     it('supports $gte operator', () => {
       const result = transform([{ age: 10 }, { age: 20 }, { age: 30 }], { filter: { age: { $gte: 20 } } })
       expect(result).toHaveLength(2)
@@ -45,11 +57,40 @@ describe('transform', () => {
       transform(json, { mapping: { a: 'b' } })
       expect(json[0]).toHaveProperty('b', 1)
     })
-
     it('does not mutate the original array when inPlace is false', () => {
       const json = [{ a: 1 }]
       transform(json, { mapping: { a: 'b' }, inPlace: false })
       expect(json[0]).toHaveProperty('a', 1)
+    })
+    it('keeps the same object reference when pick runs in place', () => {
+      const item = { a: 1, b: 2, c: 3 }
+      const result = transform([item], { pick: ['a', 'c'] })
+      expect(result[0]).toBe(item) // same reference, not a copy
+      expect(item).toEqual({ a: 1, c: 3 }) // original mutated
+    })
+    it('keeps the same object reference when omit runs in place', () => {
+      const item = { a: 1, b: 2 }
+      const result = transform([item], { omit: ['b'] })
+      expect(result[0]).toBe(item)
+      expect(item).toEqual({ a: 1 })
+    })
+    it('reflects mapping then pick on the caller-held original', () => {
+      const item = { a: 1, keep: 'x' }
+      transform([item], { mapping: { a: 'b' }, pick: ['b', 'keep'] })
+      expect(item).toEqual({ b: 1, keep: 'x' })
+    })
+    it('does not touch the original when inPlace is false, even with pick', () => {
+      const item = { a: 1, b: 2 }
+      const result = transform([item], { pick: ['a'], inPlace: false })
+      expect(item).toEqual({ a: 1, b: 2 }) // untouched
+      expect(result[0]).toEqual({ a: 1 })
+      expect(result[0]).not.toBe(item)
+    })
+    it('supports deep paths in pick while preserving the reference', () => {
+      const item = { a: { b: 1 }, drop: true }
+      const result = transform([item], { pick: ['a.b'] })
+      expect(result[0]).toBe(item)
+      expect(item).toEqual({ a: { b: 1 } })
     })
   })
 
@@ -57,29 +98,65 @@ describe('transform', () => {
     it('renames a key on an object input', () => {
       expect(transform({ a: 1 }, { mapping: { a: 'b' } })).toEqual({ b: 1 })
     })
-
     it('renames a key on an array input', () => {
       expect(transform([{ a: 1 }, { a: 2 }], { mapping: { a: 'b' } })).toEqual([{ b: 1 }, { b: 2 }])
     })
-
     it('supports value mapping', () => {
       const result = transform({ status: 1 }, { mapping: { status: { path: 'label', values: { 1: 'active', 0: 'inactive' } } } })
       expect(result.label).toBe('active')
     })
-
     it('supports nested paths', () => {
       const result = transform({ a: { b: 1 } }, { mapping: { 'a.b': 'flat' } })
       expect(result.flat).toBe(1)
       expect(result.a).toEqual({})
     })
-
     it('skips only the objects that do not carry the input path', () => {
       const result = transform([{ a: 1, z: 9 }, { z: 8 }, { a: 3, z: 7 }], { mapping: { a: 'A', z: 'Z' } })
       expect(result).toEqual([{ A: 1, Z: 9 }, { Z: 8 }, { A: 3, Z: 7 }])
     })
-
     it('still applies the next mappings when an object lacks the first input path', () => {
       expect(transform([{ z: 8 }], { mapping: { a: 'A', z: 'Z' } })).toEqual([{ Z: 8 }])
+    })
+    it('swaps two fields without clobbering (reads before writes)', () => {
+      expect(transform({ a: 1, b: 2 }, { mapping: { a: 'b', b: 'a' } })).toEqual({ a: 2, b: 1 })
+    })
+    it('preserves both keys of a swap (neither source is dropped)', () => {
+      const result = transform({ a: 1, b: 2 }, { mapping: { a: 'b', b: 'a' } })
+      expect(result).toHaveProperty('a')
+      expect(result).toHaveProperty('b')
+    })
+    it('drops the source only when no other applied mapping targets it', () => {
+      // a -> b applied, c -> a not applied (c absent): a must still be removed
+      expect(transform({ a: 1 }, { mapping: { a: 'b', c: 'a' } })).toEqual({ b: 1 })
+    })
+    it('keeps the original value when it is absent from the lookup table', () => {
+      const result = transform({ status: 7 }, { mapping: { status: { path: 'label', values: { 1: 'active' } } } })
+      expect(result.label).toBe(7)
+      expect(result.label).not.toBeUndefined()
+    })
+    it('maps a value present in the table, including falsy keys', () => {
+      const result = transform({ status: 0 }, { mapping: { status: { path: 'label', values: { 0: 'inactive', 1: 'active' } } } })
+      expect(result.label).toBe('inactive')
+    })
+    it('does not treat inherited prototype keys as lookup hits', () => {
+      const result = transform({ status: 'toString' }, { mapping: { status: { path: 'label', values: { 1: 'active' } } } })
+      expect(result.label).toBe('toString')
+    })
+    it('keeps the source in place when input and output paths are equal', () => {
+      const result = transform({ a: 1 }, { mapping: { a: { path: 'a', values: { 1: 'one' } } } })
+      expect(result).toEqual({ a: 'one' })
+    })
+    it('respects delete: false to keep the source alongside the target', () => {
+      expect(transform({ a: 1 }, { mapping: { a: { path: 'b', delete: false } } })).toEqual({ a: 1, b: 1 })
+    })
+    it('throws when an output object has no path', () => {
+      expect(() => transform({ a: 1 }, { mapping: { a: {} } })).toThrow()
+    })
+    it('throws when an output is neither a string nor an object', () => {
+      expect(() => transform({ a: 1 }, { mapping: { a: 42 } })).toThrow()
+    })
+    it('throws when an output path is an empty string', () => {
+      expect(() => transform({ a: 1 }, { mapping: { a: '' } })).toThrow()
     })
   })
 
@@ -87,42 +164,58 @@ describe('transform', () => {
     it('converts a string to a number', () => {
       expect(transform({ n: '42' }, { unitMapping: { n: { asNumber: true } } })).toEqual({ n: 42 })
     })
-
     it('converts a number to a hex string', () => {
       expect(transform({ n: 255 }, { unitMapping: { n: { asString: 16 } } })).toEqual({ n: 'ff' })
     })
-
     it('converts a date to a formatted string', () => {
       const result = transform({ ts: '2024-01-15' }, { unitMapping: { ts: { asDate: 'utc', from: 'YYYY-MM-DD', to: 'DD/MM/YYYY' } } })
       expect(result.ts).toBe('15/01/2024')
     })
-
     it('converts physical units', () => {
       const result = transform({ d: 1 }, { unitMapping: { d: { from: 'km', to: 'mile' } } })
       expect(result.d).toBeCloseTo(0.621371, 4)
     })
-
     it('applies asCase after conversion', () => {
       const result = transform({ label: 'hello world' }, { unitMapping: { label: { asString: true, asCase: 'camelCase' } } })
       expect(result.label).toBe('helloWorld')
     })
-
+    it('applies asCase alone, without any as* conversion', () => {
+      const result = transform({ label: 'hello world' }, { unitMapping: { label: { asCase: 'camelCase' } } })
+      expect(result.label).toBe('helloWorld')
+    })
+    it('leaves a non-string value untouched when only asCase is set', () => {
+      const result = transform({ n: 42 }, { unitMapping: { n: { asCase: 'upperCase' } } })
+      expect(result.n).toBe(42) // typeof !== 'string' -> case skipped, value returned as-is
+    })
+    it('returns the value unchanged when units carry neither from nor to', () => {
+      const result = transform({ n: 5 }, { unitMapping: { n: {} } })
+      expect(result.n).toBe(5) // no mathjs unit() call on an empty units bag
+    })
     it('strips every space when converting a string to a number', () => {
       expect(transform({ n: '120 000 500' }, { unitMapping: { n: { asNumber: true } } })).toEqual({ n: 120000500 })
     })
-
     it('applies a native String case method', () => {
       const result = transform({ label: 'abc' }, { unitMapping: { label: { asString: true, asCase: 'toUpperCase' } } })
       expect(result.label).toBe('ABC')
     })
-
     it('leaves the value unchanged when the case function is unknown', () => {
       const result = transform({ label: 'abc' }, { unitMapping: { label: { asString: true, asCase: 'nope' } } })
       expect(result.label).toBe('abc')
     })
-
     it('sets the empty value when path is missing', () => {
       expect(transform({ other: 1 }, { unitMapping: { missing: { asNumber: true, empty: 0 } } })).toHaveProperty('missing', 0)
+    })
+    it('throws when a units bag is null', () => {
+      expect(() => transform({ temp: 20 }, { unitMapping: { temp: null } })).toThrow()
+    })
+    it('throws when a units bag is not an object', () => {
+      expect(() => transform({ temp: 20 }, { unitMapping: { temp: 'degC' } })).toThrow()
+    })
+    it('validates every units bag before applying any (no partial mutation)', () => {
+      const item = { a: '1', b: 2 }
+      // second entry is invalid: the first must not have been applied
+      expect(() => transform([item], { unitMapping: { a: { asNumber: true }, b: null } })).toThrow()
+      expect(item.a).toBe('1') // untouched
     })
   })
 
@@ -130,15 +223,15 @@ describe('transform', () => {
     it('keeps only the listed properties', () => {
       expect(transform({ a: 1, b: 2, c: 3 }, { pick: ['a', 'c'] })).toEqual({ a: 1, c: 3 })
     })
-
     it('removes the listed properties', () => {
       expect(transform({ a: 1, b: 2 }, { omit: ['b'] })).toEqual({ a: 1 })
     })
-
+    it('removes a nested property by path', () => {
+      expect(transform({ a: { b: 1, c: 2 } }, { omit: ['a.b'] })).toEqual({ a: { c: 2 } })
+    })
     it('merges additional properties', () => {
       expect(transform({ a: 1 }, { merge: { b: 2 } })).toEqual({ a: 1, b: 2 })
     })
-
     it('applies pick then omit then merge in order', () => {
       const result = transform({ a: 1, b: 2, c: 3 }, { pick: ['a', 'b'], omit: ['b'], merge: { z: 99 } })
       expect(result).toEqual({ a: 1, z: 99 })
@@ -149,25 +242,20 @@ describe('transform', () => {
     it('returns an object when input is an object', () => {
       expect(Array.isArray(transform({ a: 1 }, {}))).toBe(false)
     })
-
     it('returns an array when input is an array', () => {
       expect(Array.isArray(transform([{ a: 1 }], {}))).toBe(true)
     })
-
     it('returns an array for object input when asArray is true', () => {
       const result = transform({ a: 1 }, { asArray: true })
       expect(Array.isArray(result)).toBe(true)
       expect(result).toHaveLength(1)
     })
-
     it('returns the first element when asObject is true on an array', () => {
       expect(transform([{ a: 1 }, { a: 2 }], { asObject: true })).toEqual({ a: 1 })
     })
-
     it('returns {} when array is empty and asObject is true', () => {
       expect(transform([], { asObject: true })).toEqual({})
     })
-
     it('returns {} when object is filtered out', () => {
       expect(transform({ a: 1 }, { filter: { a: 99 } })).toEqual({})
     })
@@ -182,7 +270,6 @@ describe('transform', () => {
       })
       expect(result).toEqual([{ name: 'Alice' }, { name: 'Carol' }])
     })
-
     it('mapping + unitMapping + omit', () => {
       const result = transform([{ raw: '0', extra: true }], {
         mapping: { raw: 'value' },
@@ -191,7 +278,6 @@ describe('transform', () => {
       })
       expect(result).toEqual([{ value: 0 }])
     })
-
     it('filter + unitMapping + merge', () => {
       const result = transform(
         [{ city: 'Paris', temp: 20 }, { city: 'London', temp: 15 }],
@@ -201,7 +287,6 @@ describe('transform', () => {
       expect(result[0].unit).toBe('F')
       expect(result[0].temp).toBeCloseTo(68, 0)
     })
-
     it('mapping + pick + asObject', () => {
       const result = transform(
         [{ firstName: 'Alice', age: 30 }, { firstName: 'Bob', age: 25 }],
@@ -209,7 +294,6 @@ describe('transform', () => {
       )
       expect(result).toEqual({ name: 'Alice' })
     })
-
     it('toObjects + unitMapping date + omit', () => {
       const result = transform([[1, '2024-01-15'], [2, '2024-06-01']], {
         toObjects: ['id', 'date'],
@@ -218,13 +302,19 @@ describe('transform', () => {
       })
       expect(result).toEqual([{ date: '15/01/2024' }, { date: '01/06/2024' }])
     })
+    it('mapping value lookup + asObject on the mapped result', () => {
+      const result = transform(
+        [{ status: 1 }, { status: 0 }],
+        { mapping: { status: { path: 'label', values: { 1: 'active', 0: 'inactive' } } } }
+      )
+      expect(result).toEqual([{ label: 'active' }, { label: 'inactive' }])
+    })
   })
 
   describe('no-op', () => {
     it('returns the object unchanged when no options are active', () => {
       expect(transform({ a: 1 }, {})).toEqual({ a: 1 })
     })
-
     it('returns the array unchanged when no options are active', () => {
       expect(transform([{ a: 1 }], {})).toEqual([{ a: 1 }])
     })
@@ -234,7 +324,6 @@ describe('transform', () => {
     it('handles an empty array input', () => {
       expect(transform([], {})).toEqual([])
     })
-
     it('handles an empty object input', () => {
       expect(transform({}, {})).toEqual({})
     })
@@ -244,19 +333,15 @@ describe('transform', () => {
     it('throws when json is null', () => {
       expect(() => transform(null, {})).toThrow()
     })
-
     it('throws when json is a string', () => {
       expect(() => transform('hello', {})).toThrow()
     })
-
     it('throws when json is a number', () => {
       expect(() => transform(42, {})).toThrow()
     })
-
     it('throws when options is not a plain object', () => {
       expect(() => transform({ a: 1 }, 'invalid')).toThrow()
     })
-
     it('throws when options is null', () => {
       expect(() => transform({ a: 1 }, null)).toThrow()
     })
