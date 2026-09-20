@@ -8,7 +8,7 @@ export const locale = {
   },
 
   getCodes () {
-    const { language, script, region } = new Intl.Locale(this.get())
+    const { language, script, region } = new Intl.Locale(locale.get())
     return { language, script, region }
   }
 

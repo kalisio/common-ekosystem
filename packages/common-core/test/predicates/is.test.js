@@ -1526,6 +1526,54 @@ describe('is.url', () => {
   it('returns false for undefined', () => {
     expect(is.url(undefined)).toBe(false)
   })
+  it('returns true for a valid http URL', () => {
+    expect(is.url('http://example.com')).toBe(true)
+  })
+  it('returns true for a valid https URL', () => {
+    expect(is.url('https://example.com')).toBe(true)
+  })
+  it('returns true for a URL with a path', () => {
+    expect(is.url('https://example.com/foo/bar')).toBe(true)
+  })
+  it('returns true for a URL with query params', () => {
+    expect(is.url('https://example.com?foo=bar&baz=1')).toBe(true)
+  })
+  it('returns true for a URL with a hash', () => {
+    expect(is.url('https://example.com#section')).toBe(true)
+  })
+  it('returns true for a custom scheme with authority', () => {
+    expect(is.url('s3://bucket/path/to/file')).toBe(true)
+  })
+  it('returns false for a mailto URL', () => {
+    expect(is.url('mailto:user@example.com')).toBe(false)
+  })
+  it('returns false for a scheme without authority', () => {
+    expect(is.url('localhost:8080')).toBe(false)
+  })
+  it('returns false for a Windows file path', () => {
+    expect(is.url('C:\\tmp\\file.txt')).toBe(false)
+  })
+  it('returns false for a plain string with no protocol', () => {
+    expect(is.url('example.com')).toBe(false)
+  })
+  it('returns false for an empty string', () => {
+    expect(is.url('')).toBe(false)
+  })
+  it('returns false for a relative URL without a base', () => {
+    expect(is.url('/foo/bar')).toBe(false)
+  })
+  it('returns false for a random string', () => {
+    expect(is.url('not a url')).toBe(false)
+  })
+  it('returns false for number', () => {
+    expect(is.url(23)).toBe(false)
+  })
+  it('returns false for null', () => {
+    expect(is.url(null)).toBe(false)
+  })
+  it('returns false for undefined', () => {
+    expect(is.url(undefined)).toBe(false)
+  })
 })
 
 describe('is.url — multi-host', () => {
