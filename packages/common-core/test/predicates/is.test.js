@@ -703,6 +703,69 @@ describe('is.arrayOfLength', () => {
   })
 })
 
+describe('is.arrayOf', () => {
+  it('returns true for an array matching the validator', () => {
+    expect(is.arrayOf([1, 2, 3], is.number)).toBe(true)
+  })
+  it('returns true for an empty array', () => {
+    expect(is.arrayOf([], is.number)).toBe(true)
+  })
+  it('returns true for an array of strings', () => {
+    expect(is.arrayOf(['a', 'b'], is.string)).toBe(true)
+  })
+  it('returns false when an item does not match the validator', () => {
+    expect(is.arrayOf([1, '2', 3], is.number)).toBe(false)
+  })
+  it('returns false when no item matches the validator', () => {
+    expect(is.arrayOf(['1', '2'], is.number)).toBe(false)
+  })
+  it('returns false when value is not an array', () => {
+    expect(is.arrayOf('abc', is.string)).toBe(false)
+  })
+  it('returns false for null', () => {
+    expect(is.arrayOf(null, is.number)).toBe(false)
+  })
+  it('returns false for undefined', () => {
+    expect(is.arrayOf(undefined, is.number)).toBe(false)
+  })
+  it('supports a custom validator', () => {
+    expect(is.arrayOf([2, 4, 6], v => v % 2 === 0)).toBe(true)
+  })
+  it('throws when validator is not a function', () => {
+    expect(() => is.arrayOf([1, 2, 3], null)).toThrow('validator must be a function')
+  })
+})
+
+describe('is.nonEmptyArrayOf', () => {
+  it('returns true for a non-empty array matching the validator', () => {
+    expect(is.nonEmptyArrayOf([1, 2, 3], is.number)).toBe(true)
+  })
+  it('returns true for a non-empty array of strings', () => {
+    expect(is.nonEmptyArrayOf(['a', 'b'], is.string)).toBe(true)
+  })
+  it('returns false for an empty array', () => {
+    expect(is.nonEmptyArrayOf([], is.number)).toBe(false)
+  })
+  it('returns false when an item does not match the validator', () => {
+    expect(is.nonEmptyArrayOf([1, '2', 3], is.number)).toBe(false)
+  })
+  it('returns false when value is not an array', () => {
+    expect(is.nonEmptyArrayOf('abc', is.string)).toBe(false)
+  })
+  it('returns false for null', () => {
+    expect(is.nonEmptyArrayOf(null, is.number)).toBe(false)
+  })
+  it('returns false for undefined', () => {
+    expect(is.nonEmptyArrayOf(undefined, is.number)).toBe(false)
+  })
+  it('supports a custom validator', () => {
+    expect(is.nonEmptyArrayOf([2, 4, 6], v => v % 2 === 0)).toBe(true)
+  })
+  it('throws when validator is not a function', () => {
+    expect(() => is.nonEmptyArrayOf([1, 2, 3], null)).toThrow('validator must be a function')
+  })
+})
+
 describe('is.map', () => {
   it('returns true for an empty Map', () => {
     expect(is.map(new Map())).toBe(true)

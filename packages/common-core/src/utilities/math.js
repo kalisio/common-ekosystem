@@ -121,34 +121,22 @@ export const math = {
 
   stats: {
     sum (values) {
-      assert.that(
-        values,
-        (v) => is.array(v) && v.every(is.number),
-        'values must be an array of numbers'
-      )
-      return values.reduce((acc, v) => acc + v, 0)
+      assert.that(values, (v) => is.arrayOf(v, is.number), 'values must be an array of numbers')
+      return values.reduce((sum, value) => sum + value, 0)
     },
 
     average (values) {
-      assert.that(
-        values,
-        (v) => is.nonEmptyArray(v) && v.every(is.number),
-        'values must be a non-empty array of numbers'
-      )
+      assert.that(values, (v) => is.nonEmptyArrayOf(v, is.number), 'values must be a non-empty array of numbers')
       return math.stats.sum(values) / values.length
     },
 
     median (values) {
-      assert.that(
-        values,
-        (v) => is.nonEmptyArray(v) && v.every(is.number),
-        'values must be a non-empty array of numbers'
-      )
+      assert.that(values, (v) => is.nonEmptyArrayOf(v, is.number), 'values must be a non-empty array of numbers')
       const sorted = [...values].sort((a, b) => a - b)
-      const mid = Math.floor(sorted.length / 2)
+      const middle = Math.floor(sorted.length / 2)
       return sorted.length % 2 === 0
-        ? math.linear(0.5, sorted[mid - 1], sorted[mid])
-        : sorted[mid]
+        ? (sorted[middle - 1] + sorted[middle]) / 2
+        : sorted[middle]
     }
   }
 

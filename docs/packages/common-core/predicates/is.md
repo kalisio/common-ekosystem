@@ -474,6 +474,40 @@ is.arrayOfLengthBetween(value, minLength, maxLength)
 
 Both bounds must be non-negative integers and `minLength` must be less than or equal to `maxLength`.
 
+### arrayOf
+
+Checks whether a value is an array whose items all match a validator.
+
+An empty array is considered valid.
+
+```js
+is.arrayOf(value, validator)
+```
+
+```js
+is.arrayOf([1, 2, 3], is.number) // true
+is.arrayOf([1, '2', 3], is.number) // false
+is.arrayOf([], is.number) // true
+```
+
+`validator` must be a function.
+
+### nonEmptyArrayOf
+
+Checks whether a value is a non-empty array whose items all match a validator.
+
+```js
+is.nonEmptyArrayOf(value, validator)
+```
+
+```js
+is.nonEmptyArrayOf([1, 2, 3], is.number) // true
+is.nonEmptyArrayOf([1, '2', 3], is.number) // false
+is.nonEmptyArrayOf([], is.number) // false
+```
+
+`validator` must be a function.
+
 ## Maps
 
 ### map

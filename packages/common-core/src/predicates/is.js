@@ -225,6 +225,16 @@ export const is = {
     return is.array(value) && value.length >= minLength && value.length <= maxLength
   },
 
+  arrayOf (value, validator) {
+    assert.that(validator, is.function, 'validator must be a function')
+    return is.array(value) && value.every(validator)
+  },
+
+  nonEmptyArrayOf (value, validator) {
+    assert.that(validator, is.function, 'validator must be a function')
+    return is.nonEmptyArray(value) && value.every(validator)
+  },
+
   map (value) {
     return value instanceof Map
   },

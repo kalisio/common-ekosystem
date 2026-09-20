@@ -36,8 +36,7 @@ export const promise = {
 
   async run (tasks, options = {}) {
     assert.all([
-      { value: tasks, validator: is.array, message: 'tasks must be an array' },
-      { value: tasks, validator: (v) => is.array(v) && v.every((t) => is.function(t)), message: 'tasks must contain functions' },
+      { value: tasks, validator: (v) => is.arrayOf(v, is.function), message: 'tasks must be an array of functions' },
       { value: options, validator: (v) => conform.schema(v, CONCURRENT_OPTIONS_SCHEMA), message: 'options must be valid' }
     ])
     const { concurrency = Infinity } = options
