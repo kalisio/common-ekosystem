@@ -1,6 +1,9 @@
 # @kalisio/common-core
 
-## [v0.11.0](https://github.com/orgs/kalisio/projects/32/views/9?sliceBy%5Bvalue%5D=v0.11.x)
+
+## [v0.12.0](https://github.com/orgs/kalisio/projects/32/views/9?sliceBy%5Bvalue%5D=v0.12.0)
+
+## [v0.11.0](https://github.com/orgs/kalisio/projects/32/views/9?sliceBy%5Bvalue%5D=v0.11.0)
 
 ## [v0.10.0](https://github.com/orgs/kalisio/projects/32/views/9?sliceBy%5Bvalue%5D=v0.10.x)
 
