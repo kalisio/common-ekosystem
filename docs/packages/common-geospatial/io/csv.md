@@ -13,46 +13,59 @@ The CSV reader loads tabular data from a supported source and converts each row 
 
 ```js
 readCsv(source, options)
-````
+```
 
 ### Description
 
-Reads CSV content using the CSV reader provided by `@kalisio/common-core/io` and converts parsed rows into a GeoJSON `FeatureCollection`.
-The same source types and source-reading options are therefore supported.
+Reads CSV content using the CSV reader provided by `@kalisio/common-core/io/csv` and converts parsed rows into
+a GeoJSON `FeatureCollection`.
+
+The same source types and source-reading options are supported.
 
 Each row is converted into a GeoJSON `Feature` whose geometry is a `Point`.
 
-By default, the reader expects two columns named `longitude` and `latitude`.
+By default, the reader expects two columns named `longitude` and `latitude`. Different coordinate columns can be
+specified through `coordinates`.
 
-A different pair of coordinate columns can be specified through the `coordinates` option.
-
-CSV rows are validated against an internal JSON Schema requiring the coordinate fields to be numeric. An additional user-defined `rowSchema` can also be provided and is combined with the coordinate schema.
+CSV rows are validated against an internal JSON Schema requiring coordinate fields to be numeric. An additional
+`rowSchema` can be provided and is combined with this schema.
 
 The generated GeoJSON is then validated using `validateGeoJson`.
 
 ### Parameters
 
-| Parameter                       | Type                            | Description                                                                                               | Default                                            |
-| ------------------------------- | ------------------------------- | --------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| `source`                        | `string \| URL \| Blob \| File` | CSV source to read                                                                                        | —                                                  |
-| `options`                       | `object`                        | CSV and geospatial reading options                                                                        | `{}`                                               |
-| `options.header`                | `true \| string[]`              | Uses the first row as column names when `true`, or uses the provided column names without consuming a row | `true`                                             |
-| `options.parser`                | `object`                        | PapaParse configuration options forwarded to the underlying CSV reader                                    | `{}`                                               |
-| `options.rowSchema`             | `object`                        | Optional JSON Schema used to validate each row in addition to the required coordinate fields              | `undefined`                                        |
-| `options.coordinates`           | `object`                        | Defines which CSV columns contain longitude and latitude                                                  | `{ longitude: 'longitude', latitude: 'latitude' }` |
-| `options.coordinates.longitude` | `string`                        | Name of the longitude column                                                                              | `'longitude'`                                      |
-| `options.coordinates.latitude`  | `string`                        | Name of the latitude column                                                                               | `'latitude'`                                       |
-| `options.preserveCoordinates`   | `boolean`                       | Whether coordinate columns are kept in feature properties                                                 | `true`                                             |
+| Name                          | Type                            | Default   | Description                    |
+| ----------------------------- | ------------------------------- | --------- | ------------------------------ |
+| `source`                      | `string \| URL \| Blob \| File` | —         | CSV source                     |
+| `options`                     | `object`                        | `{}`      | Read and conversion options    |
+| `options.encoding`            | `string`                        | `'utf-8'` | File encoding                  |
+| `options.request`             | `object`                        | —         | Options passed to `request`    |
+| `options.header`              | `true \| string[]`              | `true`    | CSV column names               |
+| `options.parser`              | `object`                        | `{}`      | PapaParse options              |
+| `options.rowSchema`           | `object`                        | —         | Additional row schema          |
+| `options.coordinates`         | `object`                        | —         | Coordinate columns             |
+| `options.preserveCoordinates` | `boolean`                       | `true`    | Keep coordinates in properties |
 
-The underlying CSV reader ignores empty lines by default through PapaParse `skipEmptyLines: true`. This behavior can be overridden through `parser.skipEmptyLines`.
+The default coordinate columns are:
 
-Because row validation is always enabled to validate coordinate fields, `parser.dynamicTyping` cannot be enabled. Type coercion is handled by the JSON Schema validator.
+```js
+{
+  longitude: 'longitude',
+  latitude: 'latitude'
+}
+```
+
+The underlying CSV reader ignores empty lines by default through PapaParse `skipEmptyLines: true`.
+This can be overridden with `parser.skipEmptyLines`.
+
+Because row validation is always enabled for coordinate fields, `parser.dynamicTyping` cannot be enabled.
+Type coercion is handled by the JSON Schema validator.
 
 ### Returns
 
-| Type              | Description                                                                                     |
-| ----------------- | ----------------------------------------------------------------------------------------------- |
-| `Promise<object>` | The generated GeoJSON together with CSV parsing, row validation, and GeoJSON validation results |
+| Type              | Description             |
+| ----------------- | ----------------------- |
+| `Promise<object>` | CSV and GeoJSON results |
 
 The returned object contains:
 
@@ -69,30 +82,22 @@ The returned object contains:
 }
 ```
 
-| Property           | Type                | Description                                                                                     |
-| ------------------ | ------------------- | ----------------------------------------------------------------------------------------------- |
-| `geojson`          | `FeatureCollection` | GeoJSON FeatureCollection generated from the CSV rows                                           |
-| `parseErrors`      | `Array`             | CSV parsing errors reported by the underlying CSV reader                                        |
-| `parseMeta`        | `object`            | CSV parsing metadata. `parseMeta.fields` contains the parsed column names when headers are used |
-| `validationErrors` | `Array`             | Row validation errors reported by the JSON Schema validator                                     |
-| `valid`            | `boolean`           | Whether the generated GeoJSON is valid                                                          |
-| `errors`           | `Array`             | GeoJSON validation errors                                                                       |
-| `warnings`         | `Array`             | GeoJSON validation warnings                                                                     |
+| Property           | Type                | Description           |
+| ------------------ | ------------------- | --------------------- |
+| `geojson`          | `FeatureCollection` | Generated GeoJSON     |
+| `parseErrors`      | `Array`             | CSV parsing errors    |
+| `parseMeta`        | `object`            | CSV parsing metadata  |
+| `validationErrors` | `Array`             | Row validation errors |
+| `valid`            | `boolean`           | GeoJSON validity      |
+| `errors`           | `Array`             | GeoJSON errors        |
+| `warnings`         | `Array`             | GeoJSON warnings      |
 
-Rows are not removed when validation fails. They remain in the generated GeoJSON and validation problems are reported separately.
+Rows are not removed when validation fails. They remain in the generated GeoJSON and
+validation problems are reported separately.
 
 ### Coordinate handling
 
-By default, the following columns are used:
-
-```js
-{
-  longitude: 'longitude',
-  latitude: 'latitude'
-}
-```
-
-For a CSV containing different column names:
+For a CSV using different column names:
 
 ```csv
 name,lon,lat
@@ -112,11 +117,12 @@ const result = await readCsv('./points.csv', {
 
 Coordinate values are coerced to numbers by the JSON Schema validator.
 
-Geographic constraints such as valid longitude and latitude ranges are not enforced by the CSV row schema. They are validated by `validateGeoJson` on the generated GeoJSON.
+Geographic constraints such as longitude and latitude ranges are validated by `validateGeoJson`,
+not by the CSV row schema.
 
 ### Row schema
 
-An additional JSON Schema can be provided to validate application-specific row properties:
+An additional JSON Schema can validate application-specific properties:
 
 ```js
 const result = await readCsv('./points.csv', {
@@ -130,9 +136,9 @@ const result = await readCsv('./points.csv', {
 })
 ```
 
-The user-defined schema is combined with the internal coordinate schema, so every row must satisfy both.
+The user-defined schema is combined with the internal coordinate schema, so each row must satisfy both.
 
-When using `additionalProperties: false`, the user schema must also declare the coordinate properties if they are present in the CSV row.
+When using `additionalProperties: false`, the user schema must also declare the coordinate properties when they are present in the CSV row.
 
 ### Preserving coordinate properties
 
@@ -153,7 +159,7 @@ Coordinate columns are preserved in feature properties by default:
 }
 ```
 
-They can be removed from feature properties with:
+They can be removed with:
 
 ```js
 const result = await readCsv('./points.csv', {
@@ -186,7 +192,7 @@ Throws when:
 * reader options are invalid;
 * `parser.dynamicTyping` is enabled while row validation is active.
 
-CSV parsing errors themselves are returned through `parseErrors`.
+CSV parsing errors are returned through `parseErrors`.
 
 Row validation errors are returned through `validationErrors`.
 
@@ -216,6 +222,17 @@ const result = await readCsv('./points.csv', {
   },
   parser: {
     delimiter: ';'
+  }
+})
+```
+
+Read a remote CSV:
+
+```js
+const result = await readCsv('https://example.com/points.csv', {
+  request: {
+    retries: 3,
+    timeout: 5000
   }
 })
 ```

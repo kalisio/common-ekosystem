@@ -294,7 +294,7 @@ Paris,invalid,48.8566
 ### Signature
 
 ```js
-await csv.read (input, options)
+await csv.read(input, options)
 ```
 
 ### Description
@@ -303,18 +303,25 @@ Reads a source as text using `source.readAsText`, then parses the resulting CSV 
 
 All options accepted by `csv.parse` are supported.
 
+The following source reading options are also supported:
+
+| Name       | Type     | Description                                                       |
+| ---------- | -------- | ----------------------------------------------------------------- |
+| `encoding` | `string` | Text encoding used when reading local files. Defaults to `utf-8`. |
+| `request`  | `object` | Options forwarded to `request` when reading a remote source.      |
+
 ### Parameters
 
-| Name      | Type     | Required | Description                                 |
-| --------- | -------- | -------- | ------------------------------------------- |
-| `input`   | source   | yes      | Any source supported by `source.readAsText` |
-| `options` | `object` | no       | Options forwarded to `csv.parse`            |
+| Name      | Type     | Required | Description                             |
+| --------- | -------- | -------- | --------------------------------------- |
+| `input`   | source   | yes      | File path, URL, or `File`/`Blob`.       |
+| `options` | `object` | no       | CSV parsing and source reading options. |
 
 ### Returns
 
-| Type              | Description                        |
-| ----------------- | ---------------------------------- |
-| `Promise<object>` | The result returned by `csv.parse` |
+| Type              | Description                         |
+| ----------------- | ----------------------------------- |
+| `Promise<object>` | The result returned by `csv.parse`. |
 
 ### Throws
 
@@ -352,3 +359,14 @@ const result = await csv.read('./stations.csv', {
   }
 })
 ```
+
+```js
+const result = await csv.read('https://example.com/stations.csv', {
+  header: true,
+  request: {
+    retries: 3,
+    timeout: 5000
+  }
+})
+```
+

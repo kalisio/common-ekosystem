@@ -13,29 +13,34 @@ This module provides a reader to load JSON sources and validate the decoded cont
 ### Signature
 
 ```js
-readGeoJson (source, options)
+readGeoJson(source, options)
 ```
 
 ### Description
 
-Reads a JSON source using `json.read` from `@kalisio/common-core/io`, then validates the decoded content using `validateGeoJson`.
+Reads a JSON source using `json.read` from `@kalisio/common-core/io/json`, then validates the
+decoded content using `validateGeoJson`.
 
 The decoded value is always returned in the `geojson` property when reading and JSON parsing succeed.
 
-Invalid GeoJSON content does not cause the reader to throw. It is reported through the validation result with `valid: false` and the corresponding `errors` and `warnings`.
+Invalid GeoJSON content does not cause the reader to throw. It is reported through the validation
+result with `valid: false` and the corresponding `errors` and `warnings`.
 
 ### Parameters
 
-| Name      | Type                            | Required | Description                         |
-| --------- | ------------------------------- | -------- | ----------------------------------- |
-| `source`  | `string \| URL \| Blob \| File` | yes      | JSON source accepted by `json.read` |
-| `options` | `object`                        | no       | Options forwarded to `json.read`    |
+| Name               | Type                            | Req | Description                   |
+| ------------------ | ------------------------------- | --- | ----------------------------- |
+| `source`           | `string \| URL \| Blob \| File` | yes | JSON source                   |
+| `options`          | `object`                        | no  | Options passed to `json.read` |
+| `options.encoding` | `string`                        | no  | File encoding                 |
+| `options.request`  | `object`                        | no  | Options passed to `request`   |
+| `options.reviver`  | `function`                      | no  | JSON reviver                  |
 
 ### Returns
 
-| Type              | Description                                                                             |
-| ----------------- | --------------------------------------------------------------------------------------- |
-| `Promise<object>` | An object containing the decoded `geojson` and the result returned by `validateGeoJson` |
+| Type              | Description                   |
+| ----------------- | ----------------------------- |
+| `Promise<object>` | GeoJSON and validation result |
 
 The returned object has the following structure:
 
@@ -68,6 +73,15 @@ if (result.valid) {
 } else {
   console.log(result.errors)
 }
+```
+
+```js
+const result = await readGeoJson('https://example.com/data.geojson', {
+  request: {
+    retries: 3,
+    timeout: 5000
+  }
+})
 ```
 
 ```js

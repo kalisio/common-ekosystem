@@ -113,19 +113,20 @@ JSON output is used by default.
 
 ### Parameters
 
-| Name | Type | Req | Description |
-| --- | --- | --- | --- |
-| `input` | `string \| URL \| Blob \| File` | yes | Source containing XML data |
-| `options` | `object` | no | Reading and parsing options |
-| `options.encoding` | `string` | no | Character encoding used when reading a local file in Node.js. Defaults to `'utf-8'` |
-| `options.output` | `'json' \| 'dom'` | no | Output format. Defaults to `'json'` |
-| `options.parser` | `object` | no | Options passed to `fast-xml-parser` when using JSON output |
-| `options.domParser` | `object` | no | DOM parser exposing a `parseFromString` function when using DOM output |
+| Name                | Type                            | Req | Description                                                                         |
+| ------------------- | ------------------------------- | --- | ----------------------------------------------------------------------------------- |
+| `input`             | `string \| URL \| Blob \| File` | yes | Source containing XML data                                                          |
+| `options`           | `object`                        | no  | Reading and parsing options                                                         |
+| `options.encoding`  | `string`                        | no  | Character encoding used when reading a local file in Node.js. Defaults to `'utf-8'` |
+| `options.request`   | `object`                        | no  | Options passed to `request` when reading a remote source                            |
+| `options.output`    | `'json' \| 'dom'`               | no  | Output format. Defaults to `'json'`                                                 |
+| `options.parser`    | `object`                        | no  | Options passed to `fast-xml-parser` when using JSON output                          |
+| `options.domParser` | `object`                        | no  | DOM parser exposing a `parseFromString` function when using DOM output              |
 
 ### Returns
 
-| Type | Description |
-| --- | --- |
+| Type                          | Description                          |
+| ----------------------------- | ------------------------------------ |
 | `Promise<object \| Document>` | The parsed JSON data or DOM document |
 
 ### Throws
@@ -143,7 +144,7 @@ Also propagates errors thrown by `xml.parse`.
 Read XML into JSON:
 
 ```js
-import { xml } from '@kalisio/common-core'
+import { xml } from '@kalisio/common-core/io/xml'
 
 const data = await xml.read('./note.xml')
 ```
@@ -151,9 +152,8 @@ const data = await xml.read('./note.xml')
 Read XML into a DOM document:
 
 ```js
-import { xml } from '@kalisio/common-core'
+import { xml } from '@kalisio/common-core/io/xml'
 
-const document = await xml.read('./note.xml', {
-  output: 'dom'
-})
+con
 ```
+

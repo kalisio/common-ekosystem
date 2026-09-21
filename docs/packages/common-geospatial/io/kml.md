@@ -13,27 +13,34 @@ This module provides a reader to load KML sources, convert them to GeoJSON, and 
 ### Signature
 
 ```js
-readKml (source, options)
+readKml(source, options)
 ```
 
 ### Description
 
-Reads an XML source using `xml.read` from `@kalisio/common-core/io`, converts the resulting KML document to GeoJSON using `@tmcw/togeojson`, then validates the converted GeoJSON using `validateGeoJson`.
+Reads an XML source using `xml.read` from `@kalisio/common-core/io/xml`, converts the resulting KML document
+to GeoJSON using `@tmcw/togeojson`, then validates the converted GeoJSON using `validateGeoJson`.
 
-Invalid GeoJSON produced by the conversion does not cause the reader to throw. It is reported through the validation result with `valid: false` and the corresponding `errors` and `warnings`.
+XML is always read as a DOM document.
+
+Invalid GeoJSON produced by the conversion does not cause the reader to throw. It is reported through the
+validation result with `valid: false` and the corresponding `errors` and `warnings`.
 
 ### Parameters
 
-| Name      | Type                            | Required | Description                       |
-| --------- | ------------------------------- | -------- | --------------------------------- |
-| `source`  | `string \| URL \| Blob \| File` | yes      | XML source accepted by `xml.read` |
-| `options` | `object`                        | no       | Options forwarded to `xml.read`   |
+| Name                | Type                            | Req | Description                  |
+| ------------------- | ------------------------------- | --- | ---------------------------- |
+| `source`            | `string \| URL \| Blob \| File` | yes | KML source                   |
+| `options`           | `object`                        | no  | Options passed to `xml.read` |
+| `options.encoding`  | `string`                        | no  | File encoding                |
+| `options.request`   | `object`                        | no  | Options passed to `request`  |
+| `options.domParser` | `object`                        | no  | Custom DOM parser            |
 
 ### Returns
 
-| Type              | Description                                                                               |
-| ----------------- | ----------------------------------------------------------------------------------------- |
-| `Promise<object>` | An object containing the converted `geojson` and the result returned by `validateGeoJson` |
+| Type              | Description                   |
+| ----------------- | ----------------------------- |
+| `Promise<object>` | GeoJSON and validation result |
 
 The returned object has the following structure:
 
@@ -68,4 +75,13 @@ if (result.valid) {
 } else {
   console.log(result.errors)
 }
+```
+
+```js
+const result = await readKml('https://example.com/data.kml', {
+  request: {
+    retries: 3,
+    timeout: 5000
+  }
+})
 ```

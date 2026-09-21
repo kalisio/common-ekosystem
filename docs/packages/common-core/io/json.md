@@ -73,17 +73,18 @@ A source can be a local file path in Node.js, a URL provided as a string or `URL
 
 ### Parameters
 
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `input` | `string \| URL \| Blob \| File` | yes | Source containing JSON data |
-| `options` | `object` | no | Reading and parsing options |
-| `options.encoding` | `string` | no | Character encoding used when reading a local file in Node.js. Defaults to `'utf-8'` |
-| `options.reviver` | `function` | no | Function passed to `JSON.parse` to transform parsed values |
+| Name               | Type                            | Required | Description                                                                         |
+| ------------------ | ------------------------------- | -------- | ----------------------------------------------------------------------------------- |
+| `input`            | `string \| URL \| Blob \| File` | yes      | Source containing JSON data                                                         |
+| `options`          | `object`                        | no       | Reading and parsing options                                                         |
+| `options.encoding` | `string`                        | no       | Character encoding used when reading a local file in Node.js. Defaults to `'utf-8'` |
+| `options.request`  | `object`                        | no       | Options passed to `request` when reading a remote source                            |
+| `options.reviver`  | `function`                      | no       | Function passed to `JSON.parse` to transform parsed values                          |
 
 ### Returns
 
-| Type | Description |
-| --- | --- |
+| Type         | Description           |
+| ------------ | --------------------- |
 | `Promise<*>` | The parsed JSON value |
 
 ### Throws
@@ -99,7 +100,17 @@ Also propagates errors thrown by `json.parse`.
 ### Examples
 
 ```js
-import { json } from '@kalisio/common-core'
+import { json } from '@kalisio/common-core/io/json'
 
 const data = await json.read('./data.json')
 ```
+
+```js
+const data = await json.read('https://example.com/data.json', {
+  request: {
+    retries: 3,
+    timeout: 5000
+  }
+})
+```
+
