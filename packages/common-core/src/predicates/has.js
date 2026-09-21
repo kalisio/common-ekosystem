@@ -30,7 +30,7 @@ export const has = {
     ])
     let current = obj
     for (const key of path.split('.')) {
-      if (!current || !is.plainObject(current) || !(key in current)) return false
+      if (!current || !is.plainObject(current) || !Object.hasOwn(current, key)) return false
       current = current[key]
     }
     return true

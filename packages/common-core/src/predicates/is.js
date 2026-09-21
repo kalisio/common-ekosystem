@@ -10,11 +10,12 @@ export const is = {
     return !is.defined(value)
   },
 
+  object (value) {
+    return is.defined(value) && typeof value === 'object'
+  },
+
   plainObject (value) {
-    return is.defined(value) &&
-           typeof value === 'object' &&
-           !Array.isArray(value) &&
-           value.constructor === Object
+    return is.object(value) && value.constructor === Object
   },
 
   emptyObject (value) {

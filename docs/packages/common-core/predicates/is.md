@@ -40,6 +40,39 @@ is.nil(0)         // false
 
 ## Objects
 
+### object
+
+Checks whether a value is a JavaScript object.
+
+Unlike plainObject, this predicate also accepts arrays, class instances, and built-in object types such as `Date`, `Map`, and `Set`.
+
+```js
+is.object(value)
+```
+
+```js
+is.object({...})
+// true
+is.object([...])
+// true
+is.object(new Date())
+// true
+is.object(new Map())
+// true
+is.object(null)
+// false
+is.object('foo')
+// false
+
+Class instances are considered objects:
+
+class Foo {}
+is.object(new Foo())
+// true
+is.plainObject(new Foo())
+// false
+```
+
 ### plainObject
 
 Checks whether a value is a plain object created with the standard `Object` constructor.
@@ -47,6 +80,20 @@ Checks whether a value is a plain object created with the standard `Object` cons
 ```js
 is.plainObject(value)
 ```
+
+```js
+is.plainObject({...})
+// true
+is.plainObject([...])
+// false
+is.plainObject(new Date())
+// false
+is.plainObject(new Map())
+// false
+is.plainObject(null)
+// false
+is.plainObject('foo')
+// false
 
 ### emptyObject
 

@@ -54,6 +54,40 @@ describe('is.nil', () => {
   })
 })
 
+describe('is.object', () => {
+  class TestClass {}
+  it('should return true for objects', () => {
+    expect(is.object({})).toBe(true)
+    expect(is.object({ foo: 'bar' })).toBe(true)
+  })
+  it('should return true for arrays', () => {
+    expect(is.object([])).toBe(true)
+    expect(is.object([1, 2, 3])).toBe(true)
+  })
+  it('should return true for object instances', () => {
+    expect(is.object(new TestClass())).toBe(true)
+    expect(is.object(new Date())).toBe(true)
+    expect(is.object(/test/)).toBe(true)
+    expect(is.object(new Map())).toBe(true)
+    expect(is.object(new Set())).toBe(true)
+  })
+  it('should return false for null and undefined', () => {
+    expect(is.object(null)).toBe(false)
+    expect(is.object(undefined)).toBe(false)
+  })
+  it('should return false for primitive values', () => {
+    expect(is.object('foo')).toBe(false)
+    expect(is.object(42)).toBe(false)
+    expect(is.object(true)).toBe(false)
+    expect(is.object(Symbol('foo'))).toBe(false)
+    expect(is.object(1n)).toBe(false)
+  })
+  it('should return false for functions', () => {
+    expect(is.object(() => {})).toBe(false)
+    expect(is.object(function () {})).toBe(false)
+  })
+})
+
 describe('is.plainObject', () => {
   it('returns true for {}', () => {
     expect(is.plainObject({})).toBe(true)
