@@ -12,18 +12,31 @@ Utility functions for cloning, normalizing, sorting, and reordering plain object
 ### Signature
 
 ```js
-object.clone(obj)
+object.clone(obj, options = {})
 ```
 
 ### Description
 
-Returns a deep clone of the given value using `structuredClone`. The clone shares no references with the original.
+Returns a deep clone of the given value. Arrays, plain objects, class instances, `Date`, `RegExp`, `Map` and `Set` are cloned recursively,
+and binary data (`ArrayBuffer`, `DataView`, typed arrays and `Buffer`) is copied. Any other value (primitives, functions, `WeakMap`,
+`Promise`...) is kept as is, so the clone shares these references with the original.
+
+Only own enumerable properties are cloned, symbol keys included.
+
+The clone of a class instance keeps the prototype of the original and its own enumerable properties are cloned recursively. The constructor
+is not called and private fields are not copied. Set `plain` to `true` to clone plain data only and keep class instances by reference.
+
+::: warning
+Circular references are not supported.
+:::
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
 | `obj` | `*` | yes | The value to clone |
+| `options` | `object` | no | Clone options |
+| `options.plain` | `boolean` | no | Whether to clone plain data only and keep class instances by reference. Defaults to `false` |
 
 ### Returns
 
@@ -33,7 +46,7 @@ Returns a deep clone of the given value using `structuredClone`. The clone share
 
 ### Throws
 
-Throws a `TypeError` if `obj` is `null` or `undefined`.
+Throws a `TypeError` if `obj` is `null` or `undefined`, or if `options` does not conform to the expected schema.
 
 ### Examples
 
@@ -42,6 +55,17 @@ const original = { a: { b: 1 } }
 const cloned = object.clone(original)
 cloned.a.b = 99
 // original.a.b is still 1
+```
+
+```js
+class Point {
+  constructor (x, y) { this.x = x; this.y = y }
+}
+const original = { point: new Point(1, 2) }
+
+object.clone(original).point === original.point // false
+object.clone(original).point instanceof Point // true
+object.clone(original, { plain: true }).point === original.point // true
 ```
 
 ## replace

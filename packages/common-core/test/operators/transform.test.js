@@ -86,6 +86,24 @@ describe('transform', () => {
       expect(result[0]).toEqual({ a: 1 })
       expect(result[0]).not.toBe(item)
     })
+    it('supports functions in the data when inPlace is false', () => {
+      const fn = () => 42
+      const item = { a: 1, fn }
+      const result = transform([item], { mapping: { a: 'b' }, inPlace: false })
+      expect(item).toEqual({ a: 1, fn }) // untouched
+      expect(result[0]).toEqual({ b: 1, fn })
+    })
+    it('clones class instances when inPlace is false', () => {
+      class Foo {
+        constructor () { this.value = 1 }
+      }
+      const item = { a: 1, foo: new Foo() }
+      const result = transform([item], { mapping: { 'foo.value': 'foo.renamed' }, inPlace: false })
+      expect(item.foo).toEqual({ value: 1 }) // untouched
+      expect(result[0].foo).not.toBe(item.foo)
+      expect(result[0].foo).toBeInstanceOf(Foo)
+      expect(result[0].foo.renamed).toBe(1)
+    })
     it('supports deep paths in pick while preserving the reference', () => {
       const item = { a: { b: 1 }, drop: true }
       const result = transform([item], { pick: ['a.b'] })

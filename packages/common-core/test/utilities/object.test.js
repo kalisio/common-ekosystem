@@ -8,6 +8,9 @@ describe('object', () => {
     it('should throw if obj is null', () => {
       expect(() => object.clone(null)).toThrow('obj must be defined')
     })
+    it('should throw if options do not conform to schema', () => {
+      expect(() => object.clone({ a: 1 }, { plain: 'yes' })).toThrow()
+    })
     it('should return a deep clone', () => {
       const original = { a: 1, b: { c: 2 } }
       const cloned = object.clone(original)
@@ -26,6 +29,120 @@ describe('object', () => {
       const cloned = object.clone(original)
       cloned.a.b = 99
       expect(original.a.b).toBe(1)
+    })
+    it('should keep functions by reference', () => {
+      const fn = () => 42
+      const original = { a: { fn }, list: [fn] }
+      const cloned = object.clone(original)
+      expect(cloned.a.fn).toBe(fn)
+      expect(cloned.list[0]).toBe(fn)
+      expect(cloned.a).not.toBe(original.a)
+      expect(cloned.list).not.toBe(original.list)
+    })
+    it('should clone dates, regular expressions, maps and sets', () => {
+      const fn = () => 42
+      const original = {
+        date: new Date(0),
+        regexp: /a/gi,
+        map: new Map([['a', { b: 1 }], ['fn', fn]]),
+        set: new Set([{ a: 1 }])
+      }
+      const cloned = object.clone(original)
+      expect(cloned).toEqual(original)
+      expect(cloned.date).not.toBe(original.date)
+      expect(cloned.regexp).not.toBe(original.regexp)
+      expect(cloned.map).not.toBe(original.map)
+      expect(cloned.map.get('a')).not.toBe(original.map.get('a'))
+      expect(cloned.map.get('fn')).toBe(fn)
+      expect(cloned.set).not.toBe(original.set)
+      expect([...cloned.set][0]).not.toBe([...original.set][0])
+    })
+    it('should clone symbol keys', () => {
+      const key = Symbol('key')
+      const hidden = Symbol('hidden')
+      const original = { a: 1, [key]: { b: 1 } }
+      Object.defineProperty(original, hidden, { value: 1, enumerable: false })
+      const cloned = object.clone(original)
+      expect(Reflect.ownKeys(cloned)).toEqual(['a', key])
+      expect(cloned[key]).toEqual({ b: 1 })
+      expect(cloned[key]).not.toBe(original[key])
+    })
+    it('should clone binary data', () => {
+      const buffer = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]).buffer
+      const original = {
+        buffer,
+        bytes: new Uint8Array([1, 2, 3]),
+        floats: new Float32Array([1.5, 2.5]),
+        partial: new Uint16Array(buffer, 2, 2),
+        view: new DataView(buffer, 4, 2),
+        nodeBuffer: Buffer.from([1, 2, 3])
+      }
+      const cloned = object.clone(original)
+      expect(cloned).toEqual(original)
+      expect(cloned.buffer).not.toBe(buffer)
+      expect(cloned.bytes).toBeInstanceOf(Uint8Array)
+      expect(cloned.floats).toBeInstanceOf(Float32Array)
+      expect(cloned.partial).toHaveLength(2)
+      expect(cloned.view.byteLength).toBe(2)
+      expect(cloned.view.getUint8(0)).toBe(5)
+      expect(Buffer.isBuffer(cloned.nodeBuffer)).toBe(true)
+      // the clones do not share their memory with the original
+      cloned.bytes[0] = 99
+      cloned.partial[0] = 99
+      cloned.view.setUint8(0, 99)
+      cloned.nodeBuffer[0] = 99
+      new Uint8Array(cloned.buffer)[0] = 99
+      expect(original.bytes[0]).toBe(1)
+      expect(original.nodeBuffer[0]).toBe(1)
+      expect(Array.from(new Uint8Array(buffer))).toEqual([1, 2, 3, 4, 5, 6, 7, 8])
+    })
+
+    describe('class instances', () => {
+      class Foo {
+        constructor () { this.a = { b: 1 } }
+        get () { return this.a.b }
+      }
+      it('should clone class instances with their prototype', () => {
+        const foo = new Foo()
+        const cloned = object.clone({ foo, list: [foo] })
+        expect(cloned.foo).not.toBe(foo)
+        expect(cloned.foo).toBeInstanceOf(Foo)
+        expect(cloned.foo.a).not.toBe(foo.a)
+        expect(cloned.list[0]).toBeInstanceOf(Foo)
+        cloned.foo.a.b = 99
+        expect(cloned.foo.get()).toBe(99)
+        expect(foo.get()).toBe(1)
+      })
+      it('should clone the symbol keys of class instances', () => {
+        const key = Symbol('key')
+        const foo = new Foo()
+        foo[key] = { b: 1 }
+        const cloned = object.clone(foo)
+        expect(cloned[key]).toEqual({ b: 1 })
+        expect(cloned[key]).not.toBe(foo[key])
+      })
+      it('should clone a class instance given as root value', () => {
+        const foo = new Foo()
+        const cloned = object.clone(foo)
+        expect(cloned).not.toBe(foo)
+        expect(cloned).toBeInstanceOf(Foo)
+        expect(cloned).toEqual(foo)
+      })
+      it('should keep functions and other objects by reference', () => {
+        const fn = () => 42
+        const weakMap = new WeakMap()
+        const promise = Promise.resolve()
+        const cloned = object.clone({ fn, weakMap, promise })
+        expect(cloned.fn).toBe(fn)
+        expect(cloned.weakMap).toBe(weakMap)
+        expect(cloned.promise).toBe(promise)
+      })
+      it('should keep class instances by reference when plain is true', () => {
+        const foo = new Foo()
+        const cloned = object.clone({ foo, list: [foo] }, { plain: true })
+        expect(cloned.foo).toBe(foo)
+        expect(cloned.list[0]).toBe(foo)
+      })
     })
   })
 

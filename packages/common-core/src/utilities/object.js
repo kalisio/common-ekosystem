@@ -1,6 +1,10 @@
 import { assert, is, conform, optional } from '../predicates/index.js'
 import { string } from './string.js'
 
+const CLONE_OPTIONS_SCHEMA = {
+  plain: optional(is.boolean)
+}
+
 const SORT_OPTIONS_SCHEMA = {
   ignoreSpaces: optional(is.boolean),
   ignoreDiacritics: optional(is.boolean),
@@ -11,6 +15,38 @@ const SORT_OPTIONS_SCHEMA = {
 const NORMALIZE_OPTIONS_SCHEMA = {
   ...SORT_OPTIONS_SCHEMA,
   ignoredKeys: optional(is.array)
+}
+
+// Returns the own enumerable keys of an object, symbols included
+function ownKeys (obj) {
+  return Reflect.ownKeys(obj).filter(key => Object.prototype.propertyIsEnumerable.call(obj, key))
+}
+
+function cloneValue (value, plain) {
+  if (is.array(value)) return value.map(item => cloneValue(item, plain))
+  if (is.plainObject(value)) {
+    return Object.fromEntries(
+      ownKeys(value).map(key => [key, cloneValue(value[key], plain)])
+    )
+  }
+  if (value instanceof Date) return new Date(value)
+  if (is.regularExpression(value)) return new RegExp(value)
+  if (is.map(value)) return new Map(Array.from(value, ([key, item]) => [key, cloneValue(item, plain)]))
+  if (is.set(value)) return new Set(Array.from(value, item => cloneValue(item, plain)))
+  if (value instanceof ArrayBuffer) return value.slice(0)
+  if (value instanceof DataView) {
+    return new DataView(value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength))
+  }
+  // typed arrays: the generic slice is required as Buffer overrides it to share its memory
+  if (ArrayBuffer.isView(value)) return Uint8Array.prototype.slice.call(value)
+  // class instances are cloned with their prototype, without calling their constructor
+  if (!plain && is.classInstance(value)) {
+    const clone = Object.create(Object.getPrototypeOf(value))
+    for (const key of ownKeys(value)) clone[key] = cloneValue(value[key], plain)
+    return clone
+  }
+  // primitives, functions and any other object are returned as is
+  return value
 }
 
 function normalizeObject (obj, options = {}) {
@@ -43,9 +79,12 @@ function normalizeObject (obj, options = {}) {
 
 export const object = {
 
-  clone (obj) {
-    assert.that(obj, is.defined, 'obj must be defined')
-    return structuredClone(obj)
+  clone (obj, options = {}) {
+    assert.all([
+      { value: obj, validator: is.defined, message: 'obj must be defined' },
+      { value: options, validator: (v) => conform.schema(v, CLONE_OPTIONS_SCHEMA) }
+    ])
+    return cloneValue(obj, options.plain ?? false)
   },
 
   replace (target, source) {

@@ -136,6 +136,106 @@ describe('is.plainObject', () => {
   })
 })
 
+describe('is.classInstance', () => {
+  class Foo {}
+  it('returns true for an instance of a class', () => {
+    expect(is.classInstance(new Foo())).toBe(true)
+  })
+  it('returns true for an instance of a subclass', () => {
+    class Bar extends Foo {}
+    expect(is.classInstance(new Bar())).toBe(true)
+  })
+  it('returns true for an instance created by a constructor function', () => {
+    function Baz () { this.a = 1 }
+    expect(is.classInstance(new Baz())).toBe(true)
+  })
+  it('returns false for plain objects', () => {
+    expect(is.classInstance({})).toBe(false)
+    expect(is.classInstance({ a: 1 })).toBe(false)
+  })
+  it('returns false for built-in objects', () => {
+    expect(is.classInstance([])).toBe(false)
+    expect(is.classInstance(new Date())).toBe(false)
+    expect(is.classInstance(new Map())).toBe(false)
+    expect(is.classInstance(new Set())).toBe(false)
+    expect(is.classInstance(/a/)).toBe(false)
+    expect(is.classInstance(new Error('a'))).toBe(false)
+    expect(is.classInstance(Promise.resolve())).toBe(false)
+  })
+  it('returns false for an instance of a class extending a built-in', () => {
+    class MyMap extends Map {}
+    expect(is.classInstance(new MyMap())).toBe(false)
+  })
+  it('returns false for functions and classes', () => {
+    expect(is.classInstance(() => {})).toBe(false)
+    expect(is.classInstance(Foo)).toBe(false)
+  })
+  it('returns false for primitives, null and undefined', () => {
+    expect(is.classInstance('a')).toBe(false)
+    expect(is.classInstance(1)).toBe(false)
+    expect(is.classInstance(null)).toBe(false)
+    expect(is.classInstance(undefined)).toBe(false)
+  })
+})
+
+describe('is.instanceOf', () => {
+  class Foo {}
+  class Bar extends Foo {}
+  it('returns true for an instance of the class', () => {
+    expect(is.instanceOf(new Foo(), Foo)).toBe(true)
+  })
+  it('returns true for an instance of a subclass', () => {
+    expect(is.instanceOf(new Bar(), Foo)).toBe(true)
+  })
+  it('returns true for built-in classes', () => {
+    expect(is.instanceOf(new Date(), Date)).toBe(true)
+    expect(is.instanceOf([], Array)).toBe(true)
+  })
+  it('returns false for an instance of another class', () => {
+    expect(is.instanceOf(new Foo(), Bar)).toBe(false)
+    expect(is.instanceOf({}, Foo)).toBe(false)
+  })
+  it('returns false for primitives, null and undefined', () => {
+    expect(is.instanceOf('a', String)).toBe(false)
+    expect(is.instanceOf(null, Foo)).toBe(false)
+    expect(is.instanceOf(undefined, Foo)).toBe(false)
+  })
+  it('throws if constructor is not a function', () => {
+    expect(() => is.instanceOf(new Foo(), null)).toThrow()
+    expect(() => is.instanceOf(new Foo(), {})).toThrow()
+    expect(() => is.instanceOf(new Foo(), 'Foo')).toThrow()
+  })
+})
+
+describe('is.instanceOf', () => {
+  class Foo {}
+  class Bar extends Foo {}
+  it('returns true for an instance of the class', () => {
+    expect(is.instanceOf(new Foo(), Foo)).toBe(true)
+  })
+  it('returns true for an instance of a subclass', () => {
+    expect(is.instanceOf(new Bar(), Foo)).toBe(true)
+  })
+  it('returns true for built-in classes', () => {
+    expect(is.instanceOf(new Date(), Date)).toBe(true)
+    expect(is.instanceOf([], Array)).toBe(true)
+  })
+  it('returns false for an instance of another class', () => {
+    expect(is.instanceOf(new Foo(), Bar)).toBe(false)
+    expect(is.instanceOf({}, Foo)).toBe(false)
+  })
+  it('returns false for primitives, null and undefined', () => {
+    expect(is.instanceOf('a', String)).toBe(false)
+    expect(is.instanceOf(null, Foo)).toBe(false)
+    expect(is.instanceOf(undefined, Foo)).toBe(false)
+  })
+  it('throws if constructor is not a function', () => {
+    expect(() => is.instanceOf(new Foo(), null)).toThrow()
+    expect(() => is.instanceOf(new Foo(), {})).toThrow()
+    expect(() => is.instanceOf(new Foo(), 'Foo')).toThrow()
+  })
+})
+
 describe('is.emptyObject', () => {
   it('returns true for {}', () => {
     expect(is.emptyObject({})).toBe(true)

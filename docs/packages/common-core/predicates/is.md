@@ -94,6 +94,45 @@ is.plainObject(null)
 // false
 is.plainObject('foo')
 // false
+```
+
+### classInstance
+
+Checks whether a value is an instance of a class, as opposed to a plain object.
+
+Built-in objects such as arrays, `Date`, `RegExp`, `Map`, `Set`, `Error` or `Promise` are not considered class instances, nor are instances of classes extending them.
+
+```js
+is.classInstance(value)
+```
+
+```js
+class Shape {}
+
+is.classInstance(new Shape()) // true
+is.classInstance({})          // false
+is.classInstance(new Date())  // false
+is.classInstance([])          // false
+```
+
+### instanceOf
+
+Checks whether a value is an instance of a class, subclasses included.
+
+```js
+is.instanceOf(value, constructor)
+```
+
+```js
+class Shape {}
+class Circle extends Shape {}
+
+is.instanceOf(new Circle(), Shape) // true
+is.instanceOf(new Date(), Date)    // true
+is.instanceOf({}, Shape)           // false
+```
+
+`constructor` must be a function.
 
 ### emptyObject
 

@@ -18,6 +18,15 @@ export const is = {
     return is.object(value) && value.constructor === Object
   },
 
+  classInstance (value) {
+    return !is.plainObject(value) && Object.prototype.toString.call(value) === '[object Object]'
+  },
+
+  instanceOf (value, constructor) {
+    assert.that(constructor, is.function, 'constructor must be a function')
+    return value instanceof constructor
+  },
+
   emptyObject (value) {
     return is.plainObject(value) && Object.keys(value).length === 0
   },
