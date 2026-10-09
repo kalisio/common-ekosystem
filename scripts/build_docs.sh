@@ -9,6 +9,8 @@ WORKSPACE_DIR="$(dirname "$ROOT_DIR")"
 
 . "$THIS_DIR/kash/kash.sh"
 
+pnpm --version
+
 slack_report() {
     slack_ci_report "$ROOT_DIR" "$CI_STEP_NAME" "$KASH_EXIT_CODE" "$SLACK_WEBHOOK_DOCS"
 }
@@ -18,7 +20,7 @@ slack_report() {
 
 PUBLISH=false
 CI_STEP_NAME="Build docs"
-while getopts "n:pr:" OPT; do
+while getopts "pr:" OPT; do
     case $OPT in
         p) # publish doc
             PUBLISH=true
