@@ -16,7 +16,7 @@ slack_report() {
 ## Parse options
 ##
 
-NODE_VER=20
+NODE_VER=24
 PUBLISH=false
 CI_STEP_NAME="Build docs"
 while getopts "n:pr:" OPT; do
