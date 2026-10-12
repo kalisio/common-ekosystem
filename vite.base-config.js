@@ -1,4 +1,3 @@
- // vite.base-config.js
 import { readFileSync } from 'node:fs'
 import { builtinModules } from 'node:module'
 import { dirname, join } from 'node:path'
