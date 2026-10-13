@@ -15,23 +15,18 @@ describe('sanitize() — input validation', () => {
     expect(() => sanitize(42)).toThrow('html must be a string')
     expect(() => sanitize(undefined)).toThrow('html must be a string')
   })
-
   it('throws if config is an unknown profile name', () => {
     expect(() => sanitize('<p>hi</p>', 'unknown')).toThrow('config must be a profile name')
   })
-
   it('throws if config is an empty object', () => {
     expect(() => sanitize('<p>hi</p>', {})).toThrow('key must be a non empty string')
   })
-
   it('accepts a valid profile name', () => {
     expect(() => sanitize('<p>hi</p>', 'strict')).not.toThrow()
   })
-
   it('accepts a non-empty custom config object', () => {
     expect(() => sanitize('<p>hi</p>', { allowedTags: ['p'] })).not.toThrow()
   })
-
   it('defaults to basicFormatting when no config is provided', () => {
     // links are stripped in basicFormatting
     expect(sanitize('<a href="https://example.com">x</a>')).not.toContain('<a')
@@ -44,19 +39,15 @@ describe('sanitize() — strict', () => {
   it('strips all HTML tags', () => {
     expect(sanitize('<p><strong>hello</strong></p>', 'strict')).toBe('hello')
   })
-
   it('strips script tags', () => {
     expect(sanitize(xss, 'strict')).not.toContain('<script')
   })
-
   it('strips iframes', () => {
     expect(sanitize(iframe, 'strict')).not.toContain('<iframe')
   })
-
   it('returns plain text content', () => {
     expect(sanitize('<h1>Title</h1><p>Body</p>', 'strict')).toBe('TitleBody')
   })
-
   it('returns empty string for tag-only input', () => {
     expect(sanitize('<br>', 'strict')).toBe('')
   })
@@ -71,19 +62,15 @@ describe('sanitize() — basicFormatting', () => {
     expect(sanitize(input)).toContain('<em>')
     expect(sanitize(input)).toContain('<p>')
   })
-
   it('strips links', () => {
     expect(sanitize('<a href="https://x.com">link</a>')).not.toContain('<a')
   })
-
   it('strips script tags', () => {
     expect(sanitize(xss)).not.toContain('<script')
   })
-
   it('strips attributes from allowed tags', () => {
     expect(sanitize('<p class="danger" onclick="evil()">text</p>')).toBe('<p>text</p>')
   })
-
   it('keeps list structure', () => {
     const input = '<ul><li>one</li><li>two</li></ul>'
     const result = sanitize(input)
@@ -99,21 +86,17 @@ describe('sanitize() — linksOnly', () => {
     const result = sanitize('<a href="https://example.com">link</a>', 'linksOnly')
     expect(result).toContain('<a href="https://example.com"')
   })
-
   it('keeps mailto links', () => {
     const result = sanitize('<a href="mailto:hi@example.com">mail</a>', 'linksOnly')
     expect(result).toContain('href="mailto:hi@example.com"')
   })
-
   it('strips javascript: hrefs', () => {
     expect(sanitize(jsLink, 'linksOnly')).not.toContain('javascript:')
   })
-
   it('adds rel="noopener noreferrer" to links', () => {
     const result = sanitize('<a href="https://example.com">x</a>', 'linksOnly')
     expect(result).toContain('rel="noopener noreferrer"')
   })
-
   it('strips surrounding formatting tags (only <a> allowed)', () => {
     const result = sanitize('<p><a href="https://x.com">link</a></p>', 'linksOnly')
     expect(result).not.toContain('<p>')
@@ -131,21 +114,17 @@ describe('sanitize() — markdown', () => {
       expect(result).toContain(tag)
     })
   })
-
   it('strips img tags', () => {
     expect(sanitize('<img src="https://x.com/img.png" alt="x">', 'markdown')).not.toContain('<img')
   })
-
   it('strips h1-h3 tags but keeps text', () => {
     expect(sanitize('<h1>Title</h1>', 'markdown')).not.toContain('<h1>')
     expect(sanitize('<h1>Title</h1>', 'markdown')).toContain('Title')
   })
-
   it('adds rel="noopener noreferrer" to links', () => {
     const result = sanitize('<a href="https://example.com">x</a>', 'markdown')
     expect(result).toContain('rel="noopener noreferrer"')
   })
-
   it('strips javascript: hrefs', () => {
     expect(sanitize(jsLink, 'markdown')).not.toContain('javascript:')
   })
@@ -160,31 +139,25 @@ describe('sanitize() — richContent', () => {
     expect(result).toContain('<h2>')
     expect(result).toContain('<h3>')
   })
-
   it('keeps safe images', () => {
     const result = sanitize('<img src="https://example.com/img.png" alt="photo" width="100" height="80">', 'richContent')
     expect(result).toContain('<img')
     expect(result).toContain('alt="photo"')
   })
-
   it('strips data: URI images', () => {
     expect(sanitize(dataImg, 'richContent')).not.toContain('data:')
   })
-
   it('strips mailto: from image src (only http/https allowed for src)', () => {
     const result = sanitize('<img src="mailto:x@x.com" alt="x">', 'richContent')
     expect(result).not.toContain('mailto:')
   })
-
   it('adds rel="noopener noreferrer" to links', () => {
     const result = sanitize('<a href="https://example.com">x</a>', 'richContent')
     expect(result).toContain('rel="noopener noreferrer"')
   })
-
   it('strips script tags', () => {
     expect(sanitize(xss, 'richContent')).not.toContain('<script')
   })
-
   it('strips img attributes not in allowlist', () => {
     const result = sanitize('<img src="https://x.com/img.png" onclick="evil()" loading="lazy">', 'richContent')
     expect(result).not.toContain('onclick')
@@ -200,23 +173,19 @@ describe('sanitize() — codeSnippet', () => {
     expect(result).toContain('<pre>')
     expect(result).toContain('<code')
   })
-
   it('keeps language class on <code>', () => {
     const result = sanitize('<code class="language-python">pass</code>', 'codeSnippet')
     expect(result).toContain('class="language-python"')
   })
-
   it('strips all other tags', () => {
     const result = sanitize('<p>text</p><strong>bold</strong><a href="#">link</a>', 'codeSnippet')
     expect(result).not.toContain('<p>')
     expect(result).not.toContain('<strong>')
     expect(result).not.toContain('<a')
   })
-
   it('strips script tags', () => {
     expect(sanitize(xss, 'codeSnippet')).not.toContain('<script')
   })
-
   it('strips arbitrary attributes from <code>', () => {
     const result = sanitize('<code onclick="evil()" style="color:red">x</code>', 'codeSnippet')
     expect(result).not.toContain('onclick')
@@ -234,37 +203,30 @@ describe('sanitize() — emailContent', () => {
       expect(result).toContain(tag)
     })
   })
-
   it('keeps safe inline styles', () => {
     const result = sanitize('<p style="color: red; font-size: 14px;">text</p>', 'emailContent')
     expect(result).toContain('color')
     expect(result).toContain('font-size')
   })
-
   it('strips unsafe CSS properties', () => {
     const result = sanitize('<p style="position:fixed; top:0; left:0; display:none">text</p>', 'emailContent')
     expect(result).not.toContain('position')
     expect(result).not.toContain('display')
   })
-
   it('strips script tags', () => {
     expect(sanitize(xss, 'emailContent')).not.toContain('<script')
   })
-
   it('strips javascript: hrefs', () => {
     expect(sanitize(jsLink, 'emailContent')).not.toContain('javascript:')
   })
-
   it('adds rel="noopener noreferrer" to links', () => {
     const result = sanitize('<a href="https://example.com">x</a>', 'emailContent')
     expect(result).toContain('rel="noopener noreferrer"')
   })
-
   it('keeps mailto links', () => {
     const result = sanitize('<a href="mailto:hi@example.com">contact</a>', 'emailContent')
     expect(result).toContain('mailto:hi@example.com')
   })
-
   it('keeps div and span for layout', () => {
     const result = sanitize('<div><span style="font-weight:bold">text</span></div>', 'emailContent')
     expect(result).toContain('<div>')
@@ -280,7 +242,6 @@ describe('sanitize() — custom config object', () => {
     expect(result).toContain('<p>')
     expect(result).not.toContain('<strong>')
   })
-
   it('strips everything with an empty allowedTags array', () => {
     const result = sanitize('<p>hello</p>', { allowedTags: [], allowedAttributes: {} })
     expect(result).toBe('hello')
