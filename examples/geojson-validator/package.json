@@ -28,7 +28,7 @@
     "maplibre-gl": "catalog:"
   },
   "engines": {
-    "node": "^24 || ^22 || ^20",
+    "node": ">=20",
     "pnpm": ">=10"
   }
 }
