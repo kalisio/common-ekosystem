@@ -12,7 +12,7 @@ _A common base of small, reusable utility libraries for the **Kalisio** ecosyste
 
 ## Documentation
 
-Detailed documentation is available at the following [link](https://kalisio.github.io/common-ekosystem).
+Full documentation is available [here](https://kalisio.github.io/common-ekosystem).
 
 ## License
 
