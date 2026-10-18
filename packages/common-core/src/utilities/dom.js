@@ -11,10 +11,7 @@ export const dom = {
       { value: name, validator: optional(is.nonEmptyString), message: 'name must be a non-empty string' }
     ])
     const result = []
-    const nodes = node?.childNodes
-    if (!nodes) return result
-    for (let i = 0; i < nodes.length; i++) {
-      const current = nodes[i]
+    for (const current of Array.from(node?.childNodes ?? [])) {
       if (current.nodeType === 1 && (name === undefined || current.localName === name)) {
         result.push(current)
       }
@@ -32,25 +29,21 @@ export const dom = {
     return value == null ? undefined : value.trim()
   },
 
-  num (node) {
+  number (node) {
     const value = dom.text(node)
     if (value === undefined || value === '') return undefined
     const result = Number(value)
     return Number.isFinite(result) ? result : undefined
   },
 
-  attr (node, name) {
+  attribute (node, name) {
     assert.all([
       { value: node, validator: isNullableDomNode, message: 'node must be a DOM node' },
       { value: name, validator: is.nonEmptyString, message: 'name must be a non-empty string' }
     ])
-    // hasAttribute rather than getAttribute: xmldom returns '' for a missing
-    // attribute, which would hide prefixed matches such as xlink:href.
     if (node?.hasAttribute?.(name)) return node.getAttribute(name)
-    const attributes = node?.attributes
-    if (!attributes) return undefined
-    for (let i = 0; i < attributes.length; i++) {
-      if (attributes[i].localName === name) return attributes[i].value
+    for (const attribute of Array.from(node?.attributes ?? [])) {
+      if (attribute.localName === name) return attribute.value
     }
     return undefined
   }

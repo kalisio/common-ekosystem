@@ -109,67 +109,67 @@ describe('dom.text', () => {
   })
 })
 
-describe('dom.num', () => {
+describe('dom.number', () => {
   it('should extract a numeric value', () => {
-    expect(dom.num(dom.child(root, 'Value'))).toBe(42.5)
+    expect(dom.number(dom.child(root, 'Value'))).toBe(42.5)
   })
   it('should support zero and negative numbers', () => {
-    expect(dom.num(dom.child(root, 'Zero'))).toBe(0)
-    expect(dom.num(dom.child(root, 'Negative'))).toBe(-12)
+    expect(dom.number(dom.child(root, 'Zero'))).toBe(0)
+    expect(dom.number(dom.child(root, 'Negative'))).toBe(-12)
   })
   it('should reject non-numeric values', () => {
-    expect(dom.num(dom.child(root, 'Invalid'))).toBeUndefined()
+    expect(dom.number(dom.child(root, 'Invalid'))).toBeUndefined()
   })
   it('should reject non-finite values', () => {
-    expect(dom.num(dom.child(root, 'Infinite'))).toBeUndefined()
+    expect(dom.number(dom.child(root, 'Infinite'))).toBeUndefined()
   })
   it('should return undefined for empty content', () => {
-    expect(dom.num(dom.child(root, 'Empty'))).toBeUndefined()
+    expect(dom.number(dom.child(root, 'Empty'))).toBeUndefined()
   })
   it('should accept missing nodes', () => {
-    expect(dom.num(null)).toBeUndefined()
-    expect(dom.num(undefined)).toBeUndefined()
+    expect(dom.number(null)).toBeUndefined()
+    expect(dom.number(undefined)).toBeUndefined()
   })
   it('should reject invalid nodes', () => {
-    expect(() => dom.num(42)).toThrow()
-    expect(() => dom.num({})).toThrow()
-    expect(() => dom.num([])).toThrow()
+    expect(() => dom.number(42)).toThrow()
+    expect(() => dom.number({})).toThrow()
+    expect(() => dom.number([])).toThrow()
   })
 })
 
-describe('dom.attr', () => {
+describe('dom.attribute', () => {
   it('should read an unqualified attribute', () => {
-    expect(dom.attr(dom.child(root, 'Direct'), 'href')).toBe('https://example.com/direct')
+    expect(dom.attribute(dom.child(root, 'Direct'), 'href')).toBe('https://example.com/direct')
   })
   it('should find a namespaced attribute by local name', () => {
-    expect(dom.attr(dom.child(root, 'Resource'), 'href')).toBe('https://example.com/resource')
+    expect(dom.attribute(dom.child(root, 'Resource'), 'href')).toBe('https://example.com/resource')
   })
   it('should accept a qualified attribute name', () => {
-    expect(dom.attr(dom.child(root, 'Resource'), 'xlink:href')).toBe('https://example.com/resource')
+    expect(dom.attribute(dom.child(root, 'Resource'), 'xlink:href')).toBe('https://example.com/resource')
   })
   it('should prefer an exact attribute match', () => {
     const node = dom.child(root, 'Both')
-    expect(dom.attr(node, 'href')).toBe('plain')
-    expect(dom.attr(node, 'xlink:href')).toBe('qualified')
+    expect(dom.attribute(node, 'href')).toBe('plain')
+    expect(dom.attribute(node, 'xlink:href')).toBe('qualified')
   })
   it('should preserve an empty attribute value', () => {
-    expect(dom.attr(dom.child(root, 'EmptyAttribute'), 'href')).toBe('')
+    expect(dom.attribute(dom.child(root, 'EmptyAttribute'), 'href')).toBe('')
   })
   it('should return undefined for a missing attribute', () => {
-    expect(dom.attr(dom.child(root, 'Resource'), 'unknown')).toBeUndefined()
+    expect(dom.attribute(dom.child(root, 'Resource'), 'unknown')).toBeUndefined()
   })
   it('should accept missing nodes', () => {
-    expect(dom.attr(null, 'href')).toBeUndefined()
-    expect(dom.attr(undefined, 'href')).toBeUndefined()
+    expect(dom.attribute(null, 'href')).toBeUndefined()
+    expect(dom.attribute(undefined, 'href')).toBeUndefined()
   })
   it('should reject invalid nodes', () => {
-    expect(() => dom.attr(42, 'href')).toThrow()
-    expect(() => dom.attr('hello', 'href')).toThrow()
-    expect(() => dom.attr({}, 'href')).toThrow()
+    expect(() => dom.attribute(42, 'href')).toThrow()
+    expect(() => dom.attribute('hello', 'href')).toThrow()
+    expect(() => dom.attribute({}, 'href')).toThrow()
   })
   it('should reject invalid attribute names', () => {
-    expect(() => dom.attr(root, '')).toThrow()
-    expect(() => dom.attr(root, null)).toThrow()
-    expect(() => dom.attr(root, 42)).toThrow()
+    expect(() => dom.attribute(root, '')).toThrow()
+    expect(() => dom.attribute(root, null)).toThrow()
+    expect(() => dom.attribute(root, 42)).toThrow()
   })
 })
