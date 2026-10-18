@@ -198,3 +198,93 @@ truncateBBox([-10.123456789, -20.987654321, 10.123456789, 20.987654321])
 truncateBBox([-10.123456789, -20.987654321, 10.123456789, 20.987654321], 3)
 // [-10.123, -20.988, 10.123, 20.988]
 ```
+
+## reprojectBBox
+
+### Signature
+
+```js
+reprojectBBox(bbox, source, target = WGS84)
+```
+
+### Description
+
+Reprojects a 2D or 3D bounding box from a source projection to a target projection using `reprojectPosition()`.
+
+The target projection defaults to WGS84 (`EPSG:4326`). Both projections must already be registered.
+
+The function transforms all bounding box corners (4 for 2D, 8 for 3D) and computes a new bounding box from the resulting positions.
+
+When source and target projections are identical, the function returns a copy of the original bounding box without performing any transformation.
+
+The original bounding box is never modified.
+
+**Note:** The resulting extent is computed from the transformed corners only. For nonlinear projections, this does not necessarily represent the exact envelope of the transformed bounding box.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `bbox` | `Array` | yes | A valid 2D or 3D bounding box |
+| `source` | `string` | yes | Source projection name |
+| `target` | `string` | no | Target projection name (defaults to WGS84) |
+
+Supported bounding box representations:
+
+| Dimension | Format |
+|-----------|--------|
+| 2D | `[minX, minY, maxX, maxY]` |
+| 3D | `[minX, minY, minZ, maxX, maxY, maxZ]` |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `Array` | A new bounding box containing the minimum and maximum coordinates of the reprojected corners, preserving the original dimensionality |
+
+### Throws
+
+Throws if `bbox` is invalid or if either projection is not registered.
+
+Antimeridian-crossing bounding boxes are not supported when a reprojection is required.
+
+### Examples
+
+```js
+reprojectBBox(
+  [2, 48, 3, 49],
+  'EPSG:4326',
+  'EPSG:3857'
+)
+// Approximately [
+//   222638.98, 6106854.83,
+//   333958.47, 6274861.39
+// ]
+
+reprojectBBox(
+  [222638.98, 6106854.83, 333958.47, 6274861.39],
+  'EPSG:3857'
+)
+// Approximately [2, 48, 3, 49] (WGS84)
+
+reprojectBBox(
+  [2, 48, 100, 3, 49, 500],
+  'EPSG:4326',
+  'EPSG:3857'
+)
+// Approximately [
+//   222638.98, 6106854.83, 100,
+//   333958.47, 6274861.39, 500
+// ]
+
+reprojectBBox(
+  [2, 48, 3, 49],
+  'EPSG:4326',
+  'EPSG:4326'
+)
+// [2, 48, 3, 49]
+```
+
+For 3D bounding boxes, all eight corners are passed to `reprojectPosition()`. The handling of the vertical 
+coordinate therefore depends on the underlying proj4 transformation. In the Web Mercator example above, Z 
+remains unchanged.

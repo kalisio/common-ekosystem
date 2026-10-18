@@ -1,9 +1,10 @@
 import {
+  WGS84,
   isValidPositions,
   deduplicatePositions,
   truncatePositions,
   reprojectPositions
-} from '../../src/foundation/positions.js'
+} from '../../src/foundation/index.js'
 
 const SOURCE = 'EPSG:4326'
 const TARGET = 'EPSG:3857'
@@ -116,6 +117,31 @@ describe('reprojectPositions', () => {
   it('returns an empty array unchanged', () => {
     // Regression guard: total transformer.
     expect(reprojectPositions([], SOURCE, TARGET)).toEqual([])
+  })
+  it('should default to WGS84 when target is omitted', () => {
+    const result = reprojectPositions([
+      [222638.98159, 6106854.83489],
+      [333958.47238, 6274861.39401]
+    ], 'EPSG:3857')
+    expect(result).toHaveLength(2)
+    expect(result[0][0]).toBeCloseTo(2, 6)
+    expect(result[0][1]).toBeCloseTo(48, 6)
+    expect(result[1][0]).toBeCloseTo(3, 6)
+    expect(result[1][1]).toBeCloseTo(49, 6)
+  })
+  it('should preserve positions when source matches the default target', () => {
+    const positions = [[2, 48], [3, 49, 100]]
+    const result = reprojectPositions(positions, WGS84)
+    expect(result).toEqual(positions)
+    expect(result).not.toBe(positions)
+    expect(result[0]).not.toBe(positions[0])
+    expect(result[1]).not.toBe(positions[1])
+  })
+  it('should accept an empty array with the default target', () => {
+    expect(reprojectPositions([], 'EPSG:3857')).toEqual([])
+  })
+  it('should validate the source projection even for an empty array', () => {
+    expect(() => reprojectPositions([], 'EPSG:999999')).toThrow()
   })
   it('reprojects each position to the expected projected values', () => {
     const [point] = reprojectPositions([[2.35, 48.85]], SOURCE, TARGET)

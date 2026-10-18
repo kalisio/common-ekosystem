@@ -4,8 +4,9 @@ import {
   mergeBBox,
   computeBBox,
   truncateBBox,
-  reprojectBBox
-} from '../../src/foundation'
+  reprojectBBox,
+  WGS84
+} from '../../src/foundation/index.js'
 
 describe('isValidBBox', () => {
   it('returns true for a valid 2D bbox', () => {
@@ -214,6 +215,36 @@ describe('reprojectBBox', () => {
     const bbox = [2, 48, 100, 3, 49, 500]
     expect(reprojectBBox(bbox, 'EPSG:4326', 'EPSG:4326'))
       .toEqual(bbox)
+  })
+  it('should default to WGS84 when target is omitted', () => {
+    const result = reprojectBBox(
+      [222638.98159, 6106854.83489, 333958.47238, 6274861.39401],
+      'EPSG:3857'
+    )
+    expect(result).toHaveLength(4)
+    expect(result[0]).toBeCloseTo(2, 6)
+    expect(result[1]).toBeCloseTo(48, 6)
+    expect(result[2]).toBeCloseTo(3, 6)
+    expect(result[3]).toBeCloseTo(49, 6)
+  })
+  it('should default to WGS84 for a 3D bbox', () => {
+    const result = reprojectBBox(
+      [222638.98159, 6106854.83489, 100, 333958.47238, 6274861.39401, 500],
+      'EPSG:3857'
+    )
+    expect(result).toHaveLength(6)
+    expect(result[0]).toBeCloseTo(2, 6)
+    expect(result[1]).toBeCloseTo(48, 6)
+    expect(result[2]).toBe(100)
+    expect(result[3]).toBeCloseTo(3, 6)
+    expect(result[4]).toBeCloseTo(49, 6)
+    expect(result[5]).toBe(500)
+  })
+  it('should preserve a bbox when source matches the default target', () => {
+    const bbox = [2, 48, 100, 3, 49, 500]
+    const result = reprojectBBox(bbox, WGS84)
+    expect(result).toEqual(bbox)
+    expect(result).not.toBe(bbox)
   })
   it('should reproject a 2D bbox', () => {
     const result = reprojectBBox(

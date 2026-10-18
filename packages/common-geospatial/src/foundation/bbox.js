@@ -4,6 +4,7 @@ import {
   MAX_COORDINATE_PRECISION,
   truncateCoordinate
 } from './coordinate.js'
+import { WGS84 } from './projections.js'
 import {
   isValidPosition,
   is3DPosition,
@@ -113,7 +114,7 @@ export function truncateBBox (bbox, precision = DEFAULT_COORDINATE_PRECISION) {
   return bbox
 }
 
-export function reprojectBBox (bbox, source, target) {
+export function reprojectBBox (bbox, source, target = WGS84) {
   assert.that(bbox, isValidBBox, 'bbox must be a valid bounding-box')
   if (source === target) return [...bbox]
   const is3D = is.arrayOfLength(bbox, 6)

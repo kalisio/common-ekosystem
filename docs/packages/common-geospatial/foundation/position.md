@@ -213,33 +213,35 @@ truncatePosition(position, 3)
 // [2.352, 48.856]
 ```
 
-## reprojectPosition
+### reprojectPosition
 
 ### Signature
 
 ```js
-reprojectPosition(position, source, target)
+reprojectPosition(position, source, target = WGS84)
 ```
 
 ### Description
 
-Reprojects a position from a source projection to a target projection using proj4.
+Reprojects a 2D or 3D position from a source projection to a target projection using proj4.
 
-Both projections must already be registered.
+The target projection defaults to WGS84 (`EPSG:4326`). Both projections must already be registered.
+
+When source and target projections are identical, the function returns a copy of the original position without performing any transformation.
 
 ### Parameters
 
-| Name       | Type     | Required | Description            |
-| ---------- | -------- | -------- | ---------------------- |
-| `position` | `Array`  | yes      | A valid position       |
-| `source`   | `string` | yes      | Source projection name |
-| `target`   | `string` | yes      | Target projection name |
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `position` | `Array` | yes | A valid 2D or 3D position |
+| `source` | `string` | yes | Source projection name |
+| `target` | `string` | no | Target projection name (defaults to WGS84) |
 
 ### Returns
 
-| Type    | Description              |
-| ------- | ------------------------ |
-| `Array` | The reprojected position |
+| Type | Description |
+|------|-------------|
+| `Array` | The reprojected position (a new array) |
 
 ### Throws
 
@@ -249,7 +251,13 @@ Throws if `position` is invalid or if either projection is not registered.
 
 ```js
 reprojectPosition([2.3522, 48.8566], 'EPSG:4326', 'EPSG:3857')
-// [261845..., 6250564...]
+// Approximately [261845.7, 6250564.3]
+
+reprojectPosition([261845.7, 6250564.3], 'EPSG:3857')
+// Approximately [2.3522, 48.8566]
+
+reprojectPosition([2.3522, 48.8566, 100], 'EPSG:4326', 'EPSG:4326')
+// [2.3522, 48.8566, 100]
 ```
 
 ## destinationFromPosition

@@ -1,5 +1,6 @@
 import { assert, is, conform, optional } from '@kalisio/common-core/predicates'
 import { DEFAULT_COORDINATE_PRECISION } from './coordinate.js'
+import { hasProjection, WGS84 } from './projections.js'
 import {
   isValidPosition,
   isSamePosition,
@@ -48,7 +49,12 @@ export function truncatePositions (positions, options = {}) {
   return deduplicate ? deduplicatePositions(truncated, { precision, consider3D }) : truncated
 }
 
-export function reprojectPositions (positions, source, target) {
-  assert.that(positions, is.array, 'positions must be an array')
-  return positions.map((position) => reprojectPosition(position, source, target))
+export function reprojectPositions (positions, source, target = WGS84) {
+  assert.all([
+    { value: positions, validator: is.array, message: 'positions must be an array' },
+    { value: source, validator: hasProjection, message: `unknown source projection: ${source}` },
+    { value: target, validator: hasProjection, message: `unknown target projection: ${target}` }
+  ])
+  if (source === target) return positions.map(position => [...position])
+  return positions.map(position => reprojectPosition(position, source, target))
 }

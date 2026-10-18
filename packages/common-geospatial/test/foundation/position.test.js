@@ -1,6 +1,7 @@
 import { MAX_COORDINATE_PRECISION } from '../../src/foundation/coordinate.js'
 import {
   EARTH_RADIUS,
+  WGS84,
   parsePosition,
   isValidPosition,
   is3DPosition,
@@ -9,7 +10,7 @@ import {
   reprojectPosition,
   destinationFromPosition,
   distanceBetweenPositions
-} from '../../src/foundation/position.js'
+} from '../../src/foundation/index.js'
 
 // Hemisphere-suffixed decimal-degree literals.
 // Adjust these four if parseCoordinate expects a different textual form
@@ -254,6 +255,17 @@ describe('reprojectPosition', () => {
   it('should preserve a 3D position for identical projections', () => {
     const position = [2, 48, 100]
     const result = reprojectPosition(position, 'EPSG:4326', 'EPSG:4326')
+    expect(result).toEqual(position)
+    expect(result).not.toBe(position)
+  })
+  it('should default to WGS84 when target is omitted', () => {
+    const result = reprojectPosition([222638.98159, 6106854.83489], 'EPSG:3857')
+    expect(result[0]).toBeCloseTo(2, 6)
+    expect(result[1]).toBeCloseTo(48, 6)
+  })
+  it('should preserve a position when source matches the default target', () => {
+    const position = [2, 48, 100]
+    const result = reprojectPosition(position, WGS84)
     expect(result).toEqual(position)
     expect(result).not.toBe(position)
   })

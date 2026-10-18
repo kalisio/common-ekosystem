@@ -159,32 +159,38 @@ truncatePositions([
 ### Signature
 
 ```js
-reprojectPositions(positions, source, target)
+reprojectPositions(positions, source, target = WGS84)
 ```
 
 ### Description
 
-Reprojects every position from a source projection to a target projection using `reprojectPosition()`.
+Reprojects an array of 2D or 3D positions from a source projection to a target projection using `reprojectPosition()`.
 
-Both projections must already be registered.
+The target projection defaults to WGS84 (`EPSG:4326`). Both projections must already be registered.
+
+When source and target projections are identical, the function returns a new array containing copies of the original positions, without performing any transformation or individual position validation.
+
+An empty array is accepted and returns an empty array.
 
 ### Parameters
 
-| Name        | Type     | Required | Description             |
-| ----------- | -------- | -------- | ----------------------- |
-| `positions` | `Array`  | yes      | Collection of positions |
-| `source`    | `string` | yes      | Source projection name  |
-| `target`    | `string` | yes      | Target projection name  |
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `positions` | `Array` | yes | Collection of positions |
+| `source` | `string` | yes | Source projection name |
+| `target` | `string` | no | Target projection name (defaults to WGS84) |
 
 ### Returns
 
-| Type    | Description                                      |
-| ------- | ------------------------------------------------ |
+| Type | Description |
+|------|-------------|
 | `Array` | A new array containing the reprojected positions |
 
 ### Throws
 
-Throws if `positions` is not an array or if a position or projection is invalid.
+Throws if `positions` is not an array or if either projection is not registered.
+
+When source and target projections differ, also throws if any position is invalid.
 
 ### Examples
 
@@ -193,5 +199,20 @@ reprojectPositions([
   [2.3522, 48.8566],
   [2.2945, 48.8584]
 ], 'EPSG:4326', 'EPSG:3857')
-// array of projected positions
+// Array of projected positions in Web Mercator
+
+reprojectPositions([
+  [261845.7, 6250564.3],
+  [255422.6, 6250868.6]
+], 'EPSG:3857')
+// Array of geographic positions in WGS84
+
+reprojectPositions([
+  [2.3522, 48.8566],
+  [2.2945, 48.8584, 100]
+], 'EPSG:4326', 'EPSG:4326')
+// [[2.3522, 48.8566], [2.2945, 48.8584, 100]]
+
+reprojectPositions([], 'EPSG:3857')
+// []
 ```

@@ -16,7 +16,7 @@ import {
   angleBetweenNVectors,
   destinationNVector
 } from './nvector.js'
-import { hasProjection } from './projections.js'
+import { hasProjection, WGS84 } from './projections.js'
 
 export const IS_SAME_POSITION_OPTIONS_SCHEMA = {
   precision: optional(v => is.integer(v) && is.inRange(v, 0, MAX_COORDINATE_PRECISION)),
@@ -110,7 +110,7 @@ export function truncatePosition (position, precision = DEFAULT_COORDINATE_PRECI
   return position
 }
 
-export function reprojectPosition (position, source, target) {
+export function reprojectPosition (position, source, target = WGS84) {
   assert.all([
     {
       value: position,
