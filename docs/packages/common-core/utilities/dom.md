@@ -11,6 +11,36 @@ native browser DOM implementations and `@xmldom/xmldom` in Node.js.
 All methods accept `null` or `undefined` as their node argument to facilitate chained lookups. Other values 
 must be DOM-compatible objects exposing an integer `nodeType`.
 
+::: tip
+
+The module can be used with the [io/XML](../io/xml.md) reader:
+
+```js
+import { xml } from '@kalisio/common-core/io/xml'
+import { dom } from '@kalisio/common-core/utilities/dom'
+
+const document = await xml.read(url, { output: 'dom' })
+const root = document.documentElement
+const service = dom.child(root, 'Service')
+const title = dom.text(dom.child(service, 'Title'))
+const layers = dom.children(root, 'Layer')
+```
+
+or with the browser's native DOM:
+
+```js
+import { dom } from '@kalisio/common-core/utilities/dom'
+
+const heading = dom.text(dom.child(document.body, 'h1'))
+const links = dom.children(document.body, 'a')
+const href = dom.attr(links[0], 'href')
+```
+
+Unlike `querySelectorAll()`, `dom.children()` only searches direct children.
+The module relies on standard DOM interfaces and does not require a CSS selector engine or an additional DOM dependency. 
+Parsing remains the responsibility of the corresponding IO module.
+:::
+
 ## children
 
 ### Signature
@@ -323,37 +353,4 @@ dom.attr(null, 'href')
 
 When multiple namespaced attributes share the same local name, use their qualified names to avoid ambiguity.
 
-## Usage
 
-### XML documents
-
-The module can be used with the common-core XML reader:
-
-```js
-import { xml } from '@kalisio/common-core/io/xml'
-import { dom } from '@kalisio/common-core/utilities/dom'
-
-const document = await xml.read(url, { output: 'dom' })
-const root = document.documentElement
-const service = dom.child(root, 'Service')
-const title = dom.text(dom.child(service, 'Title'))
-const layers = dom.children(root, 'Layer')
-```
-
-### HTML documents
-
-The same utilities work with the browser's native DOM:
-
-```js
-import { dom } from '@kalisio/common-core/utilities/dom'
-
-const heading = dom.text(dom.child(document.body, 'h1'))
-const links = dom.children(document.body, 'a')
-const href = dom.attr(links[0], 'href')
-```
-
-::: tip
-Unlike `querySelectorAll()`, `dom.children()` only searches direct children.
-The module relies on standard DOM interfaces and does not require a CSS selector engine or an additional DOM dependency. 
-Parsing remains the responsibility of the corresponding IO module.
-:::
