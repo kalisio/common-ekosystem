@@ -168,12 +168,12 @@ dom.text(dom.child(service, 'Unknown'))
 // undefined
 ```
 
-## num
+## number
 
 ### Signature
 
 ```js
-dom.num (node)
+dom.number (node)
 ```
 
 ### Description
@@ -217,34 +217,34 @@ Given the following XML:
 ```
 
 ```js
-dom.num(dom.child(matrix, 'Width'))
+dom.number(dom.child(matrix, 'Width'))
 // 256
 
-dom.num(dom.child(matrix, 'Scale'))
+dom.number(dom.child(matrix, 'Scale'))
 // -12.5
 
-dom.num(dom.child(matrix, 'Zero'))
+dom.number(dom.child(matrix, 'Zero'))
 // 0
 
-dom.num(dom.child(matrix, 'Invalid'))
+dom.number(dom.child(matrix, 'Invalid'))
 // undefined
 
-dom.num(dom.child(matrix, 'Infinite'))
+dom.number(dom.child(matrix, 'Infinite'))
 // undefined
 
-dom.num(dom.child(matrix, 'Empty'))
+dom.number(dom.child(matrix, 'Empty'))
 // undefined
 
-dom.num(null)
+dom.number(null)
 // undefined
 ```
 
-## attr
+## attrribute
 
 ### Signature
 
 ```js
-dom.attr (node, name)
+dom.attribute(node, name)
 ```
 
 ### Description
