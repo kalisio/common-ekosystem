@@ -1,4 +1,5 @@
 export * from './byte.js'
+export * from './dom.js'
 export * from './env.js'
 export * from './file.js'
 export * from './locale.js'

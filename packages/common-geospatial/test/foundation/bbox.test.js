@@ -3,7 +3,8 @@ import {
   is3DBBox,
   mergeBBox,
   computeBBox,
-  truncateBBox
+  truncateBBox,
+  reprojectBBox
 } from '../../src/foundation'
 
 describe('isValidBBox', () => {
@@ -200,5 +201,62 @@ describe('truncateBBox', () => {
   it('throws if precision is out of range', () => {
     expect(() => truncateBBox([-10, -20, 10, 20], -1)).toThrow()
     expect(() => truncateBBox([-10, -20, 10, 20], 9)).toThrow()
+  })
+})
+
+describe('reprojectBBox', () => {
+  it('should preserve a 2D bbox for identical projections', () => {
+    const bbox = [2, 48, 3, 49]
+    expect(reprojectBBox(bbox, 'EPSG:4326', 'EPSG:4326'))
+      .toEqual(bbox)
+  })
+  it('should preserve a 3D bbox for identical projections', () => {
+    const bbox = [2, 48, 100, 3, 49, 500]
+    expect(reprojectBBox(bbox, 'EPSG:4326', 'EPSG:4326'))
+      .toEqual(bbox)
+  })
+  it('should reproject a 2D bbox', () => {
+    const result = reprojectBBox(
+      [2, 48, 3, 49],
+      'EPSG:4326',
+      'EPSG:3857'
+    )
+    expect(result[0]).toBeCloseTo(222638.98, 2)
+    expect(result[1]).toBeCloseTo(6106854.83, 2)
+    expect(result[2]).toBeCloseTo(333958.47, 2)
+    expect(result[3]).toBeCloseTo(6274861.39, 2)
+  })
+  it('should reproject a 3D bbox', () => {
+    const result = reprojectBBox(
+      [2, 48, 100, 3, 49, 500],
+      'EPSG:4326',
+      'EPSG:3857'
+    )
+    expect(result).toHaveLength(6)
+    expect(result[0]).toBeCloseTo(222638.98, 2)
+    expect(result[1]).toBeCloseTo(6106854.83, 2)
+    expect(result[2]).toBe(100)
+    expect(result[3]).toBeCloseTo(333958.47, 2)
+    expect(result[4]).toBeCloseTo(6274861.39, 2)
+    expect(result[5]).toBe(500)
+  })
+  it('should reject an invalid bbox', () => {
+    expect(() => reprojectBBox(
+      [0, 0, 0],
+      'EPSG:4326',
+      'EPSG:3857'
+    )).toThrow()
+  })
+  it('should reject an unknown projection', () => {
+    expect(() => reprojectBBox(
+      [2, 48, 3, 49],
+      'EPSG:999999',
+      'EPSG:3857'
+    )).toThrow()
+  })
+  it('should not mutate the input bbox', () => {
+    const bbox = Object.freeze([2, 48, 100, 3, 49, 500])
+    reprojectBBox(bbox, 'EPSG:4326', 'EPSG:3857')
+    expect(bbox).toEqual([2, 48, 100, 3, 49, 500])
   })
 })

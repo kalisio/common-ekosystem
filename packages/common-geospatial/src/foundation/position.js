@@ -19,7 +19,7 @@ import {
 import { hasProjection } from './projections.js'
 
 export const IS_SAME_POSITION_OPTIONS_SCHEMA = {
-  precision: optional(is.number),
+  precision: optional(v => is.integer(v) && is.inRange(v, 0, MAX_COORDINATE_PRECISION)),
   consider3D: optional(is.boolean)
 }
 
@@ -100,7 +100,7 @@ export function truncatePosition (position, precision = DEFAULT_COORDINATE_PRECI
     },
     {
       value: precision,
-      validator: (v) => is.inRange(v, 0, MAX_COORDINATE_PRECISION),
+      validator: (v) => is.integer(v) && is.inRange(v, 0, MAX_COORDINATE_PRECISION),
       message: `precision must be in range [0, ${MAX_COORDINATE_PRECISION}]`
     }
   ])
@@ -128,6 +128,7 @@ export function reprojectPosition (position, source, target) {
       message: `unknown target projection: ${target}`
     }
   ])
+  if (source === target) return [...position]
   return proj4(source, target, position)
 }
 

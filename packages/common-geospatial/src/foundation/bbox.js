@@ -4,7 +4,11 @@ import {
   MAX_COORDINATE_PRECISION,
   truncateCoordinate
 } from './coordinate.js'
-import { isValidPosition, is3DPosition } from './position.js'
+import {
+  isValidPosition,
+  is3DPosition,
+  reprojectPosition
+} from './position.js'
 
 export function isValidBBox (bbox) {
   if (!is.arrayOfLength(bbox, 4) && !is.arrayOfLength(bbox, 6)) return false
@@ -107,4 +111,34 @@ export function truncateBBox (bbox, precision = DEFAULT_COORDINATE_PRECISION) {
     bbox[i] = truncateCoordinate(bbox[i], precision)
   }
   return bbox
+}
+
+export function reprojectBBox (bbox, source, target) {
+  assert.that(bbox, isValidBBox, 'bbox must be a valid bounding-box')
+  if (source === target) return [...bbox]
+  const is3D = is.arrayOfLength(bbox, 6)
+  const [minX, minY, maxX, maxY] = is3D
+    ? [bbox[0], bbox[1], bbox[3], bbox[4]]
+    : bbox
+  // Wrapped bounding boxes require dedicated handling
+  if (minX > maxX) {
+    throw new Error('antimeridian-crossing bounding boxes are not supported')
+  }
+  // Generate the four horizontal corners
+  const corners = [
+    [minX, minY],
+    [minX, maxY],
+    [maxX, minY],
+    [maxX, maxY]
+  ]
+  // For 3D bounding boxes, consider both vertical bounds
+  const positions = is3D
+    ? corners.flatMap(([x, y]) => [
+      [x, y, bbox[2]],
+      [x, y, bbox[5]]
+    ])
+    : corners
+  return computeBBox(positions.map(position =>
+    reprojectPosition(position, source, target)
+  ))
 }
