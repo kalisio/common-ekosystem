@@ -56,6 +56,19 @@ describe('xml.parse', () => {
     })
     expect(json.note.category).toBe('reminder')
   })
+  it('converts tag values unless parseTagValue is disabled', async () => {
+    const text = '<a><id>01</id><title>1.0</title></a>'
+    expect((await xml.parse(text)).a).toEqual({ id: 1, title: 1 })
+    expect((await xml.parse(text, {
+      parser: { parseTagValue: false }
+    })).a).toEqual({ id: '01', title: '1.0' })
+  })
+  it('tolerates whitespace and a BOM before the XML declaration', async () => {
+    for (const prefix of ['\n', '  \r\n', '\uFEFF']) {
+      const json = await xml.parse(`${prefix}<?xml version="1.0"?><note><to>World</to></note>`)
+      expect(json.note.to).toBe('World')
+    }
+  })
   it.skipIf(!hasDomParser)('parses a real XML fixture into a DOM Document', async () => {
     const doc = await xml.parse(await readFile(fixture('note.xml'), 'utf-8'), {
       output: 'dom'
@@ -69,6 +82,12 @@ describe('xml.parse', () => {
       output: 'dom'
     })
     expect(doc.getElementsByTagName('body')[0].textContent).toBe('Hello & welcome')
+  })
+  it.skipIf(!hasDomParser)('tolerates whitespace before the XML declaration in DOM output', async () => {
+    const doc = await xml.parse('\n<?xml version="1.0"?><note/>', {
+      output: 'dom'
+    })
+    expect(doc.documentElement.nodeName).toBe('note')
   })
   it('uses an injected domParser', async () => {
     const domParser = {
@@ -103,6 +122,25 @@ describe('xml.parse', () => {
     await expect(xml.parse('<root><child></root>')).rejects.toMatchObject({
       code: xml.ERROR_CODES.PARSE_FAILED
     })
+  })
+  it('reports where malformed XML is invalid', async () => {
+    const error = await xml.parse('<root>\n  <child>\n</root>').catch((error) => error)
+    expect(error.code).toBe(xml.ERROR_CODES.PARSE_FAILED)
+    expect(error.message).toMatch(/^Invalid XML: .* \(line \d+, column \d+\)$/)
+    expect(error.cause).toMatchObject({ code: expect.any(String), line: expect.any(Number) })
+  })
+  it('validates malformed XML before building a DOM', async () => {
+    // DOM parsers do not reliably fail on malformed XML: it must never reach them.
+    const domParser = {
+      parseFromString: vi.fn()
+    }
+    await expect(xml.parse('<root><child></root>', {
+      output: 'dom',
+      domParser
+    })).rejects.toMatchObject({
+      code: xml.ERROR_CODES.PARSE_FAILED
+    })
+    expect(domParser.parseFromString).not.toHaveBeenCalled()
   })
   it('rejects a non-string input', async () => {
     await expect(xml.parse(42)).rejects.toThrowError()
