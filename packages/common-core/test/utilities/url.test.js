@@ -5,16 +5,21 @@ describe('url.build', () => {
     expect(url.build('https://example.com', { foo: 'bar', page: 1 }))
       .toBe('https://example.com/?foo=bar&page=1')
   })
-
   it('ignores undefined values', () => {
     expect(url.build('https://example.com', { foo: 'bar', baz: undefined }))
       .toBe('https://example.com/?foo=bar')
   })
-
+  it('encodes placeholders in param values by default', () => {
+    expect(url.build('https://example.com/{z}/{x}/{y}.png', { key: '{s}' }))
+      .toBe('https://example.com/{z}/{x}/{y}.png?key=%7Bs%7D')
+  })
+  it('forwards preservePlaceholders to addQueryParam', () => {
+    expect(url.build('https://example.com/{z}/{x}/{y}.png', { key: '{s}' }, { preservePlaceholders: true }))
+      .toBe('https://example.com/{z}/{x}/{y}.png?key={s}')
+  })
   it('throws if baseUrl is invalid', () => {
     expect(() => url.build('not-a-url', { foo: 'bar' })).toThrow('baseUrl must be an url')
   })
-
   it('throws if params is empty', () => {
     expect(() => url.build('https://example.com', {})).toThrow('params must be a non empty object')
   })
@@ -25,31 +30,25 @@ describe('url.parse', () => {
     expect(url.parse('https://example.com:3000/api/users'))
       .toEqual({ hosts: [{ host: 'example.com', port: 3000 }], path: '/api/users', query: {} })
   })
-
   it('uses defaultPort when no port is specified', () => {
     expect(url.parse('https://example.com/api/users'))
       .toEqual({ hosts: [{ host: 'example.com', port: 80 }], path: '/api/users', query: {} })
   })
-
   it('accepts a custom defaultPort', () => {
     expect(url.parse('https://example.com/api/users', 443))
       .toEqual({ hosts: [{ host: 'example.com', port: 443 }], path: '/api/users', query: {} })
   })
-
   it('returns / as path when there is no path', () => {
     expect(url.parse('https://example.com')).toMatchObject({ path: '/' })
   })
-
   it('parses the query string into a decoded object', () => {
     expect(url.parse('https://example.com/api?foo=bar&page=2').query)
       .toEqual({ foo: 'bar', page: '2' })
   })
-
   it('decodes percent-encoded query values', () => {
     expect(url.parse('https://example.com/?auth=a%20b%40c').query)
       .toEqual({ auth: 'a b@c' })
   })
-
   it('parses a multi-host connection string into several hosts', () => {
     expect(url.parse('mongodb://h1:27017,h2:27017,h3:27017/db'))
       .toEqual({
@@ -62,21 +61,17 @@ describe('url.parse', () => {
         query: {}
       })
   })
-
   it('keeps userinfo out of the first host', () => {
     expect(url.parse('mongodb://user:pass@h1:27017,h2:27017/db').hosts)
       .toEqual([{ host: 'h1', port: 27017 }, { host: 'h2', port: 27017 }])
   })
-
   it('parses the replica set query of a connection string', () => {
     expect(url.parse('mongodb://h1:27017,h2:27017/db?replicaSet=rs0').query)
       .toEqual({ replicaSet: 'rs0' })
   })
-
   it('throws if url is invalid', () => {
     expect(() => url.parse('not-a-url')).toThrow('url must be an url')
   })
-
   it('throws if defaultPort is not a number', () => {
     expect(() => url.parse('https://example.com', '80')).toThrow('defaultPort must be a number')
   })
@@ -87,34 +82,54 @@ describe('url.addQueryParam', () => {
     expect(url.addQueryParam('https://example.com/?foo=bar', { baz: 'qux' }))
       .toBe('https://example.com/?foo=bar&baz=qux')
   })
-
   it('overwrites an existing param with the same key', () => {
     expect(url.addQueryParam('https://example.com/?foo=old', { foo: 'new' }))
       .toBe('https://example.com/?foo=new')
   })
-
   it('ignores undefined values', () => {
     expect(url.addQueryParam('https://example.com/', { foo: 'bar', baz: undefined }))
       .toBe('https://example.com/?foo=bar')
   })
-
   it('percent-encodes param values', () => {
     expect(url.addQueryParam('https://example.com/', { auth: 'a b@c' }))
       .toBe('https://example.com/?auth=a%20b%40c')
   })
-
   it('inserts the param before the fragment', () => {
     expect(url.addQueryParam('https://example.com/?a=1#frag', { auth: 'toto' }))
       .toBe('https://example.com/?a=1&auth=toto#frag')
   })
-
   it('adds a query param to a multi-host connection string', () => {
     expect(url.addQueryParam('mongodb://h1:27017,h2:27017/db?replicaSet=rs0', { auth: 'toto' }))
       .toBe('mongodb://h1:27017,h2:27017/db?replicaSet=rs0&auth=toto')
   })
-
+  it('encodes placeholders in param values by default', () => {
+    expect(url.addQueryParam('https://example.com/wmts', { TILEROW: '{y}' }))
+      .toBe('https://example.com/wmts?TILEROW=%7By%7D')
+  })
+  it('keeps placeholders of param values literal with preservePlaceholders, and encodes the rest', () => {
+    expect(url.addQueryParam('https://example.com/wmts', { TILEMATRIX: 'EPSG:900913:{z}', TILEROW: '{y}', TILECOL: '{x}' }, { preservePlaceholders: true }))
+      .toBe('https://example.com/wmts?TILEMATRIX=EPSG%3A900913%3A{z}&TILEROW={y}&TILECOL={x}')
+  })
+  it('supports any {name} placeholder', () => {
+    expect(url.addQueryParam('https://example.com/map', { tile: '{-y}', bbox: '{bbox-epsg-3857}', set: '{TileMatrix}' }, { preservePlaceholders: true }))
+      .toBe('https://example.com/map?tile={-y}&bbox={bbox-epsg-3857}&set={TileMatrix}')
+  })
+  it('encodes braces that are not placeholders', () => {
+    expect(url.addQueryParam('https://example.com/map', { q: '{1} {}' }, { preservePlaceholders: true }))
+      .toBe('https://example.com/map?q=%7B1%7D%20%7B%7D')
+  })
+  it('keeps the url as written, placeholders and encoded braces included', () => {
+    for (const options of [{}, { preservePlaceholders: true }]) {
+      expect(url.addQueryParam('https://{s}.example.com/a%7Bb%7D/{z}/{x}/{y}.png?style={style}#top', { key: 'secret' }, options))
+        .toBe('https://{s}.example.com/a%7Bb%7D/{z}/{x}/{y}.png?style={style}&key=secret#top')
+    }
+  })
   it('throws if url is invalid', () => {
     expect(() => url.addQueryParam('not-a-url', { foo: 'bar' })).toThrow('url must be an url')
+  })
+  it('throws if options are invalid', () => {
+    expect(() => url.addQueryParam('https://example.com', { foo: 'bar' }, { preservePlaceholders: 'yes' }))
+      .toThrow('options must be a valid options object')
   })
 })
 
@@ -123,9 +138,20 @@ describe('url.encode', () => {
     expect(url.encode('https://example.com/path with spaces'))
       .toBe('https://example.com/path%20with%20spaces')
   })
-
+  it('encodes placeholders by default', () => {
+    expect(url.encode('https://example.com/réseau routier/{z}/{x}/{-y}.png?style={style}'))
+      .toBe('https://example.com/r%C3%A9seau%20routier/%7Bz%7D/%7Bx%7D/%7B-y%7D.png?style=%7Bstyle%7D')
+  })
+  it('keeps placeholders literal with preservePlaceholders', () => {
+    expect(url.encode('https://example.com/réseau routier/{z}/{x}/{-y}.png?style={style}', { preservePlaceholders: true }))
+      .toBe('https://example.com/r%C3%A9seau%20routier/{z}/{x}/{-y}.png?style={style}')
+  })
   it('throws if url is invalid', () => {
     expect(() => url.encode('not-a-url')).toThrow('url must be an url')
+  })
+  it('throws if options are invalid', () => {
+    expect(() => url.encode('https://example.com', { preservePlaceholders: 1 }))
+      .toThrow('options must be a valid options object')
   })
 })
 
@@ -134,30 +160,24 @@ describe('url.obfuscate', () => {
     expect(url.obfuscate('https://user:pass@example.com'))
       .toBe('https://*****:*****@example.com/')
   })
-
   it('masks username and password with a custom mask', () => {
     expect(url.obfuscate('https://user:pass@example.com', 'HIDDEN'))
       .toBe('https://HIDDEN:HIDDEN@example.com/')
   })
-
   it('masks a username with no password', () => {
     expect(url.obfuscate('https://user@example.com'))
       .toBe('https://*****@example.com/')
   })
-
   it('masks the credentials of a multi-host connection string', () => {
     expect(url.obfuscate('mongodb://user:pass@h1:27017,h2:27017/db'))
       .toBe('mongodb://*****:*****@h1:27017,h2:27017/db')
   })
-
   it('does not alter a url with no credentials', () => {
     expect(url.obfuscate('https://example.com')).toBe('https://example.com/')
   })
-
   it('throws if url is invalid', () => {
     expect(() => url.obfuscate('not-a-url')).toThrow('url must be an url')
   })
-
   it('throws if mask is not a string', () => {
     expect(() => url.obfuscate('https://user:pass@example.com', 123)).toThrow('mask must be a string')
   })
