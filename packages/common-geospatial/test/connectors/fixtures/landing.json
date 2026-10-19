@@ -1,0 +1,32 @@
+
+{
+  "title": "Demo OGC API",
+  "description": "OGC API test service",
+  "links": [
+    {
+      "rel": "self",
+      "type": "application/json",
+      "href": "https://example.com/api?f=json"
+    },
+    {
+      "rel": "data",
+      "type": "application/json",
+      "href": "collections?f=json"
+    },
+    {
+      "rel": "http://www.opengis.net/def/rel/ogc/1.0/conformance",
+      "type": "application/json",
+      "href": "https://example.com/api/conformance?f=json"
+    },
+    {
+      "rel": "service-desc",
+      "type": "application/vnd.oai.openapi+json;version=3.0",
+      "href": "https://example.com/api/openapi?f=json"
+    },
+    {
+      "rel": "service-doc",
+      "type": "text/html",
+      "href": "https://example.com/api/docs"
+    }
+  ]
+}
