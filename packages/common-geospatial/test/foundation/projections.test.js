@@ -191,7 +191,28 @@ describe('normalizeCrsName', () => {
       expect(normalizeCrsName('urn:ogc:def:crs:EPSG::32631')).toBe('EPSG:32631')
     })
   })
-
+  describe('EPSG URI normalization', () => {
+    it('normalizes an OGC EPSG URI to its short EPSG:<code> form', () => {
+      expect(normalizeCrsName('http://www.opengis.net/def/crs/EPSG/0/2154')).toBe('EPSG:2154')
+      expect(normalizeCrsName('http://www.opengis.net/def/crs/EPSG/0/3857')).toBe('EPSG:3857')
+    })
+    it('supports HTTPS and a trailing slash', () => {
+      expect(normalizeCrsName('https://www.opengis.net/def/crs/EPSG/0/4326')).toBe('EPSG:4326')
+      expect(normalizeCrsName('http://www.opengis.net/def/crs/EPSG/0/2154/')).toBe('EPSG:2154')
+    })
+    it('normalizes the EPSG authority case-insensitively', () => {
+      expect(normalizeCrsName('http://www.opengis.net/def/crs/epsg/0/3857')).toBe('EPSG:3857')
+    })
+  })
+  describe('CRS84 URI normalization', () => {
+    it('normalizes the OGC CRS84 URI to WGS84', () => {
+      expect(normalizeCrsName('http://www.opengis.net/def/crs/OGC/1.3/CRS84')).toBe('WGS84')
+    })
+    it('supports HTTPS and a trailing slash', () => {
+      expect(normalizeCrsName('https://www.opengis.net/def/crs/OGC/1.3/CRS84')).toBe('WGS84')
+      expect(normalizeCrsName('http://www.opengis.net/def/crs/OGC/1.3/CRS84/')).toBe('WGS84')
+    })
+  })
   describe('passthrough', () => {
     it('leaves a short EPSG name unchanged', () => {
       expect(normalizeCrsName('EPSG:4326')).toBe('EPSG:4326')
@@ -202,20 +223,34 @@ describe('normalizeCrsName', () => {
     it('leaves an OGC CRS84 URN unchanged', () => {
       expect(normalizeCrsName('urn:ogc:def:crs:OGC:1.3:CRS84')).toBe('urn:ogc:def:crs:OGC:1.3:CRS84')
     })
+    it('leaves a CRS84h URI unchanged', () => {
+      const crs = 'http://www.opengis.net/def/crs/OGC/0/CRS84h'
+      expect(normalizeCrsName(crs)).toBe(crs)
+    })
     it('leaves a non-EPSG URN unchanged', () => {
       expect(normalizeCrsName('urn:ogc:def:crs:IAU::49900')).toBe('urn:ogc:def:crs:IAU::49900')
     })
     it('does not normalize a malformed EPSG URN with a non-numeric code', () => {
       expect(normalizeCrsName('urn:ogc:def:crs:EPSG::abc')).toBe('urn:ogc:def:crs:EPSG::abc')
     })
+    it('does not normalize an EPSG URI with a non-numeric code', () => {
+      const crs = 'http://www.opengis.net/def/crs/EPSG/0/abc'
+      expect(normalizeCrsName(crs)).toBe(crs)
+    })
+    it('does not normalize an unsupported EPSG URN variant', () => {
+      const crs = 'urn:ogc:def:crs:EPSG:6.6:4326'
+      expect(normalizeCrsName(crs)).toBe(crs)
+    })
   })
-
   describe('invalid input', () => {
     it('throws when name is an empty string', () => {
       expect(() => normalizeCrsName('')).toThrow('name must be a non empty string')
     })
     it('throws when name is null', () => {
       expect(() => normalizeCrsName(null)).toThrow('name must be a non empty string')
+    })
+    it('throws when name is undefined', () => {
+      expect(() => normalizeCrsName(undefined)).toThrow('name must be a non empty string')
     })
     it('throws when name is a number', () => {
       expect(() => normalizeCrsName(42)).toThrow('name must be a non empty string')

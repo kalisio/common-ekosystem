@@ -20,11 +20,15 @@ for (const [name, definition] of Object.entries(DEFAULT_PROJECTIONS)) {
 }
 
 const EPSG_URN_REGEXP = /^urn:ogc:def:crs:EPSG::(\d+)$/i
+const EPSG_URI_REGEXP = /^https?:\/\/www\.opengis\.net\/def\/crs\/EPSG\/[^/]+\/(\d+)\/?$/i
+const CRS84_URI_REGEXP = /^https?:\/\/www\.opengis\.net\/def\/crs\/OGC\/1\.3\/CRS84\/?$/i
 
 export function normalizeCrsName (name) {
   assert.that(name, is.nonEmptyString, 'name must be a non empty string')
-  const match = name.match(EPSG_URN_REGEXP)
-  return match ? `EPSG:${match[1]}` : name
+  const match = name.match(EPSG_URN_REGEXP) ?? name.match(EPSG_URI_REGEXP)
+  if (match) return `EPSG:${match[1]}`
+  if (CRS84_URI_REGEXP.test(name)) return 'WGS84'
+  return name
 }
 
 export function denormalizeCrsName (name) {
