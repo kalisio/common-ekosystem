@@ -85,10 +85,14 @@
     "@turf/meta": "catalog:",
     "@xmldom/xmldom": "catalog:",
     "heap-js": "catalog:",
+    "pmtiles": "catalog:",
     "proj4": "catalog:"
   },
   "peerDependenciesMeta": {
     "@tmcw/togeojson": {
+      "optional": true
+    },
+    "pmtiles": {
       "optional": true
     }
   },
