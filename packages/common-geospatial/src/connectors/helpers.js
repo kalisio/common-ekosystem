@@ -35,12 +35,16 @@ export function assertSupportedVersion (service, value, supported) {
 // advertises (a TMS TileSet order, for instance) before relying on them.
 export function zoomTemplate (identifiers) {
   if (!identifiers.length) return undefined
-  const parts = identifiers.map((identifier) => /^(.*?)(\d+)$/.exec(identifier))
+  const parts = identifiers.map((identifier) => {
+    let index = identifier.length
+    while (index > 0 && identifier[index - 1] >= '0' && identifier[index - 1] <= '9') index--
+    return index === identifier.length ? null : [identifier.slice(0, index), identifier.slice(index)]
+  })
   if (parts.some((part) => !part)) return undefined
-  const prefix = parts[0][1]
-  const levels = parts.map((part) => parseInt(part[2], 10))
+  const prefix = parts[0][0]
+  const levels = parts.map((part) => parseInt(part[1], 10))
   const consistent = parts.every((part, index) =>
-    part[1] === prefix && String(levels[index]) === part[2] && (index === 0 || levels[index] === levels[index - 1] + 1))
+    part[0] === prefix && String(levels[index]) === part[1] && (index === 0 || levels[index] === levels[index - 1] + 1))
   if (!consistent) return undefined
   return { template: `${prefix}{z}`, minZoom: levels[0], maxZoom: levels[levels.length - 1] }
 }

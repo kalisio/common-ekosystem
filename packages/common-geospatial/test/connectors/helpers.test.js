@@ -8,6 +8,11 @@ describe('zoomTemplate', () => {
     expect(zoomTemplate(['2', '1', '0'])).toBeUndefined()
     expect(zoomTemplate(['0', '1', '1'])).toBeUndefined()
   })
+  it('handles long identifiers without regex backtracking', () => {
+    const prefix = `grid/${'a'.repeat(10000)}`
+    expect(zoomTemplate([`${prefix}5`, `${prefix}6`])).toEqual({ template: `${prefix}{z}`, minZoom: 5, maxZoom: 6 })
+    expect(zoomTemplate([`${'9'.repeat(10000)}x`])).toBeUndefined()
+  })
   it('maps prefixed consecutive levels to a zoom placeholder', () => {
     expect(zoomTemplate(['0', '1', '2'])).toEqual({ template: '{z}', minZoom: 0, maxZoom: 2 })
     expect(zoomTemplate(['EPSG:900913:3', 'EPSG:900913:4'])).toEqual({ template: 'EPSG:900913:{z}', minZoom: 3, maxZoom: 4 })

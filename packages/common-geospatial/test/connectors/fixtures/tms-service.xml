@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TileMapService version="1.0.0" services="https://example.com/tms/">
+  <Title>Demo TMS</Title>
+  <Abstract>Tile maps of the demo server</Abstract>
+  <TileMaps>
+    <TileMap title="Roads" srs="EPSG:900913" profile="global-mercator"
+      href="https://example.com/tms/1.0.0/roads%40EPSG%3A900913%40png"/>
+    <TileMap title="Elevation" srs="EPSG:4326" profile="global-geodetic"
+      href="https://example.com/tms/1.0.0/dem%40EPSG%3A4326%40jpeg"/>
+  </TileMaps>
+</TileMapService>
