@@ -1,4 +1,4 @@
-import { assert, conform } from '@kalisio/common-core/predicates'
+import { is, assert, conform } from '@kalisio/common-core/predicates'
 import { dom } from '@kalisio/common-core/utilities'
 import { normalizeCrsName } from '../../foundation/index.js'
 import { assertSupportedVersion, ERROR_CODES, failure, resolveHref, zoomTemplate } from '../helpers.js'
@@ -236,7 +236,7 @@ function decodeTileMatrix (node, setId) {
   if (!id) throw invalid(`WMTS TileMatrix without Identifier in ${setId}`)
   const fail = (field) => { throw invalid(`WMTS TileMatrix ${id} of ${setId}: invalid ${field}`) }
   const scaleDenominator = toNumber(text(child(node, 'ScaleDenominator')))
-  if (!(scaleDenominator > 0)) fail('ScaleDenominator')
+  if (!is.positive(scaleDenominator)) fail('ScaleDenominator')
   const topLeftCorner = (text(child(node, 'TopLeftCorner')) ?? '').split(/\s+/).filter(Boolean).map(Number)
   if (topLeftCorner.length < 2 || topLeftCorner.length > 3 || !topLeftCorner.every(Number.isFinite)) fail('TopLeftCorner')
   const matrix = { id, scaleDenominator, topLeftCorner }
