@@ -114,6 +114,12 @@ export function truncateBBox (bbox, precision = DEFAULT_COORDINATE_PRECISION) {
   return bbox
 }
 
+// Corners are not enough: in conic or transverse projections, extrema may lie
+// along the edges (the northernmost point of a wide Lambert box is in the
+// middle of its top edge), so each edge is sampled. Extrema inside the box,
+// such as a pole in a polar projection, are still not captured.
+const EDGE_SAMPLES = 20
+
 export function reprojectBBox (bbox, source, target = WGS84) {
   assert.that(bbox, isValidBBox, 'bbox must be a valid bounding-box')
   if (source === target) return [...bbox]
@@ -125,20 +131,20 @@ export function reprojectBBox (bbox, source, target = WGS84) {
   if (minX > maxX) {
     throw new Error('antimeridian-crossing bounding boxes are not supported')
   }
-  // Generate the four horizontal corners
-  const corners = [
-    [minX, minY],
-    [minX, maxY],
-    [maxX, minY],
-    [maxX, maxY]
-  ]
+  // Sample the four horizontal edges, corners included
+  const edges = []
+  for (let i = 0; i <= EDGE_SAMPLES; i++) {
+    const x = minX + (maxX - minX) * i / EDGE_SAMPLES
+    const y = minY + (maxY - minY) * i / EDGE_SAMPLES
+    edges.push([x, minY], [x, maxY], [minX, y], [maxX, y])
+  }
   // For 3D bounding boxes, consider both vertical bounds
   const positions = is3D
-    ? corners.flatMap(([x, y]) => [
+    ? edges.flatMap(([x, y]) => [
       [x, y, bbox[2]],
       [x, y, bbox[5]]
     ])
-    : corners
+    : edges
   return computeBBox(positions.map(position =>
     reprojectPosition(position, source, target)
   ))
