@@ -116,7 +116,7 @@ function parseFormat (format) {
       const index = parameter.indexOf('=')
       if (index < 0) return [parameter, '']
       const name = parameter.slice(0, index).trim()
-      const value = parameter.slice(index + 1).trim().replace(/^["']|["']$/g, '')
+      const value = parameter.slice(index + 1).trim().replace(/(?:^["']|["']$)/g, '')
       return [name, value]
     }).filter(([name]) => name))
   }

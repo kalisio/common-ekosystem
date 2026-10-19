@@ -16,7 +16,7 @@ const PLACEHOLDER_OPTIONS_SCHEMA = {
 }
 
 function parseUrl (value) {
-  const match = String(value).match(URL_RE)
+  const match = URL_RE.exec(String(value))
   if (!match) return null
   const [, scheme, authority, path = '', query = '', fragment = ''] = match
   // Normalize an empty path to '/', matching the standard URL form.

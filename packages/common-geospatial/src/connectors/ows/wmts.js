@@ -159,6 +159,9 @@ function decodeStyle (node, baseUrl) {
 function decodeDimension (node) {
   // <Current> is an element in WMTS (an attribute in WMS 1.3.0).
   const current = text(child(node, 'Current'))?.toLowerCase()
+  let currentValue
+  if (current === 'true' || current === '1') currentValue = true
+  else if (current === 'false' || current === '0') currentValue = false
   return defined({
     name: text(child(node, 'Identifier')),
     title: text(child(node, 'Title')) || undefined,
@@ -166,7 +169,7 @@ function decodeDimension (node) {
     units: text(child(node, 'UOM')) || undefined,
     unitSymbol: text(child(node, 'UnitSymbol')) || undefined,
     default: text(child(node, 'Default')) || undefined,
-    current: current === 'true' || current === '1' ? true : current === 'false' || current === '0' ? false : undefined,
+    current: currentValue,
     values: children(node, 'Value').map(text).filter(Boolean)
   })
 }

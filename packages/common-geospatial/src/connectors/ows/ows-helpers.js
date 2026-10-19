@@ -93,7 +93,8 @@ export function owsRequestUrl (base, { service, request, version, searchParams =
     if (decode(name).toLowerCase() === 'version' && value) baseVersion = decode(value)
     return false
   })
-  const cleaned = `${path}${kept.length ? `?${kept.join('&')}` : ''}${fragment}`
+  const query = kept.length ? `?${kept.join('&')}` : ''
+  const cleaned = `${path}${query}${fragment}`
   const extra = Object.fromEntries(Object.entries(searchParams).filter(([name]) => !isReserved(name)))
   return url.build(cleaned, {
     ...extra,
