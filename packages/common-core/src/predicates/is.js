@@ -75,6 +75,7 @@ export const is = {
   },
 
   url (value) {
+    if (value instanceof URL) value = value.href
     if (!is.string(value)) return false
     const regexp = /^([a-z][a-z0-9+.-]*:\/\/)([^/?#]+)(\/[^?#]*)?(\?[^#]*)?(#.*)?$/i
     const match = regexp.exec(value)

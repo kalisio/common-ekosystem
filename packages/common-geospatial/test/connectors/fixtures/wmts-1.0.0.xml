@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Capabilities version="1.0.0"
+  xmlns="http://www.opengis.net/wmts/1.0"
+  xmlns:ows="http://www.opengis.net/ows/1.1"
+  xmlns:xlink="http://www.w3.org/1999/xlink">
+  <ows:ServiceIdentification>
+    <ows:Title>Demo WMTS</ows:Title>
+    <ows:ServiceType>OGC WMTS</ows:ServiceType>
+    <ows:ServiceTypeVersion>1.0.0</ows:ServiceTypeVersion>
+  </ows:ServiceIdentification>
+  <ows:OperationsMetadata>
+    <ows:Operation name="GetCapabilities">
+      <ows:DCP><ows:HTTP><ows:Get xlink:href="https://example.com/gwc/service/wmts?"/></ows:HTTP></ows:DCP>
+    </ows:Operation>
+    <ows:Operation name="GetTile">
+      <ows:DCP>
+        <ows:HTTP>
+          <ows:Get xlink:href="https://tiles.example.com/gwc/service/wmts?">
+            <ows:Constraint name="GetEncoding">
+              <ows:AllowedValues><ows:Value>KVP</ows:Value></ows:AllowedValues>
+            </ows:Constraint>
+          </ows:Get>
+        </ows:HTTP>
+      </ows:DCP>
+    </ows:Operation>
+  </ows:OperationsMetadata>
+  <Contents>
+    <Layer>
+      <ows:Title>Roads</ows:Title>
+      <ows:Abstract>Road network</ows:Abstract>
+      <ows:WGS84BoundingBox>
+        <ows:LowerCorner>-5 42</ows:LowerCorner>
+        <ows:UpperCorner>8 51</ows:UpperCorner>
+      </ows:WGS84BoundingBox>
+      <ows:Identifier>roads</ows:Identifier>
+      <Style>
+        <ows:Identifier>light</ows:Identifier>
+      </Style>
+      <Style isDefault="true">
+        <ows:Title>Default style</ows:Title>
+        <ows:Identifier>default</ows:Identifier>
+        <LegendURL format="image/png" xlink:href="https://example.com/legend/roads.png"/>
+      </Style>
+      <Format>image/png</Format>
+      <Format>image/jpeg</Format>
+      <Dimension>
+        <ows:Identifier>Time</ows:Identifier>
+        <ows:UOM>ISO8601</ows:UOM>
+        <Default>2020-01-01</Default>
+        <Value>2020-01-01</Value>
+        <Value>2021-01-01</Value>
+      </Dimension>
+      <TileMatrixSetLink>
+        <TileMatrixSet>EPSG:4326</TileMatrixSet>
+      </TileMatrixSetLink>
+      <TileMatrixSetLink>
+        <TileMatrixSet>EPSG:900913</TileMatrixSet>
+        <TileMatrixSetLimits>
+          <TileMatrixLimits>
+            <TileMatrix>EPSG:900913:1</TileMatrix>
+            <MinTileRow>0</MinTileRow><MaxTileRow>1</MaxTileRow><MinTileCol>0</MinTileCol><MaxTileCol>1</MaxTileCol>
+          </TileMatrixLimits>
+          <TileMatrixLimits>
+            <TileMatrix>EPSG:900913:2</TileMatrix>
+            <MinTileRow>1</MinTileRow><MaxTileRow>2</MaxTileRow><MinTileCol>1</MinTileCol><MaxTileCol>2</MaxTileCol>
+          </TileMatrixLimits>
+        </TileMatrixSetLimits>
+      </TileMatrixSetLink>
+      <ResourceURL format="image/png" resourceType="tile"
+        template="https://tiles.example.com/gwc/rest/wmts/roads/{style}/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}?format=image/png&amp;time={Time}"/>
+      <ResourceURL format="application/json" resourceType="FeatureInfo"
+        template="https://tiles.example.com/gwc/rest/wmts/roads/{style}/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}/{J}/{I}?format=application/json"/>
+    </Layer>
+    <Layer>
+      <ows:Title>Sites</ows:Title>
+      <ows:BoundingBox crs="urn:ogc:def:crs:EPSG::4326">
+        <ows:LowerCorner>42 -5</ows:LowerCorner>
+        <ows:UpperCorner>51 8</ows:UpperCorner>
+      </ows:BoundingBox>
+      <ows:Identifier>sites</ows:Identifier>
+      <Style isDefault="true"><ows:Identifier>default</ows:Identifier></Style>
+      <Format>image/png</Format>
+      <TileMatrixSetLink><TileMatrixSet>GoogleMapsCompatible</TileMatrixSet></TileMatrixSetLink>
+      <TileMatrixSetLink><TileMatrixSet>Lambert93</TileMatrixSet></TileMatrixSetLink>
+    </Layer>
+    <TileMatrixSet>
+      <ows:Identifier>EPSG:900913</ows:Identifier>
+      <ows:SupportedCRS>urn:ogc:def:crs:EPSG::3857</ows:SupportedCRS>
+      <TileMatrix>
+        <ows:Identifier>EPSG:900913:0</ows:Identifier>
+        <ScaleDenominator>559082264.0287178</ScaleDenominator>
+        <TopLeftCorner>-20037508.34 20037508.34</TopLeftCorner>
+        <TileWidth>256</TileWidth><TileHeight>256</TileHeight><MatrixWidth>1</MatrixWidth><MatrixHeight>1</MatrixHeight>
+      </TileMatrix>
+      <TileMatrix>
+        <ows:Identifier>EPSG:900913:1</ows:Identifier>
+        <ScaleDenominator>279541132.0143589</ScaleDenominator>
+        <TopLeftCorner>-20037508.34 20037508.34</TopLeftCorner>
+        <TileWidth>256</TileWidth><TileHeight>256</TileHeight><MatrixWidth>2</MatrixWidth><MatrixHeight>2</MatrixHeight>
+      </TileMatrix>
+      <TileMatrix>
+        <ows:Identifier>EPSG:900913:2</ows:Identifier>
+        <ScaleDenominator>139770566.00717944</ScaleDenominator>
+        <TopLeftCorner>-20037508.34 20037508.34</TopLeftCorner>
+        <TileWidth>256</TileWidth><TileHeight>256</TileHeight><MatrixWidth>4</MatrixWidth><MatrixHeight>4</MatrixHeight>
+      </TileMatrix>
+    </TileMatrixSet>
+    <TileMatrixSet>
+      <ows:Identifier>EPSG:4326</ows:Identifier>
+      <ows:SupportedCRS>urn:ogc:def:crs:EPSG::4326</ows:SupportedCRS>
+      <TileMatrix>
+        <ows:Identifier>EPSG:4326:0</ows:Identifier>
+        <ScaleDenominator>279541132.0143589</ScaleDenominator>
+        <TopLeftCorner>90.0 -180.0</TopLeftCorner>
+        <TileWidth>256</TileWidth><TileHeight>256</TileHeight><MatrixWidth>2</MatrixWidth><MatrixHeight>1</MatrixHeight>
+      </TileMatrix>
+    </TileMatrixSet>
+    <TileMatrixSet>
+      <ows:Identifier>GoogleMapsCompatible</ows:Identifier>
+      <ows:SupportedCRS>urn:ogc:def:crs:EPSG::3857</ows:SupportedCRS>
+      <WellKnownScaleSet>urn:ogc:def:wkss:OGC:1.0:GoogleMapsCompatible</WellKnownScaleSet>
+      <TileMatrix>
+        <ows:Identifier>0</ows:Identifier>
+        <ScaleDenominator>559082264.0287178</ScaleDenominator>
+        <TopLeftCorner>-20037508.34 20037508.34</TopLeftCorner>
+        <TileWidth>256</TileWidth><TileHeight>256</TileHeight><MatrixWidth>1</MatrixWidth><MatrixHeight>1</MatrixHeight>
+      </TileMatrix>
+      <TileMatrix>
+        <ows:Identifier>1</ows:Identifier>
+        <ScaleDenominator>279541132.0143589</ScaleDenominator>
+        <TopLeftCorner>-20037508.34 20037508.34</TopLeftCorner>
+        <TileWidth>256</TileWidth><TileHeight>256</TileHeight><MatrixWidth>2</MatrixWidth><MatrixHeight>2</MatrixHeight>
+      </TileMatrix>
+    </TileMatrixSet>
+    <TileMatrixSet>
+      <ows:Identifier>Lambert93</ows:Identifier>
+      <ows:SupportedCRS>urn:ogc:def:crs:EPSG::2154</ows:SupportedCRS>
+      <TileMatrix>
+        <ows:Identifier>coarse</ows:Identifier>
+        <ScaleDenominator>2000000</ScaleDenominator>
+        <TopLeftCorner>0 12000000</TopLeftCorner>
+        <TileWidth>256</TileWidth><TileHeight>256</TileHeight><MatrixWidth>4</MatrixWidth><MatrixHeight>4</MatrixHeight>
+      </TileMatrix>
+      <TileMatrix>
+        <ows:Identifier>fine</ows:Identifier>
+        <ScaleDenominator>500000</ScaleDenominator>
+        <TopLeftCorner>0 12000000</TopLeftCorner>
+        <TileWidth>256</TileWidth><TileHeight>256</TileHeight><MatrixWidth>16</MatrixWidth><MatrixHeight>16</MatrixHeight>
+      </TileMatrix>
+    </TileMatrixSet>
+  </Contents>
+</Capabilities>

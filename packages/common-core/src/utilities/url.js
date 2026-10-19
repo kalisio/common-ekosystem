@@ -16,7 +16,7 @@ const PLACEHOLDER_OPTIONS_SCHEMA = {
 }
 
 function parseUrl (value) {
-  const match = value.match(URL_RE)
+  const match = String(value).match(URL_RE)
   if (!match) return null
   const [, scheme, authority, path = '', query = '', fragment = ''] = match
   // Normalize an empty path to '/', matching the standard URL form.
@@ -132,6 +132,7 @@ export const url = {
       { value: url, validator: is.url, message: 'url must be an url' },
       { value: options, validator: (v) => conform.schema(v, PLACEHOLDER_OPTIONS_SCHEMA), message: 'options must be a valid options object' }
     ])
+    url = String(url)
     if (!options.preservePlaceholders) return encodeURI(url)
     return url.split(PLACEHOLDERS_RE)
       .map((part, index) => index % 2 === 1 ? part : encodeURI(part))

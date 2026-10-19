@@ -1702,47 +1702,37 @@ describe('is.url', () => {
   it('returns true for a URL with a hash', () => {
     expect(is.url('https://example.com#section')).toBe(true)
   })
-  it('returns false for a plain string with no protocol', () => {
-    expect(is.url('example.com')).toBe(false)
-  })
-  it('returns false for an empty string', () => {
-    expect(is.url('')).toBe(false)
-  })
-  it('returns false for a relative URL without a base', () => {
-    expect(is.url('/foo/bar')).toBe(false)
-  })
-  it('returns false for a random string', () => {
-    expect(is.url('not a url')).toBe(false)
-  })
-  it('returns false for number', () => {
-    expect(is.email(23)).toBe(false)
-  })
-  it('returns false for null', () => {
-    expect(is.email(null)).toBe(false)
-  })
-  it('returns false for undefined', () => {
-    expect(is.url(undefined)).toBe(false)
-  })
-  it('returns true for a valid http URL', () => {
-    expect(is.url('http://example.com')).toBe(true)
-  })
-  it('returns true for a valid https URL', () => {
-    expect(is.url('https://example.com')).toBe(true)
-  })
-  it('returns true for a URL with a path', () => {
-    expect(is.url('https://example.com/foo/bar')).toBe(true)
-  })
-  it('returns true for a URL with query params', () => {
-    expect(is.url('https://example.com?foo=bar&baz=1')).toBe(true)
-  })
-  it('returns true for a URL with a hash', () => {
-    expect(is.url('https://example.com#section')).toBe(true)
-  })
   it('returns true for a custom scheme with authority', () => {
     expect(is.url('s3://bucket/path/to/file')).toBe(true)
   })
+  it('returns true for a native URL instance', () => {
+    expect(is.url(new URL('http://example.com'))).toBe(true)
+    expect(is.url(new URL('https://example.com/foo/bar?foo=bar#section'))).toBe(true)
+    expect(is.url(new URL('s3://bucket/path/to/file'))).toBe(true)
+  })
+  it('returns true for a multi-host URL', () => {
+    expect(is.url('mongodb://host1:27017,host2:27017/database')).toBe(true)
+    expect(is.url('mongodb://host1:27017,host2:27017,host3:27017/database')).toBe(true)
+  })
+  it('returns true for a multi-host URL with credentials', () => {
+    expect(is.url('mongodb://user:pass@host1:27017,host2:27017/database')).toBe(true)
+  })
+  it('returns false for a multi-host URL with an empty host', () => {
+    expect(is.url('mongodb://host1:27017,/database')).toBe(false)
+    expect(is.url('mongodb://,host2:27017/database')).toBe(false)
+  })
+  it('returns false for a multi-host URL with invalid credentials', () => {
+    expect(is.url('mongodb://host1:27017,user:pass@host2:27017/database')).toBe(false)
+  })
+  it('returns false for a multi-host URL with an invalid port', () => {
+    expect(is.url('mongodb://host1:27017,host2:abc/database')).toBe(false)
+  })
   it('returns false for a mailto URL', () => {
     expect(is.url('mailto:user@example.com')).toBe(false)
+  })
+  it('returns false for a file URL without authority', () => {
+    expect(is.url('file:///tmp/test.json')).toBe(false)
+    expect(is.url(new URL('file:///tmp/test.json'))).toBe(false)
   })
   it('returns false for a scheme without authority', () => {
     expect(is.url('localhost:8080')).toBe(false)
@@ -1762,7 +1752,7 @@ describe('is.url', () => {
   it('returns false for a random string', () => {
     expect(is.url('not a url')).toBe(false)
   })
-  it('returns false for number', () => {
+  it('returns false for a number', () => {
     expect(is.url(23)).toBe(false)
   })
   it('returns false for null', () => {
@@ -1770,6 +1760,12 @@ describe('is.url', () => {
   })
   it('returns false for undefined', () => {
     expect(is.url(undefined)).toBe(false)
+  })
+  it('returns false for non-URL objects', () => {
+    expect(is.url({})).toBe(false)
+    expect(is.url([])).toBe(false)
+    expect(is.url({ href: 'https://example.com' })).toBe(false)
+    expect(is.url({ toString: () => 'https://example.com' })).toBe(false)
   })
 })
 

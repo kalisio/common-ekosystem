@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- GeoServer-like WFS 2.0.2: OWS 1.1 (values wrapped in AllowedValues), CRS
+     URNs, GET and POST endpoints, output formats on the operation, and feature
+     types covering CRS, specific formats, NoCRS and the antimeridian. -->
+<wfs:WFS_Capabilities version="2.0.2"
+  xmlns:wfs="http://www.opengis.net/wfs/2.0"
+  xmlns:ows="http://www.opengis.net/ows/1.1"
+  xmlns:xlink="http://www.w3.org/1999/xlink">
+  <ows:ServiceIdentification>
+    <ows:Title>Demo WFS 2.0</ows:Title>
+    <ows:ServiceType>WFS</ows:ServiceType>
+    <ows:ServiceTypeVersion>2.0.2</ows:ServiceTypeVersion>
+  </ows:ServiceIdentification>
+  <ows:OperationsMetadata>
+    <ows:Operation name="GetCapabilities">
+      <ows:DCP><ows:HTTP><ows:Get xlink:href="https://example.com/geoserver/wfs"/></ows:HTTP></ows:DCP>
+    </ows:Operation>
+    <ows:Operation name="GetFeature">
+      <ows:DCP>
+        <ows:HTTP>
+          <ows:Get xlink:href="https://example.com/geoserver/wfs"/>
+          <ows:Post xlink:href="https://example.com/geoserver/wfs"/>
+        </ows:HTTP>
+      </ows:DCP>
+      <ows:Parameter name="outputFormat">
+        <ows:AllowedValues>
+          <ows:Value>application/gml+xml; version=3.2</ows:Value>
+          <ows:Value>application/json; subtype=topojson</ows:Value>
+          <ows:Value>application/json</ows:Value>
+          <ows:Value>csv</ows:Value>
+        </ows:AllowedValues>
+      </ows:Parameter>
+    </ows:Operation>
+  </ows:OperationsMetadata>
+  <wfs:FeatureTypeList>
+    <wfs:FeatureType xmlns:topp="http://www.openplans.org/topp">
+      <wfs:Name>topp:roads</wfs:Name>
+      <wfs:Title>Roads</wfs:Title>
+      <wfs:Abstract>Road network</wfs:Abstract>
+      <wfs:DefaultCRS>urn:ogc:def:crs:EPSG::4326</wfs:DefaultCRS>
+      <wfs:OtherCRS>urn:ogc:def:crs:EPSG::3857</wfs:OtherCRS>
+      <wfs:OutputFormats>
+        <wfs:Format>application/json</wfs:Format>
+        <wfs:Format>shape-zip</wfs:Format>
+      </wfs:OutputFormats>
+      <ows:WGS84BoundingBox>
+        <ows:LowerCorner>-5 42</ows:LowerCorner>
+        <ows:UpperCorner>8 51</ows:UpperCorner>
+      </ows:WGS84BoundingBox>
+    </wfs:FeatureType>
+    <wfs:FeatureType xmlns:topp="http://www.openplans.org/topp">
+      <wfs:Name>topp:islands</wfs:Name>
+      <wfs:Title></wfs:Title>
+      <wfs:DefaultCRS>urn:ogc:def:crs:EPSG::4326</wfs:DefaultCRS>
+      <ows:WGS84BoundingBox>
+        <ows:LowerCorner>170 -20</ows:LowerCorner>
+        <ows:UpperCorner>-170 10</ows:UpperCorner>
+      </ows:WGS84BoundingBox>
+    </wfs:FeatureType>
+    <wfs:FeatureType xmlns:topp="http://www.openplans.org/topp">
+      <wfs:Name>topp:catalogue</wfs:Name>
+      <wfs:Title>Catalogue</wfs:Title>
+      <wfs:NoCRS/>
+    </wfs:FeatureType>
+  </wfs:FeatureTypeList>
+</wfs:WFS_Capabilities>

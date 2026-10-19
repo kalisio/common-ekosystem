@@ -182,3 +182,29 @@ describe('url.obfuscate', () => {
     expect(() => url.obfuscate('https://user:pass@example.com', 123)).toThrow('mask must be a string')
   })
 })
+
+describe('Native URL support', () => {
+  it('parses URL instances', () => {
+    const input = new URL('https://example.com:8080/path?foo=bar')
+    expect(url.parse(input)).toEqual(url.parse(input.href))
+  })
+  it('builds URL instances', () => {
+    const input = new URL('https://example.com/path')
+    expect(url.build(input, { foo: 'bar' })).toBe(url.build(input.href, { foo: 'bar' }))
+  })
+  it('adds query parameters to URL instances', () => {
+    const input = new URL('https://example.com/path?foo=bar')
+    expect(url.addQueryParam(input, { baz: 42 })).toBe(url.addQueryParam(input.href, { baz: 42 }))
+  })
+  it('encodes URL instances', () => {
+    const input = new URL('https://example.com/path?foo=bar')
+    expect(url.encode(input)).toBe(url.encode(input.href))
+    expect(url.encode(input, { preservePlaceholders: true })).toBe(
+      url.encode(input.href, { preservePlaceholders: true })
+    )
+  })
+  it('obfuscates URL instances', () => {
+    const input = new URL('https://user:password@example.com/path')
+    expect(url.obfuscate(input)).toBe(url.obfuscate(input.href))
+  })
+})

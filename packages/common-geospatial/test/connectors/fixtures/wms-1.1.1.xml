@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WMT_MS_Capabilities version="1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <Service>
+    <Name>OGC:WMS</Name>
+    <Title>Legacy WMS</Title>
+  </Service>
+  <Capability>
+    <Request>
+      <GetMap>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xlink:href="https://legacy.example.com/wms?"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetMap>
+    </Request>
+    <Layer>
+      <Title>Legacy root</Title>
+      <SRS>EPSG:4326</SRS>
+      <Layer>
+        <Name>parcels</Name>
+        <Title>Parcels</Title>
+        <SRS>EPSG:3857</SRS>
+        <LatLonBoundingBox minx="-3" miny="43" maxx="7" maxy="50"/>
+        <Extent name="time" default="2019">2018,2019,2020</Extent>
+      </Layer>
+    </Layer>
+  </Capability>
+</WMT_MS_Capabilities>

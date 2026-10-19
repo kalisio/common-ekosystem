@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WCS_Capabilities version="1.0.0"
+  xmlns="http://www.opengis.net/wcs"
+  xmlns:gml="http://www.opengis.net/gml"
+  xmlns:xlink="http://www.w3.org/1999/xlink">
+  <Service>
+    <name>WCS</name>
+    <label>Demo WCS</label>
+  </Service>
+  <Capability>
+    <Request>
+      <GetCoverage>
+        <DCPType><HTTP><Get><OnlineResource xlink:type="simple" xlink:href="https://data.example.com/wcs?"/></Get></HTTP></DCPType>
+        <DCPType><HTTP><Post><OnlineResource xlink:type="simple" xlink:href="https://data.example.com/wcs"/></Post></HTTP></DCPType>
+      </GetCoverage>
+    </Request>
+  </Capability>
+  <ContentMetadata>
+    <CoverageOfferingBrief>
+      <description>Digital elevation model</description>
+      <name>dem</name>
+      <label>Elevation</label>
+      <lonLatEnvelope srsName="urn:ogc:def:crs:OGC:1.3:CRS84">
+        <gml:pos>-5 42</gml:pos>
+        <gml:pos>8 51</gml:pos>
+      </lonLatEnvelope>
+    </CoverageOfferingBrief>
+    <CoverageOfferingBrief>
+      <name>temperature</name>
+      <label></label>
+      <lonLatEnvelope srsName="urn:ogc:def:crs:OGC:1.3:CRS84">
+        <gml:pos>-180 -90</gml:pos>
+        <gml:pos>180 90</gml:pos>
+        <gml:timePosition>2020-01-01T00:00:00Z</gml:timePosition>
+        <gml:timePosition>2020-12-31T00:00:00Z</gml:timePosition>
+      </lonLatEnvelope>
+    </CoverageOfferingBrief>
+  </ContentMetadata>
+</WCS_Capabilities>

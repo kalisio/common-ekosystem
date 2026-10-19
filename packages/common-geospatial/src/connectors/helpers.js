@@ -23,6 +23,17 @@ export function assertSupportedVersion (service, value, supported) {
   }
 }
 
+// --- Url -----------------------------------------------------------------------
+
+// Resolve a possibly relative href against the URL of the document holding
+// it, as a browser would. An absolute href is accepted even when the base is
+// not a URL; anything that cannot be resolved makes the document invalid.
+export function resolveHref (href, base) {
+  if (URL.canParse(href, base)) return new URL(href, base).href
+  if (URL.canParse(href)) return new URL(href).href
+  throw failure(ERROR_CODES.INVALID_CAPABILITIES, `href ${href} cannot be resolved against ${base}`)
+}
+
 // --- Tile levels --------------------------------------------------------------
 
 // Tile pyramids identify their levels with strings: '0', '1', ... but also

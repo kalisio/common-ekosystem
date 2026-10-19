@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- MapServer-like WFS 1.1.0: OWS 1.0 (unwrapped parameter values), SRS
+     elements, a relative GET endpoint and a POST endpoint. -->
+<WFS_Capabilities version="1.1.0"
+  xmlns="http://www.opengis.net/wfs"
+  xmlns:ows="http://www.opengis.net/ows"
+  xmlns:xlink="http://www.w3.org/1999/xlink">
+  <ows:ServiceIdentification>
+    <ows:Title>Demo WFS 1.1</ows:Title>
+    <ows:ServiceType>WFS</ows:ServiceType>
+    <ows:ServiceTypeVersion>1.1.0</ows:ServiceTypeVersion>
+  </ows:ServiceIdentification>
+  <ows:OperationsMetadata>
+    <ows:Operation name="GetCapabilities">
+      <ows:DCP><ows:HTTP><ows:Get xlink:href="mapserv?map=demo&amp;"/></ows:HTTP></ows:DCP>
+    </ows:Operation>
+    <ows:Operation name="GetFeature">
+      <ows:DCP>
+        <ows:HTTP>
+          <ows:Get xlink:href="mapserv?map=demo&amp;"/>
+          <ows:Post xlink:href="mapserv?map=demo"/>
+        </ows:HTTP>
+      </ows:DCP>
+      <ows:Parameter name="outputFormat">
+        <ows:Value>text/xml; subtype=gml/3.1.1</ows:Value>
+        <ows:Value>application/json; subtype=geojson</ows:Value>
+      </ows:Parameter>
+    </ows:Operation>
+  </ows:OperationsMetadata>
+  <FeatureTypeList>
+    <FeatureType>
+      <Name>rivers</Name>
+      <Title>Rivers</Title>
+      <DefaultSRS>EPSG:4326</DefaultSRS>
+      <OtherSRS>EPSG:3857</OtherSRS>
+      <OtherSRS>EPSG:2154</OtherSRS>
+      <ows:WGS84BoundingBox>
+        <ows:LowerCorner>-1 43</ows:LowerCorner>
+        <ows:UpperCorner>3 47</ows:UpperCorner>
+      </ows:WGS84BoundingBox>
+    </FeatureType>
+    <FeatureType>
+      <Name>stations</Name>
+      <Title>Stations</Title>
+      <NoSRS/>
+    </FeatureType>
+  </FeatureTypeList>
+</WFS_Capabilities>
