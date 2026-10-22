@@ -14,6 +14,7 @@ _Core utilities for the Kalisio ekosystem_
 It is organized around four modules:
 - [predicates](./predicates/assert.md) - minimalist conditional and assertion functions
 - [utilities](./utilities/byte.md) - general purpose utility functions
+- [runtime](./runtim/event-bus.md) - stateful components with explicit lifecycle management
 - [io](./io/csv.md) - helpers for reading and parsing external data sources
 - [operators](./operators/compare.md) - higher-order functions that process data
 

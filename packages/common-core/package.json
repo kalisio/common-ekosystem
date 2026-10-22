@@ -15,6 +15,11 @@
       "import": "./dist/utilities/index.mjs",
       "require": "./dist/utilities/index.cjs"
     },
+    "./runtime": {
+      "development": "./src/runtime/index.js",
+      "import": "./dist/runtime/index.mjs",
+      "require": "./dist/runtime/index.cjs"
+    },
     "./io/json": {
       "development": "./src/io/json.js",
       "import": "./dist/io/json.mjs",
@@ -165,6 +170,10 @@
       "./utilities": {
         "import": "./dist/utilities/index.mjs",
         "require": "./dist/utilities/index.cjs"
+      },
+      "./runtime": {
+        "import": "./dist/runtime/index.mjs",
+        "require": "./dist/runtime/index.cjs"
       },
       "./io/json": {
         "import": "./dist/io/json.mjs",

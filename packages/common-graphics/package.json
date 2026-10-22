@@ -92,7 +92,6 @@
   "homepage": "https://github.com/kalisio/common-ekosystem/tree/master/packages/common-graphics",
   "peerDependencies": {
     "@kalisio/common-core": "workspace:*",
-    "@logtape/logtape": "catalog:",
     "chroma-js": "catalog:",
     "lru-cache": "catalog:",
     "sharp": "catalog:"

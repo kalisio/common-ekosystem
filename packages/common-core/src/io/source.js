@@ -3,7 +3,7 @@ import { env } from '../utilities/index.js'
 import { request } from '../operators/request.js'
 
 async function fetchText (input, requestOptions = {}) {
-  const response = await request(requestOptions).fetch(input)
+  const response = await request(input, requestOptions).fetch()
   if (!response.ok) {
     const error = new Error(`HTTP ${response.status} ${response.statusText}`)
     error.code = source.ERROR_CODES.HTTP_ERROR

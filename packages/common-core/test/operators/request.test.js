@@ -1,372 +1,142 @@
-import { schedule } from '../../src/utilities/index.js'
 import { request } from '../../src/operators/request.js'
 
-vi.mock('../../src/utilities/index.js', () => ({
-  schedule: { delay: vi.fn() }
-}))
+const URL_ = 'https://example.test/resource'
 
-function response (status) {
-  return {
-    status,
-    body: {
-      cancel: vi.fn().mockResolvedValue(undefined)
-    }
-  }
+function mockFetch (implementation = async () => new Response('ok')) {
+  return vi.spyOn(globalThis, 'fetch').mockImplementation(implementation)
 }
 
-let fetchMock
+afterEach(() => vi.restoreAllMocks())
 
-beforeEach(() => {
-  fetchMock = vi.fn()
-  vi.stubGlobal('fetch', fetchMock)
-  schedule.delay.mockReset()
-  schedule.delay.mockResolvedValue(undefined)
-})
-
-afterEach(() => {
-  vi.unstubAllGlobals()
-  vi.restoreAllMocks()
-})
-
-describe('handle', () => {
-  it('exposes and aborts the underlying signal', () => {
-    const req = request()
-    expect(req.aborted).toBe(false)
-    req.abort(new Error('stop'))
-    expect(req.aborted).toBe(true)
-    expect(req.signal.aborted).toBe(true)
+describe('request validation', () => {
+  it('accepts an HTTP URL string', () => {
+    expect(() => request('http://example.test/resource')).not.toThrow()
   })
-})
-
-describe('validation', () => {
-  it('rejects invalid creation options', () => {
-    expect(() => request({ retries: -1 })).toThrow('options must be a valid options object')
-    expect(() => request({ retryDelay: -1 })).toThrow('options must be a valid options object')
-    expect(() => request({ timeout: -1 })).toThrow('options must be a valid options object')
-    expect(() => request({ signal: {} })).toThrow('options must be a valid options object')
+  it('accepts a URL instance', () => {
+    expect(() => request(new URL(URL_))).not.toThrow()
   })
-  it('rejects invalid per-call options', async () => {
-    const req = request()
-    await expect(req.fetch('/url', { retries: -1 })).rejects.toThrow('options must be a valid options object')
-    await expect(req.fetch('/url', { retryDelay: -1 })).rejects.toThrow('options must be a valid options object')
-    await expect(req.fetch('/url', { timeout: -1 })).rejects.toThrow('options must be a valid options object')
-    await expect(req.fetch('/url', { signal: {} })).rejects.toThrow('options must be a valid options object')
+  it('rejects invalid URLs', () => {
+    expect(() => request('not-a-url')).toThrow('url must be a valid url')
+    expect(() => request('file:///tmp/data.json')).toThrow('url must be a valid url')
+    expect(() => request(new URL('file:///tmp/data.json'))).toThrow('url must be a valid url')
+    expect(() => request(null)).toThrow('url must be a valid url')
   })
-  it('rejects an invalid retryDelay function result', async () => {
-    fetchMock.mockResolvedValue(response(503))
-    const req = request()
-    await expect(req.fetch('/url', { retries: 1, retryDelay: () => -1 }))
-      .rejects.toThrow('retryDelay function must return a non negative integer')
-    expect(fetchMock).toHaveBeenCalledOnce()
+  it('validates requester options', () => {
+    expect(() => request(URL_, { retries: -1 })).toThrow('options must be a valid options object')
+    expect(() => request(URL_, { timeout: 0 })).toThrow('options must be a valid options object')
   })
-  it('rejects an invalid timeout function result', async () => {
-    const req = request()
-    await expect(req.fetch('/url', { timeout: () => -1 }))
-      .rejects.toThrow('timeout function must return a non negative integer')
+  it('validates per-call options before fetching', async () => {
+    const fetchMock = mockFetch()
+    await expect(request(URL_).fetch({ retries: -1 })).rejects.toThrow('options must be a valid options object')
     expect(fetchMock).not.toHaveBeenCalled()
   })
-  it('accepts undefined from a timeout function', async () => {
-    const timeoutSpy = vi.spyOn(AbortSignal, 'timeout')
-    fetchMock.mockResolvedValue(response(200))
-    const req = request()
-    await req.fetch('/url', { timeout: () => undefined })
-    expect(timeoutSpy).not.toHaveBeenCalled()
-    expect(fetchMock).toHaveBeenCalledOnce()
-  })
 })
 
-describe('success and non-retryable responses', () => {
-  it('returns the response and never delays on success', async () => {
-    fetchMock.mockResolvedValue(response(200))
-    const req = request()
-    const result = await req.fetch('/url')
-    expect(result.status).toBe(200)
+describe('request fetch', () => {
+  it('fetches the bound URL and returns the response', async () => {
+    const fetchMock = mockFetch(async () => new Response('hello'))
+    const response = await request(URL_).fetch()
     expect(fetchMock).toHaveBeenCalledOnce()
-    expect(schedule.delay).not.toHaveBeenCalled()
+    expect(fetchMock.mock.calls[0][0]).toBe(URL_)
+    expect(await response.text()).toBe('hello')
   })
-  it('does not retry a non-retryable status', async () => {
-    fetchMock.mockResolvedValue(response(404))
-    const req = request()
-    const result = await req.fetch('/url', { retries: 3 })
-    expect(result.status).toBe(404)
-    expect(fetchMock).toHaveBeenCalledOnce()
-    expect(schedule.delay).not.toHaveBeenCalled()
+  it('preserves a bound URL instance', async () => {
+    const url = new URL(URL_)
+    const fetchMock = mockFetch()
+    await request(url).fetch()
+    expect(fetchMock.mock.calls[0][0]).toBe(url)
   })
-})
-
-describe('retry on status', () => {
-  it('retries a retryable status then returns the successful response', async () => {
-    const first = response(503)
-    fetchMock.mockResolvedValueOnce(first).mockResolvedValueOnce(response(200))
-    const req = request()
-    const result = await req.fetch('/url', { retries: 1 })
-    expect(result.status).toBe(200)
+  it('uses the same bound URL for successive calls', async () => {
+    const fetchMock = mockFetch()
+    const operation = request(URL_)
+    await operation.fetch()
+    await operation.fetch({ method: 'HEAD' })
     expect(fetchMock).toHaveBeenCalledTimes(2)
-    expect(schedule.delay).toHaveBeenCalledOnce()
-    expect(first.body.cancel).toHaveBeenCalledOnce()
+    expect(fetchMock.mock.calls.map(([input]) => input)).toEqual([URL_, URL_])
+    expect(fetchMock.mock.calls[1][1].method).toBe('HEAD')
   })
-  it('drains only the responses it discards, not the one it returns', async () => {
-    const r1 = response(500)
-    const r2 = response(500)
-    const r3 = response(500)
-    fetchMock.mockResolvedValueOnce(r1).mockResolvedValueOnce(r2).mockResolvedValueOnce(r3)
-    const req = request()
-    const result = await req.fetch('/url', { retries: 2 })
-    expect(result).toBe(r3)
-    expect(fetchMock).toHaveBeenCalledTimes(3)
-    expect(r1.body.cancel).toHaveBeenCalledOnce()
-    expect(r2.body.cancel).toHaveBeenCalledOnce()
-    expect(r3.body.cancel).not.toHaveBeenCalled()
+  it('merges default and per-call fetch options', async () => {
+    const fetchMock = mockFetch()
+    const operation = request(URL_, { headers: { 'x-default': '1', 'x-shared': 'default' } })
+    await operation.fetch({ method: 'POST', body: 'hello', headers: { 'x-shared': 'call', 'x-call': '2' } })
+    const [input, init] = fetchMock.mock.calls[0]
+    const sent = new Request(input, init)
+    expect(sent.method).toBe('POST')
+    expect(await sent.text()).toBe('hello')
+    expect(sent.headers.get('x-default')).toBe('1')
+    expect(sent.headers.get('x-shared')).toBe('call')
+    expect(sent.headers.get('x-call')).toBe('2')
   })
-  it('handles a retryable response with a null body', async () => {
-    fetchMock.mockResolvedValueOnce({ status: 503, body: null }).mockResolvedValueOnce(response(200))
-    const req = request()
-    const result = await req.fetch('/url', { retries: 1 })
-    expect(result.status).toBe(200)
+  it('delegates retries to requester', async () => {
+    const fetchMock = mockFetch()
+      .mockResolvedValueOnce(new Response(null, { status: 503 }))
+      .mockResolvedValueOnce(new Response('ok'))
+    const response = await request(URL_, { retries: 1, retryDelay: 0 }).fetch()
+    expect(response.status).toBe(200)
     expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(fetchMock.mock.calls.every(([input]) => input === URL_)).toBe(true)
   })
-})
-
-describe('retry on thrown error', () => {
-  it('retries a thrown error when the user signal is not aborted', async () => {
-    fetchMock.mockRejectedValueOnce(new Error('net')).mockResolvedValueOnce(response(200))
-    const req = request()
-    const result = await req.fetch('/url', { retries: 1 })
-    expect(result.status).toBe(200)
-    expect(fetchMock).toHaveBeenCalledTimes(2)
-  })
-  it('throws once retries are exhausted', async () => {
-    fetchMock.mockRejectedValue(new Error('net'))
-    const req = request()
-    await expect(req.fetch('/url', { retries: 1 })).rejects.toThrow('net')
-    expect(fetchMock).toHaveBeenCalledTimes(2)
-  })
-})
-
-describe('abort', () => {
-  it('throws without retrying when the user signal is aborted', async () => {
-    fetchMock.mockRejectedValue(new Error('aborted'))
-    const req = request()
-    req.abort()
-    await expect(req.fetch('/url', { retries: 3 })).rejects.toThrow('aborted')
+  it('allows per-call options to override requester defaults', async () => {
+    const fetchMock = mockFetch(async () => new Response(null, { status: 503 }))
+    const response = await request(URL_, { retries: 2, retryDelay: 0 }).fetch({ retries: 0 })
+    expect(response.status).toBe(503)
     expect(fetchMock).toHaveBeenCalledOnce()
-    expect(schedule.delay).not.toHaveBeenCalled()
   })
-  it('rejects when the delay between retries is aborted', async () => {
-    fetchMock.mockResolvedValue(response(503))
-    schedule.delay.mockRejectedValueOnce(new Error('aborted'))
-    const req = request()
-    await expect(req.fetch('/url', { retries: 2 })).rejects.toThrow('aborted')
-    expect(fetchMock).toHaveBeenCalledOnce()
-    expect(schedule.delay).toHaveBeenCalledOnce()
+  it('propagates fetch errors', async () => {
+    const error = new TypeError('fetch failed')
+    mockFetch(async () => { throw error })
+    await expect(request(URL_).fetch()).rejects.toBe(error)
   })
 })
 
-describe('options', () => {
-  it('lets per-call options override creation defaults', async () => {
-    fetchMock.mockResolvedValue(response(500))
-    const req = request({ retries: 0 })
-    await req.fetch('/url', { retries: 2 })
-    expect(fetchMock).toHaveBeenCalledTimes(3)
+describe('request cancellation', () => {
+  it('exposes the requester signal and initial state', () => {
+    const operation = request(URL_)
+    expect(operation.signal).toBeInstanceOf(AbortSignal)
+    expect(operation.aborted).toBe(false)
+    expect(operation.signal.aborted).toBe(false)
   })
-  it('merges defaults and per-call options into the fetch call', async () => {
-    fetchMock.mockResolvedValue(response(200))
-    const req = request({ method: 'POST' })
-    await req.fetch('/url', { headers: { a: '1' } })
-    expect(fetchMock).toHaveBeenCalledWith('/url', expect.objectContaining({
-      method: 'POST',
-      headers: { a: '1' },
-      signal: req.signal
+  it('abort is permanent and forwards its reason', async () => {
+    const fetchMock = mockFetch()
+    const operation = request(URL_)
+    const signal = operation.signal
+    const reason = new Error('stop')
+    operation.abort(reason)
+    expect(operation.signal).toBe(signal)
+    expect(operation.aborted).toBe(true)
+    expect(signal.reason).toBe(reason)
+    await expect(operation.fetch()).rejects.toBe(reason)
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+  it('aborts an ongoing fetch', async () => {
+    const fetchMock = mockFetch((_, { signal }) => new Promise((_resolve, reject) => {
+      signal.addEventListener('abort', () => reject(signal.reason), { once: true })
     }))
-  })
-  it('calls a function retryDelay with the attempt number', async () => {
-    fetchMock.mockResolvedValue(response(500))
-    const retryDelay = vi.fn(attempt => attempt * 10)
-    const req = request()
-    await req.fetch('/url', { retries: 2, retryDelay })
-    expect(retryDelay).toHaveBeenNthCalledWith(1, 1)
-    expect(retryDelay).toHaveBeenNthCalledWith(2, 2)
-    expect(schedule.delay).toHaveBeenNthCalledWith(1, 10, expect.anything())
-    expect(schedule.delay).toHaveBeenNthCalledWith(2, 20, expect.anything())
-  })
-})
-
-describe('body replay', () => {
-  it('accepts a string body when retries are enabled', async () => {
-    fetchMock.mockResolvedValue(response(200))
-    const req = request()
-    await req.fetch('/url', { method: 'POST', body: 'hello', retries: 1 })
+    const operation = request(URL_)
+    const promise = operation.fetch()
+    const reason = new Error('cancelled')
+    operation.abort(reason)
+    await expect(promise).rejects.toBe(reason)
     expect(fetchMock).toHaveBeenCalledOnce()
   })
-  it('accepts an ArrayBuffer body when retries are enabled', async () => {
-    fetchMock.mockResolvedValue(response(200))
-    const req = request()
-    await req.fetch('/url', { method: 'POST', body: new ArrayBuffer(8), retries: 1 })
+  it('reflects the default external signal', async () => {
+    const controller = new AbortController()
+    const operation = request(URL_, { signal: controller.signal })
+    const reason = new Error('external')
+    controller.abort(reason)
+    expect(operation.aborted).toBe(true)
+    expect(operation.signal.reason).toBe(reason)
+    await expect(operation.fetch()).rejects.toBe(reason)
+  })
+  it('does not permanently abort the operation when a per-call signal aborts', async () => {
+    const fetchMock = mockFetch()
+    const controller = new AbortController()
+    const operation = request(URL_)
+    const reason = new Error('call cancelled')
+    controller.abort(reason)
+    await expect(operation.fetch({ signal: controller.signal })).rejects.toBe(reason)
+    expect(operation.aborted).toBe(false)
+    await expect(operation.fetch()).resolves.toBeInstanceOf(Response)
     expect(fetchMock).toHaveBeenCalledOnce()
-  })
-  it('accepts an ArrayBuffer view when retries are enabled', async () => {
-    fetchMock.mockResolvedValue(response(200))
-    const req = request()
-    await req.fetch('/url', { method: 'POST', body: new Uint8Array([1, 2, 3]), retries: 1 })
-    expect(fetchMock).toHaveBeenCalledOnce()
-  })
-  it('accepts a Blob body when retries are enabled', async () => {
-    fetchMock.mockResolvedValue(response(200))
-    const req = request()
-    await req.fetch('/url', { method: 'POST', body: new Blob(['hello']), retries: 1 })
-    expect(fetchMock).toHaveBeenCalledOnce()
-  })
-  it('accepts a URLSearchParams body when retries are enabled', async () => {
-    fetchMock.mockResolvedValue(response(200))
-    const req = request()
-    await req.fetch('/url', { method: 'POST', body: new URLSearchParams({ a: '1' }), retries: 1 })
-    expect(fetchMock).toHaveBeenCalledOnce()
-  })
-  it('accepts a FormData body when retries are enabled', async () => {
-    fetchMock.mockResolvedValue(response(200))
-    const body = new FormData()
-    body.append('name', 'value')
-    const req = request()
-    await req.fetch('/url', { method: 'POST', body, retries: 1 })
-    expect(fetchMock).toHaveBeenCalledOnce()
-  })
-  it('rejects a stream body when retries are enabled', async () => {
-    const body = new ReadableStream()
-    const req = request()
-    await expect(req.fetch('/url', { method: 'POST', body, retries: 1 }))
-      .rejects.toThrow('body must be replayable')
-    expect(fetchMock).not.toHaveBeenCalled()
-  })
-  it('accepts a stream body when retries are disabled', async () => {
-    const body = new ReadableStream()
-    fetchMock.mockResolvedValue(response(200))
-    const req = request()
-    await req.fetch('/url', { method: 'POST', body, retries: 0 })
-    expect(fetchMock).toHaveBeenCalledOnce()
-  })
-  it('checks the creation-level body', async () => {
-    const body = new ReadableStream()
-    const req = request({ method: 'POST', body, retries: 1 })
-    await expect(req.fetch('/url')).rejects.toThrow('body must be replayable')
-    expect(fetchMock).not.toHaveBeenCalled()
-  })
-  it('lets an explicit per-call body override the default body', async () => {
-    fetchMock.mockResolvedValue(response(200))
-    const req = request({ method: 'POST', body: new ReadableStream(), retries: 1 })
-    await req.fetch('/url', { body: 'replayable' })
-    expect(fetchMock).toHaveBeenCalledOnce()
-  })
-  it('lets body null override the default body', async () => {
-    fetchMock.mockResolvedValue(response(200))
-    const req = request({ method: 'POST', body: new ReadableStream(), retries: 1 })
-    await req.fetch('/url', { body: null })
-    expect(fetchMock).toHaveBeenCalledOnce()
-    expect(fetchMock).toHaveBeenCalledWith('/url', expect.objectContaining({ body: null }))
-  })
-  it('rejects a Request with a body when retries are enabled', async () => {
-    const input = new Request('https://example.com', { method: 'POST', body: 'hello' })
-    const req = request()
-    await expect(req.fetch(input, { retries: 1 }))
-      .rejects.toThrow('a Request with a body cannot be retried')
-    expect(fetchMock).not.toHaveBeenCalled()
-  })
-  it('accepts a Request with a body when retries are disabled', async () => {
-    const input = new Request('https://example.com', { method: 'POST', body: 'hello' })
-    fetchMock.mockResolvedValue(response(200))
-    const req = request()
-    await req.fetch(input, { retries: 0 })
-    expect(fetchMock).toHaveBeenCalledOnce()
-  })
-  it('accepts a Request without a body when retries are enabled', async () => {
-    const input = new Request('https://example.com')
-    fetchMock.mockResolvedValue(response(200))
-    const req = request()
-    await req.fetch(input, { retries: 1 })
-    expect(fetchMock).toHaveBeenCalledOnce()
-  })
-})
-
-describe('timeout', () => {
-  it('creates a fresh timeout signal for every attempt', async () => {
-    const timeoutSpy = vi.spyOn(AbortSignal, 'timeout')
-    fetchMock.mockResolvedValue(response(500))
-    const req = request()
-    await req.fetch('/url', { retries: 2, timeout: 1000 })
-    expect(timeoutSpy).toHaveBeenCalledTimes(3)
-    expect(timeoutSpy).toHaveBeenCalledWith(1000)
-  })
-  it('calls a function timeout with attempt + 1 and passes the result', async () => {
-    const timeoutSpy = vi.spyOn(AbortSignal, 'timeout')
-    fetchMock.mockResolvedValue(response(500))
-    const timeout = vi.fn(attempt => attempt * 1000)
-    const req = request()
-    await req.fetch('/url', { retries: 2, timeout })
-    expect(timeout).toHaveBeenNthCalledWith(1, 1)
-    expect(timeout).toHaveBeenNthCalledWith(2, 2)
-    expect(timeout).toHaveBeenNthCalledWith(3, 3)
-    expect(timeoutSpy).toHaveBeenNthCalledWith(1, 1000)
-    expect(timeoutSpy).toHaveBeenNthCalledWith(2, 2000)
-    expect(timeoutSpy).toHaveBeenNthCalledWith(3, 3000)
-  })
-  it('accepts a zero timeout', async () => {
-    const timeoutSpy = vi.spyOn(AbortSignal, 'timeout')
-    fetchMock.mockResolvedValueOnce(response(503)).mockResolvedValueOnce(response(200))
-    const timeout = vi.fn(attempt => attempt === 1 ? 0 : 1000)
-    const req = request()
-    await req.fetch('/url', { retries: 1, timeout })
-    expect(timeoutSpy).toHaveBeenCalledTimes(2)
-    expect(timeoutSpy).toHaveBeenNthCalledWith(1, 0)
-    expect(timeoutSpy).toHaveBeenNthCalledWith(2, 1000)
-  })
-  it('delays on the user signal, not the per-attempt timeout signal', async () => {
-    fetchMock.mockResolvedValueOnce(response(503)).mockResolvedValueOnce(response(200))
-    const req = request()
-    await req.fetch('/url', { retries: 1, timeout: 5000 })
-    expect(schedule.delay).toHaveBeenCalledWith(1000, { signal: req.signal })
-  })
-})
-
-describe('signal wiring', () => {
-  it('combines a per-call timeout into the fetch signal', async () => {
-    const timeoutSpy = vi.spyOn(AbortSignal, 'timeout')
-    const anySpy = vi.spyOn(AbortSignal, 'any')
-    fetchMock.mockResolvedValue(response(200))
-    const req = request()
-    await req.fetch('/url', { timeout: 5000 })
-    expect(timeoutSpy).toHaveBeenCalledWith(5000)
-    expect(anySpy).toHaveBeenCalledOnce()
-  })
-  it('wires a creation-level signal alongside the controller', async () => {
-    const external = new AbortController()
-    const anySpy = vi.spyOn(AbortSignal, 'any')
-    fetchMock.mockResolvedValue(response(200))
-    const req = request({ signal: external.signal })
-    await req.fetch('/url')
-    expect(anySpy).toHaveBeenCalledWith(expect.arrayContaining([req.signal, external.signal]))
-  })
-  it('wires a per-call signal alongside the controller', async () => {
-    const external = new AbortController()
-    const anySpy = vi.spyOn(AbortSignal, 'any')
-    fetchMock.mockResolvedValue(response(200))
-    const req = request()
-    await req.fetch('/url', { signal: external.signal })
-    expect(anySpy).toHaveBeenCalledWith(expect.arrayContaining([req.signal, external.signal]))
-  })
-  it('combines creation-level and per-call signals', async () => {
-    const creation = new AbortController()
-    const call = new AbortController()
-    const anySpy = vi.spyOn(AbortSignal, 'any')
-    fetchMock.mockResolvedValue(response(200))
-    const req = request({ signal: creation.signal })
-    await req.fetch('/url', { signal: call.signal })
-    expect(anySpy).toHaveBeenCalledWith(expect.arrayContaining([req.signal, creation.signal, call.signal]))
-  })
-  it('uses the controller signal directly when nothing else is combined', async () => {
-    const anySpy = vi.spyOn(AbortSignal, 'any')
-    fetchMock.mockResolvedValue(response(200))
-    const req = request()
-    await req.fetch('/url')
-    expect(anySpy).not.toHaveBeenCalled()
-    expect(fetchMock.mock.calls[0][1].signal).toBe(req.signal)
   })
 })

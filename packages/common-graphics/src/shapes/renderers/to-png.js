@@ -1,4 +1,4 @@
-import { getLogger } from '@logtape/logtape'
+import { getLogger } from '@kalisio/common-core/runtime'
 import { image } from '#utilities'
 import { toSVG } from './to-svg.js'
 

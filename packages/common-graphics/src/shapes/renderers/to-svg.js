@@ -1,4 +1,4 @@
-import { getLogger } from '@logtape/logtape'
+import { getLogger } from '@kalisio/common-core/runtime'
 
 const logger = getLogger(['common-graphics', 'to-svg'])
 
