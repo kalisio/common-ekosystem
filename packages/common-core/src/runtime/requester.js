@@ -73,6 +73,72 @@ function resolveMethod (input, init) {
   return String(init.method ?? (isRequest(input) ? input.method : 'GET')).toUpperCase()
 }
 
+function validateRetryBody (input, body, retries) {
+  if (retries === 0) return
+  if (!isReplayableBody(body)) {
+    throw new AssertionError(
+      'body must be replayable (string, ArrayBuffer, Blob, URLSearchParams or FormData) when retries > 0; ' +
+      'read the stream into memory before calling, or set retries to 0'
+    )
+  }
+  if (isRequest(input) && input.body !== null) {
+    throw new AssertionError(
+      'a Request with a body cannot be retried; pass the URL and body via fetch options instead, or set retries to 0'
+    )
+  }
+}
+
+function combineSignals (...signals) {
+  const present = signals.filter(Boolean)
+  return present.length === 1 ? present[0] : AbortSignal.any(present)
+}
+
+function resolveTimeout (timeout, attempt) {
+  const duration = is.function(timeout) ? timeout(attempt) : timeout
+  if (is.function(timeout)) {
+    assert.that(
+      duration,
+      optional(isPositiveInteger),
+      'timeout function must return a positive integer or undefined'
+    )
+  }
+  return duration
+}
+
+async function fetchWithTimeout (input, init, signal, duration) {
+  let combinedSignal = signal
+  let timer
+  if (is.defined(duration)) {
+    const controller = new AbortController()
+    timer = setTimeout(() => {
+      controller.abort(new DOMException('The operation timed out.', 'TimeoutError'))
+    }, duration)
+    combinedSignal = combineSignals(signal, controller.signal)
+  }
+  try {
+    return await globalThis.fetch(input, { ...init, signal: combinedSignal })
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+function resolveRetryDelay (retryDelay, attempt, serverDelay) {
+  if (is.defined(serverDelay)) return serverDelay
+  const duration = is.function(retryDelay) ? retryDelay(attempt) : retryDelay
+  if (is.function(retryDelay)) {
+    assert.that(duration, is.nonNegativeInteger, 'retryDelay function must return a non negative integer')
+  }
+  return duration
+}
+
+async function discardResponse (response) {
+  try {
+    await response.body?.cancel()
+  } catch {
+    // Best-effort cleanup.
+  }
+}
+
 export function createRequester (options = {}) {
   validateOptions(options)
   const controller = new AbortController()
@@ -114,26 +180,13 @@ export function createRequester (options = {}) {
         ...fetchOptions
       } = options
       const body = has.key(fetchOptions, 'body') ? fetchOptions.body : defaults.body
-      if (requestRetries > 0 && !isReplayableBody(body)) {
-        throw new AssertionError(
-          'body must be replayable (string, ArrayBuffer, Blob, URLSearchParams or FormData) when retries > 0; ' +
-          'read the stream into memory before calling, or set retries to 0'
-        )
-      }
-      if (requestRetries > 0 && isRequest(input) && input.body !== null) {
-        throw new AssertionError(
-          'a Request with a body cannot be retried; pass the URL and body via fetch options instead, or set retries to 0'
-        )
-      }
+      validateRetryBody(input, body, requestRetries)
       const init = { ...defaults, ...fetchOptions }
       const method = resolveMethod(input, init)
       const headers = mergeHeaders(input, defaults.headers, fetchOptions.headers)
       if (headers) init.headers = headers
       const requestHeaders = new Headers(headers ?? (isRequest(input) ? input.headers : undefined))
-      const userSignals = [runtimeSignal]
-      if (signal) userSignals.push(signal)
-      if (isRequest(input)) userSignals.push(input.signal)
-      const userSignal = userSignals.length === 1 ? userSignals[0] : AbortSignal.any(userSignals)
+      const userSignal = combineSignals(runtimeSignal, signal, isRequest(input) ? input.signal : undefined)
       let attempt = 0
       const canRetry = (context) => Boolean(requestShouldRetry({
         ...context,
@@ -143,53 +196,24 @@ export function createRequester (options = {}) {
       }))
       while (true) {
         userSignal.throwIfAborted()
-        const timeoutDuration = is.function(requestTimeout) ? requestTimeout(attempt + 1) : requestTimeout
-        if (is.function(requestTimeout)) {
-          assert.that(
-            timeoutDuration,
-            optional(isPositiveInteger),
-            'timeout function must return a positive integer or undefined'
-          )
-        }
-        const signals = [userSignal]
-        let timer
-        if (is.defined(timeoutDuration)) {
-          const timeoutController = new AbortController()
-          timer = setTimeout(() => {
-            timeoutController.abort(new DOMException('The operation timed out.', 'TimeoutError'))
-          }, timeoutDuration)
-          signals.push(timeoutController.signal)
-        }
-        const combinedSignal = signals.length === 1 ? signals[0] : AbortSignal.any(signals)
+        const timeoutDuration = resolveTimeout(requestTimeout, attempt + 1)
         let response
         let serverDelay
         try {
-          response = await globalThis.fetch(input, { ...init, signal: combinedSignal })
+          response = await fetchWithTimeout(input, init, userSignal, timeoutDuration)
         } catch (error) {
           if (userSignal.aborted || attempt >= requestRetries || !canRetry({ error })) throw error
           logger.debug('Retrying request after error', { attempt: attempt + 1, error })
-        } finally {
-          clearTimeout(timer)
         }
         if (response) {
           if (response.ok || attempt >= requestRetries || !canRetry({ response })) return response
           serverDelay = retryAfterMs(response)
           if (is.defined(serverDelay) && serverDelay > requestMaxRetryAfter) return response
           logger.debug('Retrying request', { attempt: attempt + 1, status: response.status })
-          try {
-            await response.body?.cancel()
-          } catch {
-            // Best-effort cleanup.
-          }
+          await discardResponse(response)
         }
         attempt++
-        let duration = serverDelay
-        if (!is.defined(duration)) {
-          duration = is.function(requestRetryDelay) ? requestRetryDelay(attempt) : requestRetryDelay
-          if (is.function(requestRetryDelay)) {
-            assert.that(duration, is.nonNegativeInteger, 'retryDelay function must return a non negative integer')
-          }
-        }
+        const duration = resolveRetryDelay(requestRetryDelay, attempt, serverDelay)
         await schedule.delay(duration, { signal: userSignal })
       }
     }
