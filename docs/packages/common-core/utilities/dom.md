@@ -5,10 +5,10 @@ description: Utility functions for navigating DOM trees and extracting values fr
 
 # dom
 
-Utility functions for navigating DOM trees and extracting values from XML and HTML documents. Compatible with 
+Utility functions for navigating DOM trees and extracting values from XML and HTML documents. Compatible with
 native browser DOM implementations and `@xmldom/xmldom` in Node.js.
 
-All methods accept `null` or `undefined` as their node argument to facilitate chained lookups. Other values 
+All methods accept `null` or `undefined` as their node argument to facilitate chained lookups. Other values
 must be DOM-compatible objects exposing an integer `nodeType`.
 
 ::: tip
@@ -17,7 +17,7 @@ The module can be used with the [io/XML](../io/xml.md) reader:
 
 ```js
 import { xml } from '@kalisio/common-core/io/xml'
-import { dom } from '@kalisio/common-core/utilities/dom'
+import { dom } from '@kalisio/common-core/utilities'
 
 const document = await xml.read(url, { output: 'dom' })
 const root = document.documentElement
@@ -29,15 +29,15 @@ const layers = dom.children(root, 'Layer')
 or with the browser's native DOM:
 
 ```js
-import { dom } from '@kalisio/common-core/utilities/dom'
+import { dom } from '@kalisio/common-core/utilities'
 
 const heading = dom.text(dom.child(document.body, 'h1'))
 const links = dom.children(document.body, 'a')
-const href = dom.attr(links[0], 'href')
+const href = dom.attribute(links[0], 'href')
 ```
 
 Unlike `querySelectorAll()`, `dom.children()` only searches direct children.
-The module relies on standard DOM interfaces and does not require a CSS selector engine or an additional DOM dependency. 
+The module relies on standard DOM interfaces and does not require a CSS selector engine or an additional DOM dependency.
 Parsing remains the responsibility of the corresponding IO module.
 :::
 
@@ -269,7 +269,7 @@ dom.number(null)
 // undefined
 ```
 
-## attrribute
+## attribute
 
 ### Signature
 
@@ -324,30 +324,30 @@ Given the following XML:
 
 ```js
 const resource = dom.child(root, 'Resource')
-dom.attr(resource, 'href')
+dom.attribute(resource, 'href')
 // 'https://example.com/resource'
 
-dom.attr(resource, 'xlink:href')
+dom.attribute(resource, 'xlink:href')
 // 'https://example.com/resource'
 
 const direct = dom.child(root, 'Direct')
-dom.attr(direct, 'href')
+dom.attribute(direct, 'href')
 // 'https://example.com/direct'
 
 const both = dom.child(root, 'Both')
-dom.attr(both, 'href')
+dom.attribute(both, 'href')
 // 'plain'
 
-dom.attr(both, 'xlink:href')
+dom.attribute(both, 'xlink:href')
 // 'qualified'
 
-dom.attr(dom.child(root, 'Empty'), 'href')
+dom.attribute(dom.child(root, 'Empty'), 'href')
 // ''
 
-dom.attr(resource, 'unknown')
+dom.attribute(resource, 'unknown')
 // undefined
 
-dom.attr(null, 'href')
+dom.attribute(null, 'href')
 // undefined
 ```
 

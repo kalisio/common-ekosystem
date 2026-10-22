@@ -211,15 +211,18 @@ reprojectBBox(bbox, source, target = WGS84)
 
 Reprojects a 2D or 3D bounding box from a source projection to a target projection using `reprojectPosition()`.
 
-The target projection defaults to WGS84 (`EPSG:4326`). Both projections must already be registered.
+::: info
+The four horizontal edges are sampled to better capture extrema introduced by nonlinear projections.
+The resulting extent is computed from the transformed samples. Extrema occurring inside the bounding
+box may not be captured.
+For 3D bounding boxes, both altitude bounds are considered.
+:::
 
-The function transforms all bounding box corners (4 for 2D, 8 for 3D) and computes a new bounding box from the resulting positions.
+The target projection defaults to WGS84 (`EPSG:4326`). Both projections must already be registered.
 
 When source and target projections are identical, the function returns a copy of the original bounding box without performing any transformation.
 
 The original bounding box is never modified.
-
-**Note:** The resulting extent is computed from the transformed corners only. For nonlinear projections, this does not necessarily represent the exact envelope of the transformed bounding box.
 
 ### Parameters
 
@@ -285,6 +288,6 @@ reprojectBBox(
 // [2, 48, 3, 49]
 ```
 
-For 3D bounding boxes, all eight corners are passed to `reprojectPosition()`. The handling of the vertical 
-coordinate therefore depends on the underlying proj4 transformation. In the Web Mercator example above, Z 
+For 3D bounding boxes, all eight corners are passed to `reprojectPosition()`. The handling of the vertical
+coordinate therefore depends on the underlying proj4 transformation. In the Web Mercator example above, Z
 remains unchanged.

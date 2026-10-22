@@ -51,7 +51,7 @@ Throws an error with code `yaml.ERROR_CODES.PARSE_FAILED` if parsing fails.
 ### Examples
 
 ```js
-import { yaml } from '@kalisio/common-core'
+import { yaml } from '@kalisio/common-core/io/yaml'
 
 const data = yaml.parse(`
 name: Kalisio

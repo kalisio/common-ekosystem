@@ -51,7 +51,7 @@ Throws an error with code `json.ERROR_CODES.PARSE_FAILED` if the JSON cannot be 
 ### Examples
 
 ```js
-import { json } from '@kalisio/common-core'
+import { json } from '@kalisio/common-core/io/json'
 
 const data = json.parse('{"name":"station-01"}')
 // { name: 'station-01' }

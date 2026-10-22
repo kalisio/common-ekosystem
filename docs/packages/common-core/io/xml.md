@@ -93,7 +93,7 @@ If the Node.js DOM parser dependency cannot be loaded, the original import error
 Parse XML into JSON:
 
 ```js
-import { xml } from '@kalisio/common-core/io'
+import { xml } from '@kalisio/common-core/io/xml'
 
 const data = await xml.parse('<note><to>World</to></note>')
 ```
