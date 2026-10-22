@@ -143,7 +143,7 @@ export function createRequester (options = {}) {
   validateOptions(options)
   const controller = new AbortController()
   const {
-    retries = 0,
+    retries = 3,
     retryDelay = exponentialBackoff,
     maxRetryAfter = DEFAULT_MAX_RETRY_AFTER,
     shouldRetry = shouldRetryByDefault,

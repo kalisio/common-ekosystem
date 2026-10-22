@@ -312,8 +312,13 @@ describe('bodies', () => {
   })
   it('accepts a stream body without retries', async () => {
     const calls = mockFetch(ok())
-    await createRequester().fetch(URL_, { method: 'PUT', body: streamBody(), duplex: 'half' })
-    expect(calls.length).toBe(1)
+    await createRequester().fetch(URL_, {
+      method: 'PUT',
+      body: streamBody(),
+      duplex: 'half',
+      retries: 0
+    })
+    expect(calls).toHaveLength(1)
   })
   it('checks the default body unless the call overrides it, even with null', async () => {
     const calls = mockFetch(ok())
@@ -337,8 +342,11 @@ describe('bodies', () => {
   })
   it('accepts a Request with a body without retries', async () => {
     const calls = mockFetch(ok())
-    await createRequester().fetch(new Request(URL_, { method: 'POST', body: 'x' }))
-    expect(calls.length).toBe(1)
+    await createRequester().fetch(
+      new Request(URL_, { method: 'POST', body: 'x' }),
+      { retries: 0 }
+    )
+    expect(calls).toHaveLength(1)
   })
   it('cancels the body of a response before retrying', async () => {
     let cancelled = false

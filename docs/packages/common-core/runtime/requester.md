@@ -30,7 +30,7 @@ createRequester(options = {})
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| `retries` | Integer | `0` | Additional attempts after the first request |
+| `retries` | Integer | `3` | Additional attempts after the first request |
 | `retryDelay` | Integer or Function | Exponential backoff | Delay in milliseconds or `(retry) => milliseconds`; retry starts at `1` |
 | `maxRetryAfter` | Integer | `60000` | Maximum accepted `Retry-After` delay in milliseconds |
 | `shouldRetry` | Function | `shouldRetryByDefault` | Policy receiving `{ error, response, method, headers, attempt }` |

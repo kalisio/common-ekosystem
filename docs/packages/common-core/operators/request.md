@@ -37,7 +37,7 @@ The main options are:
 
 | Option | Default | Description |
 |---|---|---|
-| `retries` | `0` | Number of additional attempts |
+| `retries` | `3` | Number of additional attempts |
 | `retryDelay` | Exponential backoff | Delay in milliseconds or a function receiving the retry number (starting at `1`) |
 | `maxRetryAfter` | `60000` | Maximum accepted `Retry-After` delay in milliseconds |
 | `shouldRetry` | Default policy | Function deciding whether an attempt should be retried |
