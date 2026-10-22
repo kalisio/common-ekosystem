@@ -12,9 +12,6 @@ catalogs:
     '@kalisio/vitepress-theme':
       specifier: 2.1.0
       version: 2.1.0
-    '@logtape/logtape':
-      specifier: 0.7.0
-      version: 0.7.0
     '@tmcw/togeojson':
       specifier: 7.1.2
       version: 7.1.2
@@ -307,9 +304,6 @@ importers:
       '@kalisio/common-core':
         specifier: workspace:*
         version: link:../common-core
-      '@logtape/logtape':
-        specifier: 'catalog:'
-        version: 0.7.0
       chroma-js:
         specifier: 'catalog:'
         version: 3.2.0
@@ -1048,9 +1042,6 @@ packages:
       quasar: ~2.14.0
       vitepress: ~1.6.0
       vue: ~3.5.0
-
-  '@logtape/logtape@0.7.0':
-    resolution: {integrity: sha512-MyFdj8d+8UwS18ZK65uyVuk/+vB19OVjK8XS9lViygoaRXWZFLuuNe/keHXum0Ym1vN10Gr5nolWFx5Gk+nqEw==}
 
   '@manypkg/find-root@1.1.0':
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
@@ -5014,8 +5005,6 @@ snapshots:
       vue: 3.5.30
     transitivePeerDependencies:
       - '@vue/composition-api'
-
-  '@logtape/logtape@0.7.0': {}
 
   '@manypkg/find-root@1.1.0':
     dependencies:
