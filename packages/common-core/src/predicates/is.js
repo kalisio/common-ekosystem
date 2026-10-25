@@ -15,7 +15,8 @@ export const is = {
   },
 
   plainObject (value) {
-    return is.object(value) && value.constructor === Object
+    if (value === null || typeof value !== 'object') return false
+    return Object.getPrototypeOf(value) === Object.prototype
   },
 
   classInstance (value) {

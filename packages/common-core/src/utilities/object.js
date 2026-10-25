@@ -17,9 +17,12 @@ const NORMALIZE_OPTIONS_SCHEMA = {
   ignoredKeys: optional(is.array)
 }
 
-// Returns the own enumerable keys of an object, symbols included
+// Returns the own enumerable keys of an object, symbols included, except __proto__
+// which would replace the prototype instead of creating a property when assigned
 function ownKeys (obj) {
-  return Reflect.ownKeys(obj).filter(key => Object.prototype.propertyIsEnumerable.call(obj, key))
+  return Reflect.ownKeys(obj).filter(key =>
+    key !== '__proto__' && Object.prototype.propertyIsEnumerable.call(obj, key)
+  )
 }
 
 function cloneValue (value, plain) {
@@ -92,8 +95,33 @@ export const object = {
       { value: target, validator: is.plainObject, message: 'target must be an object' },
       { value: source, validator: is.plainObject, message: 'source must be an object' }
     ])
-    for (const key of Object.keys(target)) delete target[key]
-    Object.assign(target, source)
+    if (target === source) return target
+    for (const key of ownKeys(target)) delete target[key]
+    for (const key of ownKeys(source)) {
+      target[key] = cloneValue(source[key], false)
+    }
+    return target
+  },
+
+  merge (target, source) {
+    assert.all([
+      { value: target, validator: is.plainObject, message: 'target must be an object' },
+      { value: source, validator: is.plainObject, message: 'source must be an object' }
+    ])
+    if (target === source) return target
+    function apply (target, source) {
+      for (const key of ownKeys(source)) {
+        const value = source[key]
+        const own = Object.hasOwn(target, key)
+        const current = own ? target[key] : undefined
+        if (is.plainObject(current) && is.plainObject(value)) {
+          if (current !== value) apply(current, value)
+        } else if (!own || !Object.is(current, value)) {
+          target[key] = cloneValue(value, false)
+        }
+      }
+    }
+    apply(target, source)
     return target
   },
 

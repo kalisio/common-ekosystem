@@ -120,7 +120,148 @@ reference
 The existing object reference is preserved, while properties not present in source are removed.
 ```
 
+::: warning
+
 Properties that exist in `target` but not in `source` are removed.
+
+:::
+
+## merge
+
+Recursively merge properties from a source object into a target object, modifying the target in place.
+
+Unlike a conventional deep merge, nested plain objects are updated without replacing their references. Arrays and other values are replaced rather than merged.
+
+This is particularly useful for updating reactive objects while preserving references to nested objects.
+
+### Signature
+
+```js
+object.merge(target, source)
+```
+
+### Parameters
+
+- `target` — The target object to update.
+- `source` — The source object containing the properties to merge.
+
+### Returns
+
+The modified `target` object.
+
+### Behavior
+
+- **Plain objects** are merged recursively.
+- **Nested references** are preserved when merging plain objects.
+- **Arrays** are replaced entirely rather than merged by index.
+- **Other values** are assigned directly, replacing existing values.
+- **Missing properties** in the source leave the corresponding target properties unchanged.
+- **New properties** from the source are added to the target.
+- **Mutation** is performed in place without creating a new target object.
+
+### Examples
+
+**Merge nested objects**
+
+```js
+const target = {
+  name: 'Panel',
+  settings: {
+    width: 300,
+    height: 200,
+    visible: true
+  }
+}
+
+object.merge(target, {
+  settings: {
+    width: 500,
+    visible: false
+  }
+})
+
+// target = {
+//   name: 'Panel',
+//   settings: {
+//     width: 500,
+//     height: 200,
+//     visible: false
+//   }
+// }
+```
+
+**Replace arrays**
+
+```js
+const target = {
+  items: ['a', 'b', 'c'],
+  options: {
+    enabled: true
+  }
+}
+
+object.merge(target, {
+  items: ['d', 'e']
+})
+
+// target = {
+//   items: ['d', 'e'],
+//   options: {
+//     enabled: true
+//   }
+// }
+```
+
+**Preserve nested references**
+
+```js
+const target = {
+  layout: {
+    width: 300,
+    height: 200
+  }
+}
+
+const layout = target.layout
+
+object.merge(target, {
+  layout: {
+    width: 500
+  }
+})
+
+console.log(target.layout === layout)
+// true
+
+console.log(layout)
+// { width: 500, height: 200 }
+```
+
+**Update reactive state**
+
+```js
+import { reactive } from 'vue'
+
+const state = reactive({
+  header: {
+    visible: true,
+    height: 64
+  },
+  drawer: {
+    visible: false,
+    width: 240
+  }
+})
+
+object.merge(state, {
+  header: {
+    visible: false
+  },
+  drawer: {
+    width: 320
+  }
+})
+```
 
 ## normalize
 
