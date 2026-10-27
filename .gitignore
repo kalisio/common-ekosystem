@@ -58,3 +58,6 @@ jest-*.json
 # Vitepress cache
 docs/.vitepress/cache/
 docs/public/examples/
+
+# PNPM hook
+.pnpmfile.cjs
