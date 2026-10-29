@@ -1,5 +1,6 @@
 # common-ekosystem
 
+[![CI](https://github.com/kalisio/common-ekosystem/actions/workflows/main.yaml/badge.svg)](https://github.com/kalisio/common-ekosystem/actions/workflows/main.yaml)
 [![Quality Gate Status](https://sonar.portal.kalisio.com/api/project_badges/measure?project=kalisio-common-ekosystem&metric=alert_status&token=sqb_4b1fd34b21813576749637e9c644ffd21ed8fa74)](https://sonar.portal.kalisio.com/dashboard?id=kalisio-common-ekosystem)
 [![Maintainability Rating](https://sonar.portal.kalisio.com/api/project_badges/measure?project=kalisio-common-ekosystem&metric=software_quality_maintainability_rating&token=sqb_4b1fd34b21813576749637e9c644ffd21ed8fa74)](https://sonar.portal.kalisio.com/dashboard?id=kalisio-common-ekosystem)
 [![Security Rating](https://sonar.portal.kalisio.com/api/project_badges/measure?project=kalisio-common-ekosystem&metric=software_quality_security_rating&token=sqb_4b1fd34b21813576749637e9c644ffd21ed8fa74)](https://sonar.portal.kalisio.com/dashboard?id=kalisio-common-ekosystem)
