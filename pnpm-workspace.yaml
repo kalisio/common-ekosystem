@@ -34,17 +34,17 @@ catalog:
   '@feathersjs/schema': 5.0.50
   '@feathersjs/socketio-client': 5.0.50
   '@feathersjs/socketio': 5.0.50
-  '@kalisio/common-core': 0.12.1
-  '@kalisio/common-geospatial': 0.12.1
-  '@kalisio/common-graphics': 0.12.1
+  '@kalisio/common-core': 1.0.1
+  '@kalisio/common-geospatial': 1.0.1
+  '@kalisio/common-graphics': 1.0.1
   '@kalisio/feathers-automerge': 0.3.8
-  '@kalisio/feathers-distributed': 3.0.0
-  '@kalisio/feathers-import-export': 3.0.0
-  '@kalisio/feathers-tasks': 3.0.0
-  '@kalisio/feathers-localforage': 3.0.0
-  '@kalisio/feathers-mongodb-management': 3.0.0
-  '@kalisio/feathers-s3': 3.0.0
-  '@kalisio/feathers-webpush': 3.0.0
+  '@kalisio/feathers-distributed': 3.1.0
+  '@kalisio/feathers-import-export': 3.1.0
+  '@kalisio/feathers-tasks': 3.1.0
+  '@kalisio/feathers-localforage': 3.1.0
+  '@kalisio/feathers-mongodb-management': 3.1.0
+  '@kalisio/feathers-s3': 3.1.0
+  '@kalisio/feathers-webpush': 3.1.0
   '@kalisio/krawler': 2.8.2
   '@kalisio/geo-pixel-stream': https://github.com/kalisio/geo-pixel-stream#gdal-async
   '@kalisio/kdk': 2.7.0
@@ -101,6 +101,7 @@ catalog:
   ajv-keywords: 5.1.0
   boxen: 8.0.1
   bullmq: 5.71.1
+  cac: 7.1.0
   chalk: 5.6.2
   chart.js: 3.7.1
   chartjs-adapter-moment: 1.0.0
@@ -140,7 +141,7 @@ catalog:
   glob: 13.0.1
   globals: 16.4.0
   got: 15.1.0
-  fs-extra: 8.1.0
+  fs-extra: 11.4.1
   imapflow: 1.7.1
   ioredis: 5.10.1
   js-yaml: 5.4.3
@@ -149,6 +150,7 @@ catalog:
   happy-dom: 20.9.0
   heap-js: 2.7.1
   helmet: 8.3.0
+  http-proxy-middleware: 4.2.1
   husky: 9.1.7
   is-docker: 2.2.1
   keycloak-js: 23.0.4
@@ -189,8 +191,8 @@ catalog:
   proj4: 2.20.4
   publint: 0.3.20
   puppeteer: 25.1.0
-  quasar: 2.18.7
   qs: 6.15.1
+  quasar: 2.18.7
   register-service-worker: 1.7.2
   reproject: 1.2.7
   rimraf: 6.1.3
