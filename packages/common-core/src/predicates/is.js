@@ -178,7 +178,7 @@ export const is = {
   },
 
   integer (value) {
-    return is.number(value) && Number.isInteger(value)
+    return Number.isSafeInteger(value)
   },
 
   positiveInteger (value) {
