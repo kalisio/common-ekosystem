@@ -440,7 +440,7 @@ Throws when `max < min`.
 
 ### integer
 
-Checks whether a value is a finite integer.
+Checks whether a value is a [safe integer](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Global_Objects/Number/isSafeInteger).
 
 ```js
 is.integer(value)
