@@ -44,7 +44,9 @@ of the `validate` and `fix` operators.
 | `options.consider3D` | `boolean` | no | When `true`, altitude is taken into account when deduplicating ring vertices (default: `false`) |
 
 ::: tip Note on `consider3D`
+
 By default (`consider3D: false`), two ring vertices sharing the same longitude and latitude are treated as duplicates even if their altitudes differ, and one is dropped. This matches how S2 indexes geometry, using longitude and latitude only. Set `consider3D: true` to keep vertices that differ solely in altitude. This option is forwarded to `isSamePosition`.
+
 :::
 
 ### Returns

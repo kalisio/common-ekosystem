@@ -53,7 +53,9 @@ The following shapes are registered by default:
 | `wind-barb` | Meteorological wind barb |
 
 ::: tip
+
 The complete collection can also be browsed and previewed in the [Shape Studio](../../../playground/shape-studio).
+
 :::
 
 ## Parameterized shapes

@@ -134,7 +134,11 @@ Computes the bounding box enclosing a non-empty array of positions. A 3D box is 
 | `options.ignore3D` | `boolean` | no | When `true`, a 2D box is always returned (default: `false`) |
 
 ::: tip Note on `ignore3D`
-This module uses `ignore3D`, whereas `isSamePosition` and the `truncate` operator use `consider3D`. The two are opposite conventions: `computeBBox` with `ignore3D: false` (the default) **considers** altitude, while `isSamePosition` with `consider3D: false` (the default) **ignores** it. Read the option name, not just the boolean value.
+
+This module uses `ignore3D`, whereas `isSamePosition` and the `truncate` operator use `consider3D`. The two are 
+opposite conventions: `computeBBox` with `ignore3D: false` (the default) **considers** altitude, while `isSamePosition` 
+with `consider3D: false` (the default) **ignores** it. Read the option name, not just the boolean value.
+
 :::
 
 ### Returns

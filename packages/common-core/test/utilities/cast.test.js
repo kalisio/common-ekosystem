@@ -14,8 +14,17 @@ describe('cast.number', () => {
     expect(cast.number('1e3')).toBe(1000)
     expect(cast.number('-2.5E-2')).toBe(-0.025)
   })
+  it('converts hexadecimal, octal and binary strings', () => {
+    expect(cast.number('0x10')).toBe(16)
+    expect(cast.number(' 0XFF ')).toBe(255)
+    expect(cast.number('0o10')).toBe(8)
+    expect(cast.number('0b10')).toBe(2)
+  })
+  it('reads leading zeros as decimal, not octal', () => {
+    expect(cast.number('010')).toBe(10)
+  })
   it('rejects unsupported formats', () => {
-    for (const value of ['', ' ', '0x10', '0b10', '0o10', 'Infinity', 'NaN', '1_000', '42px', '1,5', '.', '1e']) {
+    for (const value of ['', ' ', '0x', '0xG', '0x1.5', '-0x10', '+0x10', 'Infinity', 'NaN', '1_000', '42px', '1,5', '.', '1e']) {
       expect(cast.number(value)).toBeUndefined()
     }
   })
@@ -46,8 +55,9 @@ describe('cast.integer', () => {
     expect(cast.integer(-42)).toBe(-42)
     expect(cast.integer(Number.MAX_SAFE_INTEGER)).toBe(Number.MAX_SAFE_INTEGER)
   })
-  it('converts integer-valued decimal strings', () => {
+  it('converts integer-valued strings', () => {
     expect(cast.integer('42')).toBe(42)
+    expect(cast.integer('0xff')).toBe(255)
     expect(cast.integer('42.0')).toBe(42)
     expect(cast.integer('1e3')).toBe(1000)
   })

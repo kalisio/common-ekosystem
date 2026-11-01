@@ -15,7 +15,9 @@ The operation can execute multiple `fetch()` calls against the same URL, using s
 a shared cancellation signal. Each call may override its options and returns a native `Response`.
 
 ::: tip
+
 Use `createRequester()` instead when requests need to target different URLs.
+
 :::
 
 ## request

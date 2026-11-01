@@ -19,9 +19,7 @@ It exposes the following error codes:
 ::: tip
 
 By default, XML is parsed into JSON using `fast-xml-parser`.
-
 When DOM output is requested, the native `DOMParser` is used when available. In Node.js, `@xmldom/xmldom` is loaded dynamically.
-
 XML content is always validated before parsing, regardless of the selected output format.
 
 :::

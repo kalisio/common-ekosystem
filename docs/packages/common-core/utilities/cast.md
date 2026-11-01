@@ -11,9 +11,14 @@ Conversions are restricted to explicitly supported input types. When a value can
 
 If a value already has the requested type, it is returned as-is, preserving its reference for objects and collections.
 
+
 ## number
 
-Converts a value to a finite number.
+Converts a value to a finite number using JavaScript's native `Number()` conversion for strings.
+
+Supports decimal and scientific notation, as well as hexadecimal (`0x`), binary (`0b`) and octal (`0o`) prefixes.
+
+Unlike `Number()`, rejects empty strings, whitespace-only strings, `null`, booleans, arrays and objects. Non-finite results (`NaN`, `Infinity`) are also rejected.
 
 ### Signature
 
@@ -23,41 +28,60 @@ cast.number(value, fallback)
 
 ### Parameters
 
-- `value` — Value to convert.
-- `fallback` — Optional value returned when conversion fails. Defaults to `undefined`.
+| Name | Description |
+|---|---|
+| `value` | Number or string to convert. |
+| `fallback` | Value returned when conversion fails. Defaults to `undefined`. |
 
 ### Returns
 
-A finite `number`, or the fallback.
+A finite `number`, or `fallback` if conversion fails.
 
-Accepts finite numbers and decimal strings, including signed values and scientific notation.
-
-Rejects empty strings, hexadecimal, binary and octal notation, numeric separators, `Infinity`, `NaN` and partially numeric strings.
-
-Overflow is rejected. Underflow may round to zero.
+An existing valid number is returned unchanged.
 
 ### Examples
 
 ```js
-cast.number('42')
-// 42
-cast.number(' -1.5 ')
-// -1.5
-cast.number('1e3')
-// 1000
-cast.number('.5')
-// 0.5
-cast.number('42px')
-// undefined
-cast.number('0x10')
-// undefined
-cast.number('invalid', 0)
-// 0
+cast.number('42')          // 42
+cast.number(' 42.5 ')      // 42.5
+cast.number('-3.14')       // -3.14
+cast.number('1e3')         // 1000
+cast.number('.5')          // 0.5
+cast.number('0xFF')        // 255
+cast.number('0b1010')      // 10
+cast.number('0o17')        // 15
+cast.number('010')         // 10
+cast.number('')            // undefined
+cast.number('   ')         // undefined
+cast.number(null)          // undefined
+cast.number(true)          // undefined
+cast.number([42])          // undefined
+cast.number('abc')         // undefined
+cast.number('42px')        // undefined
+cast.number('Infinity')    // undefined
+cast.number('0xGG')        // undefined
+cast.number('abc', 0)      // 0
 ```
+
+A sign before a hexadecimal, binary or octal prefix is not supported:
+
+```js
+cast.number('-0x10')       // undefined
+cast.number('+0b10')       // undefined
+```
+
+Overflow returns the fallback, while underflow may round to zero.
 
 ## integer
 
 Converts a value to a safe integer.
+
+::: tip
+
+Uses `cast.number()` internally, so it accepts the same numeric string formats, including decimal, scientific, hexadecimal, binary and octal notation.
+Only integers within JavaScript's safe integer range are accepted.
+
+:::
 
 ### Signature
 
@@ -67,33 +91,32 @@ cast.integer(value, fallback)
 
 ### Parameters
 
-- `value` — Value to convert.
-- `fallback` — Optional value returned when conversion fails. Defaults to `undefined`.
+| Name | Description |
+|---|---|
+| `value` | Number or numeric string to convert. |
+| `fallback` | Value returned when conversion fails. Defaults to `undefined`. |
 
 ### Returns
 
-A safe integer, or the fallback.
-
-Uses the same numeric conversion rules as `cast.number()`, then checks whether the result is a safe integer.
-
-Fractional values are not truncated. Validation takes place after JavaScript number conversion, so floating-point rounding may affect the result.
+A safe integer, or `fallback` if conversion fails.
 
 ### Examples
 
 ```js
-cast.integer('42')
-// 42
-cast.integer('42.0')
-// 42
-cast.integer('1e3')
-// 1000
-cast.integer('1.5')
-// undefined
-cast.integer('9007199254740992')
-// undefined
-cast.integer('invalid', 0)
-// 0
+cast.integer(42)                  // 42
+cast.integer('42')                // 42
+cast.integer('1e3')               // 1000
+cast.integer('0xFF')              // 255
+cast.integer('0b1010')            // 10
+cast.integer('0o17')              // 15
+cast.integer('1.5')               // undefined
+cast.integer('abc')               // undefined
+cast.integer(true)                // undefined
+cast.integer('9007199254740992')  // undefined
+cast.integer('invalid', 0)        // 0
 ```
+
+Conversion follows JavaScript floating-point precision. For example, a decimal string extremely close to an integer may round to that integer before the safe-integer check.
 
 ## boolean
 
