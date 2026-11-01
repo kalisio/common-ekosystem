@@ -151,16 +151,11 @@ Other values are rejected rather than converted using JavaScript truthiness.
 ### Examples
 
 ```js
-cast.boolean(' true ')
-// true
-cast.boolean(1)
-// true
-cast.boolean(0)
-// false
-cast.boolean('maybe')
-// undefined
-cast.boolean(2, false)
-// false
+cast.boolean(' true ')      // true
+cast.boolean(1)             // true
+cast.boolean(0)             // false
+cast.boolean('maybe')       // undefined
+cast.boolean(2, false)      // false
 ```
 
 ## string
@@ -189,20 +184,13 @@ Does not implicitly stringify objects, arrays, dates, symbols, bigints, `null` o
 ### Examples
 
 ```js
-cast.string(42)
-// '42'
-cast.string(true)
-// 'true'
-cast.string(false)
-// 'false'
-cast.string('hello')
-// 'hello'
-cast.string(null)
-// undefined
-cast.string({ a: 1 })
-// undefined
-cast.string(null, '')
-// ''
+cast.string(42)           // '42'
+cast.string(true)         // 'true'
+cast.string(false)        // 'false'
+cast.string('hello')      // 'hello'
+cast.string(null)         // undefined
+cast.string({ a: 1 })     // undefined
+cast.string(null, '')     // ''
 ```
 
 ## date
@@ -240,20 +228,13 @@ Parsing uses the native `Date` constructor after format and calendar-day validat
 ### Examples
 
 ```js
-cast.date('2026-11-01')
-// Date representing 2026-11-01T00:00:00.000Z
-cast.date('2026-11-01T14:30:00Z')
-// Date representing 2026-11-01T14:30:00.000Z
-cast.date('2026-11-01T14:30:00+01:00')
-// Date representing 2026-11-01T13:30:00.000Z
-cast.date(0)
-// Date representing 1970-01-01T00:00:00.000Z
-cast.date('2026-11-01T14:30:00')
-// undefined
-cast.date('2026-02-30')
-// undefined
-cast.date('invalid', new Date(0))
-// Date representing 1970-01-01T00:00:00.000Z
+cast.date('2026-11-01')                 // 2026-11-01T00:00:00.000Z
+cast.date('2026-11-01T14:30:00Z')       // 2026-11-01T14:30:00.000Z
+cast.date('2026-11-01T14:30:00+01:00')  // 2026-11-01T13:30:00.000Z
+cast.date(0)                            // 1970-01-01T00:00:00.000Z
+cast.date('2026-11-01T14:30:00')        // undefined
+cast.date('2026-02-30')                 // undefined
+cast.date('invalid', new Date(0))       // 1970-01-01T00:00:00.000Z
 ```
 
 ## array
@@ -284,16 +265,11 @@ Accepts arrays, sets and maps.
 ### Examples
 
 ```js
-cast.array([1, 2])
-// [1, 2]
-cast.array(new Set([1, 2]))
-// [1, 2]
-cast.array(new Map([['a', 1], ['b', 2]]))
-// [['a', 1], ['b', 2]]
-cast.array('abc')
-// undefined
-cast.array('invalid', [])
-// []
+cast.array([1, 2])                          // [1, 2]
+cast.array(new Set([1, 2]))                 // [1, 2]
+cast.array(new Map([['a', 1], ['b', 2]]))   // [['a', 1], ['b', 2]]
+cast.array('abc')                           // undefined
+cast.array('invalid', [])                   // []
 ```
 
 ## object
@@ -328,16 +304,11 @@ A `__proto__` key is retained as an own data property. Operations that subsequen
 ### Examples
 
 ```js
-cast.object({ a: 1 })
-// { a: 1 }
-cast.object(new Map([['a', 1], ['b', 2]]))
-// { a: 1, b: 2 }
-cast.object(new Map([[1, 'one']]))
-// undefined
-cast.object([['a', 1]])
-// undefined
-cast.object(null, {})
-// {}
+cast.object({ a: 1 })                         // { a: 1 }
+cast.object(new Map([['a', 1], ['b', 2]]))    // { a: 1, b: 2 }
+cast.object(new Map([[1, 'one']]))            // undefined
+cast.object([['a', 1]])                       // undefined
+cast.object(null, {})                         // {}
 ```
 
 ## map
@@ -371,18 +342,12 @@ Accepts maps, plain objects and arrays of key-value pairs.
 ### Examples
 
 ```js
-cast.map({ a: 1, b: 2 })
-// Map { 'a' => 1, 'b' => 2 }
-cast.map([['a', 1], ['b', 2]])
-// Map { 'a' => 1, 'b' => 2 }
-cast.map([['a', 1], ['a', 2]])
-// undefined
-cast.map([['a']])
-// undefined
-cast.map({ [Symbol('key')]: 1 })
-// undefined
-cast.map('invalid', new Map())
-// Empty Map
+cast.map({ a: 1, b: 2 })            // Map { 'a' => 1, 'b' => 2 }
+cast.map([['a', 1], ['b', 2]])      // Map { 'a' => 1, 'b' => 2 }
+cast.map([['a', 1], ['a', 2]])      // undefined
+cast.map([['a']])                   // undefined
+cast.map({ [Symbol('key')]: 1 })    // undefined
+cast.map('invalid', new Map())      // Empty Map
 ```
 
 ## set
@@ -413,14 +378,9 @@ Accepts sets and arrays.
 ### Examples
 
 ```js
-cast.set([1, 2, 3])
-// Set { 1, 2, 3 }
-cast.set([1, 2, 2, 3])
-// Set { 1, 2, 3 }
-cast.set(new Set([1, 2]))
-// Same Set instance
-cast.set('abc')
-// undefined
-cast.set('invalid', new Set())
-// Empty Set
+cast.set([1, 2, 3])               // Set { 1, 2, 3 }
+cast.set([1, 2, 2, 3])            // Set { 1, 2, 3 }
+cast.set(new Set([1, 2]))         // Same Set instance
+cast.set('abc')                   // undefined
+cast.set('invalid', new Set())    // Empty Set
 ```
