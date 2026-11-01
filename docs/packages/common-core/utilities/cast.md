@@ -1,4 +1,3 @@
-
 ---
 title: cast
 description: Strict type conversion utilities with fallback support.
@@ -42,22 +41,16 @@ Overflow is rejected. Underflow may round to zero.
 ```js
 cast.number('42')
 // 42
-
 cast.number(' -1.5 ')
 // -1.5
-
 cast.number('1e3')
 // 1000
-
 cast.number('.5')
 // 0.5
-
 cast.number('42px')
 // undefined
-
 cast.number('0x10')
 // undefined
-
 cast.number('invalid', 0)
 // 0
 ```
@@ -90,19 +83,14 @@ Fractional values are not truncated. Validation takes place after JavaScript num
 ```js
 cast.integer('42')
 // 42
-
 cast.integer('42.0')
 // 42
-
 cast.integer('1e3')
 // 1000
-
 cast.integer('1.5')
 // undefined
-
 cast.integer('9007199254740992')
 // undefined
-
 cast.integer('invalid', 0)
 // 0
 ```
@@ -140,24 +128,14 @@ Other values are rejected rather than converted using JavaScript truthiness.
 ### Examples
 
 ```js
-cast.boolean('true')
+cast.boolean(' true ')
 // true
-
-cast.boolean(' YES ')
-// true
-
 cast.boolean(1)
 // true
-
-cast.boolean('off')
-// false
-
 cast.boolean(0)
 // false
-
 cast.boolean('maybe')
 // undefined
-
 cast.boolean(2, false)
 // false
 ```
@@ -190,22 +168,16 @@ Does not implicitly stringify objects, arrays, dates, symbols, bigints, `null` o
 ```js
 cast.string(42)
 // '42'
-
 cast.string(true)
 // 'true'
-
 cast.string(false)
 // 'false'
-
 cast.string('hello')
 // 'hello'
-
 cast.string(null)
 // undefined
-
 cast.string({ a: 1 })
 // undefined
-
 cast.string(null, '')
 // ''
 ```
@@ -247,22 +219,16 @@ Parsing uses the native `Date` constructor after format and calendar-day validat
 ```js
 cast.date('2026-11-01')
 // Date representing 2026-11-01T00:00:00.000Z
-
 cast.date('2026-11-01T14:30:00Z')
 // Date representing 2026-11-01T14:30:00.000Z
-
 cast.date('2026-11-01T14:30:00+01:00')
 // Date representing 2026-11-01T13:30:00.000Z
-
 cast.date(0)
 // Date representing 1970-01-01T00:00:00.000Z
-
 cast.date('2026-11-01T14:30:00')
 // undefined
-
 cast.date('2026-02-30')
 // undefined
-
 cast.date('invalid', new Date(0))
 // Date representing 1970-01-01T00:00:00.000Z
 ```
@@ -297,16 +263,12 @@ Accepts arrays, sets and maps.
 ```js
 cast.array([1, 2])
 // [1, 2]
-
 cast.array(new Set([1, 2]))
 // [1, 2]
-
 cast.array(new Map([['a', 1], ['b', 2]]))
 // [['a', 1], ['b', 2]]
-
 cast.array('abc')
 // undefined
-
 cast.array('invalid', [])
 // []
 ```
@@ -345,16 +307,12 @@ A `__proto__` key is retained as an own data property. Operations that subsequen
 ```js
 cast.object({ a: 1 })
 // { a: 1 }
-
 cast.object(new Map([['a', 1], ['b', 2]]))
 // { a: 1, b: 2 }
-
 cast.object(new Map([[1, 'one']]))
 // undefined
-
 cast.object([['a', 1]])
 // undefined
-
 cast.object(null, {})
 // {}
 ```
@@ -392,19 +350,14 @@ Accepts maps, plain objects and arrays of key-value pairs.
 ```js
 cast.map({ a: 1, b: 2 })
 // Map { 'a' => 1, 'b' => 2 }
-
 cast.map([['a', 1], ['b', 2]])
 // Map { 'a' => 1, 'b' => 2 }
-
 cast.map([['a', 1], ['a', 2]])
 // undefined
-
 cast.map([['a']])
 // undefined
-
 cast.map({ [Symbol('key')]: 1 })
 // undefined
-
 cast.map('invalid', new Map())
 // Empty Map
 ```
@@ -439,16 +392,12 @@ Accepts sets and arrays.
 ```js
 cast.set([1, 2, 3])
 // Set { 1, 2, 3 }
-
 cast.set([1, 2, 2, 3])
 // Set { 1, 2, 3 }
-
 cast.set(new Set([1, 2]))
 // Same Set instance
-
 cast.set('abc')
 // undefined
-
 cast.set('invalid', new Set())
 // Empty Set
 ```

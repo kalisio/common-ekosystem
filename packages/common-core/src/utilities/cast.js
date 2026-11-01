@@ -10,8 +10,8 @@ const DECIMAL = /^[+-]?(\d+(\.\d*)?|\.\d+)(e[+-]?\d+)?$/i
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
 const ISO_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[+-]\d{2}:\d{2})$/
 
-const TRUE_VALUES = new Set(['true', '1', 'yes', 'on'])
-const FALSE_VALUES = new Set(['false', '0', 'no', 'off'])
+const TRUE_VALUES = new Set(['true', '1'])
+const FALSE_VALUES = new Set(['false', '0'])
 
 export const cast = {
 
