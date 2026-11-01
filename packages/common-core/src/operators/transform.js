@@ -1,9 +1,9 @@
-import { isNumber, toNumber, has, get, set, unset, pick, merge } from 'lodash-es'
+import { isNumber, has, get, set, unset, pick, merge } from 'lodash-es'
 import { unit } from 'mathjs'
 import moment from 'moment'
 import sift from 'sift'
 import { assert, is } from '../predicates/index.js'
-import { object, string } from '../utilities/index.js'
+import { object, string, cast } from '../utilities/index.js'
 
 const CASE_FUNCTIONS = {
   camelCase: string.camelCase,
@@ -34,7 +34,7 @@ function convert (value, units) {
   if (units.asNumber) {
     // Large numbers are sometimes written with space separators, e.g. '120 000 500'
     if (typeof value === 'string') value = value.replace(/ /g, '')
-    return toNumber(value)
+    return cast.number(value)
   }
   if (units.from || units.to) {
     return unit(value, units.from).toNumber(units.to)

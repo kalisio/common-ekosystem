@@ -1,4 +1,4 @@
-import { cast } from '../../src/utilities/cast.js'
+import { cast } from '../../src/utilities/index.js'
 
 describe('cast.number', () => {
   it('preserves valid numbers', () => {
