@@ -159,3 +159,107 @@ const result = random.shuffle(source)
 // source remains [1, 2, 3, 4]
 // result contains the same values in a random order
 ```
+
+
+## password
+
+Generates a cryptographically secure random password with a configurable length and character composition.
+
+::: tip
+
+Unlike the other random generators, `password` uses `crypto.getRandomValues()` instead of `Math.random()`.
+
+- Characters are selected using cryptographically secure random values.
+- Rejection sampling eliminates modulo bias.
+- A secure Fisher-Yates shuffle randomizes character positions.
+- Characters may repeat.
+
+The resulting password contains exactly the requested character composition, without predictable character positions.
+
+:::
+
+### Signature
+
+```js
+random.password(options = {})
+```
+
+### Parameters
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `length` | Integer | `12` | Total number of characters |
+| `digits` | Integer | `1` | Exact number of digits |
+| `specials` | Integer | `1` | Exact number of special characters |
+
+The remaining characters are ASCII letters (`a-z`, `A-Z`).
+
+### Returns
+
+A randomly generated password as a string.
+
+The password contains exactly the requested number of digits and special characters, with the remaining positions filled by letters.
+
+All characters are selected from printable ASCII characters (codes 33 to 126), excluding spaces.
+
+### Examples
+
+Generate a password with default options:
+
+```js
+random.password()
+// 12 characters: 10 letters, 1 digit, 1 special
+```
+
+Generate a longer password:
+
+```js
+random.password({ length: 20 })
+// 20 characters: 18 letters, 1 digit, 1 special
+```
+
+Customize the character composition:
+
+```js
+random.password({ length: 16, digits: 4, specials: 3 })
+// 16 characters: 9 letters, 4 digits, 3 specials
+```
+
+Generate a password containing letters only:
+
+```js
+random.password({ length: 16, digits: 0, specials: 0 })
+// 16 letters
+```
+
+Generate a numeric password:
+
+```js
+random.password({ length: 8, digits: 8, specials: 0 })
+// 8 digits
+```
+
+Generate a password without letters:
+
+```js
+random.password({ length: 12, digits: 6, specials: 6 })
+// 6 digits and 6 special characters
+```
+
+### Validation
+
+- `options` must be a plain object.
+- `length` must be a positive integer.
+- `digits` and `specials` must be non-negative integers.
+- `length` must be greater than or equal to `digits + specials`.
+
+Invalid options throw an error.
+
+```js
+random.password({ length: 0 })
+// Throws: length must be a positive integer
+
+random.password({ length: 4, digits: 3, specials: 2 })
+// Throws: length must be greater than or equal to digits plus specials
+```
+

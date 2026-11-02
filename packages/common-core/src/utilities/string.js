@@ -36,6 +36,18 @@ export const string = {
     c: 'cç'
   },
 
+  charset (pattern) {
+    assert.that(pattern, (v) => is.string(v) || is.regularExpression(v), 'pattern must be a string or a RegExp')
+    const regex = new RegExp(pattern)
+    const chars = []
+    for (let code = 33; code <= 126; code++) {
+      const char = String.fromCharCode(code)
+      regex.lastIndex = 0
+      if (regex.test(char)) chars.push(char)
+    }
+    return chars
+  },
+
   normalize (str, options = {}) {
     assert.all([
       { value: str, validator: is.string, message: 'str must be a string' },

@@ -1,5 +1,111 @@
 import { string } from '../../src/utilities/index.js'
 
+describe('string.charset', () => {
+  it('returns the printable ASCII characters matching the pattern', () => {
+    expect(string.charset(/[a-c]/)).toEqual(['a', 'b', 'c'])
+  })
+  it('accepts the pattern as a string', () => {
+    expect(string.charset('[0-2]')).toEqual(['0', '1', '2'])
+  })
+  it('supports regular expression syntax in string patterns', () => {
+    expect(string.charset('\\d')).toEqual(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
+  })
+  it('returns characters in ascending ASCII order', () => {
+    expect(string.charset(/[a-cA-C0-2]/)).toEqual([
+      '0', '1', '2', 'A', 'B', 'C', 'a', 'b', 'c'
+    ])
+  })
+  it('returns all printable ASCII characters excluding space', () => {
+    const chars = string.charset(/./)
+    expect(chars).toHaveLength(94)
+    expect(chars[0]).toBe('!')
+    expect(chars.at(-1)).toBe('~')
+    expect(chars).not.toContain(' ')
+  })
+  it('includes the ASCII boundaries', () => {
+    expect(string.charset(/[!~]/)).toEqual(['!', '~'])
+  })
+  it('excludes whitespace and control characters', () => {
+    expect(string.charset(/\s/)).toEqual([])
+    expect(string.charset(/[^!-~]/)).toEqual([])
+  })
+  it('excludes non-ASCII characters', () => {
+    expect(string.charset(/[éà€]/)).toEqual([])
+  })
+  it('supports digit character classes', () => {
+    expect(string.charset(/\d/)).toEqual([
+      '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
+    ])
+  })
+  it('supports word character classes', () => {
+    const chars = string.charset(/\w/)
+    expect(chars).toHaveLength(63)
+    expect(chars).toContain('_')
+    expect(chars).toContain('A')
+    expect(chars).toContain('z')
+    expect(chars).toContain('0')
+    expect(chars).not.toContain('-')
+  })
+  it('supports negated character classes', () => {
+    const chars = string.charset(/[^0-9]/)
+    expect(chars).toHaveLength(84)
+    expect(chars).toContain('A')
+    expect(chars).not.toContain('0')
+  })
+  it('supports special characters', () => {
+    expect(string.charset(/[!@#$%]/)).toEqual(['!', '#', '$', '%', '@'])
+  })
+  it('supports case-insensitive patterns', () => {
+    expect(string.charset(/[a-c]/i)).toEqual([
+      'A', 'B', 'C', 'a', 'b', 'c'
+    ])
+  })
+  it('supports anchored patterns', () => {
+    expect(string.charset(/^[A-C]$/)).toEqual(['A', 'B', 'C'])
+  })
+  it('matches each character individually', () => {
+    expect(string.charset(/^[A-Z]{2}$/)).toEqual([])
+  })
+  it('supports global patterns', () => {
+    expect(string.charset(/[a-c]/g)).toEqual(['a', 'b', 'c'])
+  })
+  it('supports sticky patterns', () => {
+    expect(string.charset(/[a-c]/y)).toEqual(['a', 'b', 'c'])
+  })
+  it('does not mutate a global pattern', () => {
+    const pattern = /[a-c]/g
+    pattern.lastIndex = 2
+    expect(string.charset(pattern)).toEqual(['a', 'b', 'c'])
+    expect(pattern.lastIndex).toBe(2)
+  })
+  it('does not mutate a sticky pattern', () => {
+    const pattern = /[a-c]/y
+    pattern.lastIndex = 2
+    expect(string.charset(pattern)).toEqual(['a', 'b', 'c'])
+    expect(pattern.lastIndex).toBe(2)
+  })
+  it('returns consistent results across repeated calls', () => {
+    const pattern = /[a-c]/g
+    expect(string.charset(pattern)).toEqual(['a', 'b', 'c'])
+    expect(string.charset(pattern)).toEqual(['a', 'b', 'c'])
+  })
+  it('returns all printable ASCII characters for an empty pattern', () => {
+    expect(string.charset('')).toHaveLength(94)
+  })
+  it('returns an empty array when no character matches', () => {
+    expect(string.charset(/é/)).toEqual([])
+    expect(string.charset(/a^/)).toEqual([])
+  })
+  it('throws on an invalid pattern type', () => {
+    for (const pattern of [undefined, null, 42, {}, []]) {
+      expect(() => string.charset(pattern)).toThrow()
+    }
+  })
+  it('throws on an invalid regular expression string', () => {
+    expect(() => string.charset('[')).toThrow(SyntaxError)
+  })
+})
+
 describe('string.normalize', () => {
   it('returns the string unchanged by default', () => {
     expect(string.normalize('Héllo  World')).toBe('Héllo  World')

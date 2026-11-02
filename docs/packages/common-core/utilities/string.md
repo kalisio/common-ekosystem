@@ -22,6 +22,97 @@ string.DIACRITICS = {
 }
 ```
 
+## charset
+
+Returns an array of printable ASCII characters matching a regular expression pattern.
+
+### Signature
+
+```js
+string.charset(pattern)
+```
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `pattern` | `string \| RegExp` | yes | Regular expression defining the characters to match |
+
+### Returns
+
+An array of matching characters, ordered by ascending ASCII code.
+
+Only printable ASCII characters (codes 33 to 126) are considered. Spaces and control characters are excluded.
+
+Returns an empty array if no character matches.
+
+::: info
+
+- The pattern is evaluated against each character individually, not against a complete string.
+- Global (`g`) and sticky (`y`) flags are supported.
+- The supplied `RegExp` is not modified.
+- Invalid pattern types or malformed regular expressions throw an error.
+
+:::
+
+### Examples
+
+Select lowercase letters:
+
+```js
+string.charset(/[a-c]/)
+// ['a', 'b', 'c']
+```
+
+Select digits:
+
+```js
+string.charset(/\d/)
+// ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+```
+
+Use a string pattern:
+
+```js
+string.charset('[A-C]')
+// ['A', 'B', 'C']
+```
+
+Select multiple character classes:
+
+```js
+string.charset(/[a-cA-C0-2]/)
+// ['0', '1', '2', 'A', 'B', 'C', 'a', 'b', 'c']
+```
+
+Select special characters:
+
+```js
+string.charset(/[^a-zA-Z\d]/)
+// 32 special ASCII characters
+```
+
+Use a case-insensitive pattern:
+
+```js
+string.charset(/[a-c]/i)
+// ['A', 'B', 'C', 'a', 'b', 'c']
+```
+
+Select all printable ASCII characters:
+
+```js
+string.charset(/./)
+// 94 characters, from '!' to '~'
+```
+
+Handle unmatched patterns:
+
+```js
+string.charset(/é/)
+// []
+```
+
 ## normalize
 
 ### Signature
