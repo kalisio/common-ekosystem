@@ -141,6 +141,22 @@ describe('random.password', () => {
   })
 
   describe('generation', () => {
+    it('uses default length when null', () => {
+      expectPassword(random.password({ length: null }), 12, 1, 1)
+    })
+    it('uses default digits when null', () => {
+      expectPassword(random.password({ digits: null }), 12, 1, 1)
+    })
+    it('uses default specials when null', () => {
+      expectPassword(random.password({ specials: null }), 12, 1, 1)
+    })
+    it('uses all defaults when options are nullish', () => {
+      expectPassword(random.password({
+        length: null,
+        digits: undefined,
+        specials: null
+      }), 12, 1, 1)
+    })
     it('generates a password with default options', () => {
       expectPassword(random.password(), 12, 1, 1)
     })
@@ -224,7 +240,6 @@ describe('random.password', () => {
       -1,
       1.5,
       '12',
-      null,
       true,
       NaN,
       Infinity,
@@ -236,7 +251,6 @@ describe('random.password', () => {
       -1,
       1.5,
       '2',
-      null,
       false,
       NaN,
       Infinity,
@@ -248,7 +262,6 @@ describe('random.password', () => {
       -1,
       1.5,
       '2',
-      null,
       false,
       NaN,
       Infinity,

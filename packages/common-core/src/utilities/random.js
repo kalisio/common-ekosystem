@@ -1,4 +1,4 @@
-import { assert, is, conform } from '../predicates/index.js'
+import { assert, is, conform, optional } from '../predicates/index.js'
 import { string } from './string.js'
 
 const PASSWORD_CHARSETS = {
@@ -8,9 +8,9 @@ const PASSWORD_CHARSETS = {
 }
 
 const PASSWORD_OPTIONS_SCHEMA = {
-  length: is.positiveInteger,
-  digits: is.nonNegativeInteger,
-  specials: is.nonNegativeInteger
+  length: optional(is.positiveInteger),
+  digits: optional(is.nonNegativeInteger),
+  specials: optional(is.nonNegativeInteger)
 }
 
 // Cryptographically secure random index in [0, size)
@@ -73,9 +73,10 @@ export const random = {
   },
 
   password (options = {}) {
-    assert.that(options, is.plainObject, 'options must be a plain object')
-    const { length = 12, digits = 1, specials = 1 } = options
-    assert.that({ length, digits, specials }, (v) => conform.schema(v, PASSWORD_OPTIONS_SCHEMA), 'invalid password options')
+    assert.that(options, (v) => conform.schema(v, PASSWORD_OPTIONS_SCHEMA), 'invalid password options')
+    const length = options.length ?? 12
+    const digits = options.digits ?? 1
+    const specials = options.specials ?? 1
     assert.that(length, (v) => v >= digits + specials, 'length must be greater than or equal to digits plus specials')
     const result = [
       ...draw(PASSWORD_CHARSETS.digits, digits),

@@ -8,14 +8,18 @@ description: Utility functions for generating random numbers, selecting values, 
 
 Utility functions for generating random numbers, selecting values, sampling generators, and shuffling arrays.
 
+
 ::: warning Security considerations
 
-This utility is intended for non-security-sensitive use cases such as data sampling, array shuffling,
-and test fixtures.It relies on `Math.random()`, which is appropriate for this type and volume of
-random generation and works consistently in both browser and Node.js environments. Do not use this module
-to generate tokens, keys, secrets, session identifiers, or any other value requiring cryptographic unpredictability.
+Most functions in this utility rely on `Math.random()` and are intended for non-security-sensitive use cases such as
+data sampling, array shuffling, and test fixtures. They must not be used to generate tokens, keys, secrets, session
+identifiers, or other values requiring cryptographic unpredictability.
+
+The `random.password()` function is an exception. It uses `crypto.getRandomValues()` with rejection sampling and a
+secure Fisher-Yates shuffle to generate cryptographically secure passwords.
 
 :::
+
 
 ## integer
 
@@ -164,19 +168,6 @@ const result = random.shuffle(source)
 ## password
 
 Generates a cryptographically secure random password with a configurable length and character composition.
-
-::: tip
-
-Unlike the other random generators, `password` uses `crypto.getRandomValues()` instead of `Math.random()`.
-
-- Characters are selected using cryptographically secure random values.
-- Rejection sampling eliminates modulo bias.
-- A secure Fisher-Yates shuffle randomizes character positions.
-- Characters may repeat.
-
-The resulting password contains exactly the requested character composition, without predictable character positions.
-
-:::
 
 ### Signature
 
