@@ -35,7 +35,7 @@ export function truncateCoordinate (coord, precision = DEFAULT_COORDINATE_PRECIS
     },
     {
       value: precision,
-      validator: (v) => is.inRange(v, 0, MAX_COORDINATE_PRECISION),
+      validator: (v) => is.integer(v) && is.inRange(v, 0, MAX_COORDINATE_PRECISION),
       message: `precision must be in range [0, ${MAX_COORDINATE_PRECISION}]`
     }
   ])

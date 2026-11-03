@@ -3,7 +3,8 @@ import {
   isValidPositions,
   deduplicatePositions,
   truncatePositions,
-  reprojectPositions
+  reprojectPositions,
+  DEFAULT_COORDINATE_PRECISION
 } from '../../src/foundation/index.js'
 
 const SOURCE = 'EPSG:4326'
@@ -42,6 +43,16 @@ describe('isValidPositions', () => {
 })
 
 describe('deduplicatePositions', () => {
+  it('falls back to the default precision when precision is undefined', () => {
+    const delta = 4 * 10 ** -(DEFAULT_COORDINATE_PRECISION + 1)
+    expect(deduplicatePositions([[1, 1], [1 + delta, 1]], { precision: undefined })).toHaveLength(1)
+  })
+  it('rejects null options', () => {
+    expect(() => deduplicatePositions([[1, 1]], null)).toThrow()
+  })
+  it('rejects a non-array', () => {
+    expect(() => deduplicatePositions('nope')).toThrow(/must be an array/)
+  })
   it('returns an empty array unchanged', () => {
     expect(deduplicatePositions([])).toEqual([])
   })
@@ -82,6 +93,12 @@ describe('deduplicatePositions', () => {
 })
 
 describe('truncatePositions', () => {
+  it('falls back to defaults when options are undefined', () => {
+    expect(truncatePositions([[1, 1], [1, 1]], { precision: undefined, deduplicate: undefined })).toHaveLength(2)
+  })
+  it('rejects null options', () => {
+    expect(() => truncatePositions([[1, 1]], null)).toThrow()
+  })
   it('returns an empty array unchanged', () => {
     // Regression guard: total transformer, no cardinality constraint.
     expect(truncatePositions([])).toEqual([])
