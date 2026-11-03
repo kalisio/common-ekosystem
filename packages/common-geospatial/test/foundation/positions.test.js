@@ -128,6 +128,12 @@ describe('truncatePositions', () => {
   it('rejects invalid options', () => {
     expect(() => truncatePositions([[1, 1]], { precision: 'x' })).toThrow(/options/)
   })
+  it('truncates the input positions in place', () => {
+    const input = [[2.111, 48.222]]
+    const result = truncatePositions(input, { precision: 1 })
+    expect(result[0]).toBe(input[0])
+    expect(input[0]).toEqual([2.1, 48.2])
+  })
 })
 
 describe('reprojectPositions', () => {

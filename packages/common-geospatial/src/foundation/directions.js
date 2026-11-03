@@ -15,9 +15,8 @@ function collectLocalizedSymbols (keys) {
   return [...symbols]
 }
 
-// A direction matches a type if it equals its label or its symbol, in any of
-// the active locales (current + fallback), case-insensitively.
 function isValidDirectionOf (type, dir) {
+  if (!is.string(dir)) return false
   const value = dir.toUpperCase()
   return getActiveLocales().some((code) => {
     const { label, symbol } = getMessages(code).DIRECTIONS[type]
@@ -52,27 +51,22 @@ export function getEast () { return getLocalizedDirections().EAST }
 export function getWest () { return getLocalizedDirections().WEST }
 
 export function isValidDirection (dir) {
-  assert.that(dir, is.string, 'dir must be a string')
   return isNorth(dir) || isSouth(dir) || isEast(dir) || isWest(dir)
 }
 
 export function isNorth (dir) {
-  assert.that(dir, is.string, 'dir must be a string')
   return isValidDirectionOf('NORTH', dir)
 }
 
 export function isSouth (dir) {
-  assert.that(dir, is.string, 'dir must be a string')
   return isValidDirectionOf('SOUTH', dir)
 }
 
 export function isEast (dir) {
-  assert.that(dir, is.string, 'dir must be a string')
   return isValidDirectionOf('EAST', dir)
 }
 
 export function isWest (dir) {
-  assert.that(dir, is.string, 'dir must be a string')
   return isValidDirectionOf('WEST', dir)
 }
 
