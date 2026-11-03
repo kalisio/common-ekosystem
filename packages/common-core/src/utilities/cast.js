@@ -8,9 +8,6 @@ const ISO_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[+-]\
 const TRUE_VALUES = new Set(['true', '1'])
 const FALSE_VALUES = new Set(['false', '0'])
 
-// Each method returns the fallback (undefined by default) when the value cannot
-// be converted unambiguously. The fallback is returned as-is, and so is a value
-// that already has the target type: the result can be the input itself, not a copy.
 export const cast = {
 
   // Follows Number() for strings: decimal notation and the 0x, 0o and 0b prefixes.

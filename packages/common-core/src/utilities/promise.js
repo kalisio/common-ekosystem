@@ -1,10 +1,13 @@
 import { is, assert, conform, optional } from '../predicates/index.js'
+import { object } from './object.js'
 
 const TRACKABLE_SYMBOL = Symbol('trackablePromise')
 
 const CONCURRENT_OPTIONS_SCHEMA = {
   concurrency: optional((v) => is.positiveInteger(v) || is.positiveInfinity(v))
 }
+
+const CONCURRENT_DEFAULTS = { concurrency: Infinity }
 
 export const promise = {
 
@@ -34,12 +37,13 @@ export const promise = {
     return result
   },
 
-  async run (tasks, options = {}) {
+  async run (tasks, options) {
+    const settings = object.defaults(CONCURRENT_DEFAULTS, options)
     assert.all([
       { value: tasks, validator: (v) => is.arrayOf(v, is.function), message: 'tasks must be an array of functions' },
-      { value: options, validator: (v) => conform.schema(v, CONCURRENT_OPTIONS_SCHEMA), message: 'options must be valid' }
+      { value: settings, validator: (v) => conform.schema(v, CONCURRENT_OPTIONS_SCHEMA), message: 'options must be valid' }
     ])
-    const { concurrency = Infinity } = options
+    const { concurrency } = settings
     if (tasks.length === 0) return []
     // No concurrency limit
     if (is.positiveInfinity(concurrency)) {
@@ -47,10 +51,16 @@ export const promise = {
     }
     const results = new Array(tasks.length)
     let next = 0
+    let failed = false
     async function worker () {
-      while (next < tasks.length) {
+      while (!failed && next < tasks.length) {
         const index = next++
-        results[index] = await tasks[index]()
+        try {
+          results[index] = await tasks[index]()
+        } catch (error) {
+          failed = true
+          throw error
+        }
       }
     }
     const workers = Array.from(

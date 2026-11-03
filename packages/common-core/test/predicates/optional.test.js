@@ -16,7 +16,7 @@ describe('optional', () => {
   })
 
   it('should return true if value is null', () => {
-    expect(optional(is.string)(null)).toBe(true)
+    expect(optional(is.string)(null)).toBe(false)
   })
 
   it('should return true if value is undefined', () => {

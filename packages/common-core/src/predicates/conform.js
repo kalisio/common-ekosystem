@@ -23,6 +23,7 @@ function check (obj, schema, path = '') {
 }
 
 export const conform = {
+
   schema (obj, schema) {
     assert.all([
       { value: obj, validator: is.plainObject, message: 'obj must be an object' },

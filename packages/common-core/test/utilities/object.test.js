@@ -153,6 +153,99 @@ describe('object.clone', () => {
   })
 })
 
+describe('object.defaults', () => {
+  it('returns the fallback values when value is omitted', () => {
+    expect(object.defaults({ interval: 1000 })).toEqual({ interval: 1000 })
+  })
+  it('overrides fallback values with provided ones', () => {
+    expect(object.defaults({ interval: 1000 }, { interval: 500 })).toEqual({ interval: 500 })
+  })
+  it('falls back when a provided key is undefined', () => {
+    expect(object.defaults({ interval: 1000 }, { interval: undefined })).toEqual({ interval: 1000 })
+  })
+  it('keeps null as an explicit value', () => {
+    expect(object.defaults({ timeout: 1000 }, { timeout: null })).toEqual({ timeout: null })
+  })
+  it('keeps other falsy values', () => {
+    expect(object.defaults({ count: 1, enabled: true, label: 'a' }, { count: 0, enabled: false, label: '' })).toEqual({ count: 0, enabled: false, label: '' })
+  })
+  it('adds keys absent from the fallback', () => {
+    expect(object.defaults({ interval: 1000 }, { signal: 'x' })).toEqual({ interval: 1000, signal: 'x' })
+  })
+  it('returns a new object even when no defaults are applied', () => {
+    const value = { interval: 500 }
+    const result = object.defaults({}, value)
+    expect(result).toEqual(value)
+    expect(result).not.toBe(value)
+  })
+  it('fills nested plain objects recursively', () => {
+    expect(object.defaults({ retry: { count: 3, delay: 100 } }, { retry: { count: 5 } })).toEqual({ retry: { count: 5, delay: 100 } })
+  })
+  it('fills a nested object when its value is undefined', () => {
+    const fallback = { retry: { count: 3, delay: 100 } }
+    expect(object.defaults(fallback, { retry: undefined })).toEqual(fallback)
+  })
+  it('replaces a whole nested group with null', () => {
+    expect(object.defaults({ retry: { count: 3, delay: 100 } }, { retry: null })).toEqual({ retry: null })
+  })
+  it('replaces arrays instead of merging them', () => {
+    expect(object.defaults({ items: [1, 2] }, { items: [3] })).toEqual({ items: [3] })
+  })
+  it('replaces class instances instead of merging them', () => {
+    const date = new Date(0)
+    expect(object.defaults({ at: new Date(1) }, { at: date }).at).toBe(date)
+  })
+  it('does not mutate the fallback', () => {
+    const fallback = { interval: 1000, retry: { count: 3 } }
+    object.defaults(fallback, { interval: 500, retry: { count: 5 } })
+    expect(fallback).toEqual({ interval: 1000, retry: { count: 3 } })
+  })
+  it('does not mutate provided values', () => {
+    const value = { retry: { count: 5 } }
+    object.defaults({ retry: { count: 3, delay: 100 } }, value)
+    expect(value).toEqual({ retry: { count: 5 } })
+  })
+  it('does not share nested objects with the fallback', () => {
+    const fallback = { retry: { count: 3 } }
+    const result = object.defaults(fallback)
+    result.retry.count = 5
+    expect(fallback.retry.count).toBe(3)
+  })
+  it('does not share arrays with the fallback', () => {
+    const fallback = { items: [1, 2] }
+    const result = object.defaults(fallback)
+    result.items.push(3)
+    expect(fallback.items).toEqual([1, 2])
+  })
+  it('does not share deeply nested fallback objects', () => {
+    const fallback = { retry: { policy: { delays: [100, 200] } } }
+    const result = object.defaults(fallback)
+    result.retry.policy.delays.push(300)
+    expect(fallback.retry.policy.delays).toEqual([100, 200])
+  })
+  it('keeps the references of provided values', () => {
+    const { signal } = new AbortController()
+    expect(object.defaults({ interval: 1000 }, { signal }).signal).toBe(signal)
+  })
+  it('preserves references of provided nested arrays', () => {
+    const items = [3, 4]
+    const result = object.defaults({ items: [1, 2] }, { items })
+    expect(result.items).toBe(items)
+  })
+  it('reconstructs provided nested plain objects while filling defaults', () => {
+    const retry = { count: 5 }
+    const result = object.defaults({ retry: { count: 3, delay: 100 } }, { retry })
+    expect(result.retry).not.toBe(retry)
+    expect(result.retry).toEqual({ count: 5, delay: 100 })
+  })
+  it('throws when fallback is not an object', () => {
+    expect(() => object.defaults(null, {})).toThrow('fallback must be an object')
+  })
+  it('throws when value is not an object', () => {
+    expect(() => object.defaults({ interval: 1000 }, null)).toThrow('value must be an object')
+  })
+})
+
 describe('object.replace', () => {
   it('rejects invalid arguments', () => {
     expect(() => object.replace(null, {})).toThrow('target must be an object')

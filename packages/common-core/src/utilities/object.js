@@ -90,17 +90,22 @@ export const object = {
     return cloneValue(obj, options.plain ?? false)
   },
 
-  replace (target, source) {
+  defaults (fallback, value = {}) {
     assert.all([
-      { value: target, validator: is.plainObject, message: 'target must be an object' },
-      { value: source, validator: is.plainObject, message: 'source must be an object' }
+      { value: fallback, validator: is.plainObject, message: 'fallback must be an object' },
+      { value, validator: is.plainObject, message: 'value must be an object' }
     ])
-    if (target === source) return target
-    for (const key of ownKeys(target)) delete target[key]
-    for (const key of ownKeys(source)) {
-      target[key] = cloneValue(source[key], false)
+    function fill (fallback, value) {
+      const result = {}
+      for (const key of new Set([...ownKeys(fallback), ...ownKeys(value)])) {
+        const base = fallback[key]
+        const own = value[key]
+        if (is.plainObject(base) && (is.plainObject(own) || own === undefined)) result[key] = fill(base, own === undefined ? {} : own)
+        else result[key] = own === undefined ? cloneValue(base, false) : own
+      }
+      return result
     }
-    return target
+    return fill(fallback, is.plainObject(value) ? value : {}) // assert is off in prod
   },
 
   merge (target, source) {
@@ -122,6 +127,19 @@ export const object = {
       }
     }
     apply(target, source)
+    return target
+  },
+
+  replace (target, source) {
+    assert.all([
+      { value: target, validator: is.plainObject, message: 'target must be an object' },
+      { value: source, validator: is.plainObject, message: 'source must be an object' }
+    ])
+    if (target === source) return target
+    for (const key of ownKeys(target)) delete target[key]
+    for (const key of ownKeys(source)) {
+      target[key] = cloneValue(source[key], false)
+    }
     return target
   },
 

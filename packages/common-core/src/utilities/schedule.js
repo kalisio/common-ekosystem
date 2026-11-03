@@ -1,4 +1,5 @@
 import { is, assert, conform, optional } from '../predicates/index.js'
+import { object } from './object.js'
 
 const SIGNAL_OPTIONS_SCHEMA = {
   signal: optional(is.abortSignal)
@@ -8,6 +9,8 @@ const UNTIL_OPTIONS_SCHEMA = {
   interval: optional(is.nonNegativeInteger),
   signal: optional(is.abortSignal)
 }
+
+const UNTIL_DEFAULTS = { interval: 1000 }
 
 export const schedule = {
 
@@ -56,7 +59,8 @@ export const schedule = {
     return schedule.delay(duration, options)
   },
 
-  async until (predicate, options = {}) {
+  async until (predicate, options) {
+    const settings = object.defaults(UNTIL_DEFAULTS, options)
     assert.all([
       {
         value: predicate,
@@ -64,15 +68,12 @@ export const schedule = {
         message: 'predicate must be a function'
       },
       {
-        value: options,
+        value: settings,
         validator: (v) => conform.schema(v, UNTIL_OPTIONS_SCHEMA),
         message: 'options must be a valid options object'
       }
     ])
-    const {
-      interval = 1000,
-      signal
-    } = options
+    const { interval, signal } = settings
     while (true) {
       if (signal?.aborted) throw signal.reason
       const result = await predicate()

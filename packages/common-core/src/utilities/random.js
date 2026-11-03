@@ -1,5 +1,6 @@
 import { assert, is, conform, optional } from '../predicates/index.js'
 import { string } from './string.js'
+import { object } from './object.js'
 
 const PASSWORD_CHARSETS = {
   letters: string.charset(/[a-zA-Z]/),
@@ -12,6 +13,8 @@ const PASSWORD_OPTIONS_SCHEMA = {
   digits: optional(is.nonNegativeInteger),
   specials: optional(is.nonNegativeInteger)
 }
+
+const PASSWORD_DEFAULTS = { length: 12, digits: 1, specials: 1 }
 
 // Cryptographically secure random index in [0, size)
 function secureIndex (size) {
@@ -72,11 +75,10 @@ export const random = {
     return result
   },
 
-  password (options = {}) {
-    assert.that(options, (v) => conform.schema(v, PASSWORD_OPTIONS_SCHEMA), 'invalid password options')
-    const length = options.length ?? 12
-    const digits = options.digits ?? 1
-    const specials = options.specials ?? 1
+  password (options) {
+    const settings = object.defaults(PASSWORD_DEFAULTS, options)
+    assert.that(settings, (v) => conform.schema(v, PASSWORD_OPTIONS_SCHEMA), 'invalid password options')
+    const { length, digits, specials } = settings
     assert.that(length, (v) => v >= digits + specials, 'length must be greater than or equal to digits plus specials')
     const result = [
       ...draw(PASSWORD_CHARSETS.digits, digits),

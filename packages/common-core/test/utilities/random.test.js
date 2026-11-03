@@ -141,21 +141,21 @@ describe('random.password', () => {
   })
 
   describe('generation', () => {
-    it('uses default length when null', () => {
-      expectPassword(random.password({ length: null }), 12, 1, 1)
+    it('rejects null length', () => {
+      expect(() => random.password({ length: null })).toThrow('invalid password options')
     })
-    it('uses default digits when null', () => {
-      expectPassword(random.password({ digits: null }), 12, 1, 1)
+    it('rejects null digits', () => {
+      expect(() => random.password({ digits: null })).toThrow('invalid password options')
     })
-    it('uses default specials when null', () => {
-      expectPassword(random.password({ specials: null }), 12, 1, 1)
+    it('rejects null specials', () => {
+      expect(() => random.password({ specials: null })).toThrow('invalid password options')
     })
-    it('uses all defaults when options are nullish', () => {
-      expectPassword(random.password({
+    it('rejects null options', () => {
+      expect(() => random.password({
         length: null,
         digits: undefined,
         specials: null
-      }), 12, 1, 1)
+      })).toThrow('invalid password options')
     })
     it('generates a password with default options', () => {
       expectPassword(random.password(), 12, 1, 1)

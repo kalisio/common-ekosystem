@@ -68,64 +68,122 @@ object.clone(original).point instanceof Point // true
 object.clone(original, { plain: true }).point === original.point // true
 ```
 
-## replace
+## defaults
 
-Replaces the contents of an object while preserving its reference.
+Creates a new object by recursively filling missing or `undefined` properties with fallback values.
+
+Unlike `merge`, provided values take precedence over fallback values. Only plain objects are merged recursively. Arrays and other values are treated as atomic values.
 
 ### Signature
 
 ```js
-object.replace(target, source)
+object.defaults(fallback, value = {})
 ```
 
 ### Parameters
 
-| Name     | Type     | Description                                       |
-| -------- | -------- | ------------------------------------------------- |
-| `target` | `object` | Object to replace                                 |
-| `source` | `object` | Object whose properties replace those of `target` |
+| Parameter | Description |
+|-----------|-------------|
+| `fallback` | Plain object containing default values. |
+| `value` | Optional plain object containing values to override the defaults. Defaults to `{}`. |
 
 ### Returns
 
-The modified `target` object.
+A new object containing the provided values and any missing fallback values.
 
-### Throws
+- Properties set to `undefined` use their fallback values.
+- Properties set to `null` are preserved.
+- Other falsy values (`false`, `0`, `''`) are preserved.
+- Nested plain objects are processed recursively.
+- Arrays are replaced rather than merged.
+- Additional properties not present in `fallback` are preserved.
+- Fallback values are cloned when applied to avoid sharing mutable references.
+- Provided values retain their references, except for plain objects processed recursively.
+- Neither input object is mutated.
 
-Throws if `target` or `source` is not a plain object.
+### Examples
 
-### Example
+**Basic defaults**
 
 ```js
-const user = {
-  name: 'Alice',
-  age: 42,
-  role: 'admin'
-}
+const defaults = { interval: 1000, enabled: true }
 
-const reference = user
+object.defaults(defaults, { interval: 500 })
+// { interval: 500, enabled: true }
 
-object.replace(user, {
-  name: 'Alice',
-  role: 'user'
-})
-
-reference === user // true
-
-reference
-// {
-//   name: 'Alice',
-//   role: 'user'
-// }
-
-The existing object reference is preserved, while properties not present in source are removed.
+object.defaults(defaults)
+// { interval: 1000, enabled: true }
 ```
 
-::: warning
+**Undefined and null values**
 
-Properties that exist in `target` but not in `source` are removed.
+```js
+const defaults = { timeout: 1000, retries: 3 }
 
-:::
+object.defaults(defaults, { timeout: undefined })
+// { timeout: 1000, retries: 3 }
 
+object.defaults(defaults, { timeout: null })
+// { timeout: null, retries: 3 }
+```
+
+**Nested objects**
+
+```js
+const defaults = {
+  retry: {
+    count: 3,
+    delay: 1000
+  }
+}
+
+object.defaults(defaults, {
+  retry: { count: 5 }
+})
+// { retry: { count: 5, delay: 1000 } }
+```
+
+**Arrays**
+
+```js
+object.defaults(
+  { items: [1, 2, 3] },
+  { items: [4, 5] }
+)
+// { items: [4, 5] }
+```
+
+**Immutable defaults**
+
+```js
+const defaults = {
+  retry: { delays: [100, 200] }
+}
+
+const options = object.defaults(defaults)
+
+options.retry.delays.push(300)
+
+console.log(defaults.retry.delays)
+// [100, 200]
+```
+
+**Function options**
+
+```js
+const DEFAULT_OPTIONS = {
+  timeout: 5000,
+  retries: 3,
+  headers: {
+    accept: 'application/json'
+  }
+}
+
+function request(options = {}) {
+  const settings = object.defaults(DEFAULT_OPTIONS, options)
+  // Use settings...
+}
+```
 ## merge
 
 Recursively merge properties from a source object into a target object, modifying the target in place.
@@ -148,16 +206,6 @@ object.merge(target, source)
 ### Returns
 
 The modified `target` object.
-
-### Behavior
-
-- **Plain objects** are merged recursively.
-- **Nested references** are preserved when merging plain objects.
-- **Arrays** are replaced entirely rather than merged by index.
-- **Other values** are assigned directly, replacing existing values.
-- **Missing properties** in the source leave the corresponding target properties unchanged.
-- **New properties** from the source are added to the target.
-- **Mutation** is performed in place without creating a new target object.
 
 ### Examples
 
@@ -262,6 +310,65 @@ object.merge(state, {
   }
 })
 ```
+
+## replace
+
+Replaces the contents of an object while preserving its reference.
+
+### Signature
+
+```js
+object.replace(target, source)
+```
+
+### Parameters
+
+| Name     | Type     | Description                                       |
+| -------- | -------- | ------------------------------------------------- |
+| `target` | `object` | Object to replace                                 |
+| `source` | `object` | Object whose properties replace those of `target` |
+
+### Returns
+
+The modified `target` object.
+
+### Throws
+
+Throws if `target` or `source` is not a plain object.
+
+### Example
+
+```js
+const user = {
+  name: 'Alice',
+  age: 42,
+  role: 'admin'
+}
+
+const reference = user
+
+object.replace(user, {
+  name: 'Alice',
+  role: 'user'
+})
+
+reference === user // true
+
+reference
+// {
+//   name: 'Alice',
+//   role: 'user'
+// }
+
+The existing object reference is preserved, while properties not present in source are removed.
+```
+
+::: warning
+
+Properties that exist in `target` but not in `source` are removed.
+
+:::
+
 
 ## normalize
 

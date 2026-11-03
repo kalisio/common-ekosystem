@@ -88,7 +88,11 @@ export const string = {
         message: 'options must be valid'
       }
     ])
-    const normalizeOptions = { ignoreDiacritics: true, ignoreCase: true, ...options }
+    const normalizeOptions = {
+      ...options,
+      ignoreDiacritics: options.ignoreDiacritics ?? true,
+      ignoreCase: options.ignoreCase ?? true
+    }
     const nStr1 = string.normalize(str1, normalizeOptions)
     const nStr2 = string.normalize(str2, normalizeOptions)
     return nStr1.localeCompare(nStr2, options.locale)

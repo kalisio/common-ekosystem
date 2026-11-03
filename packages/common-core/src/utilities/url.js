@@ -1,4 +1,5 @@
-import { assert, conform, is, optional } from '../predicates/index.js'
+import { assert, conform, is } from '../predicates/index.js'
+import { object } from './object.js'
 
 // Internal parser shared by all helpers. Splits any URL — single or multi-host
 // (e.g. a MongoDB replica set connection string) — into its components, without
@@ -10,10 +11,11 @@ const URL_RE = /^([a-z][a-z0-9+.-]*:\/\/)([^/?#]+)(\/[^?#]*)?(\?[^#]*)?(#.*)?$/i
 // {y}, {-y}, {s}, {TileMatrix}, {bbox-epsg-3857}...
 const PLACEHOLDERS_RE = /(\{-?[A-Za-z][\w-]*\})/
 
-// Options of addQueryParam(), build() and encode().
 const PLACEHOLDER_OPTIONS_SCHEMA = {
-  preservePlaceholders: optional(is.boolean)
+  preservePlaceholders: is.boolean
 }
+
+const PLACEHOLDER_DEFAULTS = { preservePlaceholders: false }
 
 function parseUrl (value) {
   const match = URL_RE.exec(String(value))
@@ -103,11 +105,12 @@ export const url = {
   // The URL itself is never re-encoded, so placeholders it holds (in the path
   // or the existing query) are kept as written. `options.preservePlaceholders`
   // also keeps placeholders literal in the added values.
-  addQueryParam (url, params, options = {}) {
+  addQueryParam (url, params, options) {
+    const settings = object.defaults(PLACEHOLDER_DEFAULTS, options)
     assert.all([
       { value: url, validator: is.url, message: 'url must be an url' },
       { value: params, validator: is.nonEmptyObject, message: 'params must be a non empty object' },
-      { value: options, validator: (v) => conform.schema(v, PLACEHOLDER_OPTIONS_SCHEMA), message: 'options must be a valid options object' }
+      { value: settings, validator: (v) => conform.schema(v, PLACEHOLDER_OPTIONS_SCHEMA), message: 'options must be a valid options object' }
     ])
     const parsed = parseUrl(url)
     // Parse the existing query into ordered, still-encoded pairs.
@@ -115,7 +118,7 @@ export const url = {
     for (const [key, value] of Object.entries(params)) {
       if (!is.defined(value)) continue
       const encodedKey = encodeURIComponent(key)
-      const encodedValue = encodeQueryValue(String(value), options.preservePlaceholders)
+      const encodedValue = encodeQueryValue(String(value), settings.preservePlaceholders)
       const existing = pairs.find(([k]) => k === encodedKey)
       if (existing) existing[1] = encodedValue // replace, like the former .set
       else pairs.push([encodedKey, encodedValue])
@@ -125,15 +128,14 @@ export const url = {
     return buildUrl({ ...parsed, query })
   },
 
-  // `options.preservePlaceholders` keeps template placeholders ({z}, {x}...)
-  // literal, encoding only the text around them.
-  encode (url, options = {}) {
+  encode (url, options) {
+    const settings = object.defaults(PLACEHOLDER_DEFAULTS, options)
     assert.all([
       { value: url, validator: is.url, message: 'url must be an url' },
-      { value: options, validator: (v) => conform.schema(v, PLACEHOLDER_OPTIONS_SCHEMA), message: 'options must be a valid options object' }
+      { value: settings, validator: (v) => conform.schema(v, PLACEHOLDER_OPTIONS_SCHEMA), message: 'options must be a valid options object' }
     ])
     url = String(url)
-    if (!options.preservePlaceholders) return encodeURI(url)
+    if (!settings.preservePlaceholders) return encodeURI(url)
     return url.split(PLACEHOLDERS_RE)
       .map((part, index) => index % 2 === 1 ? part : encodeURI(part))
       .join('')
