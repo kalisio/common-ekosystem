@@ -1,5 +1,7 @@
 import {
   getDirections,
+  getDirectionSymbols,
+  getDirectionPattern,
   getNorth,
   getSouth,
   getEast,
@@ -256,5 +258,45 @@ describe('getDirectionAxis', () => {
   it('should throw if dir is not a valid direction', () => {
     expect(() => getDirectionAxis('X')).toThrow()
     expect(() => getDirectionAxis(null)).toThrow()
+  })
+})
+
+describe('getDirectionSymbols', () => {
+  it('should return the symbols of all axes', () => {
+    expect(getDirectionSymbols().sort()).toEqual(['E', 'N', 'S', 'W'])
+  })
+  it('should restrict to the symbols of an axis', () => {
+    expect(getDirectionSymbols(AXES.LATITUDE).sort()).toEqual(['N', 'S'])
+    expect(getDirectionSymbols(AXES.LONGITUDE).sort()).toEqual(['E', 'W'])
+  })
+  it('should merge current and fallback locale symbols without duplicates', () => {
+    setLocale('fr')
+    expect(getDirectionSymbols().sort()).toEqual(['E', 'N', 'O', 'S', 'W'])
+  })
+  it('should return an empty array for altitude axis', () => {
+    expect(getDirectionSymbols(AXES.ALTITUDE)).toEqual([])
+  })
+  it('should throw if axis is not a valid axis', () => {
+    expect(() => getDirectionSymbols('UNKNOWN')).toThrow()
+  })
+})
+
+describe('getDirectionPattern', () => {
+  it('should join the symbols of all axes', () => {
+    expect(getDirectionPattern().split('|').sort()).toEqual(['E', 'N', 'S', 'W'])
+  })
+  it('should restrict to the symbols of an axis', () => {
+    expect(getDirectionPattern(AXES.LATITUDE).split('|').sort()).toEqual(['N', 'S'])
+    expect(getDirectionPattern(AXES.LONGITUDE).split('|').sort()).toEqual(['E', 'W'])
+  })
+  it('should include the current and fallback locale symbols', () => {
+    setLocale('fr')
+    expect(getDirectionPattern(AXES.LONGITUDE).split('|').sort()).toEqual(['E', 'O', 'W'])
+  })
+  it('should return an empty pattern for altitude axis', () => {
+    expect(getDirectionPattern(AXES.ALTITUDE)).toBe('')
+  })
+  it('should throw if axis is not a valid axis', () => {
+    expect(() => getDirectionPattern('UNKNOWN')).toThrow()
   })
 })

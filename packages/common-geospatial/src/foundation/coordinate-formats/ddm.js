@@ -1,5 +1,5 @@
 import { assert, is, conform, optional } from '@kalisio/common-core/predicates'
-import { isValidDirection, getDirectionSymbols } from '../directions.js'
+import { isValidDirection, getDirectionPattern } from '../directions.js'
 import { DD } from './dd.js'
 
 const SCHEMA = {
@@ -11,7 +11,7 @@ const SCHEMA = {
 const REGEX_SIGNED = /^(-?\d{1,3})°(\d{1,2}(?:\.\d+)?)'?$/
 
 function dirRegex () {
-  return new RegExp(`^(\\d{1,3})°(\\d{1,2}(?:\\.\\d+)?)'?([${getDirectionSymbols().join('')}])$`, 'i')
+  return new RegExp(`^(\\d{1,3})°(\\d{1,2}(?:\\.\\d+)?)'?(${getDirectionPattern()})$`, 'i')
 }
 
 export function DDM (ddm) {

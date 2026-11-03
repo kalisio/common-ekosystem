@@ -1,6 +1,6 @@
 import { is, conform } from '@kalisio/common-core/predicates'
 import { AXES } from '../axes.js'
-import { isValidDirection, isEast, isWest, getDirectionSymbols } from '../directions.js'
+import { isValidDirection, isEast, isWest, getDirectionPattern } from '../directions.js'
 import { DD } from './dd.js'
 
 const SCHEMA = {
@@ -10,11 +10,11 @@ const SCHEMA = {
 }
 
 function latRegex () {
-  return new RegExp(`^(\\d{2})(\\d{3})([${getDirectionSymbols(AXES.LATITUDE).join('')}])$`, 'i')
+  return new RegExp(`^(\\d{2})(\\d{3})(${getDirectionPattern(AXES.LATITUDE)})$`, 'i')
 }
 
 function lonRegex () {
-  return new RegExp(`^(\\d{3})(\\d{3})([${getDirectionSymbols(AXES.LONGITUDE).join('')}])$`, 'i')
+  return new RegExp(`^(\\d{3})(\\d{3})(${getDirectionPattern(AXES.LONGITUDE)})$`, 'i')
 }
 
 export function DDMAero (ddm) {

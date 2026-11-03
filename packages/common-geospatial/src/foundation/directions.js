@@ -45,6 +45,13 @@ export function getDirectionSymbols (axis = null) {
   return collectLocalizedSymbols(['NORTH', 'SOUTH', 'EAST', 'WEST'])
 }
 
+// Escaped regex alternation of the direction symbols of an axis (or of all axes)
+export function getDirectionPattern (axis = null) {
+  return getDirectionSymbols(axis)
+    .map((symbol) => symbol.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&'))
+    .join('|')
+}
+
 export function getNorth () { return getLocalizedDirections().NORTH }
 export function getSouth () { return getLocalizedDirections().SOUTH }
 export function getEast () { return getLocalizedDirections().EAST }
