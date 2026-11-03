@@ -7,21 +7,21 @@ describe('DD', () => {
       const dd = DD({ degrees: 48.8566 })
       expect(dd.isValid()).toBe(true)
       expect(dd.degrees).toBe(48.8566)
-      expect(dd.direction).toBe(null)
+      expect(dd.direction).toBeUndefined()
     })
 
     it('should be valid with a negative value and no direction', () => {
       const dd = DD({ degrees: -48.8566 })
       expect(dd.isValid()).toBe(true)
       expect(dd.degrees).toBe(-48.8566)
-      expect(dd.direction).toBe(null)
+      expect(dd.direction).toBeUndefined()
     })
 
     it('should be valid with value 0 and no direction', () => {
       const dd = DD({ degrees: 0 })
       expect(dd.isValid()).toBe(true)
       expect(dd.degrees).toBe(0)
-      expect(dd.direction).toBe(null)
+      expect(dd.direction).toBeUndefined()
     })
 
     it('should be valid with a positive value and a direction', () => {
@@ -70,14 +70,14 @@ describe('DD', () => {
       const dd = DD('-48.8566')
       expect(dd.isValid()).toBe(true)
       expect(dd.degrees).toBe(-48.8566)
-      expect(dd.direction).toBe(null)
+      expect(dd.direction).toBeUndefined()
     })
 
     it('should parse a signed negative value with degree symbol', () => {
       const dd = DD('-48.8566°')
       expect(dd.isValid()).toBe(true)
       expect(dd.degrees).toBe(-48.8566)
-      expect(dd.direction).toBe(null)
+      expect(dd.direction).toBeUndefined()
     })
 
     it('should parse a value with N direction', () => {
@@ -215,7 +215,7 @@ describe('DD', () => {
     it('should return value and null direction for a signed value', () => {
       const result = DD({ degrees: -48.8566 }).toDecimal()
       expect(result.degrees).toBe(-48.8566)
-      expect(result.direction).toBe(null)
+      expect(result.direction).toBeUndefined()
     })
 
     it('should return value and direction', () => {
@@ -233,7 +233,7 @@ describe('DD', () => {
     it('should return value 0 without direction', () => {
       const result = DD({ degrees: 0 }).toDecimal()
       expect(result.degrees).toBe(0)
-      expect(result.direction).toBe(null)
+      expect(result.direction).toBeUndefined()
     })
   })
 })

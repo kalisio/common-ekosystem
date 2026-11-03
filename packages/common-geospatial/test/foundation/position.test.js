@@ -1,4 +1,4 @@
-import { MAX_COORDINATE_PRECISION } from '../../src/foundation/coordinate.js'
+import { DEFAULT_COORDINATE_PRECISION, MAX_COORDINATE_PRECISION } from '../../src/foundation/coordinate.js'
 import {
   EARTH_RADIUS,
   WGS84,
@@ -201,12 +201,27 @@ describe('isSamePosition', () => {
     expect(isSamePosition(p1, p2, { precision: 3 })).toBe(true)
     expect(isSamePosition(p1, p2, { precision: 4 })).toBe(false)
   })
+  it('should use the default precision when precision is omitted', () => {
+    const delta = 10 ** -(DEFAULT_COORDINATE_PRECISION + 1)
+    expect(isSamePosition([2, 48], [2 + 4 * delta, 48])).toBe(true)
+    expect(isSamePosition([2, 48], [2 + 10 ** -DEFAULT_COORDINATE_PRECISION, 48])).toBe(false)
+  })
+  it('should fall back to the default precision when precision is undefined', () => {
+    const p2 = [2 + 4 * 10 ** -(DEFAULT_COORDINATE_PRECISION + 1), 48]
+    expect(isSamePosition([2, 48], p2, { precision: undefined })).toBe(isSamePosition([2, 48], p2))
+  })
   it('should reject invalid positions', () => {
     expect(() => isSamePosition(null, [2, 48])).toThrow()
     expect(() => isSamePosition([2, 48], null)).toThrow()
   })
+  it('should reject null options', () => {
+    expect(() => isSamePosition([2, 48], [2, 48], null)).toThrow()
+  })
   it('should reject an invalid consider3D option', () => {
     expect(() => isSamePosition([2, 48], [2, 48], { consider3D: 'yes' })).toThrow()
+  })
+  it('should reject a null precision', () => {
+    expect(() => isSamePosition([2, 48], [2, 48], { precision: null })).toThrow()
   })
   it('should reject a negative precision', () => {
     expect(() => isSamePosition([2, 48], [2, 48], { precision: -1 })).toThrow()

@@ -19,7 +19,7 @@ export function DMS (dms) {
   let _degrees = null
   let _minutes = null
   let _seconds = null
-  let _direction = null
+  let _direction
 
   if (is.plainObject(dms) && conform.schema(dms, SCHEMA)) {
     if (is.defined(dms.direction)) {
@@ -41,7 +41,7 @@ export function DMS (dms) {
       _degrees = parseFloat(match[1])
       _minutes = parseFloat(match[2])
       _seconds = parseFloat(match[3])
-      _direction = match[4] ?? null
+      _direction = match[4]
     }
   }
 
@@ -68,7 +68,8 @@ export function DMS (dms) {
 
     toDecimal () {
       if (!this.isValid()) return null
-      return DD({ degrees: _degrees + _minutes / 60 + _seconds / 3600, direction: _direction })
+      const sign = _degrees < 0 || Object.is(_degrees, -0) ? -1 : 1
+      return DD({ degrees: sign * (Math.abs(_degrees) + _minutes / 60 + _seconds / 3600), direction: _direction })
     }
   }
 }

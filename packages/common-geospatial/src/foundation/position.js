@@ -1,6 +1,6 @@
 import proj4 from 'proj4'
 import { assert, is, conform, optional } from '@kalisio/common-core/predicates'
-import { math } from '@kalisio/common-core/utilities'
+import { object, math } from '@kalisio/common-core/utilities'
 import { AXES } from './axes.js'
 import { isWest, isSouth } from './directions.js'
 import {
@@ -21,6 +21,11 @@ import { hasProjection, WGS84 } from './projections.js'
 export const IS_SAME_POSITION_OPTIONS_SCHEMA = {
   precision: optional(v => is.integer(v) && is.inRange(v, 0, MAX_COORDINATE_PRECISION)),
   consider3D: optional(is.boolean)
+}
+
+export const IS_SAME_POSITION_DEFAULTS = {
+  precision: DEFAULT_COORDINATE_PRECISION,
+  consider3D: false
 }
 
 export const EARTH_RADIUS = 6371008.8
@@ -66,7 +71,8 @@ export function is3DPosition (position) {
   return is.arrayOfLength(position, 3)
 }
 
-export function isSamePosition (position1, position2, options = {}) {
+export function isSamePosition (position1, position2, options) {
+  const settings = object.defaults(IS_SAME_POSITION_DEFAULTS, options)
   assert.all([
     {
       value: position1,
@@ -79,12 +85,12 @@ export function isSamePosition (position1, position2, options = {}) {
       message: 'position2 must be a valid position'
     },
     {
-      value: options,
+      value: settings,
       validator: (v) => conform.schema(v, IS_SAME_POSITION_OPTIONS_SCHEMA),
       message: 'options must be a valid options object'
     }
   ])
-  const { precision = DEFAULT_COORDINATE_PRECISION, consider3D = false } = options
+  const { precision, consider3D } = settings
   const length = consider3D ? Math.max(position1.length, position2.length) : 2
   return Array.from({ length }, (_, i) =>
     (position1[i] ?? 0).toFixed(precision) === (position2[i] ?? 0).toFixed(precision)

@@ -9,12 +9,13 @@ const SCHEMA = {
 const REGEX_SIGNED = /^(-?\d{1,3}(?:\.\d+)?)°?$/
 
 function dirRegex () {
-  return new RegExp(`^(\\d{1,3}(?:\\.\\d+)?)°?([${getDirectionSymbols()}])$`, 'i')
+  const symbols = getDirectionSymbols().map((s) => s.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&')).join('|')
+  return new RegExp(`^(\\d{1,3}(?:\\.\\d+)?)°?(${symbols})$`, 'i')
 }
 
 export function DD (dd) {
   let _degrees = null
-  let _direction = null
+  let _direction
 
   if (is.plainObject(dd) && conform.schema(dd, SCHEMA)) {
     if (is.defined(dd.direction)) {
@@ -30,7 +31,7 @@ export function DD (dd) {
     const match = pattern.match(REGEX_SIGNED) ?? pattern.match(dirRegex())
     if (match) {
       _degrees = parseFloat(match[1])
-      _direction = match[2] ?? null
+      _direction = match[2]
     }
   }
 

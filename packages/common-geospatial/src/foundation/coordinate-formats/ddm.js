@@ -17,7 +17,7 @@ function dirRegex () {
 export function DDM (ddm) {
   let _degrees = null
   let _minutes = null
-  let _direction = null
+  let _direction
 
   if (is.plainObject(ddm) && conform.schema(ddm, SCHEMA)) {
     if (is.defined(ddm.direction)) {
@@ -36,7 +36,7 @@ export function DDM (ddm) {
     if (match) {
       _degrees = parseFloat(match[1])
       _minutes = parseFloat(match[2])
-      _direction = match[3] ?? null
+      _direction = match[3]
     }
   }
 
@@ -60,7 +60,8 @@ export function DDM (ddm) {
 
     toDecimal () {
       if (!this.isValid()) return null
-      return DD({ degrees: _degrees + _minutes / 60, direction: _direction })
+      const sign = _degrees < 0 || Object.is(_degrees, -0) ? -1 : 1
+      return DD({ degrees: sign * (Math.abs(_degrees) + _minutes / 60), direction: _direction })
     }
   }
 }

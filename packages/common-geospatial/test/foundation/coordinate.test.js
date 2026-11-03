@@ -298,7 +298,7 @@ describe('parseCoordinate', () => {
       expect(coord).not.toBe(null)
       expect(coord.isValid()).toBe(true)
       expect(coord.degrees).toBeCloseTo(-48.8566)
-      expect(coord.direction).toBe(null)
+      expect(coord.direction).toBeUndefined()
     })
 
     it('should parse a signed positive value', () => {
@@ -306,7 +306,7 @@ describe('parseCoordinate', () => {
       expect(coord).not.toBe(null)
       expect(coord.isValid()).toBe(true)
       expect(coord.degrees).toBeCloseTo(48.8566)
-      expect(coord.direction).toBe(null)
+      expect(coord.direction).toBeUndefined()
     })
 
     it('should parse an integer value', () => {

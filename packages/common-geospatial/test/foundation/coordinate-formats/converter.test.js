@@ -31,7 +31,7 @@ describe('converter', () => {
       expect(ddm.isValid()).toBe(true)
       expect(ddm.degrees).toBe(48)
       expect(ddm.minutes).toBeCloseTo(30)
-      expect(ddm.direction).toBe(null)
+      expect(ddm.direction).toBeUndefined()
     })
 
     it('should correctly split degrees and minutes', () => {
@@ -63,7 +63,7 @@ describe('converter', () => {
       expect(dms.isValid()).toBe(true)
       expect(dms.degrees).toBe(48)
       expect(dms.minutes).toBe(30)
-      expect(dms.direction).toBe(null)
+      expect(dms.direction).toBeUndefined()
     })
 
     it('should correctly split degrees, minutes and seconds', () => {
