@@ -1,4 +1,3 @@
-
 ---
 title: schedule
 description: Utility functions for delaying, repeating, scheduling, and controlling function execution over time.
@@ -10,11 +9,12 @@ Utility functions for delaying, repeating, scheduling, and controlling function 
 
 ## delay
 
-Waits for a given duration, including delays exceeding the maximum duration supported by `setTimeout`.
+Waits for a given duration.
 
 ::: info
 
-Long delays are automatically split into successive timers.
+Long delays are automatically split into successive timeouts to support durations exceeding the
+maximum allowed by `setTimeout`
 
 :::
 
