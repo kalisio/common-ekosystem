@@ -122,4 +122,20 @@ describe('promise.run', () => {
     const tasks = [() => Promise.resolve(1), () => Promise.reject(new Error('boom'))]
     await expect(promise.run(tasks, { concurrency: 1 })).rejects.toThrow('boom')
   })
+  it('stops starting new tasks after a failure', async () => {
+    const started = []
+    let release
+    const slow = new Promise((resolve) => { release = resolve })
+    const tasks = [
+      async () => { started.push(0); throw new Error('boom') },
+      async () => { started.push(1); await slow },
+      async () => { started.push(2) },
+      async () => { started.push(3) }
+    ]
+    await expect(promise.run(tasks, { concurrency: 2 })).rejects.toThrow('boom')
+    release()
+    // let the second worker resume and reach its loop condition
+    for (let i = 0; i < 10; i++) await Promise.resolve()
+    expect(started).toEqual([0, 1])
+  })
 })

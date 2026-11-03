@@ -17,7 +17,7 @@ export const promise = {
       (v) => is.function(v) || v instanceof Promise,
       'promiseOrExecutor must be a Promise or an executor function'
     )
-    const p = typeof promiseOrExecutor === 'function'
+    const p = is.function(promiseOrExecutor)
       ? new Promise(promiseOrExecutor)
       : promiseOrExecutor
     if (p[TRACKABLE_SYMBOL]) return p
