@@ -1,6 +1,8 @@
 import { is, assert, conform, optional } from '../predicates/index.js'
 import { object } from './object.js'
 
+const MAX_TIMEOUT = 2 ** 31 - 1
+
 const SIGNAL_OPTIONS_SCHEMA = {
   signal: optional(is.abortSignal)
 }
@@ -30,15 +32,23 @@ export const schedule = {
     const { signal } = options
     return new Promise((resolve, reject) => {
       if (signal?.aborted) return reject(signal.reason)
+      let remaining = duration
+      let timeout
       const onAbort = () => {
         clearTimeout(timeout)
         reject(signal.reason)
       }
-      const timeout = setTimeout(() => {
-        signal?.removeEventListener('abort', onAbort)
-        resolve()
-      }, duration)
+      const wait = () => {
+        const step = Math.min(remaining, MAX_TIMEOUT)
+        remaining -= step
+        timeout = setTimeout(() => {
+          if (remaining > 0) return wait()
+          signal?.removeEventListener('abort', onAbort)
+          resolve()
+        }, step)
+      }
       signal?.addEventListener('abort', onAbort, { once: true })
+      wait()
     })
   },
 

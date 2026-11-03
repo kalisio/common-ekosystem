@@ -1,5 +1,5 @@
----
 
+---
 title: schedule
 description: Utility functions for delaying, repeating, scheduling, and controlling function execution over time.
 ---
@@ -10,7 +10,13 @@ Utility functions for delaying, repeating, scheduling, and controlling function 
 
 ## delay
 
-Waits for a given duration.
+Waits for a given duration, including delays exceeding the maximum duration supported by `setTimeout`.
+
+::: info
+
+Long delays are automatically split into successive timers.
+
+:::
 
 ### Signature
 
@@ -20,8 +26,10 @@ schedule.delay(duration, options = {})
 
 ### Parameters
 
-* `duration` — Non-negative integer delay in milliseconds.
-* `options.signal` — Optional `AbortSignal` used to cancel the delay.
+| Parameter | Description |
+|-----------|-------------|
+| `duration` | Non-negative integer delay in milliseconds. |
+| `options.signal` | Optional `AbortSignal` used to cancel the delay. |
 
 ### Returns
 
@@ -35,6 +43,13 @@ Wait for one second:
 
 ```js
 await schedule.delay(1000)
+```
+
+Wait for a long duration:
+
+```js
+// Wait for 30 days
+await schedule.delay(30 * 24 * 60 * 60 * 1000)
 ```
 
 Cancel a pending delay:
@@ -51,6 +66,8 @@ controller.abort()
 await promise
 ```
 
+The delay can be cancelled at any time, including between successive timers.
+
 ## at
 
 Waits until a given date or timestamp.
@@ -63,8 +80,10 @@ schedule.at(date, options = {})
 
 ### Parameters
 
-* `date` — Valid `Date` or non-negative integer timestamp in milliseconds.
-* `options.signal` — Optional `AbortSignal` used to cancel the wait.
+| Parameter | Description |
+|-----------|-------------|
+| `date` | Valid `Date` or non-negative integer timestamp in milliseconds. |
+| `options.signal` | Optional `AbortSignal` used to cancel the wait. |
 
 ### Returns
 
@@ -98,9 +117,11 @@ schedule.until(predicate, options = {})
 
 ### Parameters
 
-* `predicate` — Function evaluated until it returns a truthy value. It may be asynchronous.
-* `options.interval` — Non-negative integer delay between evaluations in milliseconds. Defaults to `1000`.
-* `options.signal` — Optional `AbortSignal` used to cancel the operation.
+| Parameter | Description |
+|-----------|-------------|
+| `predicate` | Function evaluated until it returns a truthy value. May be asynchronous. |
+| `options.interval` | Non-negative integer delay between evaluations in milliseconds. Defaults to `1000`. |
+| `options.signal` | Optional `AbortSignal` used to cancel the operation. |
 
 ### Returns
 
@@ -136,9 +157,11 @@ schedule.repeat(callback, duration, options = {})
 
 ### Parameters
 
-* `callback` — Function to execute. It may be asynchronous.
-* `duration` — Non-negative integer delay between executions in milliseconds.
-* `options.signal` — Optional external `AbortSignal`.
+| Parameter | Description |
+|-----------|-------------|
+| `callback` | Function to execute. May be asynchronous. |
+| `duration` | Non-negative integer delay between executions in milliseconds. |
+| `options.signal` | Optional external `AbortSignal`. |
 
 ### Returns
 
@@ -152,9 +175,9 @@ An object containing:
 }
 ```
 
-* `promise` — Resolves when the repetition is aborted and rejects if the callback throws.
-* `signal` — `AbortSignal` associated with the repetition.
-* `abort(reason)` — Stops the repetition with an optional reason.
+- `promise` — Resolves when the repetition is aborted and rejects if the callback throws.
+- `signal` — `AbortSignal` associated with the repetition.
+- `abort(reason)` — Stops the repetition with an optional reason.
 
 ### Examples
 
@@ -201,7 +224,9 @@ schedule.once(callback)
 
 ### Parameters
 
-* `callback` — Function to execute once.
+| Parameter | Description |
+|-----------|-------------|
+| `callback` | Function to execute once. |
 
 ### Returns
 
@@ -234,8 +259,10 @@ schedule.debounce(callback, duration)
 
 ### Parameters
 
-* `callback` — Function to execute.
-* `duration` — Non-negative integer delay in milliseconds.
+| Parameter | Description |
+|-----------|-------------|
+| `callback` | Function to execute. |
+| `duration` | Non-negative integer delay in milliseconds. |
 
 ### Returns
 
@@ -279,8 +306,10 @@ schedule.throttle(callback, duration)
 
 ### Parameters
 
-* `callback` — Function to execute.
-* `duration` — Non-negative integer interval in milliseconds.
+| Parameter | Description |
+|-----------|-------------|
+| `callback` | Function to execute. |
+| `duration` | Non-negative integer interval in milliseconds. |
 
 ### Returns
 

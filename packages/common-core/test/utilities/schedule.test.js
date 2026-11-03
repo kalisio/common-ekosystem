@@ -49,6 +49,23 @@ describe('delay', () => {
     controller.abort(new Error('mid'))
     await assertion
   })
+  it('waits beyond the setTimeout limit', async () => {
+    const duration = 2 ** 31 + 1000
+    let resolved = false
+    schedule.delay(duration).then(() => { resolved = true })
+    await vi.advanceTimersByTimeAsync(duration - 1)
+    expect(resolved).toBe(false)
+    await vi.advanceTimersByTimeAsync(1)
+    expect(resolved).toBe(true)
+  })
+  it('rejects when aborted after the first chunk of a long wait', async () => {
+    const controller = new AbortController()
+    const promise = schedule.delay(2 ** 31 + 1000, { signal: controller.signal })
+    const assertion = expect(promise).rejects.toThrow('late')
+    await vi.advanceTimersByTimeAsync(2 ** 31)
+    controller.abort(new Error('late'))
+    await assertion
+  })
 })
 
 describe('at', () => {
