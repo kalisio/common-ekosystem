@@ -2,7 +2,6 @@
   "name": "@kalisio/common-geospatial",
   "description": "Geospatial utilities for the Kalisio ekosystem",
   "version": "1.0.1",
-  "packageManager": "pnpm@10.34.5",
   "type": "module",
   "private": false,
   "exports": {
@@ -102,7 +101,7 @@
     "mongodb": "catalog:"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=24"
   },
   "publishConfig": {
     "access": "public",

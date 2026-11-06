@@ -65,9 +65,5 @@
     "standard": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"
-  },
-  "metaWorkspace": {
-    "version": "0.11.0",
-    "syncedAt": "2026-10-29T10:21:43.296Z"
   }
 }
