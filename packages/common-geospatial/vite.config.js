@@ -14,9 +14,7 @@ export default mergeConfig(baseConfig, defineConfig({
         'foundation/index': 'src/foundation/index.js',
         'operators/index': 'src/operators/index.js',
         'io/index': 'src/io/index.js'
-      },
-      formats: ['es', 'cjs'],
-      fileName: (format, name) => format === 'es' ? `${name}.mjs` : `${name}.cjs`
+      }
     }
   }
 }))

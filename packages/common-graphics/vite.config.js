@@ -15,11 +15,12 @@ export default mergeConfig(baseConfig, defineConfig({
         'utilities/index.browser': 'src/utilities/index.browser.js',
         'utilities/index.node': 'src/utilities/index.node.js',
         'shapes/index': 'src/shapes/index.js'
-      },
-      formats: ['es', 'cjs'],
-      fileName: (format, name) => format === 'es' ? `${name}.mjs` : `${name}.cjs`
+      }
     },
-    rollupOptions: {
+    rolldownOptions: {
+      // Keep subpath imports (e.g. '#utilities') unresolved in the build output.
+      // Without this, Vite would resolve them now, bundle only one implementation
+      // and the package would no longer work in both environments.
       external: [
         /^#/
       ]

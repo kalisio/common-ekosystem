@@ -22,9 +22,7 @@ export default mergeConfig(baseConfig, defineConfig({
         'operators/request': 'src/operators/request.js',
         'operators/sanitize': 'src/operators/sanitize.js',
         'operators/transform': 'src/operators/transform.js'
-      },
-      formats: ['es', 'cjs'],
-      fileName: (format, name) => format === 'es' ? `${name}.mjs` : `${name}.cjs`
+      }
     }
   }
 }))

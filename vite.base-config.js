@@ -23,12 +23,14 @@ export const baseConfig = defineConfig({
     emptyOutDir: true,
     sourcemap: true,
     minify: true,
-    rollupOptions: {
-      // Node built-ins and package dependencies, including their subpaths
-      // (e.g. @kalisio/common-core/predicates), are never bundled
+    lib: {
+      formats: ['es', 'cjs'],
+      fileName: (format, name) => format === 'es' ? `${name}.mjs` : `${name}.cjs`
+    },
+    rolldownOptions: {
       external: [
         ...builtinModules,
-        ...builtinModules.map(m => `node:${m}`),
+        /^node:/,
         ...dependencies.map(name => new RegExp(`^${escape(name)}(/.*)?$`))
       ]
     }
