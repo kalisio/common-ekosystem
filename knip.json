@@ -1,4 +1,6 @@
 {
   "exclude": ["catalog"],
-  "ignore": ["docs/**"]
+  "rules": {
+    "optionalPeerDependencies": "off"
+  }
 }
