@@ -1,3 +1,6 @@
+# meta-workspace version: 0.11.0
+# meta-workspace synced at: 2026-11-10T09:44:53.490Z
+
 packages:
   - packages/**
   - examples/**
@@ -15,6 +18,7 @@ catalog:
   '@casl/ability': 6.3.0
   '@casl/mongoose': 7.1.0
   '@changesets/cli': 2.30.0
+  '@duckdb/node-api': 1.5.6-r.2
   '@eslint/js': 9.14.0
   '@feathersjs/adapter-commons': 5.0.50
   '@feathersjs/adapter-tests': 5.0.50
@@ -37,7 +41,8 @@ catalog:
   '@kalisio/common-core': 1.0.1
   '@kalisio/common-geospatial': 1.0.1
   '@kalisio/common-graphics': 1.0.1
-  '@kalisio/feathers-automerge': 0.3.8
+  '@kalisio/feathers-automerge': 0.4.0
+  '@kalisio/feathers-automerge-server': 0.4.0
   '@kalisio/feathers-distributed': 3.1.0
   '@kalisio/feathers-import-export': 3.1.0
   '@kalisio/feathers-tasks': 3.1.0
@@ -47,7 +52,11 @@ catalog:
   '@kalisio/feathers-webpush': 3.1.0
   '@kalisio/krawler': 2.8.2
   '@kalisio/geo-pixel-stream': https://github.com/kalisio/geo-pixel-stream#gdal-async
-  '@kalisio/kdk': 2.7.0
+  '@kalisio/kdk': 2.9.1
+  '@kalisio/kdk-core-api': 0.2.0
+  '@kalisio/kdk-core-common': 0.2.0
+  '@kalisio/kdk-map-api': 0.2.0
+  '@kalisio/kdk-map-common': 0.2.0
   '@kalisio/vitepress-theme': 2.1.0
   '@logtape/logtape': 0.7.0
   '@mapbox/mbtiles': 0.12.1
@@ -88,7 +97,7 @@ catalog:
   '@turf/truncate': 7.3.5
   '@turf/union': 7.3.5
   '@vitest/coverage-v8': 5.1.0
-  '@vitejs/plugin-vue': 6.0.4
+  '@vitejs/plugin-vue': 6.0.10
   '@vue/eslint-config-prettier': ^10.1.0
   '@vue/test-utils': 2.4.6
   '@weacast/core': 2.3.1
@@ -110,10 +119,11 @@ catalog:
   chartjs-plugin-datalabels: 2.0.0
   chartjs-plugin-zoom: 2.0.0
   chroma-js: 3.2.0
-  commander: 2.20.3
+  commander: 15.0.0
   compression: 1.8.1
   config: 4.4.1
   cors: 2.8.6
+  cote: 1.2.0
   cron: 4.4.0
   cross-env: 10.1.0
   crypto-browserify: 3.12.0
@@ -191,6 +201,7 @@ catalog:
   proj4: 2.20.4
   publint: 0.3.20
   puppeteer: 25.1.0
+  portfinder: 1.0.38
   qs: 6.15.1
   quasar: 2.18.7
   register-service-worker: 1.7.2
@@ -199,6 +210,7 @@ catalog:
   sanitize-html: 2.17.4
   sharp: 0.34.5
   showdown: 2.1.0
+  shpjs: 6.2.0
   sift: 17.1.3
   socket.io-client: 4.8.2
   standard: 17.1.2
@@ -248,8 +260,11 @@ overrides:
   ws@8.18.3: 8.21.3
 allowBuilds:
   '@mapbox/vtquery': true
+  canvas: true
+  cbor-extract: true
   core-js: true
   cpu-features: true
+  ejs: true
   esbuild: true
   gdal-async: true
   msgpackr-extract: false
