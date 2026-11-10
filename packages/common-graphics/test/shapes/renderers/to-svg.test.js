@@ -163,6 +163,15 @@ describe('SVG', () => {
       expect(result).toContain('fa fa-star')
     })
 
+    it('should generate icon element with external svg object id', () => {
+      const result = toSVGIconElement({
+        icon: { symbol: '/symbols.svg#super-icon' },
+        height: 100
+      })
+      expect(result).toContain('<use')
+      expect(result).toContain('href="/symbols.svg#super-icon"')
+    })
+
     it('should apply icon size', () => {
       const result = toSVGIconElement({
         icon: { classes: 'fa fa-star', size: 16 },
