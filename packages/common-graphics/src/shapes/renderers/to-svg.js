@@ -57,7 +57,7 @@ export function toSVGTextElement (params) {
 
 export function toSVGIconElement (params) {
   const { icon, height } = params
-  if (!icon || (!icon.classes && !icon.url)) return ''
+  if (!icon || (!icon.classes && !icon.url && !icon.symbol)) return ''
   if (icon.classes) {
     const fontScale = 100 / height
     const size = (icon.size ?? 12) * fontScale
@@ -67,6 +67,13 @@ export function toSVGIconElement (params) {
     const divStyle = 'display:flex;align-items:center;justify-content:center;height:100%;width:100%;'
     const divElement = `<div xmlns="http://www.w3.org/1999/xhtml" style="${divStyle}">${iconElement}</div>`
     return `<foreignObject width="100" height="100">${divElement}</foreignObject>`
+  }
+  if (icon.symbol) {
+    const size = icon.size != null ? icon.size * (100 / height) : 100
+    const offset = (100 - size) / 2
+    const color = icon.color ?? '#000000'
+    const opacity = icon.opacity ?? 1
+    return `<svg x=${offset} y=${offset} width=${size} height=${size} opacity=${opacity} fill="${color}"><use href="${icon.symbol}"></svg>`
   }
   const size = icon.size != null ? icon.size * (100 / height) : 100
   const offset = (100 - size) / 2

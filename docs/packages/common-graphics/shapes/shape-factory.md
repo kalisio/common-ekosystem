@@ -210,6 +210,7 @@ Throws if:
 | --- | --- | --- |
 | **classes** | Icon classes to display | `undefined` |
 | **url** | URL of the image to display as the icon | `undefined` |
+| **symbol** | URL to the svg sprite file + id of icon (eg. /assets/icons.svg#aircraft). Alternative to the classes/url properties | `undefined` |
 | **color** | Icon color. Any valid HTML color | `'black'` |
 | **opacity** | Icon opacity, from `0.0` to `1.0` | `1.0` |
 | **size** | [Font size](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/font-size) used to render the icon | `'1em'` |

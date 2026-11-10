@@ -32,6 +32,7 @@ export default {
       decoratedShape,
       shapes: [
         { shape: 'circle', color: 'red', icon: { url: 'https://raw.githubusercontent.com/kalisio/kalisioscope/refs/heads/gh-pages/kalisio/kalisio-icon-dark-256x256.png' } },
+        { shape: 'circle', color: 'yellow', icon: { symbol: '/symbols.svg#symbol-meteo', color: 'blue' } },
         { shape: 'cross', color: 'red' },
         { shape: 'x', color: 'red' },
         { shape: 'heart', color: 'red', stroke: { color: 'green', width: 2 } },
