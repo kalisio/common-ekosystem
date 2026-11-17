@@ -171,7 +171,7 @@ export const url = {
     assert.that(baseUrl, isValidScopeUrl, 'baseUrl must be an url')
     const base = new URL(baseUrl)
     assert.that(base,
-      v => !v.username && !v.password && !ENCODED_SEPARATOR_RE.test(v.pathname) && !/\/{2,}$/.test(v.pathname),
+      v => !v.username && !v.password && !ENCODED_SEPARATOR_RE.test(v.pathname) && !v.pathname.endsWith('//'),
       'baseUrl must not contain credentials or ambiguous separators'
     )
     // An invalid value is within no scope: false rather than an error, as for a predicate
