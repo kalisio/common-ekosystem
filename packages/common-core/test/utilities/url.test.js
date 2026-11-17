@@ -183,6 +183,107 @@ describe('url.obfuscate', () => {
   })
 })
 
+describe('url.isWithin', () => {
+  it('accepts the same URL', () => {
+    expect(url.isWithin('https://example.com/api', 'https://example.com/api')).toBe(true)
+  })
+  it('accepts descendant paths', () => {
+    expect(url.isWithin('https://example.com/api/files', 'https://example.com/api')).toBe(true)
+    expect(url.isWithin('https://example.com/api/files/1', 'https://example.com/api')).toBe(true)
+  })
+  it('accepts the root scope', () => {
+    expect(url.isWithin('https://example.com/api/files', 'https://example.com')).toBe(true)
+    expect(url.isWithin('https://example.com/admin', 'https://example.com/')).toBe(true)
+  })
+  it('normalizes trailing slashes in the base path', () => {
+    expect(url.isWithin('https://example.com/api', 'https://example.com/api/')).toBe(true)
+    expect(url.isWithin('https://example.com/api/files', 'https://example.com/api/')).toBe(true)
+  })
+  it('rejects paths outside the base scope', () => {
+    expect(url.isWithin('https://example.com/admin', 'https://example.com/api')).toBe(false)
+    expect(url.isWithin('https://example.com/', 'https://example.com/api')).toBe(false)
+  })
+  it('compares paths segment-wise', () => {
+    expect(url.isWithin('https://example.com/api-other', 'https://example.com/api')).toBe(false)
+    expect(url.isWithin('https://example.com/apis', 'https://example.com/api')).toBe(false)
+    expect(url.isWithin('https://example.com/api/files', 'https://example.com/api')).toBe(true)
+  })
+  it('compares paths case-sensitively', () => {
+    expect(url.isWithin('https://example.com/API/files', 'https://example.com/api')).toBe(false)
+  })
+  it('ignores query parameters and fragments', () => {
+    expect(url.isWithin('https://example.com/api/files?token=abc#section', 'https://example.com/api')).toBe(true)
+    expect(url.isWithin('https://example.com/api/files', 'https://example.com/api?foo=bar#section')).toBe(true)
+  })
+  it('compares schemes and hosts case-insensitively', () => {
+    expect(url.isWithin('HTTPS://EXAMPLE.COM/api/files', 'https://example.com/api')).toBe(true)
+  })
+  it('rejects different protocols', () => {
+    expect(url.isWithin('http://example.com/api/files', 'https://example.com/api')).toBe(false)
+  })
+  it('rejects different hosts', () => {
+    expect(url.isWithin('https://other.com/api/files', 'https://example.com/api')).toBe(false)
+    expect(url.isWithin('https://sub.example.com/api/files', 'https://example.com/api')).toBe(false)
+  })
+  it('rejects different ports', () => {
+    expect(url.isWithin('https://example.com:8443/api/files', 'https://example.com/api')).toBe(false)
+  })
+  it('normalizes default ports', () => {
+    expect(url.isWithin('https://example.com:443/api/files', 'https://example.com/api')).toBe(true)
+    expect(url.isWithin('http://example.com:80/api/files', 'http://example.com/api')).toBe(true)
+  })
+  it('normalizes dot segments', () => {
+    expect(url.isWithin('https://example.com/api/a/../files', 'https://example.com/api')).toBe(true)
+    expect(url.isWithin('https://example.com/api/./files', 'https://example.com/api')).toBe(true)
+  })
+  it('rejects paths escaping the base scope', () => {
+    expect(url.isWithin('https://example.com/api/../admin', 'https://example.com/api')).toBe(false)
+    expect(url.isWithin('https://example.com/api/%2e%2e/admin', 'https://example.com/api')).toBe(false)
+  })
+  it('rejects encoded separators in target paths', () => {
+    expect(url.isWithin('https://example.com/api/files%2Fadmin', 'https://example.com/api')).toBe(false)
+    expect(url.isWithin('https://example.com/api/files%5Cadmin', 'https://example.com/api')).toBe(false)
+    expect(url.isWithin('https://example.com/api/files%2fadmin', 'https://example.com/api')).toBe(false)
+  })
+  it('rejects backslashes in target URLs', () => {
+    expect(url.isWithin('https://example.com\\api\\files', 'https://example.com/api')).toBe(false)
+  })
+  it('rejects credentials in target URLs', () => {
+    expect(url.isWithin('https://user:pass@example.com/api/files', 'https://example.com/api')).toBe(false)
+    expect(url.isWithin('https://user@example.com/api/files', 'https://example.com/api')).toBe(false)
+  })
+  it('rejects invalid target URLs', () => {
+    expect(url.isWithin('invalid', 'https://example.com/api')).toBe(false)
+    expect(url.isWithin('/api/files', 'https://example.com/api')).toBe(false)
+    expect(url.isWithin(null, 'https://example.com/api')).toBe(false)
+    expect(url.isWithin(undefined, 'https://example.com/api')).toBe(false)
+    expect(url.isWithin(new URL('https://example.com/api/files'), 'https://example.com/api')).toBe(false)
+  })
+  it('rejects multi-host target URLs', () => {
+    expect(url.isWithin('https://host1,host2/api/files', 'https://host1/api')).toBe(false)
+  })
+  it('throws for invalid base URLs', () => {
+    expect(() => url.isWithin('https://example.com/api/files', 'invalid')).toThrow(/baseUrl must be an url/)
+    expect(() => url.isWithin('https://example.com/api/files', '/api')).toThrow(/baseUrl must be an url/)
+  })
+  it('throws for base URLs containing credentials', () => {
+    expect(() => url.isWithin('https://example.com/api/files', 'https://user:pass@example.com/api')).toThrow(/baseUrl must not contain credentials/)
+  })
+  it('throws for base URLs ending with multiple slashes', () => {
+    expect(() => url.isWithin('https://example.com/api/files', 'https://example.com/api//')).toThrow(/ambiguous separators/)
+  })
+  it('throws for base URLs containing encoded separators', () => {
+    expect(() => url.isWithin('https://example.com/api/files', 'https://example.com/api%2Ffiles')).toThrow(/ambiguous separators/)
+    expect(() => url.isWithin('https://example.com/api/files', 'https://example.com/api%5Cfiles')).toThrow(/ambiguous separators/)
+  })
+  it('throws for base URLs containing backslashes', () => {
+    expect(() => url.isWithin('https://example.com/api/files', 'https://example.com\\api')).toThrow(/baseUrl must be an url/)
+  })
+  it('throws for multi-host base URLs', () => {
+    expect(() => url.isWithin('https://host1/api/files', 'https://host1,host2/api')).toThrow(/baseUrl must be an url/)
+  })
+})
+
 describe('Native URL support', () => {
   it('parses URL instances', () => {
     const input = new URL('https://example.com:8080/path?foo=bar')

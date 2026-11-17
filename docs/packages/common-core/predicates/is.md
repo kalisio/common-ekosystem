@@ -240,28 +240,55 @@ Checks whether a value is a base64 data URI.
 is.dataUri(value)
 ```
 
+
 ### url
 
-Checks whether a value is a valid hierarchical URL using the `scheme://authority` form.
+Checks whether a value is a valid URL according to the WHATWG URL standard.
 
-Standard single-host URLs are validated with `URL.canParse()`. Multi-host authorities, such as MongoDB replica-set URLs, are also supported.
+Accepts standard URLs with or without a host, including `http:`, `https:`, `mailto:`, `file:` and `data:` URLs.
 
-URLs without an authority component, such as `mailto:` URLs, are rejected.
+An optional list of protocols can be provided to restrict accepted URLs. Protocol names must include the trailing colon (`:`).
 
 ```js
-is.url(value)
+is.url(value, protocols)
 ```
 
 ```js
 is.url('https://example.com') // true
-is.url('s3://bucket/path/to/file') // true
-is.url('mongodb://h1:27017,h2:27017/db') // true
+is.url('mailto:user@example.com') // true
+is.url('file:///tmp/file.txt') // true
+is.url('data:text/plain,hello') // true
 
-is.url('mailto:user@example.com') // false
+is.url('https://example.com', ['http:', 'https:']) // true
+is.url('mailto:user@example.com', ['http:', 'https:']) // false
+
 is.url('example.com') // false
 is.url('/foo/bar') // false
 ```
 
+### authorityUrl
+
+Checks whether a value is a valid hierarchical URL using the `scheme://authority` form with a non-empty host.
+
+Standard single-host URLs are validated with `URL.canParse()`. Multi-host authorities, such as MongoDB replica-set URLs, are also supported.
+
+URLs without a host, such as `mailto:` and `file:` URLs, are rejected.
+
+```js
+is.hostUrl(value)
+```
+
+```js
+is.hostUrl('https://example.com') // true
+is.hostUrl('s3://bucket/path/to/file') // true
+is.hostUrl('mongodb://h1:27017,h2:27017/db') // true
+is.hostUrl('mongodb://user:pass@h1:27017,h2:27017/db') // true
+
+is.hostUrl('mailto:user@example.com') // false
+is.hostUrl('file:///tmp/file.txt') // false
+is.hostUrl('example.com') // false
+is.hostUrl('/foo/bar') // false
+```
 
 ### email
 

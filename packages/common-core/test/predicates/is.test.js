@@ -1687,110 +1687,243 @@ describe('is.dataUri', () => {
 })
 
 describe('is.url', () => {
-  it('returns true for a valid http URL', () => {
+  it('accepts HTTP and HTTPS URLs', () => {
     expect(is.url('http://example.com')).toBe(true)
+    expect(is.url('https://example.com/api')).toBe(true)
+    expect(is.url('https://example.com:8443/api?foo=bar#section')).toBe(true)
   })
-  it('returns true for a valid https URL', () => {
-    expect(is.url('https://example.com')).toBe(true)
+  it('accepts URLs without a host', () => {
+    expect(is.url('mailto:user@example.com')).toBe(true)
+    expect(is.url('data:text/plain,hello')).toBe(true)
+    expect(is.url('file:///tmp/file.txt')).toBe(true)
   })
-  it('returns true for a URL with a path', () => {
-    expect(is.url('https://example.com/foo/bar')).toBe(true)
+  it('accepts URL instances', () => {
+    expect(is.url(new URL('https://example.com'))).toBe(true)
+    expect(is.url(new URL('file:///tmp/file.txt'))).toBe(true)
   })
-  it('returns true for a URL with query params', () => {
-    expect(is.url('https://example.com?foo=bar&baz=1')).toBe(true)
+  it('accepts other valid WHATWG schemes', () => {
+    expect(is.url('ftp://example.com/file.txt')).toBe(true)
+    expect(is.url('custom://example.com/resource')).toBe(true)
+    expect(is.url('javascript:alert(1)')).toBe(true)
   })
-  it('returns true for a URL with a hash', () => {
-    expect(is.url('https://example.com#section')).toBe(true)
-  })
-  it('returns true for a custom scheme with authority', () => {
-    expect(is.url('s3://bucket/path/to/file')).toBe(true)
-  })
-  it('returns true for a native URL instance', () => {
-    expect(is.url(new URL('http://example.com'))).toBe(true)
-    expect(is.url(new URL('https://example.com/foo/bar?foo=bar#section'))).toBe(true)
-    expect(is.url(new URL('s3://bucket/path/to/file'))).toBe(true)
-  })
-  it('returns true for a multi-host URL', () => {
-    expect(is.url('mongodb://host1:27017,host2:27017/database')).toBe(true)
-    expect(is.url('mongodb://host1:27017,host2:27017,host3:27017/database')).toBe(true)
-  })
-  it('returns true for a multi-host URL with credentials', () => {
-    expect(is.url('mongodb://user:pass@host1:27017,host2:27017/database')).toBe(true)
-  })
-  it('returns false for a multi-host URL with an empty host', () => {
-    expect(is.url('mongodb://host1:27017,/database')).toBe(false)
-    expect(is.url('mongodb://,host2:27017/database')).toBe(false)
-  })
-  it('returns false for a multi-host URL with invalid credentials', () => {
-    expect(is.url('mongodb://host1:27017,user:pass@host2:27017/database')).toBe(false)
-  })
-  it('returns false for a multi-host URL with an invalid port', () => {
-    expect(is.url('mongodb://host1:27017,host2:abc/database')).toBe(false)
-  })
-  it('returns false for a mailto URL', () => {
-    expect(is.url('mailto:user@example.com')).toBe(false)
-  })
-  it('returns false for a file URL without authority', () => {
-    expect(is.url('file:///tmp/test.json')).toBe(false)
-    expect(is.url(new URL('file:///tmp/test.json'))).toBe(false)
-  })
-  it('returns false for a scheme without authority', () => {
-    expect(is.url('localhost:8080')).toBe(false)
-  })
-  it('returns false for a Windows file path', () => {
-    expect(is.url('C:\\tmp\\file.txt')).toBe(false)
-  })
-  it('returns false for a plain string with no protocol', () => {
-    expect(is.url('example.com')).toBe(false)
-  })
-  it('returns false for an empty string', () => {
+  it('rejects invalid URLs', () => {
     expect(is.url('')).toBe(false)
+    expect(is.url('not-a-url')).toBe(false)
+    expect(is.url('https://')).toBe(false)
+    expect(is.url('http://[invalid')).toBe(false)
   })
-  it('returns false for a relative URL without a base', () => {
-    expect(is.url('/foo/bar')).toBe(false)
+  it('rejects relative URLs', () => {
+    expect(is.url('/api/file.cog')).toBe(false)
+    expect(is.url('./file.txt')).toBe(false)
+    expect(is.url('../file.txt')).toBe(false)
   })
-  it('returns false for a random string', () => {
-    expect(is.url('not a url')).toBe(false)
-  })
-  it('returns false for a number', () => {
-    expect(is.url(23)).toBe(false)
-  })
-  it('returns false for null', () => {
+  it('rejects non-string values', () => {
     expect(is.url(null)).toBe(false)
-  })
-  it('returns false for undefined', () => {
     expect(is.url(undefined)).toBe(false)
-  })
-  it('returns false for non-URL objects', () => {
+    expect(is.url(42)).toBe(false)
     expect(is.url({})).toBe(false)
     expect(is.url([])).toBe(false)
-    expect(is.url({ href: 'https://example.com' })).toBe(false)
-    expect(is.url({ toString: () => 'https://example.com' })).toBe(false)
+  })
+  it('accepts URLs matching allowed protocols', () => {
+    const protocols = ['http:', 'https:']
+    expect(is.url('http://example.com', protocols)).toBe(true)
+    expect(is.url('https://example.com', protocols)).toBe(true)
+    expect(is.url(new URL('https://example.com'), protocols)).toBe(true)
+  })
+  it('rejects URLs not matching allowed protocols', () => {
+    const protocols = ['http:', 'https:']
+    expect(is.url('ftp://example.com', protocols)).toBe(false)
+    expect(is.url('mailto:user@example.com', protocols)).toBe(false)
+    expect(is.url('file:///tmp/file.txt', protocols)).toBe(false)
+    expect(is.url('javascript:alert(1)', protocols)).toBe(false)
+  })
+  it('supports filtering specific protocols', () => {
+    expect(is.url('mailto:user@example.com', ['mailto:'])).toBe(true)
+    expect(is.url('data:text/plain,hello', ['data:'])).toBe(true)
+    expect(is.url('https://example.com', ['https:'])).toBe(true)
+    expect(is.url('http://example.com', ['https:'])).toBe(false)
+  })
+  it('rejects all protocols when the allowed list is empty', () => {
+    expect(is.url('https://example.com', [])).toBe(false)
+    expect(is.url('mailto:user@example.com', [])).toBe(false)
+  })
+  it('ignores non-array protocol arguments', () => {
+    expect(is.url('https://example.com', undefined)).toBe(true)
+    expect(is.url('https://example.com', 0)).toBe(true)
+    expect(is.url('https://example.com', 'http:')).toBe(true)
+  })
+  it('can be used directly as an array predicate', () => {
+    expect([
+      'https://example.com',
+      'http://example.com'
+    ].every(is.url)).toBe(true)
+    expect([
+      'https://example.com',
+      'invalid-url'
+    ].every(is.url)).toBe(false)
+    expect([
+      'https://example.com',
+      'invalid-url',
+      'mailto:user@example.com'
+    ].filter(is.url)).toEqual([
+      'https://example.com',
+      'mailto:user@example.com'
+    ])
   })
 })
 
-describe('is.url — multi-host', () => {
+describe('is.authorityUrl', () => {
+  it('returns true for a valid http URL', () => {
+    expect(is.authorityUrl('http://example.com')).toBe(true)
+  })
+  it('returns true for a valid https URL', () => {
+    expect(is.authorityUrl('https://example.com')).toBe(true)
+  })
+  it('returns true for a URL with a path', () => {
+    expect(is.authorityUrl('https://example.com/foo/bar')).toBe(true)
+  })
+  it('returns true for a URL with query params', () => {
+    expect(is.authorityUrl('https://example.com?foo=bar&baz=1')).toBe(true)
+  })
+  it('returns true for a URL with a hash', () => {
+    expect(is.authorityUrl('https://example.com#section')).toBe(true)
+  })
+  it('returns true for a custom scheme with authority', () => {
+    expect(is.authorityUrl('s3://bucket/path/to/file')).toBe(true)
+  })
+  it('returns true for a native URL instance', () => {
+    expect(is.authorityUrl(new URL('http://example.com'))).toBe(true)
+    expect(is.authorityUrl(new URL('https://example.com/foo/bar?foo=bar#section'))).toBe(true)
+    expect(is.authorityUrl(new URL('s3://bucket/path/to/file'))).toBe(true)
+  })
+  it('returns true for a multi-host URL', () => {
+    expect(is.authorityUrl('mongodb://host1:27017,host2:27017/database')).toBe(true)
+    expect(is.authorityUrl('mongodb://host1:27017,host2:27017,host3:27017/database')).toBe(true)
+  })
+  it('returns true for a multi-host URL with credentials', () => {
+    expect(is.authorityUrl('mongodb://user:pass@host1:27017,host2:27017/database')).toBe(true)
+  })
+  it('returns false for a multi-host URL with an empty host', () => {
+    expect(is.authorityUrl('mongodb://host1:27017,/database')).toBe(false)
+    expect(is.authorityUrl('mongodb://,host2:27017/database')).toBe(false)
+  })
+  it('returns false for a multi-host URL with invalid credentials', () => {
+    expect(is.authorityUrl('mongodb://host1:27017,user:pass@host2:27017/database')).toBe(false)
+  })
+  it('returns false for a multi-host URL with an invalid port', () => {
+    expect(is.authorityUrl('mongodb://host1:27017,host2:abc/database')).toBe(false)
+  })
+  it('returns false for a mailto URL', () => {
+    expect(is.authorityUrl('mailto:user@example.com')).toBe(false)
+  })
+  it('returns false for a file URL without authority', () => {
+    expect(is.authorityUrl('file:///tmp/test.json')).toBe(false)
+    expect(is.authorityUrl(new URL('file:///tmp/test.json'))).toBe(false)
+  })
+  it('returns false for a scheme without authority', () => {
+    expect(is.authorityUrl('localhost:8080')).toBe(false)
+  })
+  it('returns false for a Windows file path', () => {
+    expect(is.authorityUrl('C:\\tmp\\file.txt')).toBe(false)
+  })
+  it('returns false for a plain string with no protocol', () => {
+    expect(is.authorityUrl('example.com')).toBe(false)
+  })
+  it('returns false for an empty string', () => {
+    expect(is.authorityUrl('')).toBe(false)
+  })
+  it('returns false for a relative URL without a base', () => {
+    expect(is.authorityUrl('/foo/bar')).toBe(false)
+  })
+  it('returns false for a random string', () => {
+    expect(is.authorityUrl('not a url')).toBe(false)
+  })
+  it('returns false for a number', () => {
+    expect(is.authorityUrl(23)).toBe(false)
+  })
+  it('returns false for null', () => {
+    expect(is.authorityUrl(null)).toBe(false)
+  })
+  it('returns false for undefined', () => {
+    expect(is.authorityUrl(undefined)).toBe(false)
+  })
+  it('returns false for non-URL objects', () => {
+    expect(is.authorityUrl({})).toBe(false)
+    expect(is.authorityUrl([])).toBe(false)
+    expect(is.authorityUrl({ href: 'https://example.com' })).toBe(false)
+    expect(is.authorityUrl({ toString: () => 'https://example.com' })).toBe(false)
+  })
+  it('rejects an unencoded comma in a password of a multi-host URL', () => {
+    expect(is.authorityUrl('mongodb://user:pa,ss@host1,host2/database')).toBe(false)
+  })
+  it('accepts a percent-encoded comma in a password of a multi-host URL', () => {
+    expect(is.authorityUrl('mongodb://user:pa%2Css@host1,host2/database')).toBe(true)
+  })
+  it('rejects whitespace in a multi-host authority', () => {
+    expect(is.authorityUrl('mongodb://host1:27017, host2:27017/database')).toBe(false)
+  })
+  it('accepts a multi-host URL with a username only', () => {
+    expect(is.authorityUrl('mongodb://user@host1:27017,host2:27017/database')).toBe(true)
+  })
+  it('accepts a multi-host URL with options', () => {
+    expect(is.authorityUrl('mongodb://host1:27017,host2:27017/database?replicaSet=rs0&authSource=admin')).toBe(true)
+  })
+  it('accepts IPv6 hosts', () => {
+    expect(is.authorityUrl('http://[::1]:8080/path')).toBe(true)
+    expect(is.authorityUrl('mongodb://[::1]:27017,[::2]:27017/database')).toBe(true)
+  })
+  it('accepts credentials on a single-host URL', () => {
+    expect(is.authorityUrl('https://user:pass@example.com/path')).toBe(true)
+  })
+  it('accepts an explicit port', () => {
+    expect(is.authorityUrl('https://example.com:8443/path')).toBe(true)
+  })
+  it('rejects an invalid or out of range port', () => {
+    expect(is.authorityUrl('https://example.com:abc/path')).toBe(false)
+    expect(is.authorityUrl('https://example.com:70000/path')).toBe(false)
+  })
+  it('accepts an uppercase scheme', () => {
+    expect(is.authorityUrl('HTTPS://EXAMPLE.COM/path')).toBe(true)
+  })
+  it('accepts templated tile URLs', () => {
+    expect(is.authorityUrl('https://{s}.tile.example.com/{z}/{x}/{y}.png')).toBe(true)
+    expect(is.authorityUrl('https://tiles.example.com/wmts?TileMatrix={TileMatrix}&TileRow={TileRow}')).toBe(true)
+  })
+  it('rejects a protocol-relative URL', () => {
+    expect(is.authorityUrl('//example.com/path')).toBe(false)
+  })
+  it('rejects surrounding or inner whitespace', () => {
+    expect(is.authorityUrl(' https://example.com')).toBe(false)
+    expect(is.authorityUrl('https://exa mple.com')).toBe(false)
+  })
+  it('does not filter schemes', () => {
+    // Known behavior: authorityUrl checks the structure, not the scheme
+    expect(is.authorityUrl('javascript://%0Aalert(1)')).toBe(true)
+  })
+})
+
+describe('is.authorityUrl — multi-host', () => {
   it('accepts a MongoDB replica set', () => {
-    expect(is.url('mongodb://h1:27017,h2:27017,h3:27017/db?replicaSet=rs0')).toBe(true)
+    expect(is.authorityUrl('mongodb://h1:27017,h2:27017,h3:27017/db?replicaSet=rs0')).toBe(true)
   })
   it('accepts userinfo on the first host', () => {
-    expect(is.url('mongodb://user:pass@h1:27017,h2:27017/db')).toBe(true)
+    expect(is.authorityUrl('mongodb://user:pass@h1:27017,h2:27017/db')).toBe(true)
   })
   it('keeps the fast path for standard URLs', () => {
-    expect(is.url('https://example.com')).toBe(true)
-    expect(is.url('mongodb+srv://cluster.example.com/db')).toBe(true)
+    expect(is.authorityUrl('https://example.com')).toBe(true)
+    expect(is.authorityUrl('mongodb+srv://cluster.example.com/db')).toBe(true)
   })
   it('rejects empty hosts', () => {
-    expect(is.url('mongodb://h1:27017,,h2:27017/db')).toBe(false)
+    expect(is.authorityUrl('mongodb://h1:27017,,h2:27017/db')).toBe(false)
   })
   it('rejects userinfo on a non-initial host', () => {
-    expect(is.url('mongodb://h1:27017,user:pass@h2:27017/db')).toBe(false)
+    expect(is.authorityUrl('mongodb://h1:27017,user:pass@h2:27017/db')).toBe(false)
   })
   it('rejects an invalid port in a host', () => {
-    expect(is.url('mongodb://h1:27017,h2:abc/db')).toBe(false)
+    expect(is.authorityUrl('mongodb://h1:27017,h2:abc/db')).toBe(false)
   })
   it('rejects a non-URL', () => {
-    expect(is.url('not-a-url')).toBe(false)
+    expect(is.authorityUrl('not-a-url')).toBe(false)
   })
 })
 

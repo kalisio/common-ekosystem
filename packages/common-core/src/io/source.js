@@ -20,16 +20,27 @@ function getReadFn (input, options = {}) {
     return () => input.text()
   }
   if (input instanceof URL) {
-    return () => fetchText(input, requestOptions)
-  }
-  if (is.string(input)) {
-    if (env.node && !is.url(input)) {
+    if (is.url(input, ['http:', 'https:'])) {
+      return () => fetchText(input, requestOptions)
+    }
+    if (env.node && input.protocol === 'file:') {
       return async () => {
         const { readFile } = await import('node:fs/promises')
         return readFile(input, encoding)
       }
     }
-    return () => fetchText(input, requestOptions)
+  }
+  if (is.string(input)) {
+    if (is.url(input, ['http:', 'https:'])) {
+      return () => fetchText(input, requestOptions)
+    }
+    if (env.node) {
+      return async () => {
+        const { readFile } = await import('node:fs/promises')
+        const path = is.url(input, ['file:']) ? new URL(input) : input
+        return readFile(path, encoding)
+      }
+    }
   }
   const error = new Error('source must be a URL, a string locator or a File/Blob')
   error.code = source.ERROR_CODES.UNSUPPORTED_SOURCE

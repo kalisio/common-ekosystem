@@ -4,18 +4,26 @@ import { object } from './object.js'
 // Internal parser shared by all helpers. Splits any URL — single or multi-host
 // (e.g. a MongoDB replica set connection string) — into its components, without
 // relying on the native URL parser which rejects comma-separated authorities.
-// Mirrors the grammar used by is.url.
+// Mirrors the grammar used by is.authorityUrl.
 const URL_RE = /^([a-z][a-z0-9+.-]*:\/\/)([^/?#]+)(\/[^?#]*)?(\?[^#]*)?(#.*)?$/i
 
 // Template placeholders, as used by tile engines and OGC templates: {z}, {x},
 // {y}, {-y}, {s}, {TileMatrix}, {bbox-epsg-3857}...
 const PLACEHOLDERS_RE = /(\{-?[A-Za-z][\w-]*\})/
 
+const ENCODED_SEPARATOR_RE = /%(?:2f|5c)/i
+
 const PLACEHOLDER_OPTIONS_SCHEMA = {
   preservePlaceholders: is.boolean
 }
 
 const PLACEHOLDER_DEFAULTS = { preservePlaceholders: false }
+
+function isValidScopeUrl (value) {
+  if (!is.string(value) || value.includes('\\')) return false
+  if (!is.authorityUrl(value) || !URL.canParse(value)) return false
+  return !new URL(value).hostname.includes(',')
+}
 
 function parseUrl (value) {
   const match = URL_RE.exec(String(value))
@@ -28,20 +36,16 @@ function parseUrl (value) {
 // Split an authority into userinfo (if any) and the list of host strings.
 // userinfo is only carried by the first host: user:pass@h1,h2 -> userinfo on h1.
 function splitAuthority (authority) {
-  const hosts = authority.split(',')
-  let userinfo = ''
-  const at = hosts[0].lastIndexOf('@')
-  if (at !== -1) {
-    userinfo = hosts[0].slice(0, at)
-    hosts[0] = hosts[0].slice(at + 1)
-  }
-  return { userinfo, hosts }
+  const at = authority.lastIndexOf('@')
+  const userinfo = at === -1 ? '' : authority.slice(0, at)
+  return { userinfo, hosts: authority.slice(at + 1).split(',') }
 }
 
 // Split a single "host:port" into { host, port }. port is null when absent.
 function splitHostPort (hostString) {
   const colon = hostString.lastIndexOf(':')
-  if (colon === -1) return { host: hostString, port: null }
+  // A colon inside brackets belongs to an IPv6 address, not to a port
+  if (colon === -1 || colon < hostString.lastIndexOf(']')) return { host: hostString, port: null }
   return { host: hostString.slice(0, colon), port: hostString.slice(colon + 1) }
 }
 
@@ -75,7 +79,7 @@ export const url = {
 
   parse (url, defaultPort = 80) {
     assert.all([
-      { value: url, validator: is.url, message: 'url must be an url' },
+      { value: url, validator: is.authorityUrl, message: 'url must be an url' },
       { value: defaultPort, validator: is.number, message: 'defaultPort must be a number' }
     ])
     const parsed = parseUrl(url)
@@ -96,7 +100,7 @@ export const url = {
 
   build (baseUrl, params, options = {}) {
     assert.all([
-      { value: baseUrl, validator: is.url, message: 'baseUrl must be an url' },
+      { value: baseUrl, validator: is.authorityUrl, message: 'baseUrl must be an url' },
       { value: params, validator: is.nonEmptyObject, message: 'params must be a non empty object' }
     ])
     return url.addQueryParam(baseUrl, params, options)
@@ -108,7 +112,7 @@ export const url = {
   addQueryParam (url, params, options) {
     const settings = object.defaults(PLACEHOLDER_DEFAULTS, options)
     assert.all([
-      { value: url, validator: is.url, message: 'url must be an url' },
+      { value: url, validator: is.authorityUrl, message: 'url must be an url' },
       { value: params, validator: is.nonEmptyObject, message: 'params must be a non empty object' },
       { value: settings, validator: (v) => conform.schema(v, PLACEHOLDER_OPTIONS_SCHEMA), message: 'options must be a valid options object' }
     ])
@@ -119,9 +123,16 @@ export const url = {
       if (!is.defined(value)) continue
       const encodedKey = encodeURIComponent(key)
       const encodedValue = encodeQueryValue(String(value), settings.preservePlaceholders)
-      const existing = pairs.find(([k]) => k === encodedKey)
-      if (existing) existing[1] = encodedValue // replace, like the former .set
-      else pairs.push([encodedKey, encodedValue])
+      const first = pairs.findIndex(([k]) => k === encodedKey)
+      if (first === -1) {
+        pairs.push([encodedKey, encodedValue])
+        continue
+      }
+      pairs[first][1] = encodedValue
+      // Like URLSearchParams.set: the other occurrences of the key are removed
+      for (let i = pairs.length - 1; i > first; i--) {
+        if (pairs[i][0] === encodedKey) pairs.splice(i, 1)
+      }
     }
     const queryString = pairs.map(([key, value]) => `${key}=${value}`).join('&')
     const query = pairs.length ? `?${queryString}` : ''
@@ -131,7 +142,7 @@ export const url = {
   encode (url, options) {
     const settings = object.defaults(PLACEHOLDER_DEFAULTS, options)
     assert.all([
-      { value: url, validator: is.url, message: 'url must be an url' },
+      { value: url, validator: is.authorityUrl, message: 'url must be an url' },
       { value: settings, validator: (v) => conform.schema(v, PLACEHOLDER_OPTIONS_SCHEMA), message: 'options must be a valid options object' }
     ])
     url = String(url)
@@ -143,7 +154,7 @@ export const url = {
 
   obfuscate (url, mask = '*****') {
     assert.all([
-      { value: url, validator: is.url, message: 'url must be an url' },
+      { value: url, validator: is.authorityUrl, message: 'url must be an url' },
       { value: mask, validator: is.string, message: 'mask must be a string' }
     ])
     const parsed = parseUrl(url)
@@ -154,6 +165,21 @@ export const url = {
     const maskedUserinfo = colon === -1 ? mask : `${mask}:${mask}`
     const authority = `${maskedUserinfo}@${hosts.join(',')}`
     return buildUrl({ ...parsed, authority })
-  }
+  },
 
+  isWithin (value, baseUrl) {
+    assert.that(baseUrl, isValidScopeUrl, 'baseUrl must be an url')
+    const base = new URL(baseUrl)
+    assert.that(base,
+      v => !v.username && !v.password && !ENCODED_SEPARATOR_RE.test(v.pathname) && !/\/{2,}$/.test(v.pathname),
+      'baseUrl must not contain credentials or ambiguous separators'
+    )
+    // An invalid value is within no scope: false rather than an error, as for a predicate
+    if (!isValidScopeUrl(value)) return false
+    const target = new URL(value)
+    if (target.protocol !== base.protocol || target.host !== base.host) return false
+    if (target.username || target.password || ENCODED_SEPARATOR_RE.test(target.pathname)) return false
+    const basePath = base.pathname.replace(/\/$/, '')
+    return basePath === '' || target.pathname === basePath || target.pathname.startsWith(`${basePath}/`)
+  }
 }

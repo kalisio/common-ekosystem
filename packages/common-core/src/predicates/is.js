@@ -75,7 +75,13 @@ export const is = {
     return value.startsWith('data:') && value.includes(';base64,')
   },
 
-  url (value) {
+  url (value, protocols) {
+    if (value instanceof URL) value = value.href
+    if (!is.string(value) || !URL.canParse(value)) return false
+    return !Array.isArray(protocols) || protocols.includes(new URL(value).protocol)
+  },
+
+  authorityUrl (value) {
     if (value instanceof URL) value = value.href
     if (!is.string(value)) return false
     const regexp = /^([a-z][a-z0-9+.-]*:\/\/)([^/?#]+)(\/[^?#]*)?(\?[^#]*)?(#.*)?$/i
@@ -83,11 +89,11 @@ export const is = {
     if (!match) return false
     // Standard URL: validate once
     if (!match[2].includes(',')) return URL.canParse(value)
-    // Multi-host URL
+    // Multi-host URL: userinfo is only allowed on the first host,
+    // so a ',' in a password must be percent-encoded (%2C)
     const [, prefix, authority, path = '', query = '', frag = ''] = match
     const hosts = authority.split(',')
     return hosts.every((host, i) => {
-      host = host.trim()
       if (!host) return false
       if (i > 0 && host.includes('@')) return false
       return URL.canParse(`${prefix}${host}${path}${query}${frag}`)
