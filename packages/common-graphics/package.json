@@ -89,20 +89,22 @@
     "url": "https://github.com/kalisio/common-ekosystem/issues"
   },
   "homepage": "https://github.com/kalisio/common-ekosystem/tree/master/packages/common-graphics",
+  "dependencies": {
+    "chroma-js": "catalog:",
+    "lru-cache": "catalog:"
+  },
+  "devDependencies": {
+    "pixelmatch": "catalog:",
+    "pngjs": "catalog:"
+  },
   "peerDependencies": {
     "@kalisio/common-core": "workspace:*",
-    "chroma-js": "catalog:",
-    "lru-cache": "catalog:",
     "sharp": "catalog:"
   },
   "peerDependenciesMeta": {
     "sharp": {
       "optional": true
     }
-  },
-  "devDependencies": {
-    "pixelmatch": "catalog:",
-    "pngjs": "catalog:"
   },
   "engines": {
     "node": ">=24"
