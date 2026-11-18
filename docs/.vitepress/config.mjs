@@ -46,6 +46,9 @@ export default withMermaid(
       },
       footer: {
         copyright: 'MIT Licensed | Copyright © 2026-present Kalisio'
+      },
+      search: {
+        provider: 'local'
       }
     },
     vite: {
