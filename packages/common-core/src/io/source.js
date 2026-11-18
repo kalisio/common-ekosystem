@@ -31,7 +31,7 @@ function getReadFn (input, options = {}) {
     }
   }
   if (is.string(input)) {
-    if (is.url(input, ['http:', 'https:'])) {
+    if (is.fetchableUrl(input)) {
       return () => fetchText(input, requestOptions)
     }
     if (env.node) {

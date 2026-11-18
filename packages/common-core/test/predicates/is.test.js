@@ -1927,6 +1927,95 @@ describe('is.authorityUrl — multi-host', () => {
   })
 })
 
+describe('is.fetchableUrl', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+  it('accepts HTTP and HTTPS URLs', () => {
+    expect(is.fetchableUrl('http://example.com')).toBe(true)
+    expect(is.fetchableUrl('https://example.com/api/data.json')).toBe(true)
+    expect(is.fetchableUrl('https://example.com:8443/path?q=1#section')).toBe(true)
+  })
+  it('accepts blob and data URLs', () => {
+    expect(is.fetchableUrl('blob:https://example.com/123456')).toBe(true)
+    expect(is.fetchableUrl('data:text/plain,hello')).toBe(true)
+    expect(is.fetchableUrl('data:application/json,%7B%7D')).toBe(true)
+  })
+  it('accepts fetchable URL instances', () => {
+    expect(is.fetchableUrl(new URL('https://example.com'))).toBe(true)
+    expect(is.fetchableUrl(new URL('data:text/plain,hello'))).toBe(true)
+    expect(is.fetchableUrl(new URL('blob:https://example.com/123456'))).toBe(true)
+  })
+  it('rejects unsupported protocols', () => {
+    expect(is.fetchableUrl('ftp://example.com/file.txt')).toBe(false)
+    expect(is.fetchableUrl('file:///tmp/file.txt')).toBe(false)
+    expect(is.fetchableUrl('mailto:user@example.com')).toBe(false)
+    expect(is.fetchableUrl('javascript:alert(1)')).toBe(false)
+    expect(is.fetchableUrl('s3://bucket/file.txt')).toBe(false)
+  })
+  it('rejects URL instances with unsupported protocols', () => {
+    expect(is.fetchableUrl(new URL('file:///tmp/file.txt'))).toBe(false)
+    expect(is.fetchableUrl(new URL('mailto:user@example.com'))).toBe(false)
+  })
+  it('rejects invalid URLs', () => {
+    expect(is.fetchableUrl('http://')).toBe(false)
+    expect(is.fetchableUrl('https://[invalid')).toBe(false)
+  })
+  it('rejects empty values', () => {
+    expect(is.fetchableUrl('')).toBe(false)
+    expect(is.fetchableUrl(' ')).toBe(false)
+    expect(is.fetchableUrl('   ')).toBe(false)
+  })
+  it('rejects non-string values', () => {
+    expect(is.fetchableUrl(null)).toBe(false)
+    expect(is.fetchableUrl(undefined)).toBe(false)
+    expect(is.fetchableUrl(42)).toBe(false)
+    expect(is.fetchableUrl({})).toBe(false)
+    expect(is.fetchableUrl([])).toBe(false)
+  })
+  it('resolves relative URLs against the document base URI', () => {
+    vi.stubGlobal('document', { baseURI: 'https://example.com/app/index.html' })
+    expect(is.fetchableUrl('/api/data.json')).toBe(true)
+    expect(is.fetchableUrl('./data.json')).toBe(true)
+    expect(is.fetchableUrl('../data.json')).toBe(true)
+    expect(is.fetchableUrl('?format=json')).toBe(true)
+    expect(is.fetchableUrl('#section')).toBe(true)
+  })
+  it('accepts protocol-relative URLs in the browser', () => {
+    vi.stubGlobal('document', { baseURI: 'https://example.com/app/' })
+    expect(is.fetchableUrl('//cdn.example.com/image.png')).toBe(true)
+  })
+  it('uses location when the document base URI is unavailable', () => {
+    vi.stubGlobal('document', undefined)
+    vi.stubGlobal('location', { href: 'https://example.com/app/' })
+    expect(is.fetchableUrl('/api/data.json')).toBe(true)
+    expect(is.fetchableUrl('./data.json')).toBe(true)
+  })
+  it('rejects relative URLs without a base URI', () => {
+    vi.stubGlobal('document', undefined)
+    vi.stubGlobal('location', undefined)
+    expect(is.fetchableUrl('/api/data.json')).toBe(false)
+    expect(is.fetchableUrl('./data.json')).toBe(false)
+    expect(is.fetchableUrl('//example.com/file.txt')).toBe(false)
+  })
+  it('accepts absolute URLs without a browser environment', () => {
+    vi.stubGlobal('document', undefined)
+    vi.stubGlobal('location', undefined)
+    expect(is.fetchableUrl('https://example.com/api')).toBe(true)
+    expect(is.fetchableUrl('data:text/plain,hello')).toBe(true)
+  })
+  it('can be used directly as an array predicate', () => {
+    expect([
+      'https://example.com',
+      'data:text/plain,hello'
+    ].every(is.fetchableUrl)).toBe(true)
+    expect([
+      'https://example.com',
+      'file:///tmp/file.txt'
+    ].every(is.fetchableUrl)).toBe(false)
+  })
+})
+
 describe('is.email', () => {
   it('returns true for a simple valid email', () => {
     expect(is.email('user@example.com')).toBe(true)

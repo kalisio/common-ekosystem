@@ -1,5 +1,7 @@
 import { assert } from './assert.js'
 
+const FETCHABLE_PROTOCOLS = ['http:', 'https:', 'blob:', 'data:']
+
 export const is = {
 
   defined (value) {
@@ -98,6 +100,13 @@ export const is = {
       if (i > 0 && host.includes('@')) return false
       return URL.canParse(`${prefix}${host}${path}${query}${frag}`)
     })
+  },
+
+  fetchableUrl (value) {
+    if (value instanceof URL) return FETCHABLE_PROTOCOLS.includes(value.protocol)
+    if (!is.nonEmptyString(value) || !value.trim()) return false
+    const base = globalThis.document?.baseURI ?? globalThis.location?.href
+    return FETCHABLE_PROTOCOLS.includes(URL.parse(value, base)?.protocol)
   },
 
   email (value) {

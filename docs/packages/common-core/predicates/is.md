@@ -290,6 +290,50 @@ is.hostUrl('example.com') // false
 is.hostUrl('/foo/bar') // false
 ```
 
+### fetchableUrl
+
+Checks whether a value is a URL or URL reference using a protocol commonly supported by the Fetch API.
+
+Accepts `http:`, `https:`, `blob:` and `data:` URLs, including `URL` instances.
+
+In browser environments, relative references are resolved against `document.baseURI`, falling back to `location.href`. Absolute URLs are supported in both browser and Node.js environments.
+
+Rejects unsupported protocols, malformed URLs, and empty values.
+
+This predicate only validates URL syntax and protocols. It does not guarantee that the resource exists, is accessible, or can be successfully fetched.
+
+```js
+is.fetchableUrl(value)
+```
+
+```js
+is.fetchableUrl('https://example.com/data.json') // true
+is.fetchableUrl('data:text/plain,hello') // true
+is.fetchableUrl('blob:https://example.com/123456') // true
+is.fetchableUrl(new URL('https://example.com')) // true
+
+is.fetchableUrl('file:///tmp/file.txt') // false
+is.fetchableUrl('mailto:user@example.com') // false
+is.fetchableUrl('javascript:alert(1)') // false
+is.fetchableUrl('') // false
+```
+
+Relative URLs are supported in browser environments:
+
+```js
+// Assuming document.baseURI is 'https://example.com/app/'
+is.fetchableUrl('/api/data.json') // true
+is.fetchableUrl('./data.json') // true
+is.fetchableUrl('//cdn.example.com/image.png') // true
+```
+
+In Node.js, relative URLs are rejected when no browser base URI is available:
+
+```js
+is.fetchableUrl('/api/data.json') // false
+is.fetchableUrl('https://example.com/api/data.json') // true
+```
+
 ### email
 
 Checks whether a value is a valid email address according to the predicate validation rules and length limits.

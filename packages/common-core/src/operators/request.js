@@ -2,7 +2,7 @@ import { is, assert } from '../predicates/index.js'
 import { createRequester } from '../runtime/index.js'
 
 export function request (url, options = {}) {
-  assert.that(url, v => is.url(v, ['http:', 'https:']), 'url must be a valid url')
+  assert.that(url, is.fetchableUrl, 'url must be a valid url')
   const client = createRequester(options)
   return {
 
