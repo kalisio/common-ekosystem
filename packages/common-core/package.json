@@ -112,6 +112,9 @@
     "url": "https://github.com/kalisio/common-ekosystem/issues"
   },
   "homepage": "https://github.com/kalisio/common-ekosystem/tree/master/packages/common-core",
+  "devDependencies": {
+    "nock": "catalog:"
+  },
   "peerDependencies": {
     "@xmldom/xmldom": "catalog:",
     "ajv": "catalog:",
