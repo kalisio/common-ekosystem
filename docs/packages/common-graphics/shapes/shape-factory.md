@@ -218,7 +218,7 @@ Throws if:
 
 #### text sub-object
 
-If `text.label` is omitted or empty, no text element is rendered.
+If `text.label` is omitted, empty or blank, no text element is rendered. Numeric labels, including `0`, are rendered.
 
 | Property | Description | Default |
 | --- | --- | --- |
@@ -230,9 +230,10 @@ If `text.label` is omitted or empty, no text element is rendered.
 | **weight** | Font weight, for example `normal`, `bold`, or a numeric weight | inherited |
 | **variant** | Font variant | inherited |
 | **cursor** | CSS cursor displayed when hovering the text, for example `pointer`, `default`, or `text` | inherited |
-| **transform** | SVG transform applied to the text | `undefined` |
+| **classes** | CSS classes added to the text element, as a string or an array of strings. Empty entries are ignored | `undefined` |
+| **transform** | SVG transform applied to the text, relative to the shape center | `undefined` |
 
-The text is horizontally centered and vertically aligned around its origin using:
+The text origin is placed at the center of the shape, and the text is horizontally centered and vertically aligned around this origin using:
 
 ```svg
 text-anchor="middle"
@@ -241,19 +242,14 @@ alignment-baseline="central"
 
 The font size is automatically scaled according to the shape height.
 
-```js
-text: {
-  label: 'i',
-  size: 12,
-  color: 'white',
-  font: 'Arial',
-  weight: 'bold',
-  cursor: 'pointer',
-  transform: {
-    translate: [50, 50]
-  }
-}
-```
+`transform` is applied relative to this origin: `translate` offsets the text from the shape center and `rotate` turns it around its own center.
+Values are expressed in viewBox units, where the shape spans from `0` to `100`. For instance, `translate: [0, 75]` places the text below the shape.
+
+The CSS rules targeting `classes` can be embedded with the shape `style` property (not to be confused with `text.style`), so that they also apply
+when the SVG is used as an image, or come from the page stylesheet when the SVG is inserted in the DOM. Keep in mind that:
+
+* CSS rules take precedence over the attributes generated from `color`, `font`, `style`, `weight` and `variant`.
+* Lengths in these rules (`font-size`, `stroke-width`, …) are expressed in
 
 #### transform sub-object
 
