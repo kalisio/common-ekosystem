@@ -15,7 +15,7 @@ and clocks across the Kalisio ekosystem.
 ::: tip
 
 This package relies on [Moment.js](https://momentjs.com/) which is now in maintenance mode. It no longer receives
-major feature updates, and its maintainersrecommend considering modern alternatives for new projects.
+major feature updates, and its maintainers recommend considering modern alternatives for new projects.
 
 By encapsulating Moment.js behind a consistent API, `common-time` reduces direct dependencies and facilitates a
 future migration to another date/time library.
@@ -217,18 +217,26 @@ const clock = new Clock({
 }, '2026-11-20T10:00:00Z')
 
 // One simulated minute elapses per real second
-clock.on('tick', ({ time }) => {
+const unsubscribe = clock.on('tick', ({ time }) => {
   console.log(time.toISOString())
 })
 
-// Pause playback
-clock.pause()
+// Pause playback after three seconds
+setTimeout(() => {
+  clock.pause()
 
-// Change the current instant
-clock.set('2026-11-20T12:00:00Z')
+  // Change the current instant
+  clock.set('2026-11-20T12:00:00Z')
 
-// Resume playback
-clock.resume()
+  // Resume playback
+  clock.resume()
+}, 3000)
+
+// Release resources after six seconds
+setTimeout(() => {
+  unsubscribe()
+  clock.dispose()
+}, 6000)
 ```
 
 The playback speed and other configuration properties can be changed dynamically:
@@ -377,7 +385,7 @@ This is useful when components need to follow different clocks during their life
 ```js
 import {
   createClockListener,
-  getClock
+  getCurrentClock
 } from '@kalisio/common-time'
 
 const listener = createClockListener({
@@ -387,7 +395,7 @@ const listener = createClockListener({
 })
 
 // Attach to the shared clock
-listener.attach(getClock())
+listener.attach(getCurrentClock())
 
 // Detach all handlers
 listener.detach()
