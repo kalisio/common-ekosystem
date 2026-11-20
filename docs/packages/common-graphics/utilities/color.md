@@ -1,11 +1,23 @@
 ---
 title: color
-description: Utility functions for working with colors.
+description: Utility functions for validating, comparing, and generating colors.
 ---
 
 # color
 
-Utility functions for working with colors.
+Utility functions for validating, comparing, and generating colors using chroma.js.
+
+## COLORS
+
+An immutable array containing the names of all HTML/CSS colors supported by chroma.js.
+
+```js
+import { COLORS } from '@kalisio/common-graphics'
+
+// ['aliceblue', 'antiquewhite', 'aqua', ...]
+```
+
+Used as the default color palette by `nearest` and `farthest`.
 
 ## is
 
@@ -17,7 +29,9 @@ color.is (value)
 
 ### Description
 
-Returns `true` if `value` is a valid color recognized by chroma.js. Accepts hex strings, CSS color names, RGB/HSL notation, and other formats supported by chroma.js.
+Returns `true` if `value` is a valid color recognized by chroma.js.
+
+Supports hexadecimal strings, CSS color names, RGB/HSL notation, numeric color values, and other formats supported by chroma.js.
 
 ### Parameters
 
@@ -43,10 +57,13 @@ color.is('red')
 color.is('hsl(0, 100%, 50%)')
 // true
 
+color.is(0xff0000)
+// true
+
 color.is('not-a-color')
 // false
 
-color.is(42)
+color.is(null)
 // false
 ```
 
@@ -60,25 +77,29 @@ color.contrast (value, light = 'white', dark = 'black')
 
 ### Description
 
-Returns either `light` or `dark` depending on which provides the better contrast ratio against `value`. Useful for picking a readable foreground color on a given background.
+Returns either `light` or `dark`, depending on which provides the highest WCAG contrast ratio against `value`.
 
-Shorthand for `color.farthest(value, [light, dark])`.
+Useful for selecting a readable foreground color for a given background.
 
-Throws if any of `value`, `light`, or `dark` is not a valid color.
+Unlike `farthest`, which measures perceptual distance in Lab color space, `contrast` uses the WCAG contrast ratio based on relative luminance.
+
+If both candidates have the same contrast ratio, the first candidate (`light`) is returned.
+
+Throws if `value`, `light`, or `dark` is not a valid color.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `value` | `string` | yes | The background color to test against |
-| `light` | `string` | no | The color to return when a light foreground is preferred. Defaults to `'white'` |
-| `dark` | `string` | no | The color to return when a dark foreground is preferred. Defaults to `'black'` |
+| `value` | `string` | yes | The background color |
+| `light` | `string` | no | The light foreground candidate. Defaults to `'white'` |
+| `dark` | `string` | no | The dark foreground candidate. Defaults to `'black'` |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `string` | Either `light` or `dark`, whichever contrasts best with `value` |
+| `string` | The candidate with the highest contrast ratio against `value` |
 
 ### Examples
 
@@ -93,34 +114,40 @@ color.contrast('#1976d2', '#e3f2fd', '#0d47a1')
 // '#e3f2fd'
 ```
 
+The selected color maximizes contrast between the supplied candidates but does not necessarily satisfy WCAG accessibility thresholds.
+
 ## nearest
 
 ### Signature
 
 ```js
-color.nearest (value, colors = Object.keys(chroma.colors))
+color.nearest (value, colors = COLORS)
 ```
 
 ### Description
 
-Returns the color from `colors` that is perceptually closest to `value`, using the Delta-E distance in Lab color space.
+Returns the color from `colors` that is perceptually closest to `value`.
 
-When `colors` is omitted, the search is performed across the full HTML/CSS named color palette.
+Uses the Euclidean distance in CIELAB color space (Delta E 1976), as implemented by `chroma.distance`.
 
-Throws if `value` is not a valid color or if `colors` is empty.
+When `colors` is omitted, the search is performed across the HTML/CSS named colors defined by `COLORS`.
+
+If multiple candidates have the same distance, the first one is returned.
+
+Throws if `value` is not a valid color or `colors` is not a non-empty array.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
 | `value` | `string` | yes | The reference color |
-| `colors` | `string[]` | no | The pool of colors to search. Defaults to all HTML named colors |
+| `colors` | `string[]` | no | The candidate colors. Defaults to `COLORS` |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `string` | The color from `colors` closest to `value` |
+| `string` | The closest candidate from `colors` |
 
 ### Examples
 
@@ -131,7 +158,7 @@ color.nearest('#ff0000', ['red', 'green', 'blue'])
 color.nearest('#ff0001', ['#ff0000', '#00ff00', '#0000ff'])
 // '#ff0000'
 
-// Without a list, searches the full HTML palette
+// Search the full HTML/CSS named color palette
 color.nearest('#ff0000')
 // 'red'
 ```
@@ -141,29 +168,35 @@ color.nearest('#ff0000')
 ### Signature
 
 ```js
-color.farthest (value, colors = Object.keys(chroma.colors))
+color.farthest (value, colors = COLORS)
 ```
 
 ### Description
 
-Returns the color from `colors` that has the highest contrast ratio against `value`, as defined by the WCAG contrast formula.
+Returns the color from `colors` that is perceptually farthest from `value`.
 
-When `colors` is omitted, the search is performed across the full HTML/CSS named color palette.
+Uses the Euclidean distance in CIELAB color space (Delta E 1976), as implemented by `chroma.distance`.
 
-Throws if `value` is not a valid color or if `colors` is empty.
+This function maximizes perceptual color difference, not the WCAG contrast ratio. Use `contrast` when selecting a foreground color for readability.
+
+When `colors` is omitted, the search is performed across the HTML/CSS named colors defined by `COLORS`.
+
+If multiple candidates have the same distance, the first one is returned.
+
+Throws if `value` is not a valid color or `colors` is not a non-empty array.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
 | `value` | `string` | yes | The reference color |
-| `colors` | `string[]` | no | The pool of colors to search. Defaults to all HTML named colors |
+| `colors` | `string[]` | no | The candidate colors. Defaults to `COLORS` |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `string` | The color from `colors` with the highest contrast against `value` |
+| `string` | The farthest candidate from `colors` |
 
 ### Examples
 
@@ -174,9 +207,9 @@ color.farthest('#ffffff', ['white', 'gray', 'black'])
 color.farthest('#000000', ['white', 'gray', 'black'])
 // 'white'
 
-// Without a list, searches the full HTML palette
+// Search the full HTML/CSS named color palette
 color.farthest('#1976d2')
-// 'white' (or similar high-contrast result)
+// Returns the named color with the largest Lab distance
 ```
 
 ## scale
@@ -189,43 +222,78 @@ color.scale (options)
 
 ### Description
 
-Creates a chroma.js color scale from a set of colors, optionally constrained by a domain and/or class boundaries. Returns a chroma scale function that maps numeric values to colors.
+Creates a chroma.js color scale from a set of colors or a named ColorBrewer palette.
 
-Throws if `options.colors` is not provided.
+The scale optionally supports a numeric domain and discrete classes.
 
-When `options.classes` is an array of breakpoints, `options.domain` is ignored — the breakpoints already define the domain boundaries explicitly. When `options.classes` is a number, `options.domain` is used to set the range over which the classes are distributed.
+Returns a chroma.js scale function that maps numeric values to colors.
+
+When `options.classes` is an array of explicit breakpoints, `options.domain` is ignored. The breakpoints define the class boundaries directly.
+
+When `options.classes` is a number, `options.domain` determines the range over which the classes are distributed.
+
+Throws if the `colors` property is missing. Other invalid configurations may produce errors from chroma.js.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
 | `options` | `object` | yes | Scale configuration |
-| `options.colors` | `string[]` | yes | Array of colors defining the scale |
-| `options.domain` | `number[]` | no | The `[min, max]` range of input values. Ignored when `options.classes` is an array |
-| `options.classes` | `number \| number[]` | no | Number of discrete classes, or an array of explicit class breakpoints. When an array, also defines the domain |
+| `options.colors` | `string[] \| string` | yes | Array of colors or a named ColorBrewer palette |
+| `options.domain` | `number[]` | no | Input domain. Defaults to `[0, 1]`. Ignored when `classes` is an array |
+| `options.classes` | `number \| number[]` | no | Number of discrete classes or explicit class breakpoints |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `ChromaScale` | A chroma.js scale function callable with a value in the domain |
+| `ChromaScale` | A chroma.js scale function returning chroma.js color objects |
 
 ### Examples
 
 ```js
 // Continuous scale between two colors
-const scale = color.scale({ colors: ['white', 'red'] })
-scale(0.5).hex()
+const continuousScale = color.scale({
+  colors: ['white', 'red']
+})
+
+continuousScale(0.5).hex()
 // '#ff8080'
 
 // Scale with a numeric domain
-const scale = color.scale({ colors: ['blue', 'red'], domain: [0, 100] })
-scale(75).hex()
+const domainScale = color.scale({
+  colors: ['blue', 'red'],
+  domain: [0, 100]
+})
+
+domainScale(75).hex()
 // '#bf0040'
 
-// Scale with a fixed number of discrete classes over a domain
-const scale = color.scale({ colors: ['yellow', 'red'], domain: [0, 100], classes: 5 })
+// Fixed number of discrete classes over a domain
+const classesScale = color.scale({
+  colors: ['yellow', 'red'],
+  domain: [0, 100],
+  classes: 5
+})
 
-// Scale with explicit class breakpoints (domain is inferred from the breakpoints)
-const scale = color.scale({ colors: ['green', 'yellow', 'red'], classes: [0, 30, 70, 100] })
+// Explicit class breakpoints
+const breakpointsScale = color.scale({
+  colors: ['green', 'yellow', 'red'],
+  classes: [0, 30, 70, 100]
+})
+
+// Named ColorBrewer palette
+const brewerScale = color.scale({
+  colors: 'OrRd',
+  domain: [0, 100]
+})
+
+brewerScale(50).hex()
+
+// Access chroma.js scale methods
+brewerScale.colors(5)
+brewerScale.mode('lab')
+brewerScale.nodata('#cccccc')
 ```
+
+The returned scale exposes the standard chroma.js scale API, including `colors`, `mode`, `padding`, `gamma`, `nodata`, and `correctLightness`.
