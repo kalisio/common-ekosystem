@@ -75,6 +75,11 @@
     "url": "https://github.com/kalisio/common-ekosystem/issues"
   },
   "homepage": "https://github.com/kalisio/common-ekosystem/tree/master/packages/common-geospatial",
+  "devDependencies": {
+    "@tmcw/togeojson": "catalog:",
+    "chroma-js": "catalog:",
+    "mongodb": "catalog:"
+  },
   "peerDependencies": {
     "@kalisio/common-core": "workspace:*",
     "@tmcw/togeojson": "catalog:",
@@ -94,11 +99,6 @@
     "pmtiles": {
       "optional": true
     }
-  },
-  "devDependencies": {
-    "@tmcw/togeojson": "catalog:",
-    "chroma-js": "catalog:",
-    "mongodb": "catalog:"
   },
   "engines": {
     "node": ">=24"

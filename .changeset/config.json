@@ -5,6 +5,7 @@
   "fixed": [
     [
       "@kalisio/common-core",
+      "@kalisio/common-time",
       "@kalisio/common-geospatial",
       "@kalisio/common-graphics"
     ]

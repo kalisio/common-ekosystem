@@ -1,5 +1,6 @@
 [
   "common-core",
   "common-geospatial",
-  "common-graphics"
+  "common-graphics",
+  "common-time"
 ]
