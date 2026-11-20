@@ -12,12 +12,15 @@ description: Time utilities for the Kalisio ekosystem
 `@kalisio/common-time` provides a unified API for working with dates, times, durations, intervals, timezones,
 and clocks across the Kalisio ekosystem.
 
-It centralizes temporal operations that were previously implemented using `moment` and `moment-timezone`
-across multiple packages.
+::: tip
 
-Moment.js is now a maintenance-mode project. It no longer receives major feature updates, and its maintainers
-recommend considering modern alternatives for new projects. By encapsulating Moment.js behind a consistent
-API, `common-time` reduces direct dependencies and facilitates a future migration to another date/time library.
+This package relies on [Moment.js](https://momentjs.com/) which is now in maintenance mode. It no longer receives
+major feature updates, and its maintainersrecommend considering modern alternatives for new projects.
+
+By encapsulating Moment.js behind a consistent API, `common-time` reduces direct dependencies and facilitates a
+future migration to another date/time library.
+
+:::
 
 The package provides three complementary levels of abstraction:
 
