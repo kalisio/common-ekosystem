@@ -30,7 +30,11 @@ The package provides three complementary levels of abstraction:
 
 Applications can also install a shared clock, allowing independent modules to use a common temporal reference.
 
-All public APIs use standard JavaScript values and ISO 8601 representations rather than exposing Moment.js objects.
+::: tip
+
+All public APIs use standard JavaScript values and ISO 8601 representations rather than exposing **Moment.js** objects.
+
+:::
 
 ## Installation
 
@@ -60,8 +64,9 @@ import {
   Duration,
   Interval,
   Clock,
-  getClock,
-  setClock
+  getCurrentClock,
+  setCurrentClock,
+  createClockListener
 } from '@kalisio/common-time'
 ```
 
@@ -333,35 +338,35 @@ Callbacks receive the event data directly, without an additional event envelope.
 
 ### Sharing a clock across modules
 
-Applications can install a shared clock with `setClock()`.
+Applications can install a shared clock with `setCurrentClock()`.
 
-Other modules can retrieve it using `getClock()` without receiving the instance explicitly.
+Other modules can retrieve it using `getCurrentClock()` without receiving the instance explicitly.
 
 ```js
 // Application initialization
-import { Clock, setClock } from '@kalisio/common-time'
+import { Clock, setCurrentClock } from '@kalisio/common-time'
 
 const clock = new Clock({
   timezone: 'Europe/Paris'
 })
 
-setClock(clock)
+setCurrentClock(clock)
 ```
 
 ```js
 // Another module
-import { getClock } from '@kalisio/common-time'
+import { getCurrentClock } from '@kalisio/common-time'
 
 export function getCurrentTime () {
-  return getClock().now()
+  return getCurrentClock().now()
 }
 ```
 
-Without an explicitly installed clock, `getClock()` returns a lazily created realtime clock.
+Without an explicitly installed clock, `getCurrentClock()` returns a lazily created realtime clock.
 
 Applications remain responsible for the lifecycle of clocks they install.
 
-Calling `setClock(null)` restores access to the default clock.
+Calling `setCurrentClock(null)` restores access to the default clock.
 
 ### Managing clock listeners
 
