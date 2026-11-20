@@ -86,6 +86,37 @@ describe('timezone', () => {
       expect(names.length).toBeGreaterThan(0)
       expect(names.every(timezone.isValid)).toBe(true)
     })
+    it('filters timezones by country', () => {
+      const france = timezone.list('FR')
+      const usa = timezone.list('US')
+      expect(france).toContain('Europe/Paris')
+      expect(france).not.toContain('America/New_York')
+      expect(usa).toContain('America/New_York')
+      expect(usa).toContain('America/Los_Angeles')
+      expect(usa).not.toContain('Europe/Paris')
+    })
+    it('accepts case-insensitive country codes', () => {
+      expect(timezone.list('fr')).toEqual(timezone.list('FR'))
+      expect(timezone.list('us')).toEqual(timezone.list('US'))
+    })
+    it('returns all timezones when country is undefined', () => {
+      expect(timezone.list(undefined)).toEqual(timezone.list())
+    })
+    it('returns a fresh array when filtering by country', () => {
+      const zones = timezone.list('FR')
+      zones.push('Invalid/Timezone')
+      expect(timezone.list('FR')).not.toContain('Invalid/Timezone')
+    })
+    it('rejects non-string country codes', () => {
+      for (const country of [null, 42, {}, []]) {
+        expect(() => timezone.list(country)).toThrow(TypeError)
+      }
+    })
+    it('rejects invalid or unknown country codes', () => {
+      for (const country of ['', 'F', 'FRA', 'F1', 'ZZ']) {
+        expect(() => timezone.list(country)).toThrow(RangeError)
+      }
+    })
   })
 
   describe('offset', () => {

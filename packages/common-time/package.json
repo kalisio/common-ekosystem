@@ -54,17 +54,15 @@
     "url": "https://github.com/kalisio/common-ekosystem/issues"
   },
   "homepage": "https://github.com/kalisio/common-ekosystem/tree/main/packages/common-time",
-  "dependencies": {
+  "dependencies": {},
+  "peerDependencies": {
+    "@kalisio/common-core": "workspace:*",
     "moment": "catalog:",
     "moment-timezone": "catalog:"
   },
-  "peerDependencies": {
-    "@kalisio/common-core": "workspace:*"
-  },
   "devDependencies": {},
   "engines": {
-    "node": ">=20",
-    "pnpm": ">=10"
+    "node": ">=24"
   },
   "publishConfig": {
     "access": "public",

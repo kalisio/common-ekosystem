@@ -1,7 +1,8 @@
+import { is } from '@kalisio/common-core/predicates'
 import moment from 'moment-timezone'
 
 function isValid (value) {
-  return typeof value === 'string' && moment.tz.zone(value) !== null
+  return is.string(value) && moment.tz.zone(value) !== null
 }
 
 function assertValid (value) {
@@ -21,16 +22,31 @@ function guess () {
   return isValid(name) ? normalize(name) : moment.tz.guess()
 }
 
-function list () {
-  return moment.tz.names()
+/** Returns all timezones, or those associated with an ISO 3166-1 alpha-2 country code. */
+function list (country) {
+  if (country === undefined) return moment.tz.names()
+
+  if (!is.string(country)) {
+    throw new TypeError('Country code must be a string')
+  }
+  if (!/^[a-z]{2}$/i.test(country)) {
+    throw new RangeError(`Invalid country code: ${country}`)
+  }
+
+  const zones = moment.tz.zonesForCountry(country.toUpperCase())
+  if (!zones) {
+    throw new RangeError(`Unknown country code: ${country}`)
+  }
+
+  return [...zones]
 }
 
 function atMoment (name, at) {
   assertValid(name)
   let parsed
-  if (at instanceof Date || (typeof at === 'number' && Number.isFinite(at))) {
+  if (is.instanceOf(at, Date) || (is.number(at) && Number.isFinite(at))) {
     parsed = moment.tz(at, name)
-  } else if (typeof at === 'string' && at.trim()) {
+  } else if (is.string(at) && at.trim()) {
     parsed = moment.tz(at, moment.ISO_8601, true, name)
   } else {
     throw new TypeError('Expected a Date, a millisecond timestamp, or an ISO 8601 string')
