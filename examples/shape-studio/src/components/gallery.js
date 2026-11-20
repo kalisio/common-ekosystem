@@ -23,7 +23,7 @@ export default {
         text: {
           label: shape.shape,
           size: 12,
-          transform: { translate: [50, 130] }
+          transform: { translate: [0, 75] }
         }
       }
     }

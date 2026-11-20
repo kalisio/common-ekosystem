@@ -2,7 +2,7 @@ import { getLogger } from '@kalisio/common-core/runtime'
 import { image } from '#utilities'
 import { toSVG } from './to-svg.js'
 
-const logger = getLogger(['graphiks', 'png'])
+const logger = getLogger(['common-graphics', 'to-png'])
 
 export async function toPNG (params, context) {
   const { pngCache } = context

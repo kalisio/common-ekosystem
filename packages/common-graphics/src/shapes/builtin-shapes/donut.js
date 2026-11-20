@@ -1,3 +1,4 @@
+import { is } from '@kalisio/common-core/predicates'
 import { toSVGStyleAttributes, toSVGTitleElement, toSVGTransformAttribute } from '../renderers/to-svg.js'
 import { setupStandardShape } from '../helpers.js'
 
@@ -7,16 +8,12 @@ const DEFAULT_STYLE = `
 `
 
 export function donut (params = {}) {
-  const slices = params.slices ?? []
+  const slices = (params.slices ?? []).filter((slice) => is.positive(slice.value))
   const outerRadius = 50
   const innerRadius = params.innerRadius ?? 20
   const center = outerRadius
-  const sum = slices.reduce((sum, slice) => {
-    return sum + (slice.value || 0)
-  }, 0)
-  if (sum === 0) return
+  const sum = slices.reduce((sum, slice) => sum + slice.value, 0)
   let shape = `<g ${toSVGTransformAttribute(params.transform)}>`
-  let currentAngle = -Math.PI / 2
   if (slices.length === 1) {
     const slice = slices[0]
     const pathData = `
@@ -27,12 +24,12 @@ export function donut (params = {}) {
       A ${innerRadius} ${innerRadius} 0 1 0 ${center} ${center + innerRadius}
       A ${innerRadius} ${innerRadius} 0 1 0 ${center} ${center - innerRadius}
     `
-    shape += `<path d="${pathData.trim()}" ${toSVGStyleAttributes(params)}>${toSVGTitleElement(slice)}</path>`
+    const styleAttrs = toSVGStyleAttributes({ ...slice, stroke: params.stroke })
+    shape += `<path d="${pathData.trim()}" ${styleAttrs} class="graphiks-donut-slice">${toSVGTitleElement(slice)}</path>`
   } else {
+    let currentAngle = -Math.PI / 2
     for (const slice of slices) {
-      const percentage = slice.value / sum
-      const angle = percentage * Math.PI * 2
-      if (angle <= 0) continue
+      const angle = (slice.value / sum) * Math.PI * 2
       const startAngle = currentAngle
       const endAngle = currentAngle + angle
       const startCos = Math.cos(startAngle)
@@ -55,10 +52,7 @@ export function donut (params = {}) {
         A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${x4} ${y4}
         Z
       `
-      const styleAttrs = toSVGStyleAttributes({
-        ...slice,
-        stroke: params.stroke
-      })
+      const styleAttrs = toSVGStyleAttributes({ ...slice, stroke: params.stroke })
       shape += `<path d="${pathData.trim()}" ${styleAttrs} class="graphiks-donut-slice">${toSVGTitleElement(slice)}</path>`
       currentAngle += angle
     }

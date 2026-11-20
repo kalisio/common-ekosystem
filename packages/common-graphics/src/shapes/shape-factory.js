@@ -21,7 +21,7 @@ export class ShapeFactory {
   }
 
   has (type) {
-    assert.that(type, is.string, 'type must a string')
+    assert.that(type, is.string, 'type must be a string')
     return this.registry.has(type)
   }
 
@@ -34,9 +34,9 @@ export class ShapeFactory {
   }
 
   build (params) {
-    assert.that(params, (v) => has.key(v, 'shape'), 'params must be an object with the property shape')
+    assert.that(params, (v) => is.object(v) && has.key(v, 'shape'), 'params must be an object with the property shape')
     const buildFn = this.registry.get(params.shape)
-    assert.that(buildFn, is.function, 'param.shape must be a known shape')
+    assert.that(buildFn, is.function, 'params.shape must be a known shape')
     const shape = { ...params, ...buildFn(params) }
     assert.all([
       { value: shape.width, validator: is.positiveInteger, message: 'shape.width must be a positive integer' },
