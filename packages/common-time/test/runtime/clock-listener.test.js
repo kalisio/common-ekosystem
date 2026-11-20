@@ -65,16 +65,24 @@ describe('createClockListener', () => {
       expect(tick).toHaveBeenCalledOnce()
       expect(tick.mock.calls[0][0].time.toISOString()).toBe('2026-01-01T00:00:01.000Z')
     })
-    it('rejects values that are not usable clocks and stays attached', () => {
+    it('rejects invalid clocks and keeps the current attachment', () => {
       const clock = create()
-      const disposed = new Clock()
+      const pause = vi.fn()
+      const listener = createClockListener({ pause }).attach(clock)
+      for (const value of [null, undefined, {}, 'clock', 42]) {
+        expect(() => listener.attach(value)).toThrow('next must be a Clock instance')
+      }
+      clock.pause()
+      expect(pause).toHaveBeenCalledOnce()
+      expect(listener.clock).toBe(clock)
+    })
+    it('rejects disposed clocks and keeps the current attachment', () => {
+      const clock = create()
+      const disposed = create()
       disposed.dispose()
       const pause = vi.fn()
       const listener = createClockListener({ pause }).attach(clock)
-      for (const value of [null, {}, 'clock']) {
-        expect(() => listener.attach(value)).toThrow(TypeError)
-      }
-      expect(() => listener.attach(disposed)).toThrow(Error)
+      expect(() => listener.attach(disposed)).toThrow('next should not be disposed')
       clock.pause()
       expect(pause).toHaveBeenCalledOnce()
       expect(listener.clock).toBe(clock)
@@ -127,7 +135,7 @@ describe('createClockListener', () => {
   describe('createClockListener', () => {
     it('rejects invalid handlers', () => {
       for (const handlers of [null, undefined, [], 'tick', { tick: null }, { tick: 'refresh' }, { '': () => {} }, { ' ': () => {} }]) {
-        expect(() => createClockListener(handlers)).toThrow(TypeError)
+        expect(() => createClockListener(handlers)).toThrow()
       }
     })
     it('returns a frozen listener', () => {

@@ -1,14 +1,11 @@
+import { is } from '@kalisio/common-core/predicates'
 import { duration } from '../utilities/duration.js'
 
-/**
- * Immutable duration backed by a normalized ISO 8601 string.
- * Calendar units are preserved and Moment instances are never exposed.
- */
 export class Duration {
   #iso
 
   constructor (value, unit) {
-    if (value instanceof Duration) {
+    if (is.instanceOf(value, Duration)) {
       if (unit !== undefined) {
         throw new TypeError('Cannot specify a unit when copying a Duration')
       }
@@ -20,7 +17,7 @@ export class Duration {
   }
 
   static from (value, unit) {
-    if (value instanceof Duration && unit === undefined) return value
+    if (is.instanceOf(value, Duration) && unit === undefined) return value
     return new Duration(value, unit)
   }
 

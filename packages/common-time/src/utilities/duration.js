@@ -1,3 +1,4 @@
+import { is } from '@kalisio/common-core/predicates'
 import moment from 'moment-timezone'
 
 const UNITS = [
@@ -13,7 +14,7 @@ const ISO_DURATION = new RegExp(
 )
 
 function normalizeUnit (unit) {
-  const normalized = typeof unit === 'string' ? moment.normalizeUnits(unit) : undefined
+  const normalized = is.string(unit) ? moment.normalizeUnits(unit) : undefined
   if (!UNITS.includes(normalized)) {
     throw new RangeError(`Invalid duration unit: ${unit}`)
   }
@@ -24,7 +25,7 @@ function normalizeUnit (unit) {
 function toMoment (value, unit) {
   let parsed
 
-  if (typeof value === 'string' && unit === undefined) {
+  if (is.string(value) && unit === undefined) {
     // Designators are accepted in any case, but Moment only parses uppercase ones
     // and silently returns a zero duration otherwise
     const iso = value.toUpperCase()
@@ -32,19 +33,16 @@ function toMoment (value, unit) {
       throw new RangeError(`Invalid ISO 8601 duration: ${value}`)
     }
     parsed = moment.duration(iso)
-  } else if (typeof value === 'number') {
-    if (!Number.isFinite(value)) {
-      throw new TypeError('Duration amount must be a finite number')
-    }
+  } else if (is.number(value)) {
     if (unit === undefined) {
       throw new TypeError('A numeric duration requires a unit')
     }
     parsed = moment.duration(value, normalizeUnit(unit))
   } else {
-    throw new TypeError('Expected an ISO 8601 duration or a number with a unit')
+    throw new TypeError('Expected an ISO 8601 duration or a finite number with a unit')
   }
 
-  if (!parsed.isValid() || !Number.isFinite(parsed.asMilliseconds())) {
+  if (!parsed.isValid() || !is.number(parsed.asMilliseconds())) {
     throw new RangeError('Invalid duration')
   }
 
@@ -75,7 +73,7 @@ function subtract (left, right) {
 // Calendar components are read from the input, not from the normalized string,
 // since Moment writes P1DT-24H as P0D although a calendar day is not always 24 hours long
 function hasCalendarComponent (value, unit) {
-  if (typeof value === 'number') return value !== 0 && CALENDAR_UNITS.includes(normalizeUnit(unit))
+  if (is.number(value)) return value !== 0 && CALENDAR_UNITS.includes(normalizeUnit(unit))
   const datePart = value.toUpperCase().replace(/^[+-]?P/, '').split('T')[0]
   return (datePart.match(/\d+(?:[.,]\d+)?/g) ?? []).some((amount) => Number(amount.replace(',', '.')) !== 0)
 }

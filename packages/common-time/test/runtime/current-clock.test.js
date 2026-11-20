@@ -51,7 +51,7 @@ describe('current clock', () => {
     ])('rejects %s and keeps the installed clock', (name, value) => {
       const clock = new Clock()
       setCurrentClock(clock)
-      expect(() => setCurrentClock(value)).toThrow(new TypeError('setCurrentClock expects a Clock instance'))
+      expect(() => setCurrentClock(value)).toThrow('clock must be a Clock instance')
       expect(getCurrentClock()).toBe(clock)
       clock.dispose()
     })

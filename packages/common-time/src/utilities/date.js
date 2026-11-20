@@ -1,3 +1,4 @@
+import { is } from '@kalisio/common-core/predicates'
 import moment from 'moment-timezone'
 import { duration as durations } from './duration.js'
 import { timezone as tz } from './timezone.js'
@@ -20,13 +21,13 @@ function assertTimezone (value) {
 }
 
 function assertLocale (locale) {
-  if (typeof locale !== 'string' || !moment.locales().includes(locale)) {
+  if (!is.string(locale) || !moment.locales().includes(locale)) {
     throw new RangeError(`Unknown or unloaded locale: ${locale}`)
   }
 }
 
 function normalizeUnit (unit, operation) {
-  const normalized = typeof unit === 'string' ? moment.normalizeUnits(unit) : undefined
+  const normalized = is.string(unit) ? moment.normalizeUnits(unit) : undefined
   if (!UNITS[operation].includes(normalized)) {
     throw new RangeError(`Invalid date unit for ${operation}: ${unit}`)
   }
@@ -45,16 +46,16 @@ function normalizeUnit (unit, operation) {
  */
 function parse (value, { format, timezone = DEFAULT_TIMEZONE } = {}) {
   assertTimezone(timezone)
-  if (format !== undefined && (typeof format !== 'string' || !format)) {
+  if (format !== undefined && (!is.string(format) || !format)) {
     throw new TypeError('Date format must be a non-empty string')
   }
 
   let parsed
-  if (value instanceof Date) {
+  if (is.instanceOf(value, Date)) {
     parsed = moment(value)
-  } else if (typeof value === 'number' && Number.isFinite(value)) {
+  } else if (is.number(value)) {
     parsed = moment(value)
-  } else if (typeof value === 'string' && value.trim()) {
+  } else if (is.string(value) && value.trim()) {
     parsed = moment.tz(value, format ?? moment.ISO_8601, true, timezone)
   } else {
     throw new TypeError('Expected a Date, a millisecond timestamp, or a date string')
@@ -74,20 +75,14 @@ function inTimezone (value, timezone, locale = DEFAULT_LOCALE) {
 
 /** Formats an instant in the chosen IANA timezone and locale (UTC and English by default). */
 function format (value, pattern = DEFAULT_FORMAT, { timezone = DEFAULT_TIMEZONE, locale = DEFAULT_LOCALE } = {}) {
-  if (typeof pattern !== 'string' || !pattern) {
+  if (!is.string(pattern) || !pattern) {
     throw new TypeError('Date format must be a non-empty string')
   }
   return inTimezone(value, timezone, locale).format(pattern)
 }
 
-/**
- * Calendar-aware addition in the given timezone; never mutates the input.
- * Fractional amounts follow Moment: days and months are rounded to the nearest integer,
- * half away from zero (1.5 days adds 2 days), weeks being converted to days and quarters
- * or years to months before rounding; hours and smaller units keep their fraction.
- */
 function add (value, amount, unit, { timezone = DEFAULT_TIMEZONE } = {}) {
-  if (typeof amount !== 'number' || !Number.isFinite(amount)) {
+  if (!is.number(amount)) {
     throw new TypeError('Date amount must be a finite number')
   }
   return inTimezone(value, timezone).add(amount, normalizeUnit(unit, 'add')).toDate()

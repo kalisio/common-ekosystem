@@ -1,9 +1,9 @@
+import { is } from '@kalisio/common-core/predicates'
 import { DateTime } from './date-time.js'
 import { Duration } from './duration.js'
 
 function isSnapshot (value) {
-  return value !== null &&
-    typeof value === 'object' &&
+  return is.plainObject(value) &&
     Object.hasOwn(value, 'start') &&
     Object.hasOwn(value, 'end')
 }
@@ -20,9 +20,12 @@ export class Interval {
   #end
 
   constructor (start, end, options = {}) {
-    let inheritedTimezone = start instanceof DateTime ? start.timezone : 'UTC'
+    let inheritedTimezone = 'UTC'
+    if (is.instanceOf(start, DateTime)) {
+      inheritedTimezone = start.timezone
+    }
 
-    if (end === undefined && start instanceof Interval) {
+    if (end === undefined && is.instanceOf(start, Interval)) {
       inheritedTimezone = start.timezone
       end = start.end
       start = start.start
@@ -30,12 +33,15 @@ export class Interval {
       const snapshot = start
       start = snapshot.start
       end = snapshot.end
-      inheritedTimezone = Object.hasOwn(snapshot, 'timezone')
-        ? snapshot.timezone
-        : start instanceof DateTime ? start.timezone : 'UTC'
-    } else if (end === undefined && typeof start === 'string' && start.includes('/')) {
+
+      if (Object.hasOwn(snapshot, 'timezone')) {
+        inheritedTimezone = snapshot.timezone
+      } else if (is.instanceOf(start, DateTime)) {
+        inheritedTimezone = start.timezone
+      }
+    } else if (end === undefined && is.string(start) && start.includes('/')) {
       const bounds = start.split('/')
-      if (bounds.length !== 2 || bounds.some((bound) => !bound.trim())) {
+      if (bounds.length !== 2 || bounds.some(bound => !is.nonEmptyString(bound))) {
         throw new RangeError(`Invalid ISO 8601 interval: ${start}`)
       }
       start = bounds[0]
@@ -46,9 +52,10 @@ export class Interval {
       throw new TypeError('Interval requires start and end')
     }
 
-    const zone = options.timezone === undefined
-      ? inheritedTimezone
-      : options.timezone
+    let zone = inheritedTimezone
+    if (options.timezone !== undefined) {
+      zone = options.timezone
+    }
 
     this.#start = DateTime.from(start, { timezone: zone })
     this.#end = DateTime.from(end, { timezone: zone })
@@ -61,7 +68,7 @@ export class Interval {
   }
 
   static from (value, end, options) {
-    if (value instanceof Interval && end === undefined && options === undefined) return value
+    if (is.instanceOf(value, Interval) && end === undefined && options === undefined) return value
     return new Interval(value, end, options)
   }
 

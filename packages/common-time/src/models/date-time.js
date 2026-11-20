@@ -1,12 +1,10 @@
+import { is } from '@kalisio/common-core/predicates'
 import { date } from '../utilities/date.js'
 import { timezone } from '../utilities/timezone.js'
 import { Duration } from './duration.js'
 
 function isSnapshot (value) {
-  return value !== null &&
-    typeof value === 'object' &&
-    !(value instanceof Date) &&
-    !(value instanceof DateTime) &&
+  return is.plainObject(value) &&
     Object.hasOwn(value, 'instant') &&
     Object.hasOwn(value, 'timezone')
 }
@@ -20,21 +18,29 @@ export class DateTime {
   #timezone
 
   constructor (value = Date.now(), options = {}) {
+    const isDateTime = is.instanceOf(value, DateTime)
     const snapshot = isSnapshot(value)
 
-    const inheritedTimezone = value instanceof DateTime
-      ? value.#timezone
-      : snapshot ? value.timezone : 'UTC'
+    let inheritedTimezone = 'UTC'
+    if (isDateTime) {
+      inheritedTimezone = value.#timezone
+    } else if (snapshot) {
+      inheritedTimezone = value.timezone
+    }
 
-    const zone = options.timezone === undefined
-      ? inheritedTimezone
-      : options.timezone
+    let zone = inheritedTimezone
+    if (options.timezone !== undefined) {
+      zone = options.timezone
+    }
 
     this.#timezone = timezone.normalize(zone)
 
-    const input = value instanceof DateTime
-      ? value.#timestamp
-      : snapshot ? value.instant : value
+    let input = value
+    if (isDateTime) {
+      input = value.#timestamp
+    } else if (snapshot) {
+      input = value.instant
+    }
 
     this.#timestamp = date.parse(input, {
       timezone: this.#timezone,
@@ -45,7 +51,7 @@ export class DateTime {
   }
 
   static from (value, options) {
-    if (value instanceof DateTime && options === undefined) return value
+    if (is.instanceOf(value, DateTime) && options === undefined) return value
     return new DateTime(value, options)
   }
 

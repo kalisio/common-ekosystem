@@ -1,10 +1,8 @@
-import { is } from '@kalisio/common-core/predicates'
+import { assert, is } from '@kalisio/common-core/predicates'
 import { Clock } from './clock.js'
 
 export function createClockListener (handlers) {
-  if (!is.plainObject(handlers)) {
-    throw new TypeError('createClockListener expects an object of event handlers')
-  }
+  assert.that(handlers, is.plainObject, 'handlers muse be an object')
   const entries = Object.entries(handlers)
   for (const [event, callback] of entries) {
     if (!is.nonEmptyString(event)) {
@@ -23,8 +21,8 @@ export function createClockListener (handlers) {
     },
 
     attach (next) {
-      if (!is.instanceOf(next, Clock)) throw new TypeError('attach expects a Clock instance')
-      if (next.disposed) throw new Error('attach expects a Clock that has not been disposed')
+      assert.that(next, (v) => is.instanceOf(v, Clock), 'next must be a Clock instance')
+      assert.that(next.disposed, is.booleanFalse, 'next should not be disposed')
       if (next === clock) return listener
       const subscriptions = []
       try {
