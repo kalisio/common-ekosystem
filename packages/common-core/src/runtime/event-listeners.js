@@ -1,3 +1,6 @@
+// Helpers built on a single contract: on(event, callback) returns an unsubscribe
+// function. Any emitter implementing it works, the event bus and the clock included.
+
 // Subscribes each handler to its event and returns a stop function removing
 // them all. Keys can be strings or symbols. Aborting the signal stops them too.
 // If a subscription fails, the ones already made are removed before rethrowing.
@@ -27,7 +30,6 @@ export function listen (emitter, handlers, { signal } = {}) {
 // aborts first, or with the error thrown by the filter.
 export function waitFor (emitter, event, { filter, signal } = {}) {
   return new Promise((resolve, reject) => {
-    if (signal?.aborted) return reject(signal.reason)
     let unsubscribe = null
     let settled = false
     function settle (callback, value) {
@@ -44,6 +46,7 @@ export function waitFor (emitter, event, { filter, signal } = {}) {
     function onAbort () {
       settle(reject, signal.reason)
     }
+    if (signal?.aborted) return onAbort()
     unsubscribe = emitter.on(event, (payload) => {
       if (settled) return
       try {
