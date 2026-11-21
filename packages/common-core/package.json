@@ -14,6 +14,11 @@
       "import": "./dist/utilities/index.mjs",
       "require": "./dist/utilities/index.cjs"
     },
+    "./structures": {
+      "development": "./src/structures/index.js",
+      "import": "./dist/structures/index.mjs",
+      "require": "./dist/structures/index.cjs"
+    },
     "./runtime": {
       "development": "./src/runtime/index.js",
       "import": "./dist/runtime/index.mjs",
@@ -172,6 +177,10 @@
       "./utilities": {
         "import": "./dist/utilities/index.mjs",
         "require": "./dist/utilities/index.cjs"
+      },
+      "./structures": {
+        "import": "./dist/structures/index.mjs",
+        "require": "./dist/structures/index.cjs"
       },
       "./runtime": {
         "import": "./dist/runtime/index.mjs",

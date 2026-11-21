@@ -1,3 +1,4 @@
+import { Factory, Cache } from '@kalisio/common-core/structures'
 import { string } from '@kalisio/common-core/utilities'
 import { ShapeFactory } from '../../src/shapes'
 import * as BUILTIN_SHAPES from '../../src/shapes/builtin-shapes/index.js'
@@ -29,14 +30,16 @@ describe('ShapeFactory', () => {
   })
 
   describe('constructor', () => {
-    it('uses default cache sizes when no options are provided', () => {
-      expect(factory.registry.max).toBe(100)
+    it('uses a factory registry and default cache sizes', () => {
+      expect(factory.registry).toBeInstanceOf(Factory)
+      expect(factory.registry.name).toBe('shapes')
+      expect(factory.svgCache).toBeInstanceOf(Cache)
+      expect(factory.pngCache).toBeInstanceOf(Cache)
       expect(factory.svgCache.max).toBe(100)
       expect(factory.pngCache.max).toBe(100)
     })
     it('respects custom cache sizes', () => {
-      const f = new ShapeFactory({ registrySize: 10, svgCacheSize: 20, pngCacheSize: 30 })
-      expect(f.registry.max).toBe(10)
+      const f = new ShapeFactory({ svgCacheSize: 20, pngCacheSize: 30 })
       expect(f.svgCache.max).toBe(20)
       expect(f.pngCache.max).toBe(30)
     })
@@ -51,6 +54,7 @@ describe('ShapeFactory', () => {
     it('creates independent registries and caches per instance', () => {
       const other = new ShapeFactory()
       other.register('custom', makeCircleFn())
+      expect(factory.registry).not.toBe(other.registry)
       expect(factory.has('custom')).toBe(false)
       expect(other.svgCache).not.toBe(factory.svgCache)
       expect(other.pngCache).not.toBe(factory.pngCache)
@@ -74,9 +78,10 @@ describe('ShapeFactory', () => {
     it('throws when buildFn is not a function', () => {
       expect(() => factory.register('circle', 'not-a-fn')).toThrow('buildFn must be a function')
     })
-    it('evicts the least recently used types when the registry is full', () => {
+    it('does not evict registered shape types', () => {
       for (let i = 0; i < 100; i++) factory.register(`custom-${i}`, makeCircleFn())
-      expect(factory.has('circle')).toBe(false)
+      expect(factory.has('circle')).toBe(true)
+      expect(factory.has('custom-0')).toBe(true)
       expect(factory.has('custom-99')).toBe(true)
     })
   })
@@ -162,7 +167,7 @@ describe('ShapeFactory', () => {
       expect(() => factory.build({ color: 'red' })).toThrow('params must be an object with the property shape')
     })
     it('throws when shape type is not registered', () => {
-      expect(() => factory.build({ shape: 'mesh' })).toThrow('params.shape must be a known shape')
+      expect(() => factory.build({ shape: 'mesh' })).toThrow('[shapes] unknown key: mesh')
     })
     it('throws when buildFn returns a non positive width', () => {
       factory.register('bad', vi.fn(() => ({ width: -1, height: 32, margin: 4 })))

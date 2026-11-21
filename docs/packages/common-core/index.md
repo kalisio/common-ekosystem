@@ -11,12 +11,13 @@ _Core utilities for the Kalisio ekosystem_
 
 **common-core** is a lightweight library that provides core utilities that work in both **browsers** and **Node.js**.
 
-It is organized around four modules:
-- [predicates](./predicates/assert.md) - minimalist conditional and assertion functions
-- [utilities](./utilities/byte.md) - general purpose utility functions
-- [runtime](./runtim/event-bus.md) - stateful components with explicit lifecycle management
-- [io](./io/csv.md) - helpers for reading and parsing external data sources
-- [operators](./operators/compare.md) - higher-order functions that process data
+It is organized around six modules:
+- [predicates](./predicates/assert.md) - Minimalist conditional and assertion functions
+- [utilities](./utilities/byte.md) - General purpose utility functions
+- [structures](./structures/cache.md) - Reusable data structures for storing, caching, and creating objects
+- [runtime](./runtime/event-bus.md) - Stateful components with explicit lifecycle management
+- [io](./io/csv.md) - Helpers for reading and parsing external data sources
+- [operators](./operators/compare.md) - Higher-order functions that process data
 
 ## Installation
 
@@ -65,6 +66,14 @@ Predicates have no additional dependencies.
 
 ```js
 import { string, object, schedule } from '@kalisio/common-core/utilities'
+```
+
+Utilities have no additional dependencies.
+
+#### structures
+
+```js
+import { Cache, Factory } from '@kalisio/common-core/structures'
 ```
 
 Utilities have no additional dependencies.

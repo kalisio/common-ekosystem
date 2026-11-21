@@ -90,8 +90,7 @@
   },
   "homepage": "https://github.com/kalisio/common-ekosystem/tree/master/packages/common-graphics",
   "dependencies": {
-    "chroma-js": "catalog:",
-    "lru-cache": "catalog:"
+    "chroma-js": "catalog:"
   },
   "devDependencies": {
     "pixelmatch": "catalog:",

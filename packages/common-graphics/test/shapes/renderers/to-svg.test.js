@@ -1,4 +1,4 @@
-import { LRUCache } from 'lru-cache'
+import { Cache } from '@kalisio/common-core/structures'
 import {
   toSVG,
   toSVGStyleElement,
@@ -14,7 +14,7 @@ describe('SVG', () => {
   let mockParams
 
   beforeEach(() => {
-    svgCache = new LRUCache({ max: 100 })
+    svgCache = new Cache('svg', { max: 100 })
     mockParams = {
       width: 100,
       height: 100,
