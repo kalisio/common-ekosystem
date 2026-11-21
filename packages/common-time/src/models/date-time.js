@@ -20,33 +20,25 @@ export class DateTime {
   constructor (value = Date.now(), options = {}) {
     const isDateTime = is.instanceOf(value, DateTime)
     const snapshot = isSnapshot(value)
-
     let inheritedTimezone = 'UTC'
-    if (isDateTime) {
-      inheritedTimezone = value.#timezone
-    } else if (snapshot) {
+    if (isDateTime || snapshot) {
       inheritedTimezone = value.timezone
     }
-
     let zone = inheritedTimezone
     if (options.timezone !== undefined) {
       zone = options.timezone
     }
-
     this.#timezone = timezone.normalize(zone)
-
     let input = value
     if (isDateTime) {
       input = value.#timestamp
     } else if (snapshot) {
       input = value.instant
     }
-
     this.#timestamp = date.parse(input, {
       timezone: this.#timezone,
       format: options.format
     }).getTime()
-
     Object.freeze(this)
   }
 

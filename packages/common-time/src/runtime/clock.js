@@ -15,6 +15,49 @@ const DEFAULT_CONFIG = {
   loop: false
 }
 
+function normalizeWindow (value) {
+  if (value === null) return null
+  if (!is.plainObject(value) ||
+      !Object.hasOwn(value, 'start') ||
+      !Object.hasOwn(value, 'end')) {
+    throw new TypeError('Clock window must have start and end offsets')
+  }
+  const start = Duration.from(value.start)
+  const end = Duration.from(value.end)
+  // Calendar offsets could be ordered at one date and reversed at another
+  let startOffset, endOffset
+  try {
+    startOffset = start.asMilliseconds()
+    endOffset = end.asMilliseconds()
+  } catch {
+    throw new RangeError('Clock window offsets must be time-based durations, such as -PT3H')
+  }
+  if (startOffset > endOffset) {
+    throw new RangeError('Clock window start offset must not be after its end offset')
+  }
+  return {
+    start: start.toISOString(),
+    end: end.toISOString()
+  }
+}
+
+function normalizeBounds (value, timezone) {
+  if (value === null) return null
+  if (!is.plainObject(value) ||
+      !Object.hasOwn(value, 'start') ||
+      !Object.hasOwn(value, 'end')) {
+    throw new TypeError('Clock bounds must have start and end instants')
+  }
+  const range = new TimeRange(value.start, value.end, { timezone })
+  if (range.isEmpty()) {
+    throw new RangeError('Clock bounds must not be empty')
+  }
+  return {
+    start: range.start.toISOString(),
+    end: range.end.toISOString()
+  }
+}
+
 function normalizeConfig (previous, changes) {
   if (!is.plainObject(changes)) {
     throw new TypeError('Clock configuration must be an object')
@@ -24,92 +67,48 @@ function normalizeConfig (previous, changes) {
       throw new RangeError(`Unknown Clock option: ${key}`)
     }
   }
-
   // As for every other option, undefined leaves the value unchanged; null is validated and rejected
-  const mode = changes.mode !== undefined
-    ? changes.mode
-    : changes.speed !== undefined && changes.speed !== 1 ? 'simulated' : previous.mode
-
+  let mode = previous.mode
+  if (changes.mode !== undefined) {
+    mode = changes.mode
+  } else if (changes.speed !== undefined && changes.speed !== 1) {
+    mode = 'simulated'
+  }
   if (!is.oneOf(mode, ['realtime', 'simulated'])) {
     throw new RangeError(`Invalid Clock mode: ${mode}`)
   }
-
-  const speed = changes.speed !== undefined
-    ? changes.speed
-    : changes.mode === 'realtime' ? 1 : previous.speed
-
+  let speed = previous.speed
+  if (changes.speed !== undefined) {
+    speed = changes.speed
+  } else if (changes.mode === 'realtime') {
+    speed = 1
+  }
   if (!is.number(speed) || speed === 0) {
     throw new RangeError('Clock speed must be a finite, nonzero number')
   }
   if (mode === 'realtime' && speed !== 1) {
     throw new RangeError('Realtime mode requires speed 1')
   }
-
   const tickInterval = changes.tickInterval === undefined
     ? previous.tickInterval
     : changes.tickInterval
-
   if (!is.integer(tickInterval) || tickInterval < 0 || tickInterval > 2147483647) {
     throw new RangeError('tickInterval must be an integer between 0 and 2147483647')
   }
-
   const zone = timezone.normalize(
     changes.timezone === undefined ? previous.timezone : changes.timezone
   )
-
   const window = changes.window === undefined ? previous.window : changes.window
   const bounds = changes.bounds === undefined ? previous.bounds : changes.bounds
   const loop = changes.loop === undefined ? previous.loop : changes.loop
-
   if (!is.boolean(loop)) {
     throw new TypeError('Clock loop must be a boolean')
   }
-
-  let normalizedWindow = null
-  if (window !== null) {
-    if (!is.plainObject(window) ||
-        !Object.hasOwn(window, 'start') || !Object.hasOwn(window, 'end')) {
-      throw new TypeError('Clock window must have start and end offsets')
-    }
-    const start = Duration.from(window.start)
-    const end = Duration.from(window.end)
-    // Calendar offsets (P1D, P1M…) could be ordered at one date and reversed at another
-    let startOffset, endOffset
-    try {
-      startOffset = start.asMilliseconds()
-      endOffset = end.asMilliseconds()
-    } catch {
-      throw new RangeError('Clock window offsets must be time-based durations, such as -PT3H')
-    }
-    if (startOffset > endOffset) {
-      throw new RangeError('Clock window start offset must not be after its end offset')
-    }
-    normalizedWindow = {
-      start: start.toISOString(),
-      end: end.toISOString()
-    }
-  }
-
-  let normalizedBounds = null
-  if (bounds !== null) {
-    if (!is.plainObject(bounds) ||
-        !Object.hasOwn(bounds, 'start') || !Object.hasOwn(bounds, 'end')) {
-      throw new TypeError('Clock bounds must have start and end instants')
-    }
-    const range = new TimeRange(bounds.start, bounds.end, { timezone: zone })
-    if (range.isEmpty()) {
-      throw new RangeError('Clock bounds must not be empty')
-    }
-    normalizedBounds = {
-      start: range.start.toISOString(),
-      end: range.end.toISOString()
-    }
-  }
-
+  const normalizedWindow = normalizeWindow(window)
+  const normalizedBounds = normalizeBounds(bounds, zone)
   if (loop && !normalizedBounds) {
     throw new RangeError('Clock loop requires bounds')
   }
-
   return {
     mode,
     timezone: zone,
