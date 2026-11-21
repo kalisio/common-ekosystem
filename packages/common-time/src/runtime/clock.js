@@ -2,7 +2,7 @@ import { is } from '@kalisio/common-core/predicates'
 import { createEventBus } from '@kalisio/common-core/runtime'
 import { DateTime } from '../models/date-time.js'
 import { Duration } from '../models/duration.js'
-import { Interval } from '../models/interval.js'
+import { TimeRange } from '../models/time-range.js'
 import { timezone } from '../utilities/timezone.js'
 
 const DEFAULT_CONFIG = {
@@ -10,7 +10,7 @@ const DEFAULT_CONFIG = {
   timezone: 'UTC',
   speed: 1,
   tickInterval: 1000,
-  interval: null,
+  window: null,
   bounds: null,
   loop: false
 }
@@ -57,7 +57,7 @@ function normalizeConfig (previous, changes) {
     changes.timezone === undefined ? previous.timezone : changes.timezone
   )
 
-  const window = changes.interval === undefined ? previous.interval : changes.interval
+  const window = changes.window === undefined ? previous.window : changes.window
   const bounds = changes.bounds === undefined ? previous.bounds : changes.bounds
   const loop = changes.loop === undefined ? previous.loop : changes.loop
 
@@ -69,7 +69,7 @@ function normalizeConfig (previous, changes) {
   if (window !== null) {
     if (!is.plainObject(window) ||
         !Object.hasOwn(window, 'start') || !Object.hasOwn(window, 'end')) {
-      throw new TypeError('Clock interval must have start and end offsets')
+      throw new TypeError('Clock window must have start and end offsets')
     }
     const start = Duration.from(window.start)
     const end = Duration.from(window.end)
@@ -79,10 +79,10 @@ function normalizeConfig (previous, changes) {
       startOffset = start.asMilliseconds()
       endOffset = end.asMilliseconds()
     } catch {
-      throw new RangeError('Clock interval offsets must be time-based durations, such as -PT3H')
+      throw new RangeError('Clock window offsets must be time-based durations, such as -PT3H')
     }
     if (startOffset > endOffset) {
-      throw new RangeError('Clock interval start offset must not be after its end offset')
+      throw new RangeError('Clock window start offset must not be after its end offset')
     }
     normalizedWindow = {
       start: start.toISOString(),
@@ -96,7 +96,7 @@ function normalizeConfig (previous, changes) {
         !Object.hasOwn(bounds, 'start') || !Object.hasOwn(bounds, 'end')) {
       throw new TypeError('Clock bounds must have start and end instants')
     }
-    const range = new Interval(bounds.start, bounds.end, { timezone: zone })
+    const range = new TimeRange(bounds.start, bounds.end, { timezone: zone })
     if (range.isEmpty()) {
       throw new RangeError('Clock bounds must not be empty')
     }
@@ -115,17 +115,17 @@ function normalizeConfig (previous, changes) {
     timezone: zone,
     speed,
     tickInterval,
-    interval: normalizedWindow,
+    window: normalizedWindow,
     bounds: normalizedBounds,
     loop
   }
 }
 
 function toOffsets (config) {
-  return config.interval
+  return config.window
     ? {
-        start: new Duration(config.interval.start).asMilliseconds(),
-        end: new Duration(config.interval.end).asMilliseconds()
+        start: new Duration(config.window.start).asMilliseconds(),
+        end: new Duration(config.window.end).asMilliseconds()
       }
     : null
 }
@@ -205,10 +205,10 @@ export class Clock {
   // Accepts a candidate configuration, so that a change can be validated before it is applied
   #snapshot (timestamp, config = this.#config, offsets = this.#offsets) {
     const time = new DateTime(timestamp, { timezone: config.timezone })
-    const interval = offsets
-      ? new Interval(timestamp + offsets.start, timestamp + offsets.end, { timezone: time.timezone })
+    const range = offsets
+      ? new TimeRange(timestamp + offsets.start, timestamp + offsets.end, { timezone: time.timezone })
       : null
-    return Object.freeze({ time, interval, status: this.#status })
+    return Object.freeze({ time, range, status: this.#status })
   }
 
   #current () {
@@ -282,8 +282,8 @@ export class Clock {
       const timestamp = this.#current()
       if (this.#disposed) return
       if (this.#status === 'running' && this.#bus.listenerCount('tick') > 0) {
-        const { time, interval } = this.#snapshot(timestamp)
-        this.#bus.emit('tick', Object.freeze({ time, interval }))
+        const { time, range } = this.#snapshot(timestamp)
+        this.#bus.emit('tick', Object.freeze({ time, range }))
       }
       if (!this.#hasObservers()) this.#refreshTimer()
     }, this.#config.tickInterval)
@@ -291,10 +291,10 @@ export class Clock {
 
   config () {
     this.#assertActive()
-    const { interval, bounds, ...rest } = this.#config
+    const { window, bounds, ...rest } = this.#config
     return {
       ...rest,
-      interval: interval && { ...interval },
+      window: window && { ...window },
       bounds: bounds && { ...bounds }
     }
   }
@@ -309,8 +309,8 @@ export class Clock {
     return new DateTime(this.#settledTime(), { timezone: this.#config.timezone })
   }
 
-  interval () {
-    return this.state().interval
+  range () {
+    return this.state().range
   }
 
   configure (changes) {

@@ -9,36 +9,21 @@ description: Time utilities for the Kalisio ekosystem
 
 ## Overview
 
-`@kalisio/common-time` provides a unified API for working with dates, times, durations, intervals, timezones,
-and clocks across the Kalisio ekosystem.
+`@kalisio/common-time` provides utilities and models for dates, durations, time ranges, timezones, and application clocks.
 
 ::: tip
-
-This package relies on [Moment.js](https://momentjs.com/) which is now in maintenance mode. It no longer receives
-major feature updates, and its maintainers recommend considering modern alternatives for new projects.
-
-By encapsulating Moment.js behind a consistent API, `common-time` reduces direct dependencies and facilitates a
-future migration to another date/time library.
-
+Moment.js is in maintenance mode and does not receive major feature updates. Its maintainers recommend considering modern alternatives for new projects. `common-time` encapsulates Moment.js behind a stable API to simplify maintenance and a potential migration.
 :::
 
-The package provides three complementary levels of abstraction:
+The package is organized into three modules:
 
-- [Utilities](./utilities/date.md) — Functional helpers for parsing, formatting, manipulating, and comparing dates, durations, and timezones.
-- [Models](./models/date-time.md) — Immutable `DateTime`, `Duration`, and `Interval` objects for representing temporal values.
-- [Runtime](./runtime/clock.md) — A configurable `Clock` supporting realtime and simulated time, temporal windows, playback speeds, bounds, looping, and events.
+- [Utilities](./utilities/date.md) — Functional date, duration, and timezone helpers.
+- [Models](./models/date-time.md) — Immutable [`DateTime`](./models/date-time.md), [`Duration`](./models/duration.md), and [`TimeRange`](./models/time-range.md) values.
+- [Runtime](./runtime/clock.md) — Mutable [`Clock`](./runtime/clock.md), [shared clock](./runtime/current-clock.md), and [clock listeners](./runtime/clock-listener.md).
 
-Applications can also install a shared clock, allowing independent modules to use a common temporal reference.
-
-::: tip
-
-All public APIs use standard JavaScript values and ISO 8601 representations rather than exposing **Moment.js** objects.
-
-:::
+All public APIs use standard JavaScript values and ISO 8601 representations without exposing Moment.js objects.
 
 ## Installation
-
-Install with your preferred package manager:
 
 ::: code-group
 
@@ -56,236 +41,115 @@ yarn add @kalisio/common-time
 
 :::
 
-Import the required features directly from the package:
-
 ```js
 import {
-  DateTime,
-  Duration,
-  Interval,
-  Clock,
-  getCurrentClock,
-  setCurrentClock,
-  createClockListener
+  DateTime, Duration, TimeRange,
+  Clock, getCurrentClock, setCurrentClock, createClockListener
 } from '@kalisio/common-time'
-```
-
-For browser usage, an ESM-compatible CDN that resolves package dependencies may be used, subject to browser compatibility:
-
-```html
-<script type="module">
-  import { DateTime } from 'https://esm.sh/@kalisio/common-time'
-
-  console.log(DateTime.now().toISOString())
-</script>
 ```
 
 ## Usage
 
 ### Working with dates and times
 
-The `DateTime` model represents an instant associated with a timezone.
-
-It is immutable: operations return new instances without modifying the original value.
+`DateTime` represents an instant associated with an IANA timezone. The object is immutable; methods such as `add()` and `withTimezone()` return new instances.
 
 ```js
-import { DateTime } from '@kalisio/common-time'
-
-const now = DateTime.now()
-
-// Create a date in a specific timezone
 const departure = DateTime.from('2026-11-20T10:00:00', {
   timezone: 'Europe/Paris'
 })
 
-// Convert its representation to another timezone
 const utc = departure.withTimezone('UTC')
-
-// Format a date
-console.log(departure.format('YYYY-MM-DD HH:mm'))
-
-// Access the underlying instant
-console.log(departure.toISOString())
-
-// Serialize the instant and timezone
-console.log(departure.toJSON())
+departure.format('YYYY-MM-DD HH:mm')
+departure.toISOString()
+departure.toJSON()
 ```
-
-The timezone affects calendar operations and formatting, but does not change the underlying instant.
 
 ### Working with durations
 
-The `Duration` model represents an ISO 8601 duration.
-
-Durations can express fixed elapsed time as well as calendar-based quantities such as days, months, and years.
+`Duration` represents ISO 8601 durations, including fixed time amounts and calendar periods.
 
 ```js
-import { DateTime, Duration } from '@kalisio/common-time'
-
 const duration = Duration.from('PT3H')
+duration.asMilliseconds() // 10800000
 
-// Convert a time-based duration to milliseconds
-console.log(duration.asMilliseconds()) // 10800000
-
-// Combine durations
-const extended = duration.add('PT30M')
-
-console.log(extended.toISOString()) // PT3H30M
-
-// Apply a duration to a date
 const start = DateTime.from('2026-11-20T10:00:00Z')
 const end = start.add(duration)
-
-console.log(end.toISOString()) // 2026-11-20T13:00:00.000Z
+end.toISOString() // '2026-11-20T13:00:00.000Z'
 ```
 
-Calendar durations are applied according to the timezone of the `DateTime`. Consequently, adding one calendar day is not necessarily equivalent to adding 24 hours when crossing a daylight-saving transition.
+A calendar day is not necessarily 24 elapsed hours across daylight-saving transitions.
 
-### Working with intervals
+### Working with time ranges
 
-The `Interval` model represents a temporal interval with an inclusive start and an exclusive end: `[start, end)`.
+`TimeRange` represents an immutable half-open range `[start, end)`. The start is included, the end excluded.
 
 ```js
-import { Interval } from '@kalisio/common-time'
+const range = new TimeRange('2026-11-20T10:00:00Z', '2026-11-20T13:00:00Z')
 
-const interval = new Interval(
-  '2026-11-20T10:00:00Z',
-  '2026-11-20T13:00:00Z'
-)
+range.duration.toISOString() // 'PT3H'
+range.contains('2026-11-20T11:00:00Z') // true
+range.contains('2026-11-20T13:00:00Z') // false
 
-// Duration of the interval
-console.log(interval.duration.toISOString()) // PT3H
-
-// Test whether an instant belongs to the interval
-console.log(interval.contains('2026-11-20T11:00:00Z')) // true
-
-// Move the interval
-const shifted = interval.shift('PT1H')
-
-console.log(shifted.toString())
-// 2026-11-20T11:00:00.000Z/2026-11-20T14:00:00.000Z
+const shifted = range.shift('PT1H')
+shifted.toString()
+// '2026-11-20T11:00:00.000Z/2026-11-20T14:00:00.000Z'
 ```
 
-Intervals also support intersection, overlap detection, and timezone conversion.
+Other operations include `overlaps()`, `intersection()`, `withTimezone()`, and `equals()`.
 
 ### Using a clock
 
-The `Clock` runtime provides a common temporal reference for applications and services.
-
-A clock can operate in two modes:
-
-- **`realtime`** — Follows the system clock.
-- **`simulated`** — Advances from a specified instant using a configurable speed, including negative speeds for backward playback.
-
-Time is calculated on demand. An internal timer is only needed to emit notifications to registered observers.
+A `Clock` follows system time (`realtime`) or progresses from a chosen instant using a configurable speed (`simulated`). Time is calculated on demand; a timer is used only when event observers need notifications.
 
 ```js
-import { Clock } from '@kalisio/common-time'
-
-// A realtime clock
-const clock = new Clock({
-  timezone: 'Europe/Paris',
-  tickInterval: 1000
-})
-
-// Read the current time
-console.log(clock.now().toISOString())
-
-// Listen for ticks
+const clock = new Clock({ timezone: 'Europe/Paris', tickInterval: 1000 })
 const unsubscribe = clock.on('tick', ({ time }) => {
   console.log(time.format('HH:mm:ss'))
 })
 
-// Stop listening
 unsubscribe()
-
-// Release resources
 clock.dispose()
 ```
 
 ### Simulating time
 
-A simulated clock can replay historical data, accelerate time, or move backward.
-
 ```js
-import { Clock } from '@kalisio/common-time'
-
-const clock = new Clock({
+const playback = new Clock({
   mode: 'simulated',
-  speed: 60,
-  tickInterval: 1000
+  speed: 60
 }, '2026-11-20T10:00:00Z')
 
-// One simulated minute elapses per real second
-const unsubscribe = clock.on('tick', ({ time }) => {
-  console.log(time.toISOString())
-})
-
-// Pause playback after three seconds
-setTimeout(() => {
-  clock.pause()
-
-  // Change the current instant
-  clock.set('2026-11-20T12:00:00Z')
-
-  // Resume playback
-  clock.resume()
-}, 3000)
-
-// Release resources after six seconds
-setTimeout(() => {
-  unsubscribe()
-  clock.dispose()
-}, 6000)
-```
-
-The playback speed and other configuration properties can be changed dynamically:
-
-```js
-clock.speed(120)
-
-clock.configure({
-  timezone: 'Europe/Paris',
-  tickInterval: 500
-})
+playback.speed(-2) // Playback backward
+playback.pause()
+playback.set('2026-11-20T12:00:00Z')
+playback.resume()
+playback.dispose()
 ```
 
 ### Using a temporal window
 
-A clock can maintain a temporal window relative to its current time.
-
-For example, a three-hour sliding window ending at the current instant:
+`window` holds relative time offsets, while `range()` returns the resolved `TimeRange`. The tick cadence is independently configured by `tickInterval`.
 
 ```js
-import { Clock } from '@kalisio/common-time'
-
 const clock = new Clock({
-  interval: {
-    start: '-PT3H',
-    end: 'PT0S'
-  }
+  window: { start: '-PT3H', end: 'PT0S' }
 })
 
-const { time, interval } = clock.state()
-
+const { time, range } = clock.state()
 console.log(time.toISOString())
-console.log(interval.start.toISOString())
-console.log(interval.end.toISOString())
+console.log(range.start.toISOString())
+console.log(range.end.toISOString())
+
+clock.range() // Same type as state().range: TimeRange
+clock.dispose()
 ```
 
-The temporal window automatically follows the clock.
-
-Window offsets use time-based ISO 8601 durations, such as `PT30M`, `-PT3H`, or `PT12H`. Calendar-based offsets, such as `P1M`, are not supported for clock windows.
+Window offsets must be time-based ISO 8601 durations. Calendar offsets such as `P1M` are not accepted.
 
 ### Bounding and looping playback
 
-A simulated clock can be restricted to a temporal range.
-
-When the clock reaches a boundary, it either stops or loops back into the range, according to the `loop` option.
-
 ```js
-import { Clock } from '@kalisio/common-time'
-
 const clock = new Clock({
   mode: 'simulated',
   speed: 3600,
@@ -296,111 +160,59 @@ const clock = new Clock({
   loop: true
 }, '2026-11-20T10:00:00Z')
 
-clock.on('loop', ({ time, cycles, direction }) => {
-  console.log(`Completed ${cycles} cycle(s)`)
-})
-
-clock.on('tick', ({ time }) => {
-  console.log(time.toISOString())
+clock.on('loop', ({ cycles, direction }) => {
+  console.log(cycles, direction)
 })
 ```
 
-When `loop` is `false`, the clock stops at the boundary and enters the `ended` state.
-
-A clock exposes its current state through `state()`:
-
-```js
-const state = clock.state()
-
-console.log(state.time)
-console.log(state.interval)
-console.log(state.status) // running, paused or ended
-```
+Without looping, the clock stops on reaching the bounds and enters the `ended` state. With looping, it wraps within the configured bounds.
 
 ### Listening to clock events
 
-Clocks expose an event-driven API for observing temporal changes and playback transitions.
-
 | Event | Description |
-|---|---|
-| `tick` | Periodic notification containing the current time and resolved interval. |
-| `change` | Explicit change of the clock's time, configuration, or state. |
-| `pause` | The clock has been paused. |
-| `resume` | The clock has resumed. |
-| `reset` | The clock has been reset to realtime mode. |
-| `loop` | The clock has crossed one or more playback boundaries. |
-| `end` | The clock has reached a boundary and stopped. |
+|-------|-------------|
+| `tick` | Periodic `{ time, range }` notification. |
+| `change` | Explicit modification; `{ time, range, status }`. |
+| `pause`, `resume`, `reset`, `end` | Lifecycle transitions with `{ time, range, status }`. |
+| `loop` | `{ time, cycles, direction }` when bounds are crossed. |
 
-Register callbacks with `on()` or `once()`, and remove them with `off()` or the returned unsubscribe function.
+Callbacks receive payloads directly. `on()` and `once()` return an unsubscribe function.
 
 ```js
-const unsubscribe = clock.on('change', ({ time, interval, status }) => {
-  console.log(status, time.toISOString())
+const unsubscribe = clock.on('change', ({ time, range, status }) => {
+  console.log(status, time.toISOString(), range)
 })
-
-// Remove the subscription
 unsubscribe()
 ```
 
-Callbacks receive the event data directly, without an additional event envelope.
-
 ### Sharing a clock across modules
-
-Applications can install a shared clock with `setCurrentClock()`.
-
-Other modules can retrieve it using `getCurrentClock()` without receiving the instance explicitly.
 
 ```js
 // Application initialization
-import { Clock, setCurrentClock } from '@kalisio/common-time'
-
-const clock = new Clock({
-  timezone: 'Europe/Paris'
-})
-
+const clock = new Clock({ timezone: 'Europe/Paris' })
 setCurrentClock(clock)
+
+// Other modules
+getCurrentClock().now()
+getCurrentClock().range()
+
+// Application shutdown
+setCurrentClock(null)
+clock.dispose()
 ```
 
-```js
-// Another module
-import { getCurrentClock } from '@kalisio/common-time'
-
-export function getCurrentTime () {
-  return getCurrentClock().now()
-}
-```
-
-Without an explicitly installed clock, `getCurrentClock()` returns a lazily created realtime clock.
-
-Applications remain responsible for the lifecycle of clocks they install.
-
-Calling `setCurrentClock(null)` restores access to the default clock.
+`getCurrentClock()` returns a lazily initialized realtime clock if none is installed. Installing a new current clock does not dispose the previous one.
 
 ### Managing clock listeners
 
-`createClockListener()` groups multiple event handlers into a single object that can be attached to a clock, moved to another clock, or detached.
-
-This is useful when components need to follow different clocks during their lifecycle.
-
 ```js
-import {
-  createClockListener,
-  getCurrentClock
-} from '@kalisio/common-time'
-
 const listener = createClockListener({
-  tick: ({ time }) => console.log('Tick:', time.toISOString()),
-  change: ({ status }) => console.log('Status:', status),
-  end: () => console.log('Playback ended')
+  tick: ({ time, range }) => console.log(time.toISOString(), range),
+  change: ({ status }) => console.log(status)
 })
 
-// Attach to the shared clock
 listener.attach(getCurrentClock())
-
-// Detach all handlers
 listener.detach()
 ```
 
-Listeners can be moved between clocks without registering or unregistering each callback individually.
-
-
+Listeners can be attached to another `Clock` explicitly; they do not automatically follow changes to the shared current clock.

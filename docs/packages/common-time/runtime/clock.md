@@ -5,11 +5,11 @@ description: Runtime clock supporting realtime and simulated time, temporal wind
 
 # Clock
 
-The `Clock` class manages a temporal reference that can follow the system clock or progress at a configurable speed.
+`Clock` is a mutable temporal reference that follows wall-clock time or progresses at a configurable speed. It supports temporal windows, playback bounds, looping, and notifications. Time is calculated on demand; a timer is created only when needed for event observers.
 
-It supports realtime and simulated modes, forward and backward progression, temporal windows, playback bounds, looping, and event notifications.
-
-Time is computed on demand. A timer is used only to emit notifications when required.
+```js
+import { Clock } from '@kalisio/common-time'
+```
 
 ## Constructor
 
@@ -21,104 +21,50 @@ new Clock(config, initialTime)
 
 ### Description
 
-Creates a clock with the specified configuration and initial time.
-
-By default, the clock runs in realtime mode, follows the system clock, and uses the UTC timezone.
-
-In simulated mode, the clock starts at `initialTime` and progresses according to its configured speed.
-
-A speed other than `1` automatically selects simulated mode unless the mode is explicitly specified. Realtime mode always requires speed `1`.
-
-In realtime mode, `initialTime` is ignored.
+Creates a running clock. In `realtime` mode, it follows system time and ignores `initialTime`. In `simulated` mode, it starts at `initialTime` and progresses using a monotonic reference. A non-unit speed selects simulated mode automatically unless `mode` is explicitly specified.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `config` | `object` | no | Clock configuration. Defaults to `{}`. |
-| `initialTime` | `DateTime \| Date \| number \| string \| object` | no | Initial instant in simulated mode. Defaults to the current time. |
+| `config` | `object` | no | Clock configuration, default `{}`. |
+| `initialTime` | `DateTime \| Date \| number \| string \| object` | no | Simulated starting instant, default current time. |
 
 ### Configuration
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
 | `mode` | `string` | `'realtime'` | `'realtime'` or `'simulated'`. |
-| `timezone` | `string` | `'UTC'` | IANA timezone used for date representations and local date parsing. |
-| `speed` | `number` | `1` | Simulation speed. Must be finite and nonzero; negative values reverse time. |
-| `tickInterval` | `number` | `1000` | Notification interval in real milliseconds. `0` disables periodic notifications. |
-| `interval` | `object \| null` | `null` | Temporal window expressed as offsets relative to the current time. |
-| `bounds` | `object \| null` | `null` | Start and end instants restricting clock progression. |
-| `loop` | `boolean` | `false` | Whether to wrap around the bounds instead of ending. |
+| `timezone` | `string` | `'UTC'` | IANA timezone for parsing and representing instants. |
+| `speed` | `number` | `1` | Finite nonzero multiplier; negative values reverse simulated time. Realtime requires `1`. |
+| `tickInterval` | `number` | `1000` | Real milliseconds between notifications; `0` disables the periodic timer. |
+| `window` | `object \| null` | `null` | `{ start, end }` duration offsets relative to the current instant. |
+| `bounds` | `object \| null` | `null` | `{ start, end }` instants restricting playback. |
+| `loop` | `boolean` | `false` | Wrap at bounds rather than end; requires nonempty bounds. |
 
-The `interval` option uses ISO 8601 duration offsets:
-
-```js
-{
-  interval: {
-    start: '-PT3H',
-    end: 'PT0S'
-  }
-}
-```
-
-Both offsets must be time-based durations, convertible into exact milliseconds. Calendar durations such as `P1D` or `P1M` are not accepted.
-
-The `bounds` option defines a half-open range `[start, end)`:
-
-```js
-{
-  bounds: {
-    start: '2026-11-20T12:00:00Z',
-    end: '2026-11-20T18:00:00Z'
-  }
-}
-```
-
-Without looping, the clock stops when it reaches a bound. With looping, it wraps around within the range. Enabling `loop` requires nonempty `bounds`.
+`window` uses **time-based** ISO 8601 durations, such as `-PT3H` and `PT0S`. Calendar offsets (`P1D`, `P1M`, etc.) are not supported. Offsets must be ordered. The `bounds` range is half-open: `[start, end)`.
 
 ### Throws
 
-| Type | Description |
-|------|-------------|
-| `TypeError` | Invalid configuration structure or property type. |
-| `RangeError` | Invalid mode, speed, timezone, interval, bounds, or initial time. |
+`TypeError` for invalid option shapes or types; `RangeError` for invalid modes, speed, timezone, window, bounds, or starting time.
 
 ### Examples
 
 ```js
-const clock = new Clock()
-// Running realtime clock in UTC
-
-const simulated = new Clock({
-  mode: 'simulated',
-  timezone: 'Europe/Paris',
-  speed: 2
-}, '2026-11-20T12:00:00Z')
-// Simulated clock progressing twice as fast
-
-const reverse = new Clock({
-  speed: -1
-}, '2026-11-20T12:00:00Z')
-// Simulated clock progressing backward
-
-const history = new Clock({
-  interval: {
-    start: '-PT3H',
-    end: 'PT0S'
-  }
-})
-// Realtime clock with a three-hour rolling window
+const realtime = new Clock({ timezone: 'Europe/Paris' })
 
 const playback = new Clock({
   mode: 'simulated',
+  speed: 60,
+  window: { start: '-PT3H', end: 'PT0S' },
   bounds: {
-    start: '2026-11-20T12:00:00Z',
-    end: '2026-11-20T18:00:00Z'
+    start: '2026-11-20T09:00:00Z',
+    end: '2026-11-20T15:00:00Z'
   },
-  loop: true,
-  speed: 10
+  loop: true
 }, '2026-11-20T12:00:00Z')
-// Looping simulated clock at 10× speed
+
+const range = playback.range() // TimeRange for the rolling three-hour window
 ```
 
 ## disposed
@@ -131,27 +77,13 @@ clock.disposed
 
 ### Description
 
-Read-only property indicating whether the clock has been disposed.
+Read-only flag indicating whether `dispose()` has been called.
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `boolean` | `true` if the clock has been disposed, `false` otherwise. |
-
-### Examples
-
-```js
-const clock = new Clock()
-
-clock.disposed
-// false
-
-clock.dispose()
-
-clock.disposed
-// true
-```
+| `boolean` | Whether the clock is disposed. |
 
 ## config
 
@@ -163,41 +95,20 @@ clock.config()
 
 ### Description
 
-Returns a copy of the current clock configuration.
-
-Nested `interval` and `bounds` objects are also copied, so modifying the returned configuration does not affect the clock.
+Returns a copy of the normalized configuration. Nested `window` and `bounds` objects are also copied; changing the result does not reconfigure the clock.
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `object` | Current clock configuration. |
-
-### Throws
-
-| Type | Description |
-|------|-------------|
-| `Error` | The clock has been disposed. |
+| `object` | Clock configuration. |
 
 ### Examples
 
 ```js
-const clock = new Clock({
-  mode: 'simulated',
-  timezone: 'Europe/Paris',
-  speed: 2
-})
-
-clock.config()
-// {
-//   mode: 'simulated',
-//   timezone: 'Europe/Paris',
-//   speed: 2,
-//   tickInterval: 1000,
-//   interval: null,
-//   bounds: null,
-//   loop: false
-// }
+realtime.config()
+// { mode: 'realtime', timezone: 'Europe/Paris', speed: 1,
+//   tickInterval: 1000, window: null, bounds: null, loop: false }
 ```
 
 ## state
@@ -210,47 +121,21 @@ clock.state()
 
 ### Description
 
-Returns an immutable snapshot of the current clock state.
-
-The returned object contains the current time, resolved temporal window, and execution status.
-
-The `interval` property is `null` when no temporal window is configured.
+Returns a frozen snapshot. The snapshot and its `DateTime` / `TimeRange` values are immutable; the clock itself is mutable.
 
 ### Returns
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `time` | `DateTime` | Current clock instant. |
-| `interval` | `Interval \| null` | Temporal window resolved at the current instant. |
+| `time` | `DateTime` | Current instant. |
+| `range` | `TimeRange \| null` | Resolved temporal window, or `null` when no window is set. |
 | `status` | `string` | `'running'`, `'paused'`, or `'ended'`. |
-
-### Throws
-
-| Type | Description |
-|------|-------------|
-| `Error` | The clock has been disposed. |
 
 ### Examples
 
 ```js
-const clock = new Clock({
-  mode: 'simulated',
-  interval: {
-    start: '-PT3H',
-    end: 'PT0S'
-  }
-}, '2026-11-20T12:00:00Z')
-
-const state = clock.state()
-
-state.time.toISOString()
-// Current simulated instant
-
-state.interval.duration.toISOString()
-// 'PT3H'
-
-state.status
-// 'running'
+const { time, range, status } = playback.state()
+range.duration.toISOString() // 'PT3H'
 ```
 
 ## now
@@ -263,81 +148,49 @@ clock.now()
 
 ### Description
 
-Returns the current clock instant as a `DateTime`.
-
-The returned value uses the clock's configured timezone.
-
-In realtime mode, the instant follows the system clock. In simulated mode, it is computed from the elapsed monotonic time and simulation speed.
+Returns the current `DateTime` in the configured timezone. Realtime clocks follow wall time; simulated clocks use elapsed monotonic time multiplied by speed.
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `DateTime` | Current clock instant. |
+| `DateTime` | Current instant. |
 
-### Throws
+### Examples
+
+```js
+playback.now().toISOString()
+```
+
+## range
+
+### Signature
+
+```js
+clock.range()
+```
+
+### Description
+
+Resolves the configured `window` offsets against the current instant. `range` is a `TimeRange`, not a tick period; it is `null` when `window` is not configured.
+
+### Returns
 
 | Type | Description |
 |------|-------------|
-| `Error` | The clock has been disposed. |
+| `TimeRange \| null` | Current resolved time range. |
 
 ### Examples
 
 ```js
 const clock = new Clock({
   mode: 'simulated',
-  timezone: 'Europe/Paris'
+  window: { start: '-PT3H', end: 'PT0S' }
 }, '2026-11-20T12:00:00Z')
 
-clock.now().timezone
-// 'Europe/Paris'
-
-clock.now().toISOString()
-// Current simulated instant
-```
-
-## interval
-
-### Signature
-
-```js
-clock.interval()
-```
-
-### Description
-
-Returns the temporal window resolved against the current clock instant.
-
-The window is calculated by applying the configured start and end offsets to the current time.
-
-If no window is configured, returns `null`.
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `Interval \| null` | Current temporal window. |
-
-### Throws
-
-| Type | Description |
-|------|-------------|
-| `Error` | The clock has been disposed. |
-
-### Examples
-
-```js
-const clock = new Clock({
-  interval: {
-    start: '-PT3H',
-    end: 'PT0S'
-  }
-})
-
-const interval = clock.interval()
-
-interval.duration.toISOString()
-// 'PT3H'
+clock.range().toString()
+// '2026-11-20T09:00:00.000Z/2026-11-20T12:00:00.000Z'
+clock.dispose()
 ```
 
 ## configure
@@ -350,64 +203,26 @@ clock.configure(changes)
 
 ### Description
 
-Updates the clock configuration without replacing the clock instance.
-
-Only specified properties are changed. Properties set to `undefined` remain unchanged, while invalid values are rejected.
-
-Configuration changes are validated before being applied. If validation fails, the previous configuration and state are preserved.
-
-Changing the speed preserves the current instant. Setting the speed to a value other than `1` selects simulated mode unless a conflicting mode is explicitly provided.
-
-Changing the timezone does not change the absolute instant.
-
-A successful configuration update emits `change`. If the new bounds cause the clock to end, it emits `end` before `change`.
+Validates and applies partial configuration changes without replacing the instance. `undefined` values leave options unchanged; `window: null` or `bounds: null` clear those options. Validation failure keeps the previous configuration. A successful change emits `change`, and may emit `end` if new bounds are reached.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `changes` | `object` | yes | Partial clock configuration. Uses the properties described in the constructor. |
+| `changes` | `object` | yes | Partial configuration using constructor options. |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `Clock` | The current clock instance. |
-
-### Throws
-
-| Type | Description |
-|------|-------------|
-| `TypeError` | Invalid configuration structure or property type. |
-| `RangeError` | Invalid configuration value. |
-| `Error` | The clock has been disposed. |
+| `Clock` | Current instance. |
 
 ### Examples
 
 ```js
-const clock = new Clock()
-
-clock.configure({
-  mode: 'simulated',
-  speed: 5
-})
-
-clock.configure({
-  timezone: 'Europe/Paris',
-  interval: {
-    start: '-PT6H',
-    end: 'PT0S'
-  }
-})
-
-clock.configure({
-  tickInterval: 500
-})
-
-clock.configure({
-  mode: 'realtime'
-})
-// Returns to realtime mode with speed 1
+playback.configure({ speed: -2 })
+playback.configure({ window: { start: '-PT1H', end: 'PT0S' } })
+playback.configure({ window: null })
 ```
 
 ## set
@@ -420,49 +235,25 @@ clock.set(value)
 
 ### Description
 
-Sets the current clock instant.
-
-If the clock is in realtime mode, it switches to simulated mode.
-
-The current running or paused status is preserved. Setting a new time on an ended clock changes its status to `paused`, allowing it to be resumed.
-
-When bounds are configured without looping, the supplied time must belong to `[start, end)`. When looping is enabled, out-of-range times are wrapped into the configured bounds.
-
-A successful call emits `change`.
+Sets the clock instant. Realtime clocks become simulated. Running/paused status is preserved; setting an ended clock makes it paused. An out-of-bounds instant is rejected when `loop` is false, or wrapped when `loop` is true. Emits `change` on success.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `value` | `DateTime \| Date \| number \| string \| object` | yes | New clock instant. |
+| `value` | `DateTime \| Date \| number \| string \| object` | yes | New instant. |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `Clock` | The current clock instance. |
-
-### Throws
-
-| Type | Description |
-|------|-------------|
-| `TypeError` | Unsupported date input. |
-| `RangeError` | Invalid date or time outside non-looping bounds. |
-| `Error` | The clock has been disposed. |
+| `Clock` | Current instance. |
 
 ### Examples
 
 ```js
-const clock = new Clock()
-
-clock.set('2026-11-20T12:00:00Z')
-
-clock.config().mode
-// 'simulated'
-
-clock.set(new Date('2026-11-21T12:00:00Z'))
-
-clock.set(Date.parse('2026-11-22T12:00:00Z'))
+realtime.set('2026-11-20T12:00:00Z')
+realtime.config().mode // 'simulated'
 ```
 
 ## pause
@@ -475,36 +266,13 @@ clock.pause()
 
 ### Description
 
-Pauses the clock at its current instant.
-
-While paused, the clock's time remains constant and periodic notifications stop.
-
-If the clock is already paused or ended, the call has no effect.
-
-An effective pause emits `pause`, followed by `change`.
+Stops progression at the current instant. A successful transition emits `pause`, then `change`; it has no effect if already paused or ended.
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `Clock` | The current clock instance. |
-
-### Throws
-
-| Type | Description |
-|------|-------------|
-| `Error` | The clock has been disposed. |
-
-### Examples
-
-```js
-const clock = new Clock()
-
-clock.pause()
-
-clock.state().status
-// 'paused'
-```
+| `Clock` | Current instance. |
 
 ## resume
 
@@ -516,43 +284,24 @@ clock.resume()
 
 ### Description
 
-Resumes a paused clock.
-
-In realtime mode, the clock resumes following system time. In simulated mode, progression continues from the paused instant.
-
-If the clock is already running, the call has no effect.
-
-An ended clock cannot be resumed until its time is changed with `set` or the clock is reset.
-
-An effective resume emits `resume`, followed by `change`. If the clock immediately reaches its bounds, it emits `end` instead of `resume`.
+Resumes a paused clock. An ended clock must first be moved using `set()` or `reset()`. A successful transition emits `resume`, then `change`; if bounds are reached immediately, `end` is emitted instead of `resume`.
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `Clock` | The current clock instance. |
-
-### Throws
-
-| Type | Description |
-|------|-------------|
-| `Error` | The clock is ended or has been disposed. |
+| `Clock` | Current instance. |
 
 ### Examples
 
 ```js
-const clock = new Clock()
-
-clock.pause()
-clock.resume()
-
-clock.state().status
-// 'running'
+playback.pause()
+playback.resume()
 ```
 
 ## speed
 
-### Signature
+### Signatures
 
 ```js
 clock.speed()
@@ -561,52 +310,26 @@ clock.speed(value)
 
 ### Description
 
-Gets or sets the clock's simulation speed.
-
-Without an argument, returns the configured speed.
-
-With an argument, switches to simulated mode and updates the speed. The current instant is preserved.
-
-A positive speed advances time, while a negative speed reverses it. Zero and non-finite speeds are rejected.
-
-Setting the speed emits `change`.
+Gets the configured multiplier or sets it and switches to simulated mode. Negative speeds run backward. Zero and non-finite speeds are rejected.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `value` | `number` | no | Finite, nonzero simulation speed. |
+| `value` | `number` | no | Finite nonzero speed to set. |
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `number` | Current speed when called without arguments. |
-| `Clock` | Current instance when setting the speed. |
-
-### Throws
-
-| Type | Description |
-|------|-------------|
-| `RangeError` | Invalid speed. |
-| `Error` | The clock has been disposed. |
+| `number` | Speed when called without arguments. |
+| `Clock` | Current instance when setting speed. |
 
 ### Examples
 
 ```js
-const clock = new Clock()
-
-clock.speed()
-// 1
-
-clock.speed(10)
-// Run 10 times faster
-
-clock.speed(-2)
-// Run backward at twice the normal speed
-
-clock.config().mode
-// 'simulated'
+playback.speed(10)
+playback.speed() // 10
 ```
 
 ## reset
@@ -619,246 +342,72 @@ clock.reset()
 
 ### Description
 
-Resets the clock to a running realtime clock following the current system time.
-
-The following configuration properties are reset:
-
-- `mode` becomes `'realtime'`.
-- `speed` becomes `1`.
-- `bounds` becomes `null`.
-- `loop` becomes `false`.
-
-The configured `timezone`, `interval`, and `tickInterval` are preserved.
-
-The call emits `reset`, followed by `change`.
+Restores a running realtime clock at the current system time, with `speed: 1`, `bounds: null`, and `loop: false`. Preserves the configured timezone, tick interval, and temporal window. Emits `reset`, then `change`.
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `Clock` | The current clock instance. |
-
-### Throws
-
-| Type | Description |
-|------|-------------|
-| `Error` | The clock has been disposed. |
+| `Clock` | Current instance. |
 
 ### Examples
 
 ```js
-const clock = new Clock({
-  mode: 'simulated',
-  timezone: 'Europe/Paris',
-  speed: 10
-}, '2026-11-20T12:00:00Z')
-
-clock.reset()
-
-clock.config().mode
-// 'realtime'
-
-clock.config().speed
-// 1
-
-clock.config().timezone
-// 'Europe/Paris'
+playback.reset()
+playback.config().mode // 'realtime'
 ```
 
 ## Events
 
-The clock exposes an event-based API for observing time progression and state changes.
-
-Event callbacks receive the event payload directly.
-
-### Available events
-
-| Event | Payload | Description |
-|-------|---------|-------------|
-| `tick` | `{ time, interval }` | Periodic notification while the clock is running. |
-| `change` | `{ time, interval, status }` | Explicit configuration, time, or status change. |
-| `pause` | `{ time, interval, status }` | Clock paused. |
-| `resume` | `{ time, interval, status }` | Clock resumed. |
-| `reset` | `{ time, interval, status }` | Clock reset. |
-| `end` | `{ time, interval, status }` | Clock reached a playback bound. |
-| `loop` | `{ time, cycles, direction }` | Clock wrapped around its bounds. |
-
-All `time` values are `DateTime` instances. All `interval` values are `Interval` instances or `null`.
-
-For `loop`:
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `time` | `DateTime` | Wrapped clock time. |
-| `cycles` | `number` | Number of crossed cycles, always positive. |
-| `direction` | `number` | `1` for forward progression, `-1` for backward progression. |
-
-Periodic notifications are generated only when the clock is running, `tickInterval` is greater than zero, and at least one `tick`, `loop`, or `end` listener is registered.
-
-The interval is measured in real milliseconds and does not scale with simulation speed.
-
-Clock time continues to progress even when no timer is active. Reading the clock can also detect and emit `loop` or `end` events.
-
-The `change` event is associated with explicit modifications, not with every natural progression of time.
-
-### Examples
-
-```js
-const clock = new Clock({
-  mode: 'simulated',
-  speed: 5,
-  tickInterval: 1000
-}, '2026-11-20T12:00:00Z')
-
-clock.on('tick', ({ time, interval }) => {
-  console.log(time.toISOString(), interval)
-})
-
-clock.on('change', ({ time, status }) => {
-  console.log(status, time.toISOString())
-})
-
-clock.on('end', ({ time }) => {
-  console.log('Playback ended at', time.toISOString())
-})
-```
-
-## on
-
-### Signature
+### Signatures
 
 ```js
 clock.on(event, callback)
-```
-
-### Description
-
-Registers a callback for a clock event.
-
-The callback receives the event payload directly, not the internal event bus envelope.
-
-Multiple subscriptions of the same callback are supported.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `event` | `string` | yes | Event name. |
-| `callback` | `function` | yes | Handler receiving the event payload. |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `function` | Function that removes this specific subscription. |
-
-### Throws
-
-| Type | Description |
-|------|-------------|
-| `TypeError` | The callback is not a function. |
-| `Error` | The clock has been disposed. |
-
-### Examples
-
-```js
-const clock = new Clock()
-
-const unsubscribe = clock.on('tick', ({ time }) => {
-  console.log(time.toISOString())
-})
-
-// Later
-unsubscribe()
-```
-
-## once
-
-### Signature
-
-```js
 clock.once(event, callback)
-```
-
-### Description
-
-Registers a callback that is automatically removed after its first invocation.
-
-Like `on`, the method returns a function that can cancel the subscription before the event occurs.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `event` | `string` | yes | Event name. |
-| `callback` | `function` | yes | Handler receiving the event payload. |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `function` | Function that cancels this specific subscription. |
-
-### Throws
-
-The same exceptions as `on`.
-
-### Examples
-
-```js
-const clock = new Clock()
-
-clock.once('pause', ({ status }) => {
-  console.log(status)
-})
-
-clock.pause()
-// Logs 'paused'
-
-clock.resume()
-clock.pause()
-// No second notification
-```
-
-## off
-
-### Signature
-
-```js
 clock.off(event, callback)
 ```
 
 ### Description
 
-Removes the first matching subscription for a callback and event.
+Callbacks receive the event payload directly, not an event bus envelope. `on()` subscribes, `once()` subscribes for one notification, and `off()` removes one matching subscription. `on()` and `once()` return unsubscribe functions.
 
-If the same callback has been registered multiple times, each call removes only one subscription.
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `tick` | `{ time, range }` | Periodic notification while running. |
+| `change` | `{ time, range, status }` | Explicit clock modification. |
+| `pause` | `{ time, range, status }` | Paused. |
+| `resume` | `{ time, range, status }` | Resumed. |
+| `reset` | `{ time, range, status }` | Reset to realtime. |
+| `end` | `{ time, range, status }` | Reached a playback bound and stopped. |
+| `loop` | `{ time, cycles, direction }` | Crossed playback bounds; `cycles` is positive and `direction` is `1` or `-1`. |
 
-Subscriptions created with `once` can also be removed.
-
-If no matching subscription exists, the method has no effect.
+`time` is a `DateTime`; `range` is a `TimeRange` or `null`. Periodic timers run only while the clock is running, `tickInterval > 0`, and at least one `tick`, `loop`, or `end` observer exists. `tickInterval` is measured in real milliseconds, regardless of simulation speed. Other changes are still computed on demand.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
 | `event` | `string` | yes | Event name. |
-| `callback` | `function` | yes | Previously registered callback. |
+| `callback` | `function` | yes | Receives the corresponding payload. |
 
 ### Returns
 
-| Type | Description |
-|------|-------------|
-| `undefined` | No return value. |
+| Method | Type | Description |
+|--------|------|-------------|
+| `on`, `once` | `function` | Unsubscribe function. |
+| `off` | `undefined` | Removes the first matching subscription. |
 
 ### Examples
 
 ```js
-const clock = new Clock()
-const handler = ({ status }) => console.log(status)
+const clock = new Clock({ window: { start: '-PT3H', end: 'PT0S' } })
 
-clock.on('change', handler)
-clock.off('change', handler)
+const unsubscribe = clock.on('tick', ({ time, range }) => {
+  console.log(time.toISOString(), range.toString())
+})
+
+unsubscribe()
+clock.dispose()
 ```
 
 ## dispose
@@ -871,13 +420,7 @@ clock.dispose()
 
 ### Description
 
-Disposes the clock and releases its resources.
-
-Stops periodic notifications, removes all event subscriptions, and destroys the internal event bus.
-
-Calling `dispose` multiple times is safe.
-
-After disposal, clock operations that require an active instance throw an error. The `disposed` property remains accessible.
+Stops the timer and destroys the event bus. Idempotent. Most methods reject calls after disposal; `off()` and `dispose()` may still be called.
 
 ### Returns
 
@@ -888,17 +431,6 @@ After disposal, clock operations that require an active instance throw an error.
 ### Examples
 
 ```js
-const clock = new Clock()
-
-clock.on('tick', ({ time }) => {
-  console.log(time.toISOString())
-})
-
-clock.dispose()
-
-clock.disposed
-// true
-
-clock.now()
-// Error: Clock has been disposed
+realtime.dispose()
+realtime.disposed // true
 ```

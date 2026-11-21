@@ -31,7 +31,7 @@ describe('createClockListener', () => {
       clock.resume()
       expect(pause).toHaveBeenCalledOnce()
       expect(resume).toHaveBeenCalledOnce()
-      expect(Object.keys(pause.mock.calls[0][0])).toEqual(['time', 'interval', 'status'])
+      expect(Object.keys(pause.mock.calls[0][0])).toEqual(['time', 'range', 'status'])
       expect(listener.clock).toBe(clock)
     })
     it('moves the handlers to another clock', () => {

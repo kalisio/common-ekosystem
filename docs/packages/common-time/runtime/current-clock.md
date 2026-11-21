@@ -5,14 +5,7 @@ description: Utility functions for managing the shared application clock.
 
 # current-clock
 
-Utility functions for managing the shared application `Clock` instance.
-
-Applications can install a shared clock using `setCurrentClock()` and retrieve it from any module using
-`getCurrentClock()`. When no clock is installed, a default realtime clock is created lazily.
-
-Applications are responsible for disposing of their installed clocks. Replacing the current clock does not
-dispose the previous instance. Modules should call `getCurrentClock()` when needed rather than retaining a
-reference at initialization, as the current clock may change.
+`setCurrentClock()` installs an application `Clock` shared across modules. `getCurrentClock()` retrieves it, or a lazily created default realtime clock when none is installed. Replacing the current clock never disposes the previous instance; the application owns its lifecycle.
 
 ## setCurrentClock
 
@@ -24,15 +17,13 @@ setCurrentClock(clock)
 
 ### Description
 
-Sets the shared application clock. Passing `null`, `undefined`, or no argument restores the default clock.
-
-The supplied clock must be a valid, non-disposed `Clock` instance.
+Installs a non-disposed `Clock`, or restores the default when passed `null`, `undefined`, or no argument.
 
 ### Parameters
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `clock` | `Clock \| null \| undefined` | no | The clock to install, or `null` to restore the default clock. |
+| `clock` | `Clock \| null \| undefined` | no | Clock to install, or `null` to restore the default. |
 
 ### Returns
 
@@ -42,26 +33,18 @@ The supplied clock must be a valid, non-disposed `Clock` instance.
 
 ### Throws
 
-| Type | Description |
-|------|-------------|
-| `TypeError` | The supplied value is not a `Clock` instance, `null`, or `undefined`. |
-| `Error` | The supplied clock has been disposed. |
+`TypeError` when the value is not a `Clock`, `null`, or `undefined`; `Error` when the supplied clock has been disposed.
 
 ### Examples
 
 ```js
 import { Clock, setCurrentClock } from '@kalisio/common-time'
 
-const clock = new Clock({
-  timezone: 'Europe/Paris'
-})
-
+const clock = new Clock({ timezone: 'Europe/Paris' })
 setCurrentClock(clock)
 
-// Restore the default clock
+// Restore the default, then dispose of the application clock
 setCurrentClock(null)
-
-// Dispose of the application-owned clock
 clock.dispose()
 ```
 
@@ -75,39 +58,19 @@ getCurrentClock()
 
 ### Description
 
-Returns the shared application clock.
-
-If no clock has been installed, returns a lazily created default realtime clock. The same instance is reused until it is disposed, in which case a new default clock is created.
-
-Throws an error if the explicitly installed clock has been disposed.
-
-### Parameters
-
-None.
+Returns the installed clock. If none is installed, creates a default realtime clock lazily and reuses it until disposed; then a fresh default clock is created. Throws if the explicitly installed clock has been disposed.
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `Clock` | The current application clock or the default realtime clock. |
+| `Clock` | Installed clock or default realtime clock. |
 
 ### Throws
 
-| Type | Description |
-|------|-------------|
-| `Error` | The installed application clock has been disposed. |
+`Error` if an explicitly installed clock has been disposed.
 
 ### Examples
-
-```js
-import { getCurrentClock } from '@kalisio/common-time'
-
-const clock = getCurrentClock()
-
-console.log(clock.now().toISOString())
-```
-
-Access the current clock from another module:
 
 ```js
 import { getCurrentClock } from '@kalisio/common-time'
@@ -116,7 +79,9 @@ export function getCurrentTime () {
   return getCurrentClock().now()
 }
 
-export function getCurrentInterval () {
-  return getCurrentClock().interval()
+export function getCurrentRange () {
+  return getCurrentClock().range()
 }
 ```
+
+Call `getCurrentClock()` when needed instead of storing a shared clock reference at module initialization, since the installed clock can change.

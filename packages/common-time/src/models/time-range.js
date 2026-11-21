@@ -15,7 +15,7 @@ function isSnapshot (value) {
  * Accepts two bounds, another interval, a JSON snapshot, or an ISO 8601 interval
  * made of two instants (start/end), as written by toString().
  */
-export class Interval {
+export class TimeRange {
   #start
   #end
 
@@ -25,7 +25,7 @@ export class Interval {
       inheritedTimezone = start.timezone
     }
 
-    if (end === undefined && is.instanceOf(start, Interval)) {
+    if (end === undefined && is.instanceOf(start, TimeRange)) {
       inheritedTimezone = start.timezone
       end = start.end
       start = start.start
@@ -49,7 +49,7 @@ export class Interval {
     }
 
     if (start === undefined || end === undefined) {
-      throw new TypeError('Interval requires start and end')
+      throw new TypeError('TimeRange requires start and end')
     }
 
     let zone = inheritedTimezone
@@ -61,15 +61,15 @@ export class Interval {
     this.#end = DateTime.from(end, { timezone: zone })
 
     if (this.#start.timestamp > this.#end.timestamp) {
-      throw new RangeError('Interval start must not be after end')
+      throw new RangeError('TimeRange start must not be after end')
     }
 
     Object.freeze(this)
   }
 
   static from (value, end, options) {
-    if (is.instanceOf(value, Interval) && end === undefined && options === undefined) return value
-    return new Interval(value, end, options)
+    if (is.instanceOf(value, TimeRange) && end === undefined && options === undefined) return value
+    return new TimeRange(value, end, options)
   }
 
   get start () {
@@ -99,7 +99,7 @@ export class Interval {
   }
 
   overlaps (value) {
-    const other = Interval.from(value)
+    const other = TimeRange.from(value)
 
     if (this.isEmpty() || other.isEmpty()) return false
 
@@ -109,11 +109,11 @@ export class Interval {
 
   /** Returns the common interval, or null when there is no overlap. */
   intersection (value) {
-    const other = Interval.from(value)
+    const other = TimeRange.from(value)
 
     if (!this.overlaps(other)) return null
 
-    return new Interval(
+    return new TimeRange(
       Math.max(this.#start.timestamp, other.#start.timestamp),
       Math.min(this.#end.timestamp, other.#end.timestamp),
       { timezone: this.timezone }
@@ -129,7 +129,7 @@ export class Interval {
   shift (value, unit) {
     const offset = Duration.from(value, unit)
 
-    return new Interval(
+    return new TimeRange(
       this.#start.add(offset),
       this.#end.add(offset),
       { timezone: this.timezone }
@@ -137,12 +137,12 @@ export class Interval {
   }
 
   withTimezone (name) {
-    return new Interval(this.#start, this.#end, { timezone: name })
+    return new TimeRange(this.#start, this.#end, { timezone: name })
   }
 
   /** Equality compares absolute bounds, independently of timezone. */
   equals (value) {
-    const other = Interval.from(value)
+    const other = TimeRange.from(value)
 
     return this.#start.timestamp === other.#start.timestamp &&
       this.#end.timestamp === other.#end.timestamp

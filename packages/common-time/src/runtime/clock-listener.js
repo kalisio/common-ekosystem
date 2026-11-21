@@ -2,7 +2,7 @@ import { assert, is } from '@kalisio/common-core/predicates'
 import { Clock } from './clock.js'
 
 export function createClockListener (handlers) {
-  assert.that(handlers, is.plainObject, 'handlers muse be an object')
+  assert.that(handlers, is.plainObject, 'handlers must be an object')
   const entries = Object.entries(handlers)
   for (const [event, callback] of entries) {
     if (!is.nonEmptyString(event)) {

@@ -1,4 +1,4 @@
-import { DateTime, Interval } from '../../src/models/index.js'
+import { DateTime, TimeRange } from '../../src/models/index.js'
 import { Clock } from '../../src/runtime/index.js'
 
 const NOW = '2026-11-20T12:00:00.000Z'
@@ -32,7 +32,7 @@ describe('Clock', () => {
       expect(clock.now().toISOString()).toBe(NOW)
       expect(clock.now().timezone).toBe('UTC')
       expect(clock.state().status).toBe('running')
-      expect(clock.config()).toEqual({ mode: 'realtime', timezone: 'UTC', speed: 1, tickInterval: 1000, interval: null, bounds: null, loop: false })
+      expect(clock.config()).toEqual({ mode: 'realtime', timezone: 'UTC', speed: 1, tickInterval: 1000, window: null, bounds: null, loop: false })
     })
     it('ignores the initial time in realtime mode', () => {
       expect(create({}, '2026-01-01T00:00:00Z').now().toISOString()).toBe(NOW)
@@ -51,9 +51,9 @@ describe('Clock', () => {
       expect(create({ speed: 1 }).config().mode).toBe('realtime')
     })
     it('normalizes the configuration', () => {
-      const config = create({ timezone: 'europe/paris', interval: { start: '-PT3H', end: 'pt0s' }, bounds: BOUNDS }).config()
+      const config = create({ timezone: 'europe/paris', window: { start: '-PT3H', end: 'pt0s' }, bounds: BOUNDS }).config()
       expect(config.timezone).toBe('Europe/Paris')
-      expect(config.interval).toEqual({ start: '-PT3H', end: 'P0D' })
+      expect(config.window).toEqual({ start: '-PT3H', end: 'P0D' })
       expect(config.bounds).toEqual(BOUNDS)
     })
     it('rejects invalid configurations', () => {
@@ -76,18 +76,18 @@ describe('Clock', () => {
         expect(() => new Clock(config)).toThrow(RangeError)
       }
       expect(() => new Clock({ loop: 'yes', bounds: BOUNDS })).toThrow(TypeError)
-      expect(() => new Clock({ interval: { start: '-PT3H' } })).toThrow(TypeError)
+      expect(() => new Clock({ window: { start: '-PT3H' } })).toThrow(TypeError)
       expect(() => new Clock({ bounds: { start: NOW } })).toThrow(TypeError)
     })
-    it('rejects interval offsets whose start is after their end', () => {
-      expect(() => new Clock({ interval: { start: 'PT0S', end: '-PT3H' } })).toThrow(RangeError)
+    it('rejects window offsets whose start is after their end', () => {
+      expect(() => new Clock({ window: { start: 'PT0S', end: '-PT3H' } })).toThrow(RangeError)
     })
     it('rejects a time whose window cannot be represented as a Date', () => {
-      expect(() => new Clock({ mode: 'simulated', interval: { start: 'PT0S', end: 'PT1H' } }, 8.64e15 - 1000)).toThrow(RangeError)
+      expect(() => new Clock({ mode: 'simulated', window: { start: 'PT0S', end: 'PT1H' } }, 8.64e15 - 1000)).toThrow(RangeError)
     })
-    it('rejects calendar interval offsets, which could be reversed at another date', () => {
-      for (const interval of [{ start: '-P1D', end: 'PT0S' }, { start: 'P1M', end: 'P30D' }, { start: '-PT1H', end: 'P1W' }]) {
-        expect(() => new Clock({ interval })).toThrow(RangeError)
+    it('rejects calendar window offsets, which could be reversed at another date', () => {
+      for (const window of [{ start: '-P1D', end: 'PT0S' }, { start: 'P1M', end: 'P30D' }, { start: '-PT1H', end: 'P1W' }]) {
+        expect(() => new Clock({ window })).toThrow(RangeError)
       }
     })
   })
@@ -120,25 +120,25 @@ describe('Clock', () => {
       vi.advanceTimersByTime(1000)
       expect(clock.now().toISOString()).toBe('2025-12-31T23:59:00.000Z')
     })
-    it('returns a frozen snapshot of the time, interval and status', () => {
-      const clock = create({ interval: { start: '-PT3H', end: 'PT0S' } })
+    it('returns a frozen snapshot of the time, range and status', () => {
+      const clock = create({ window: { start: '-PT3H', end: 'PT0S' } })
       const state = clock.state()
       expect(Object.isFrozen(state)).toBe(true)
       expect(state.time).toBeInstanceOf(DateTime)
-      expect(state.interval).toBeInstanceOf(Interval)
-      expect(state.interval.toString()).toBe('2026-11-20T09:00:00.000Z/2026-11-20T12:00:00.000Z')
+      expect(state.range).toBeInstanceOf(TimeRange)
+      expect(state.range.toString()).toBe('2026-11-20T09:00:00.000Z/2026-11-20T12:00:00.000Z')
       expect(state.status).toBe('running')
     })
-    it('resolves the interval against the current time', () => {
-      const clock = create({ interval: { start: '-PT3H', end: 'PT0S' } })
+    it('resolves the window into a range at the current time', () => {
+      const clock = create({ window: { start: '-PT3H', end: 'PT0S' } })
       vi.advanceTimersByTime(60000)
-      expect(clock.interval().toString()).toBe('2026-11-20T09:01:00.000Z/2026-11-20T12:01:00.000Z')
-      expect(create().interval()).toBeNull()
+      expect(clock.range().toString()).toBe('2026-11-20T09:01:00.000Z/2026-11-20T12:01:00.000Z')
+      expect(create().range()).toBeNull()
     })
     it('applies time-based offsets as exact durations, whatever the timezone', () => {
-      const clock = create({ mode: 'simulated', timezone: 'Europe/Paris', interval: { start: '-PT24H', end: 'PT0S' } }, '2026-03-29T12:00:00')
-      expect(clock.interval().duration.toISOString()).toBe('PT24H')
-      expect(clock.interval().timezone).toBe('Europe/Paris')
+      const clock = create({ mode: 'simulated', timezone: 'Europe/Paris', window: { start: '-PT24H', end: 'PT0S' } }, '2026-03-29T12:00:00')
+      expect(clock.range().duration.toISOString()).toBe('PT24H')
+      expect(clock.range().timezone).toBe('Europe/Paris')
     })
     it('returns a copy of its configuration', () => {
       const clock = create({ bounds: BOUNDS })
@@ -235,7 +235,7 @@ describe('Clock', () => {
       expect(clock.now().toISOString()).toBe('2026-11-20T12:30:00.000Z')
     })
     it('rejects a time whose window cannot be represented as a Date and keeps the previous state', () => {
-      const clock = create({ interval: { start: '-PT1H', end: 'PT1H' } })
+      const clock = create({ window: { start: '-PT1H', end: 'PT1H' } })
       expect(() => clock.set(8.64e15 - 1000)).toThrow(RangeError)
       expect(clock.config().mode).toBe('realtime')
       expect(clock.now().toISOString()).toBe(NOW)
@@ -295,19 +295,19 @@ describe('Clock', () => {
       expect(() => clock.configure({ speed: null })).toThrow(RangeError)
     })
     it('rejects an invalid change and keeps the previous configuration', () => {
-      const clock = create({ interval: { start: '-PT3H', end: 'PT0S' } })
+      const clock = create({ window: { start: '-PT3H', end: 'PT0S' } })
       const before = clock.config()
-      expect(() => clock.configure({ interval: { start: 'PT0S', end: '-PT3H' } })).toThrow(RangeError)
+      expect(() => clock.configure({ window: { start: 'PT0S', end: '-PT3H' } })).toThrow(RangeError)
       expect(() => clock.configure({ speed: 0 })).toThrow(RangeError)
       expect(clock.config()).toEqual(before)
-      expect(clock.interval().duration.toISOString()).toBe('PT3H')
+      expect(clock.range().duration.toISOString()).toBe('PT3H')
     })
     it('rejects a window that cannot be represented as a Date and keeps the previous state', () => {
-      const clock = create({ interval: { start: '-PT1H', end: 'PT0S' } })
+      const clock = create({ window: { start: '-PT1H', end: 'PT0S' } })
       const before = clock.config()
-      expect(() => clock.configure({ interval: { start: '-PT1H', end: 'PT3000000000H' } })).toThrow(RangeError)
+      expect(() => clock.configure({ window: { start: '-PT1H', end: 'PT3000000000H' } })).toThrow(RangeError)
       expect(clock.config()).toEqual(before)
-      expect(clock.state().interval.duration.toISOString()).toBe('PT1H')
+      expect(clock.state().range.duration.toISOString()).toBe('PT1H')
     })
     it('emits change after an explicit modification', () => {
       const clock = create()
@@ -487,14 +487,14 @@ describe('Clock', () => {
   })
 
   describe('tick', () => {
-    it('emits the time and the interval of a same instant', () => {
-      const clock = create({ interval: { start: '-PT3H', end: 'PT0S' } })
+    it('emits the time and range for the same instant', () => {
+      const clock = create({ window: { start: '-PT3H', end: 'PT0S' } })
       const listener = vi.fn()
       clock.on('tick', listener)
       vi.advanceTimersByTime(1000)
-      const { time, interval } = listener.mock.calls[0][0]
+      const { time, range } = listener.mock.calls[0][0]
       expect(time.toISOString()).toBe('2026-11-20T12:00:01.000Z')
-      expect(interval.end.isSame(time)).toBe(true)
+      expect(range.end.isSame(time)).toBe(true)
     })
     it('ticks at tickInterval regardless of the speed', () => {
       const clock = create({ speed: 3600, tickInterval: 500 })
@@ -581,7 +581,7 @@ describe('Clock', () => {
       const listener = vi.fn()
       clock.on('pause', listener)
       clock.pause()
-      expect(Object.keys(listener.mock.calls[0][0])).toEqual(['time', 'interval', 'status'])
+      expect(Object.keys(listener.mock.calls[0][0])).toEqual(['time', 'range', 'status'])
     })
     it('removes a subscription with off or the returned function', () => {
       const clock = create()
