@@ -5,12 +5,12 @@ description: Factory class for registering, building, and rendering shapes.
 
 # ShapeFactory
 
-Factory class for registering shape builders and producing shape objects that can be rendered as SVG or PNG.
+Factory class for managing shape builders and creating shapes that can be rendered as SVG or PNG.
 
-Built-in shape builders are automatically registered when the factory is created. See [Built-in shapes](./builtin-shapes.md) for the complete list of available shapes and their specific parameters.
+The factory automatically registers built-in shapes. See [Built-in shapes](./builtin-shapes.md) for the available types and their parameters.
 
 ::: tip
-The complete collection can also be browsed and previewed in the [Shape Studio](../../../playground/shape-studio).
+Shapes can also be explored and previewed in the [Shape Studio](../../../playground/shape-studio).
 :::
 
 ## constructor
@@ -23,28 +23,28 @@ new ShapeFactory(options)
 
 ### Description
 
-Creates a new `ShapeFactory` instance with three internal LRU caches: one for the shape builder registry, one for SVG output, and one for PNG output.
+Creates a `ShapeFactory` with a shape builder registry and two rendering caches.
 
-Built-in shape builders are automatically registered when the factory is created.
+The registry uses `Factory` from `@kalisio/common-core/structures` and does not impose a size limit.
+
+The SVG and PNG rendering caches use `Cache` from the same package, with LRU eviction and configurable maximum sizes.
+
+Built-in shape builders are registered automatically.
 
 ### Parameters
 
 | Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `options` | `object` | no | Configuration options |
-| `options.registrySize` | `number` | no | Maximum number of entries in the shape registry. Defaults to `100` |
-| `options.svgCacheSize` | `number` | no | Maximum number of entries in the SVG cache. Defaults to `100` |
-| `options.pngCacheSize` | `number` | no | Maximum number of entries in the PNG cache. Defaults to `100` |
+|------|------|----------|-------------|
+| `options` | `object` | no | Factory configuration |
+| `options.svgCacheSize` | `number` | no | Maximum SVG cache entries. Defaults to `100` |
+| `options.pngCacheSize` | `number` | no | Maximum PNG cache entries. Defaults to `100` |
 
 ### Examples
 
 ```js
-// Default cache sizes
 const factory = new ShapeFactory()
 
-// Custom cache sizes
-const factory = new ShapeFactory({
-  registrySize: 50,
+const customFactory = new ShapeFactory({
   svgCacheSize: 200,
   pngCacheSize: 200
 })
@@ -60,19 +60,19 @@ factory.list()
 
 ### Description
 
-Returns an array of all registered shape type keys.
+Returns the identifiers of all registered shape builders, including built-in and custom shapes.
 
 ### Returns
 
 | Type | Description |
-| --- | --- |
-| `string[]` | The list of registered shape type identifiers |
+|------|-------------|
+| `string[]` | Array of registered shape type identifiers |
 
 ### Examples
 
 ```js
 factory.list()
-// ['circle', 'cross', 'diamond', ...]
+// ['circle', 'compass', 'cross', ...]
 ```
 
 ## has
@@ -85,21 +85,21 @@ factory.has(type)
 
 ### Description
 
-Returns `true` if a shape builder is registered under the given type key.
+Checks whether a builder exists for the specified shape type.
 
 Throws if `type` is not a string.
 
 ### Parameters
 
 | Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `type` | `string` | yes | The shape type identifier to look up |
+|------|------|----------|-------------|
+| `type` | `string` | yes | Shape type identifier |
 
 ### Returns
 
 | Type | Description |
-| --- | --- |
-| `boolean` | `true` if the type is registered, `false` otherwise |
+|------|-------------|
+| `boolean` | Whether the requested type is registered |
 
 ### Examples
 
@@ -121,35 +121,44 @@ factory.register(type, buildFn)
 
 ### Description
 
-Registers a builder function under the given shape type key. If a builder is already registered for that type, it is replaced.
+Associates a shape type with a builder function.
 
-Throws if `type` is not a string or if `buildFn` is not a function.
+When the type is already registered, its builder is replaced. Otherwise, a new entry is created.
+
+The builder receives the shape parameters and must return a definition containing the dimensions, margin and SVG markup.
+
+Throws if `type` is not a string or `buildFn` is not a function.
 
 ### Parameters
 
 | Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `type` | `string` | yes | A unique identifier for the shape type |
-| `buildFn` | `function` | yes | Function receiving build parameters and returning the shape definition |
+|------|------|----------|-------------|
+| `type` | `string` | yes | Identifier of the shape builder |
+| `buildFn` | `function` | yes | Function receiving shape parameters and returning a shape definition |
 
-A builder must return at least the following properties:
+The resulting shape definition must provide:
 
-| Name | Type | Description |
-| --- | --- | --- |
-| `width` | `number` | Positive integer width of the shape |
-| `height` | `number` | Positive integer height of the shape |
-| `margin` | `number` | Non-negative integer margin around the shape |
-| `shape` | `string` | SVG markup representing the shape |
+| Property | Type | Description |
+|----------|------|-------------|
+| `width` | `number` | Positive integer width |
+| `height` | `number` | Positive integer height |
+| `margin` | `number` | Non-negative integer margin |
+| `shape` | `string` | SVG markup for the geometry |
+
+The builder may return additional properties that will be included in the resulting shape object.
 
 ### Examples
 
 ```js
-factory.register('custom-shape', (params) => ({
+factory.register('custom-circle', (params) => ({
   width: 50,
   height: 50,
   margin: 0,
   shape: '<circle cx="50" cy="50" r="50" />'
 }))
+
+factory.has('custom-circle')
+// true
 ```
 
 ## build
@@ -162,110 +171,205 @@ factory.build(params)
 
 ### Description
 
-Builds a shape object from the given parameters.
+Creates a shape using the builder registered for `params.shape`.
 
-The factory looks up the builder registered for `params.shape`, invokes it, and merges the generated shape definition with the provided parameters.
+The builder receives the parameters and returns a definition that is merged with them. Properties returned by the builder take precedence over the original parameters.
 
-The returned object exposes `toSVG()` and `toPNG()` rendering methods.
+The result includes two rendering methods:
+
+- `toSVG()` returns the generated SVG markup as a string.
+- `toPNG()` asynchronously returns a PNG data URL.
+
+Rendering results are cached when a `key` is provided.
 
 Throws if:
 
-* `params` does not have a `shape` property
-* `params.shape` is not a registered shape type
-* The generated `width` or `height` is not a positive integer
-* The generated `margin` is not a non-negative integer
+- `params` is not an object containing `shape`.
+- The requested shape type is unknown.
+- The resulting `width` or `height` is not a positive integer.
+- The resulting `margin` is not a non-negative integer.
 
 ### Parameters
 
 | Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `params` | `object` | yes | Build parameters |
-| `params.shape` | `string` | yes | Registered shape type to build |
-| `params.size` | `number[]` | no | Size of the shape as `[width, height]`. Standard shapes default to `50 × 50` when neither `size` nor `radius` is provided |
-| `params.radius` | `number` | no | Alternate way to define the shape size. Conversion from radius to width and height depends on the shape |
-| `params.color` | `string` | no | Fill color. Any valid HTML color. Defaults to `'black'` |
-| `params.opacity` | `number` | no | Fill opacity, from `0.0` to `1.0`. Defaults to `1.0` |
-| `params.stroke` | `object` | no | Stroke properties. See [stroke sub-object](#stroke-sub-object) below |
-| `params.icon` | `object` | no | Icon element to group with the shape. See [icon sub-object](#icon-sub-object) below |
-| `params.text` | `object` | no | Text element to group with the shape. See [text sub-object](#text-sub-object) below |
-| `params.transform` | `object` | no | SVG transform applied to the shape |
-| `params.style` | `string` | no | SVG style element associated with the shape |
+|------|------|----------|-------------|
+| `params` | `object` | yes | Shape configuration |
+| `params.shape` | `string` | yes | Registered shape type |
+| `params.key` | `string` | no | Cache key for reusing SVG and PNG rendering results |
+| `params.size` | `number[]` | no | Dimensions as `[width, height]`. Standard shapes default to `[50, 50]` |
+| `params.radius` | `number` | no | Alternative sizing parameter. Its interpretation depends on the builder |
+| `params.color` | `string` | no | Fill color. SVG defaults to black |
+| `params.opacity` | `number` | no | Fill opacity between `0` and `1`. Defaults to `1` |
+| `params.stroke` | `object` | no | Outline configuration. See [stroke sub-object](#stroke-sub-object) |
+| `params.icon` | `object` | no | Optional embedded icon. See [icon sub-object](#icon-sub-object) |
+| `params.text` | `object` | no | Optional text element. See [text sub-object](#text-sub-object) |
+| `params.transform` | `object` | no | SVG transformation for the geometry |
+| `params.style` | `string` | no | CSS rules embedded in the SVG |
 
-#### stroke sub-object
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `object` | Generated shape definition with `toSVG()` and `toPNG()` methods |
+
+### Examples
+
+```js
+const shape = factory.build({
+  shape: 'circle',
+  size: [64, 64],
+  color: '#1976d2',
+  stroke: {
+    width: 2,
+    color: '#ffffff'
+  }
+})
+
+const svg = shape.toSVG()
+const png = await shape.toPNG()
+```
+
+With rendering cache:
+
+```js
+const shape = factory.build({
+  shape: 'circle',
+  key: 'blue-circle-64',
+  size: [64, 64],
+  color: '#1976d2'
+})
+
+const svg = shape.toSVG()
+```
+
+The cache key is managed by the caller. Shapes using the same key share cached output, so different rendering configurations should use different keys.
+
+### stroke sub-object
+
+Defines the outline of the shape.
 
 | Property | Description | Default |
-| --- | --- | --- |
-| **width** | Width of the stroke | |
-| **color** | Stroke color. Any valid HTML color. If set to `transparent`, all stroke properties are ignored | `'black'` |
-| **opacity** | Stroke opacity, from `0.0` to `1.0` | `1.0` |
-| **cap** | [Line cap style](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-linecap) at the end of open subpaths | `'round'` |
-| **join** | [Line join style](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-linejoin) at path corners | `'round'` |
-| **dashArray** | [Dash pattern](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-dasharray) of dashes and gaps | `none` |
-| **dashOffset** | [Offset](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-dashoffset) on the dash array rendering | `0` |
-| **miterLimit** | [Miter limit](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/stroke-miterlimit) on the miter length to stroke width ratio | `4` |
+|----------|-------------|---------|
+| `width` | Stroke width | `'1px'` |
+| `color` | Stroke color. `transparent` disables stroke attributes | `'black'` |
+| `opacity` | Stroke opacity between `0` and `1` | `1` |
+| `lineCap` | SVG line cap (`butt`, `round`, `square`) | `'butt'` (SVG default) |
+| `lineJoin` | SVG line join (`miter`, `round`, `bevel`) | `'miter'` (SVG default) |
+| `dashArray` | Pattern of dashes and gaps | `none` |
+| `dashOffset` | Offset of the dash pattern | `0` |
+| `miterLimit` | Maximum miter length ratio | `4` |
 
-#### icon sub-object
+When `stroke` is omitted, no stroke attributes are generated.
+
+The renderer applies `vector-effect="non-scaling-stroke"` when stroke properties are enabled.
+
+Example:
+
+```js
+stroke: {
+  width: 2,
+  color: '#ff0000',
+  opacity: 0.8,
+  lineCap: 'round',
+  lineJoin: 'round',
+  dashArray: '5 3'
+}
+```
+
+### icon sub-object
+
+Adds an icon to the rendered shape.
+
+Icons can be provided through CSS classes, an image URL, or an SVG sprite symbol.
 
 | Property | Description | Default |
-| --- | --- | --- |
-| **classes** | Icon classes to display | `undefined` |
-| **url** | URL of the image to display as the icon | `undefined` |
-| **symbol** | URL to the svg sprite file + id of icon (eg. /assets/icons.svg#aircraft). Alternative to the classes/url properties | `undefined` |
-| **color** | Icon color. Any valid HTML color | `'black'` |
-| **opacity** | Icon opacity, from `0.0` to `1.0` | `1.0` |
-| **size** | [Font size](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/font-size) used to render the icon | `'1em'` |
-| **transform** | [SVG transform](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/transform) applied to the icon | `undefined` |
+|----------|-------------|---------|
+| `classes` | CSS classes for rendering a font or CSS-based icon. String or array of strings | `undefined` |
+| `url` | Image URL | `undefined` |
+| `symbol` | SVG sprite reference, for example `/assets/icons.svg#aircraft` | `undefined` |
+| `color` | Icon color, used for CSS icons or SVG symbols | inherited or black for SVG symbols |
+| `opacity` | SVG symbol opacity | `1` |
+| `size` | Icon size, interpreted according to the rendering mode | mode-dependent |
 
-#### text sub-object
+For CSS-based icons, the renderer creates a `foreignObject` containing an HTML icon element.
 
-If `text.label` is omitted, empty or blank, no text element is rendered. Numeric labels, including `0`, are rendered.
+For SVG symbols, it creates an SVG `use` element. Image URLs produce an SVG `image` element.
+
+The default CSS icon font size is `12` before scaling to the shape height. SVG symbols and images occupy the normalized viewBox when no size is supplied.
+
+Example:
+
+```js
+icon: {
+  symbol: '/assets/icons.svg#aircraft',
+  color: '#ffffff',
+  size: 24
+}
+```
+
+### text sub-object
+
+Adds text to the shape.
+
+If `text.label` is absent or empty, the text element is omitted. Numeric labels, including `0`, are supported.
 
 | Property | Description | Default |
-| --- | --- | --- |
-| **label** | Text content to display | `undefined` |
-| **size** | Font size before scaling to the shape height | `12` |
-| **color** | Text fill color. Any valid HTML color | inherited |
-| **font** | Font family | inherited |
-| **style** | Font style, for example `normal` or `italic` | inherited |
-| **weight** | Font weight, for example `normal`, `bold`, or a numeric weight | inherited |
-| **variant** | Font variant | inherited |
-| **cursor** | CSS cursor displayed when hovering the text, for example `pointer`, `default`, or `text` | inherited |
-| **classes** | CSS classes added to the text element, as a string or an array of strings. Empty entries are ignored | `undefined` |
-| **transform** | SVG transform applied to the text, relative to the shape center | `undefined` |
+|----------|-------------|---------|
+| `label` | Text to display | `undefined` |
+| `size` | Font size before scaling | `12` |
+| `color` | Text fill color | inherited |
+| `font` | Font family | inherited |
+| `style` | Font style, such as `normal` or `italic` | inherited |
+| `weight` | Font weight, such as `normal` or `bold` | inherited |
+| `variant` | Font variant | inherited |
+| `cursor` | CSS cursor style | inherited |
+| `classes` | CSS class name or array of class names | `undefined` |
+| `transform` | SVG transformation applied to the text | `undefined` |
 
-The text origin is placed at the center of the shape, and the text is horizontally centered and vertically aligned around this origin using:
+Text is wrapped in a group translated to the normalized shape center. The generated text uses:
 
 ```svg
 text-anchor="middle"
 alignment-baseline="central"
 ```
 
-The font size is automatically scaled according to the shape height.
+Font size is scaled relative to the shape height.
 
-`transform` is applied relative to this origin: `translate` offsets the text from the shape center and `rotate` turns it around its own center.
-Values are expressed in viewBox units, where the shape spans from `0` to `100`. For instance, `translate: [0, 75]` places the text below the shape.
+The optional `transform` is applied to the text element within its containing group. It can provide additional translation, rotation, or scaling.
 
-The CSS rules targeting `classes` can be embedded with the shape `style` property (not to be confused with `text.style`), so that they also apply
-when the SVG is used as an image, or come from the page stylesheet when the SVG is inserted in the DOM. Keep in mind that:
+Coordinates are expressed in SVG viewBox units. Standard shape geometry uses a normalized coordinate space from `0` to `100`.
 
-* CSS rules take precedence over the attributes generated from `color`, `font`, `style`, `weight` and `variant`.
-* Lengths in these rules (`font-size`, `stroke-width`, …) are expressed in
+CSS classes can be styled through the shape-level `style` property or through external stylesheets when the SVG is embedded directly in the DOM.
 
-#### transform sub-object
+Embedded CSS is useful when the SVG is used as a standalone image.
 
-The `transform` object defines SVG transformations applied to the shape.
+Example:
+
+```js
+text: {
+  label: 'A',
+  size: 16,
+  color: '#ffffff',
+  weight: 'bold',
+  classes: ['shape-label']
+}
+```
+
+### transform sub-object
+
+Defines geometric SVG transformations.
 
 | Property | Description |
-| --- | --- |
-| **rotate** | Rotation as an array passed to the SVG `rotate()` transform, for example `[angle]` or `[angle, cx, cy]` |
-| **translate** | Translation as an array passed to the SVG `translate()` transform, typically `[x, y]` |
-| **scale** | Scaling as an array passed to the SVG `scale()` transform, for example `[factor]` or `[x, y]` |
-| **skewX** | Horizontal skew angle in degrees |
-| **skewY** | Vertical skew angle in degrees |
+|----------|-------------|
+| `rotate` | Rotation arguments, such as `[45]` or `[45, 50, 50]` |
+| `translate` | Translation arguments, such as `[10, 20]` |
+| `scale` | Scaling arguments, such as `[0.8]` or `[0.8, 0.8]` |
+| `skewX` | Horizontal skew angle in degrees |
+| `skewY` | Vertical skew angle in degrees |
 
-Multiple transformations can be combined in the same object.
+Transformations are emitted in this order: `rotate`, `translate`, `scale`, `skewX`, `skewY`.
 
-They are rendered in the following order: `rotate`, `translate`, `scale`, `skewX`, `skewY`.
+Example:
 
 ```js
 transform: {
@@ -275,17 +379,22 @@ transform: {
 }
 ```
 
-#### style
+### style
 
-The `style` property defines CSS rules embedded in the generated SVG.
+The `style` property specifies CSS rules inserted into a `style` element in the generated SVG.
 
-It can be used to customize the rendering of SVG elements, for example to define hover states or other CSS-based effects.
+These rules can target SVG elements and text classes. They are retained when the SVG is exported as an image.
+
+CSS declarations may override presentation attributes such as fill color and font properties.
+
+Example:
 
 ```js
 style: `
-  path:hover {
-    opacity: 0.8;
+  .shape-label {
+    font-family: sans-serif;
+    font-weight: bold;
+    pointer-events: none;
   }
 `
 ```
-
