@@ -34,6 +34,50 @@ function normalizeUnit (unit, operation) {
   return normalized
 }
 
+function timestamp (value) {
+  const input = is.object(value) && is.number(value.timestamp) && is.function(value.toDate)
+    ? value.timestamp
+    : value
+  return parse(input).getTime()
+}
+
+function stepMilliseconds (value) {
+  let milliseconds
+  if (is.number(value)) {
+    milliseconds = value
+  } else if (is.string(value)) {
+    milliseconds = durations.asMilliseconds(value)
+  } else if (is.object(value) && is.function(value.asMilliseconds)) {
+    milliseconds = value.asMilliseconds()
+  } else {
+    throw new TypeError('Expected an ISO duration, a Duration, or milliseconds')
+  }
+  if (!Number.isSafeInteger(milliseconds) || milliseconds <= 0) {
+    throw new RangeError('Alignment step must be a positive whole number of milliseconds')
+  }
+  return milliseconds
+}
+
+function alignment (value, step, { origin = 0 } = {}) {
+  const instant = timestamp(value)
+  const anchor = timestamp(origin)
+  const milliseconds = stepMilliseconds(step)
+  const distance = instant - anchor
+  if (!Number.isSafeInteger(distance)) {
+    throw new RangeError('Distance from alignment origin exceeds safe integer precision')
+  }
+  const remainder = ((distance % milliseconds) + milliseconds) % milliseconds
+  return { instant, milliseconds, remainder }
+}
+
+function alignedDate (milliseconds) {
+  const result = new Date(milliseconds)
+  if (!Number.isFinite(result.getTime())) {
+    throw new RangeError('Aligned date is out of range')
+  }
+  return result
+}
+
 /**
  * Parses a Date, a timestamp in milliseconds, or a strict ISO 8601 string.
  * Strings without an offset are interpreted in the supplied timezone (UTC by default).
@@ -49,7 +93,6 @@ function parse (value, { format, timezone = DEFAULT_TIMEZONE } = {}) {
   if (format !== undefined && (!is.string(format) || !format)) {
     throw new TypeError('Date format must be a non-empty string')
   }
-
   let parsed
   if (is.instanceOf(value, Date)) {
     parsed = moment(value)
@@ -60,9 +103,17 @@ function parse (value, { format, timezone = DEFAULT_TIMEZONE } = {}) {
   } else {
     throw new TypeError('Expected a Date, a millisecond timestamp, or a date string')
   }
-
   if (!parsed.isValid()) throw new RangeError('Invalid date')
   return parsed.toDate()
+}
+
+function isValid (value, options) {
+  try {
+    parse(value, options)
+    return true
+  } catch {
+    return false
+  }
 }
 
 // The locale is always set explicitly so that results never depend on Moment's global locale,
@@ -73,12 +124,8 @@ function inTimezone (value, timezone, locale = DEFAULT_LOCALE) {
   return moment.tz(parse(value, { timezone }), timezone).locale(locale)
 }
 
-/** Formats an instant in the chosen IANA timezone and locale (UTC and English by default). */
 function format (value, pattern = DEFAULT_FORMAT, { timezone = DEFAULT_TIMEZONE, locale = DEFAULT_LOCALE } = {}) {
-  if (!is.string(pattern) || !pattern) {
-    throw new TypeError('Date format must be a non-empty string')
-  }
-  return inTimezone(value, timezone, locale).format(pattern)
+  return tz.format(timezone, value, pattern, { locale })
 }
 
 function add (value, amount, unit, { timezone = DEFAULT_TIMEZONE } = {}) {
@@ -123,17 +170,25 @@ function isSame (left, right, options) {
   return parse(left, options).getTime() === parse(right, options).getTime()
 }
 
-function isValid (value, options) {
-  try {
-    parse(value, options)
-    return true
-  } catch {
-    return false
-  }
+function floor (value, step, options) {
+  const { instant, remainder } = alignment(value, step, options)
+  return alignedDate(instant - remainder)
+}
+
+function ceil (value, step, options) {
+  const { instant, milliseconds, remainder } = alignment(value, step, options)
+  return alignedDate(remainder === 0 ? instant : instant - remainder + milliseconds)
+}
+
+function round (value, step, options) {
+  const { instant, milliseconds, remainder } = alignment(value, step, options)
+  const lower = instant - remainder
+  return alignedDate(remainder >= milliseconds / 2 ? lower + milliseconds : lower)
 }
 
 export const date = {
   parse,
+  isValid,
   format,
   add,
   addDuration,
@@ -144,5 +199,7 @@ export const date = {
   isBefore,
   isAfter,
   isSame,
-  isValid
+  floor,
+  ceil,
+  round
 }

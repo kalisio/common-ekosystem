@@ -61,11 +61,22 @@ function abbreviation (name, at = Date.now()) {
   return atMoment(name, at).zoneAbbr()
 }
 
+function format (name, at = Date.now(), pattern = 'Z', { locale = 'en' } = {}) {
+  if (!is.nonEmptyString(pattern)) {
+    throw new TypeError('Date format must be a non-empty string')
+  }
+  if (!is.string(locale) || !moment.locales().includes(locale)) {
+    throw new RangeError(`Unknown or unloaded locale: ${locale}`)
+  }
+  return atMoment(name, at).locale(locale).format(pattern)
+}
+
 export const timezone = {
   isValid,
   normalize,
   guess,
   list,
   offset,
-  abbreviation
+  abbreviation,
+  format
 }

@@ -1,5 +1,6 @@
 import moment from 'moment-timezone'
 import { timezone } from '../../src/utilities/index.js'
+import 'moment/locale/fr.js'
 
 describe('timezone', () => {
   afterEach(() => {
@@ -229,6 +230,75 @@ describe('timezone', () => {
       expect(() => timezone.abbreviation('UTC', null)).toThrow(TypeError)
       expect(() => timezone.abbreviation('UTC', new Date(NaN))).toThrow(RangeError)
       expect(() => timezone.abbreviation('UTC', 'invalid')).toThrow(RangeError)
+    })
+  })
+
+  describe('format', () => {
+    it('formats timezone offsets', () => {
+      expect(timezone.format('Europe/Paris', '2026-01-15T12:00:00Z', 'Z')).toBe('+01:00')
+      expect(timezone.format('Europe/Paris', '2026-07-15T12:00:00Z', 'Z')).toBe('+02:00')
+      expect(timezone.format('America/New_York', '2026-01-15T12:00:00Z', 'Z')).toBe('-05:00')
+      expect(timezone.format('Asia/Kathmandu', '2026-01-15T12:00:00Z', 'Z')).toBe('+05:45')
+    })
+    it('supports Moment timezone formatting tokens', () => {
+      const at = '2026-07-15T12:00:00Z'
+      expect(timezone.format('Europe/Paris', at, 'Z')).toBe('+02:00')
+      expect(timezone.format('Europe/Paris', at, 'ZZ')).toBe('+0200')
+      expect(timezone.format('Europe/Paris', at, 'z')).toBe('CEST')
+      expect(timezone.format('Europe/Paris', at, '[UTC]Z')).toBe('UTC+02:00')
+    })
+    it('formats dates in the specified timezone', () => {
+      const at = '2026-07-15T12:00:00Z'
+      expect(timezone.format('Europe/Paris', at, 'YYYY-MM-DD HH:mm')).toBe('2026-07-15 14:00')
+      expect(timezone.format('America/New_York', at, 'YYYY-MM-DD HH:mm')).toBe('2026-07-15 08:00')
+      expect(timezone.format('UTC', at, 'YYYY-MM-DD HH:mm')).toBe('2026-07-15 12:00')
+    })
+    it('handles daylight saving transitions', () => {
+      expect(timezone.format('Europe/Paris', '2026-03-29T00:59:59Z', 'HH:mm z')).toBe('01:59 CET')
+      expect(timezone.format('Europe/Paris', '2026-03-29T01:00:00Z', 'HH:mm z')).toBe('03:00 CEST')
+      expect(timezone.format('Europe/Paris', '2026-10-25T00:59:59Z', 'HH:mm z')).toBe('02:59 CEST')
+      expect(timezone.format('Europe/Paris', '2026-10-25T01:00:00Z', 'HH:mm z')).toBe('02:00 CET')
+    })
+    it('uses the current instant and Z format by default', () => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date('2026-07-15T12:00:00Z'))
+      expect(timezone.format('Europe/Paris')).toBe('+02:00')
+      expect(timezone.format('UTC')).toBe('+00:00')
+    })
+    it('accepts Date, timestamps and ISO strings', () => {
+      const at = '2026-07-15T12:00:00Z'
+      expect(timezone.format('Europe/Paris', at)).toBe('+02:00')
+      expect(timezone.format('Europe/Paris', new Date(at))).toBe('+02:00')
+      expect(timezone.format('Europe/Paris', Date.parse(at))).toBe('+02:00')
+    })
+    it('interprets local ISO strings in the specified timezone', () => {
+      expect(timezone.format('Europe/Paris', '2026-07-15T12:00:00', 'HH:mm Z')).toBe('12:00 +02:00')
+      expect(timezone.format('Europe/Paris', '2026-07-15T12:00:00Z', 'HH:mm Z')).toBe('14:00 +02:00')
+    })
+    it('supports explicit locales', () => {
+      expect(timezone.format('Europe/Paris', '2026-11-20T12:00:00Z', 'dddd D MMMM', { locale: 'fr' }))
+        .toBe('vendredi 20 novembre')
+      expect(timezone.format('Europe/Paris', '2026-11-20T12:00:00Z', 'dddd D MMMM', { locale: 'en' }))
+        .toBe('Friday 20 November')
+    })
+    it('rejects invalid timezones', () => {
+      expect(() => timezone.format('Mars/Olympus', 0)).toThrow(RangeError)
+      expect(() => timezone.format(null, 0)).toThrow(RangeError)
+    })
+    it('rejects invalid patterns', () => {
+      for (const pattern of ['', null, 42]) {
+        expect(() => timezone.format('UTC', 0, pattern)).toThrow(TypeError)
+      }
+    })
+    it('rejects unknown or unloaded locales', () => {
+      for (const locale of ['xx', '', null]) {
+        expect(() => timezone.format('UTC', 0, 'Z', { locale })).toThrow(RangeError)
+      }
+    })
+    it('rejects invalid dates', () => {
+      expect(() => timezone.format('UTC', 'invalid')).toThrow(RangeError)
+      expect(() => timezone.format('UTC', new Date(NaN))).toThrow(RangeError)
+      expect(() => timezone.format('UTC', null)).toThrow(TypeError)
     })
   })
 })

@@ -1,6 +1,7 @@
 import moment from 'moment-timezone'
 import 'moment/locale/fr.js'
-import { date } from '../../src/utilities/index.js'
+import { date, timezone } from '../../src/utilities/index.js'
+import { DateTime, Duration } from '../../src/models/index.js'
 
 describe('date', () => {
   beforeEach(() => {
@@ -134,6 +135,16 @@ describe('date', () => {
       for (const pattern of ['', null, 42]) {
         expect(() => date.format('2026-11-20T13:00:00Z', pattern)).toThrow(TypeError)
       }
+    })
+    it('produces the same result as timezone.format', () => {
+      const at = '2026-07-15T12:00:00Z'
+      const pattern = 'YYYY-MM-DD HH:mm Z'
+      for (const name of ['UTC', 'Europe/Paris', 'America/New_York', 'Asia/Kathmandu']) {
+        expect(date.format(at, pattern, { timezone: name }))
+          .toBe(timezone.format(name, at, pattern))
+      }
+      expect(date.format(at, 'dddd D MMMM', { timezone: 'Europe/Paris', locale: 'fr' }))
+        .toBe(timezone.format('Europe/Paris', at, 'dddd D MMMM', { locale: 'fr' }))
     })
   })
 
@@ -282,6 +293,53 @@ describe('date', () => {
     it('throws for invalid inputs', () => {
       expect(() => date.isBefore('not a date', 0)).toThrow(RangeError)
       expect(() => date.isSame(0, null)).toThrow(TypeError)
+    })
+  })
+
+  describe('date alignment', () => {
+    it('floors to a 90-minute step', () => {
+      expect(date.floor('2026-11-22T02:05:00Z', 'PT90M').toISOString()).toBe('2026-11-22T01:30:00.000Z')
+    })
+    it('handles steps shorter than a minute and millisecond precision', () => {
+      expect(date.floor('2026-11-22T02:05:37.825Z', 'PT15S').toISOString()).toBe('2026-11-22T02:05:30.000Z')
+      expect(date.floor(1876, 250).getTime()).toBe(1750)
+    })
+    it('implements floor, ceil and round boundaries', () => {
+      const value = '2026-11-22T02:05:00Z'
+      expect(date.floor(value, 'PT90M').toISOString()).toBe('2026-11-22T01:30:00.000Z')
+      expect(date.ceil(value, 'PT90M').toISOString()).toBe('2026-11-22T03:00:00.000Z')
+      expect(date.round(value, 'PT90M').toISOString()).toBe('2026-11-22T01:30:00.000Z')
+      expect(date.ceil('2026-11-22T03:00:00Z', 'PT90M').toISOString()).toBe('2026-11-22T03:00:00.000Z')
+      expect(date.round('2026-11-22T02:15:00Z', 'PT90M').toISOString()).toBe('2026-11-22T03:00:00.000Z')
+    })
+    it('supports a custom alignment origin', () => {
+      const options = { origin: '2026-11-22T00:20:00Z' }
+      expect(date.floor('2026-11-22T02:05:00Z', 'PT90M', options).toISOString()).toBe('2026-11-22T01:50:00.000Z')
+    })
+    it('handles negative timestamps', () => {
+      expect(date.floor(-1, 1000).getTime()).toBe(-1000)
+      expect(date.ceil(-1, 1000).getTime()).toBe(0)
+      expect(date.round(-500, 1000).getTime()).toBe(0)
+    })
+    it('accepts DateTime and Duration objects', () => {
+      const datetime = new DateTime('2026-11-22T02:05:00Z')
+      const duration = new Duration('PT90M')
+      expect(date.floor(datetime, duration).toISOString()).toBe('2026-11-22T01:30:00.000Z')
+    })
+    it('does not mutate Date inputs', () => {
+      const input = new Date('2026-11-22T02:05:00Z')
+      const output = date.floor(input, 'PT90M')
+      expect(output).not.toBe(input)
+      expect(input.toISOString()).toBe('2026-11-22T02:05:00.000Z')
+    })
+    it('rejects invalid alignment steps', () => {
+      for (const step of ['P1D', 'PT0S', '-PT1H', 0, -1, 1.5]) {
+        expect(() => date.floor(0, step)).toThrow()
+      }
+    })
+    it('rejects invalid dates and origins', () => {
+      expect(() => date.floor('invalid', 'PT1H')).toThrow(RangeError)
+      expect(() => date.floor(0, 'PT1H', { origin: 'invalid' })).toThrow(RangeError)
     })
   })
 })
