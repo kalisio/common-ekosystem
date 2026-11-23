@@ -66,7 +66,9 @@ function alignment (value, step, { origin = 0 } = {}) {
   if (!Number.isSafeInteger(distance)) {
     throw new RangeError('Distance from alignment origin exceeds safe integer precision')
   }
-  const remainder = ((distance % milliseconds) + milliseconds) % milliseconds
+  // Adding the step only to a negative remainder keeps every intermediate value a safe integer
+  const rest = distance % milliseconds
+  const remainder = rest < 0 ? rest + milliseconds : rest
   return { instant, milliseconds, remainder }
 }
 
@@ -88,8 +90,9 @@ function alignedDate (milliseconds) {
  *   for instance 02:30 on 2026-10-25 in Europe/Paris gives 00:30Z.
  * Always returns a fresh native Date; Moment instances are never exposed.
  */
-function parse (value, { format, timezone = DEFAULT_TIMEZONE } = {}) {
+function parse (value, { format, timezone = DEFAULT_TIMEZONE, locale = DEFAULT_LOCALE } = {}) {
   assertTimezone(timezone)
+  assertLocale(locale)
   if (format !== undefined && (!is.string(format) || !format)) {
     throw new TypeError('Date format must be a non-empty string')
   }
@@ -99,7 +102,8 @@ function parse (value, { format, timezone = DEFAULT_TIMEZONE } = {}) {
   } else if (is.number(value)) {
     parsed = moment(value)
   } else if (is.string(value) && value.trim()) {
-    parsed = moment.tz(value, format ?? moment.ISO_8601, true, timezone)
+    // The locale is passed explicitly: importing a Moment locale file changes the global one
+    parsed = moment.tz(value, format ?? moment.ISO_8601, locale, true, timezone)
   } else {
     throw new TypeError('Expected a Date, a millisecond timestamp, or a date string')
   }
@@ -175,15 +179,18 @@ function floor (value, step, options) {
   return alignedDate(instant - remainder)
 }
 
+// Each bound is computed in a single operation from the instant, so that no intermediate value
+// leaves the safe integer range while the result stays within it
 function ceil (value, step, options) {
   const { instant, milliseconds, remainder } = alignment(value, step, options)
-  return alignedDate(remainder === 0 ? instant : instant - remainder + milliseconds)
+  return alignedDate(remainder === 0 ? instant : instant + (milliseconds - remainder))
 }
 
 function round (value, step, options) {
   const { instant, milliseconds, remainder } = alignment(value, step, options)
-  const lower = instant - remainder
-  return alignedDate(remainder >= milliseconds / 2 ? lower + milliseconds : lower)
+  return alignedDate(remainder >= milliseconds / 2
+    ? instant + (milliseconds - remainder)
+    : instant - remainder)
 }
 
 export const date = {

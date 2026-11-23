@@ -375,7 +375,7 @@ describe('Clock', () => {
   })
 
   describe('loop', () => {
-    it.fails('preserves the initial instant within very wide looping bounds', () => {
+    it('preserves the initial instant within very wide looping bounds', () => {
       const start = -(2 ** 52)
       const initialTime = start + 2
       const clock = create({
@@ -384,6 +384,14 @@ describe('Clock', () => {
         loop: true
       }, initialTime)
       expect(clock.now().timestamp).toBe(initialTime)
+    })
+    it('wraps an instant whose offset from the bounds exceeds MAX_SAFE_INTEGER', () => {
+      const clock = create({
+        mode: 'simulated',
+        bounds: { start: -8.64e15, end: -2.64e15 },
+        loop: true
+      }, 8000000000000001)
+      expect(clock.now().timestamp).toBe(-3999999999999999)
     })
     it('wraps the time within the bounds', () => {
       const clock = create({ speed: 3600, bounds: BOUNDS, loop: true, tickInterval: 0 }, BOUNDS.start)

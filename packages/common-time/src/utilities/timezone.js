@@ -2,7 +2,13 @@ import { is } from '@kalisio/common-core/predicates'
 import moment from 'moment-timezone'
 
 function isValid (value) {
-  return is.string(value) && moment.tz.zone(value) !== null
+  if (!is.string(value)) return false
+  try {
+    return moment.tz.zone(value) !== null
+  } catch {
+    // moment-timezone looks names up in plain objects and throws on inherited keys such as constructor
+    return false
+  }
 }
 
 function assertValid (value) {

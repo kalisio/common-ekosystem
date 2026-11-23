@@ -37,7 +37,8 @@ export class DateTime {
     }
     this.#timestamp = date.parse(input, {
       timezone: this.#timezone,
-      format: options.format
+      format: options.format,
+      locale: options.locale
     }).getTime()
     Object.freeze(this)
   }

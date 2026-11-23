@@ -41,6 +41,7 @@ Strings without an explicit offset are interpreted in the selected timezone. Str
 | `options` | `object` | no | Construction options. |
 | `options.timezone` | `string` | no | IANA timezone. Defaults to `UTC` or the inherited timezone. |
 | `options.format` | `string` | no | Custom Moment parsing format for date strings. Locale-sensitive tokens follow the [date.parse](../utilities/date.md#parse) rules. |
+| `options.locale` | `string` | no | Loaded Moment locale used by locale-sensitive format tokens. Defaults to `en`. |
 
 A JSON snapshot has the following structure:
 

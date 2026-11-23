@@ -27,7 +27,7 @@ date.parse(value, options)
 
 Parses a date value and returns a new native JavaScript `Date` instance.
 
-Accepts a `Date`, a timestamp in milliseconds, or a strictly parsed ISO 8601 string. A custom parsing format can also be provided. Locale-sensitive tokens such as `MMMM` use Moment’s active locale.
+Accepts a `Date`, a timestamp in milliseconds, or a strictly parsed ISO 8601 string. A custom parsing format can also be provided. Locale-sensitive tokens such as `MMMM` use the `locale` option, never Moment’s global locale.
 
 Strings without an explicit UTC offset are interpreted in the specified timezone, or UTC by default. Strings with an explicit offset preserve the instant defined by that offset, regardless of the timezone option.
 
@@ -46,6 +46,7 @@ The input is never mutated.
 | `options` | `object` | no | Parsing options. |
 | `options.format` | `string` | no | Custom Moment parsing format. Defaults to strict ISO 8601 parsing. |
 | `options.timezone` | `string` | no | IANA timezone used to interpret local date strings. Defaults to `UTC`. |
+| `options.locale` | `string` | no | Loaded Moment locale used by locale-sensitive format tokens. Defaults to `en`. |
 
 ### Returns
 
@@ -58,7 +59,7 @@ The input is never mutated.
 | Type | Description |
 |------|-------------|
 | `TypeError` | The input type or format option is invalid. |
-| `RangeError` | The date string, timestamp, or timezone is invalid. |
+| `RangeError` | The date string, timestamp, timezone, or locale is invalid. |
 
 ### Examples
 

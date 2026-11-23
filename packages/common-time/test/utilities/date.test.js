@@ -80,6 +80,11 @@ describe('date', () => {
         expect(() => date.parse('2026-11-20', { timezone })).toThrow(RangeError)
       }
     })
+    it('rejects an unknown or unloaded locale', () => {
+      for (const locale of ['xx', '', null]) {
+        expect(() => date.parse('2026-11-20', { locale })).toThrow(RangeError)
+      }
+    })
     it('validates the format option whatever the input type', () => {
       expect(() => date.parse('2026-11-20', { format: '' })).toThrow(TypeError)
       expect(() => date.parse(0, { format: '' })).toThrow(TypeError)
@@ -305,8 +310,13 @@ describe('date', () => {
   })
 
   describe('date alignment', () => {
-    it.fails('floors to the grid without rounding a safe-integer millisecond step', () => {
+    it('floors to the grid without rounding a safe-integer millisecond step', () => {
       expect(date.floor(2, Number.MAX_SAFE_INTEGER).getTime()).toBe(0)
+    })
+    it('preserves precision with large alignment steps', () => {
+      const options = { origin: 1 }
+      expect(date.ceil(-8.64e15, 6e15, options).getTime()).toBe(-5999999999999999)
+      expect(date.round(-8.64e15, 6e15, options).getTime()).toBe(-5999999999999999)
     })
     it('floors to a 90-minute step', () => {
       expect(date.floor('2026-11-22T02:05:00Z', 'PT90M').toISOString()).toBe('2026-11-22T01:30:00.000Z')

@@ -33,6 +33,11 @@ describe('DateTime', () => {
       expect(value.toISOString()).toBe('2026-11-20T13:00:00.000Z')
       expect(value.timezone).toBe('Europe/Paris')
     })
+    it('parses month names in English by default and in the requested locale', () => {
+      const format = 'D MMMM YYYY'
+      expect(new DateTime('20 November 2026', { format }).toISOString()).toBe('2026-11-20T00:00:00.000Z')
+      expect(new DateTime('20 novembre 2026', { format, locale: 'fr' }).toISOString()).toBe('2026-11-20T00:00:00.000Z')
+    })
     it('parses with a custom format', () => {
       const value = new DateTime('20/11/2026 14:00', { format: 'DD/MM/YYYY HH:mm', timezone: 'Europe/Paris' })
       expect(value.toISOString()).toBe('2026-11-20T13:00:00.000Z')

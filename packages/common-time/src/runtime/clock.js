@@ -191,10 +191,12 @@ export class Clock {
     const start = Date.parse(config.bounds.start)
     const end = Date.parse(config.bounds.end)
     if (config.loop) {
-      const length = end - start
-      const turn = Math.floor((raw - start) / length)
-      const time = start + (((raw - start) % length + length) % length)
-      return { time, ended: false, turn }
+      // BigInt: instant - start and the modulo can exceed MAX_SAFE_INTEGER within the Date range
+      const origin = BigInt(start)
+      const length = BigInt(end) - origin
+      const offset = BigInt(raw) - origin
+      const position = ((offset % length) + length) % length
+      return { time: Number(origin + position), ended: false, turn: Number((offset - position) / length) }
     }
     if (raw >= end) return { time: end, ended: true, turn: 0 }
     if (raw < start) return { time: start, ended: true, turn: 0 }
