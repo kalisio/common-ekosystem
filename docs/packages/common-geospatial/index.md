@@ -9,12 +9,14 @@ _Geospatial utilities for the Kalisio ekosystem_
 
 ## Overview
 
-**common-geospatial** is organized around three modules:
-- [foundation](foundation/axes.md) - fundamental definitions and utilities
-- [operators](operators/is-like.md) - high-level data processing functions
-- [io](io/csv.md) - helpers for reading external data sources
+**common-geospatial** is organized around four modules.
 
-Use [setup](./setup.md) to register the catalogs for direction labels and validation messages. See [nvector](./utilities/nvector.md) for spherical vector operations.
+- [foundation](./foundation/axes.md) — Coordinates, projections, and geometry primitives.
+- [operators](./operators/is-like.md) — GeoJSON validation and processing.
+- [io](./io/geojson.md) — Readers for GeoJSON, GPX, and KML.
+- [utilities](./io/locales.md) — Various utilities
+
+Use [setup](./setup.md) to register the catalogs for direction labels and validation messages.
 
 ## Installation
 
@@ -43,15 +45,16 @@ yarn add @kalisio/common-geospatial
 The package can be imported from its root entry point:
 
 ```js
-import { WGS84, validateGeoJson } from '@kalisio/common-geospatial'
+import { WGS84, validateGeoJson, locales, nvector } from '@kalisio/common-geospatial'
 ```
 
-For more explicit imports, each module is also exposed as a dedicated subpath:
+Dedicated subpaths are available for foundation, operators, I/O, and setup.
 
 ```js
 import { WGS84, reprojectPosition } from '@kalisio/common-geospatial/foundation'
 import { validateGeoJson } from '@kalisio/common-geospatial/operators'
 import { readGeoJson } from '@kalisio/common-geospatial/io'
+import { setup } from '@kalisio/common-geospatial/setup'
 ```
 
 ### Examples
