@@ -260,3 +260,28 @@ isWGS84Projection('EPSG:2154')
 isWGS84Projection('UNKNOWN')
 // false
 ```
+## denormalizeCrsName
+
+### Signature
+
+```js
+denormalizeCrsName(name)
+```
+
+### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `name` | `string` | yes | Non-blank CRS name. |
+
+### Returns
+
+| Type | Description |
+|---|---|
+| `string` | OGC URN for a name of the form `EPSG:<code>`. Other names are returned unchanged. |
+
+### Example
+
+```js
+denormalizeCrsName('EPSG:2154') // 'urn:ogc:def:crs:EPSG::2154'
+```

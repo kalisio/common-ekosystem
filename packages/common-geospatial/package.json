@@ -24,6 +24,11 @@
       "development": "./src/io/index.js",
       "import": "./dist/io/index.mjs",
       "require": "./dist/io/index.cjs"
+    },
+    "./setup": {
+      "development": "./src/setup.js",
+      "import": "./dist/setup.mjs",
+      "require": "./dist/setup.cjs"
     }
   },
   "files": [
@@ -121,6 +126,10 @@
       "./io": {
         "import": "./dist/io/index.mjs",
         "require": "./dist/io/index.cjs"
+      },
+      "./setup": {
+        "import": "./dist/setup.mjs",
+        "require": "./dist/setup.cjs"
       }
     }
   }

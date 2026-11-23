@@ -1,5 +1,5 @@
-import { Clock, getCurrentClock, setCurrentClock } from '../src/runtime/index.js'
-import { setup } from '../src/setup.js'
+import { Clock, getCurrentClock, setCurrentClock } from '@kalisio/common-time'
+import { setup } from '@kalisio/common-time/setup'
 
 const clocks = []
 

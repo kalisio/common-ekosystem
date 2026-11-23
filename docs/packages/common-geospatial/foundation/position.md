@@ -339,3 +339,10 @@ distanceBetweenPositions(
 )
 // distance in meters
 ```
+
+## Comparison options
+
+| Export | Description |
+|---|---|
+| `IS_SAME_POSITION_OPTIONS_SCHEMA` | Validation schema for the optional integer `precision` (0 to 8) and boolean `consider3D` options. |
+| `IS_SAME_POSITION_DEFAULTS` | Defaults to `{ precision: 7, consider3D: false }`. |

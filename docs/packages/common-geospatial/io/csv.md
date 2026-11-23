@@ -1,11 +1,11 @@
 ---
-title: CSV
+title: CSV (internal)
 description: Read geospatial point data from CSV sources.
 ---
 
 # CSV
 
-The CSV reader loads tabular data from a supported source and converts each row into a GeoJSON `Point` feature.
+The CSV reader loads tabular data from a supported source and converts each row into a GeoJSON `Point` feature. This helper is available in the package source. The published `/io` entry point provides the GeoJSON, GPX, and KML readers.
 
 ## readCsv
 
@@ -200,10 +200,10 @@ GeoJSON validation errors are returned through `errors` and `warnings`.
 
 ### Examples
 
-Read a CSV using the default coordinate columns:
+Run this example from `packages/common-geospatial` with a CSV containing the default coordinate columns.
 
 ```js
-import { readCsv } from '@kalisio/common-geospatial/io'
+import { readCsv } from './src/io/csv.js'
 
 const result = await readCsv('./points.csv')
 

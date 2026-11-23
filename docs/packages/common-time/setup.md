@@ -5,7 +5,7 @@ description: Configure the shared clock for an application.
 
 # setup
 
-Configures the shared clock used by `common-time`. The application owns the clock's creation and lifecycle. This helper is available in the package source. Applications that use the published package initialize their clock with [setCurrentClock](./runtime/current-clock.md#setcurrentclock).
+Configures the shared clock used by `common-time`. The application owns the clock's creation and lifecycle.
 
 ## Signature
 
@@ -29,11 +29,9 @@ setup(options = {})
 
 ## Example
 
-Run this example from the `packages/common-time` directory.
-
 ```js
-import { setup } from './src/setup.js'
-import { Clock, getCurrentClock } from './src/index.js'
+import { setup } from '@kalisio/common-time/setup'
+import { Clock, getCurrentClock } from '@kalisio/common-time'
 
 const clock = new Clock({ timezone: 'Europe/Paris' })
 setup({ clock })

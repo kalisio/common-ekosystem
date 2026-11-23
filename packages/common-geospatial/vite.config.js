@@ -13,7 +13,8 @@ export default mergeConfig(baseConfig, defineConfig({
         index: 'src/index.js',
         'foundation/index': 'src/foundation/index.js',
         'operators/index': 'src/operators/index.js',
-        'io/index': 'src/io/index.js'
+        'io/index': 'src/io/index.js',
+        setup: 'src/setup.js'
       }
     }
   }

@@ -183,20 +183,15 @@ These three related codes split by the object being checked:
 
 Validation results intentionally contain stable codes instead of localized messages.
 
-Applications can translate these codes using the localization module:
+Initialize the catalogs with [setup](../setup.md), then resolve the preferred validation message with [locales.getMessages](../utilities/locales.md#getmessages). This example uses the current locale from `common-core`.
 
 ```js
-import {
-  getActiveLocales,
-  getMessages
-} from '@kalisio/common-geospatial'
+import { getLocales } from '@kalisio/common-core/runtime'
+import { locales } from '@kalisio/common-geospatial'
 
 function getValidationMessage (code) {
-  for (const locale of getActiveLocales()) {
-    const message = getMessages(locale).VALIDATION[code]
-    if (message) return message
-  }
-  return code
+  const messages = locales.getMessages(getLocales().getCurrent())
+  return messages?.VALIDATION?.[code] ?? code
 }
 ```
 

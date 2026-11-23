@@ -5,12 +5,13 @@ description: Locale-aware cardinal direction helpers for geographic coordinates.
 
 # directions
 
-Direction labels and symbols are locale-aware — they depend on the current locale set via [`setLocale`](./localization.md). Each direction has a `label` (full name) and a `symbol` (abbreviated form), and comparisons are case-insensitive.
+Direction labels and symbols are locale-aware. Initialize the locale registry and catalogs as described in [setup](../setup.md). Each direction has a `label` and a `symbol`.
 
-Two behaviours differ across this module:
+Display helpers use the catalog resolved for the current locale. Predicates and symbol helpers use the catalogs resolved for all registered locales, with the registry's fallback rules. The examples assume English and French are registered, with English selected initially.
 
-- **Display helpers** (`getDirections`, `getNorth`, `getSouth`, `getEast`, `getWest`) use the **current locale only**.
-- **Validation predicates** (`isValidDirection`, `isNorth`, `isSouth`, `isEast`, `isWest`, `getDirectionAxis`) accept the current locale **plus** the fallback (`en`). A hard-coded `'W'` is therefore a valid direction even under the `fr` locale (where West is displayed as `'O'`). See [`getActiveLocales`](./localization.md) for the exact set considered.
+```js
+import { getLocales } from '@kalisio/common-core/runtime'
+```
 
 ## getDirections
 
@@ -85,7 +86,7 @@ getSouth()   // { label: 'South', symbol: 'S' }
 getEast()    // { label: 'East', symbol: 'E' }
 getWest()    // { label: 'West', symbol: 'W' }
 
-setLocale('fr')
+getLocales().setCurrent('fr')
 getWest()    // { label: 'Ouest', symbol: 'O' }
 ```
 
@@ -99,7 +100,7 @@ isValidDirection (dir)
 
 ### Description
 
-Returns `true` if `dir` matches any cardinal direction (North, South, East, or West), either by label or symbol, in the current locale **or** the fallback (`en`). The comparison is case-insensitive.
+Returns `true` if `dir` matches any cardinal direction (North, South, East, or West), either by label or symbol, in the catalogs resolved for registered locales. The comparison is case-insensitive.
 
 ### Parameters
 
@@ -113,10 +114,6 @@ Returns `true` if `dir` matches any cardinal direction (North, South, East, or W
 |------|-------------|
 | `boolean` | `true` if the value is a recognized direction |
 
-### Throws
-
-Throws if `dir` is not a string.
-
 ### Examples
 
 ```js
@@ -125,9 +122,9 @@ isValidDirection('North')  // true
 isValidDirection('north')  // true
 isValidDirection('X')      // false
 
-setLocale('fr')
+getLocales().setCurrent('fr')
 isValidDirection('O')      // true — current locale (Ouest)
-isValidDirection('W')      // true — en fallback
+isValidDirection('W')      // true — English is registered
 ```
 
 ## isNorth / isSouth / isEast / isWest
@@ -143,7 +140,7 @@ isWest (dir)
 
 ### Description
 
-Returns `true` if `dir` matches the corresponding cardinal direction, either by label or symbol, in the current locale **or** the fallback (`en`). The comparison is case-insensitive.
+Returns `true` if `dir` matches the corresponding cardinal direction, either by label or symbol, in the catalogs resolved for registered locales. The comparison is case-insensitive.
 
 ### Parameters
 
@@ -157,10 +154,6 @@ Returns `true` if `dir` matches the corresponding cardinal direction, either by 
 |------|-------------|
 | `boolean` | `true` if the value matches the direction |
 
-### Throws
-
-Throws if `dir` is not a string.
-
 ### Examples
 
 ```js
@@ -173,9 +166,9 @@ isSouth('S')       // true
 isEast('E')        // true
 isWest('W')        // true
 
-setLocale('fr')
+getLocales().setCurrent('fr')
 isWest('O')        // true — current locale (Ouest)
-isWest('W')        // true — en fallback
+isWest('W')        // true — English is registered
 ```
 
 ## getDirectionAxis
@@ -188,7 +181,7 @@ getDirectionAxis (dir)
 
 ### Description
 
-Returns the axis associated with a cardinal direction. East and West map to `AXES.LONGITUDE`, North and South map to `AXES.LATITUDE`. Recognizes directions from the current locale or the fallback (`en`).
+Returns the axis associated with a cardinal direction. East and West map to `AXES.LONGITUDE`, North and South map to `AXES.LATITUDE`. Recognizes directions from the catalogs resolved for registered locales.
 
 ### Parameters
 
@@ -214,7 +207,7 @@ getDirectionAxis('S')   // 'LAT'
 getDirectionAxis('E')   // 'LON'
 getDirectionAxis('W')   // 'LON'
 
-setLocale('fr')
+getLocales().setCurrent('fr')
 getDirectionAxis('O')   // 'LON' — Ouest
 ```
 
@@ -222,13 +215,13 @@ getDirectionAxis('O')   // 'LON' — Ouest
 
 ### Signature
 
-```js id="brqavb"
+```js
 getDirectionSymbols(axis = null)
 ```
 
 ### Description
 
-Returns the direction symbols recognized for the specified axis across all active locales.
+Returns the direction symbols recognized for the specified axis across the catalogs resolved for registered locales.
 
 When no axis is specified, symbols for all directions are returned.
 
@@ -236,7 +229,7 @@ When no axis is specified, symbols for all directions are returned.
 
 | Name   | Type             | Required | Description                                                                                     |
 | ------ | ---------------- | -------- | ----------------------------------------------------------------------------------------------- |
-| `axis` | `string \| null` | no       | Axis used to filter direction symbols (`longitude` or `latitude`), or `null` for all directions |
+| `axis` | `string \| null` | no       | Axis used to filter direction symbols (`AXES.LATITUDE` or `AXES.LONGITUDE`), or `null` for all directions |
 
 ### Returns
 
@@ -246,13 +239,39 @@ When no axis is specified, symbols for all directions are returned.
 
 ### Examples
 
-```js id="dbyfzq"
-getDirectionSymbols('longitude')
+```js
+getDirectionSymbols(AXES.LONGITUDE)
 // ['E', 'W', ...]
 
-getDirectionSymbols('latitude')
+getDirectionSymbols(AXES.LATITUDE)
 // ['N', 'S', ...]
 
 getDirectionSymbols()
 // ['N', 'S', 'E', 'W', ...]
+```
+
+## getDirectionPattern
+
+### Signature
+
+```js
+getDirectionPattern(axis = null)
+```
+
+### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `axis` | `string \| null` | no | Axis from `AXES`, or `null` for all directions. |
+
+### Returns
+
+| Type | Description |
+|---|---|
+| `string` | Recognized direction symbols escaped for use in a regular expression and joined with `\|`. The altitude axis returns an empty string. |
+
+### Example
+
+```js
+getDirectionPattern(AXES.LATITUDE) // 'N|S' with the built-in catalogs
 ```

@@ -216,3 +216,10 @@ reprojectPositions([
 reprojectPositions([], 'EPSG:3857')
 // []
 ```
+
+## Truncation options
+
+| Export | Description |
+|---|---|
+| `TRUNCATE_POSITIONS_OPTIONS_SCHEMA` | Extends the [position comparison schema](./position.md#comparison-options) with the optional boolean `deduplicate` option. |
+| `TRUNCATE_POSITIONS_DEFAULTS` | Defaults to `{ precision: 7, consider3D: false, deduplicate: false }`. |

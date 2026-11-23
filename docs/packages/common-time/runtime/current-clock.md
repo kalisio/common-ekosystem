@@ -86,4 +86,4 @@ export function getCurrentRange () {
 
 Call `getCurrentClock()` when needed instead of storing a shared clock reference at module initialization, since the installed clock can change.
 
-For initialization within the package source, see [setup](../setup.md).
+For application initialization through an options object, see [setup](../setup.md).
