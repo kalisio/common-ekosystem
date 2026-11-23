@@ -15,13 +15,19 @@ description: Time utilities for the Kalisio ekosystem
 Moment.js is in maintenance mode and does not receive major feature updates. Its maintainers recommend considering modern alternatives for new projects. `common-time` encapsulates Moment.js behind a stable API to simplify maintenance and a potential migration.
 :::
 
-The package is organized into three modules:
+It is organized around three modules:
 
-- Utilities for [dates](./utilities/date.md), [durations](./utilities/duration.md), [timezones](./utilities/timezone.md), and [time series](./utilities/time-series.md).
-- [Models](./models/date-time.md) — Immutable [`DateTime`](./models/date-time.md), [`Duration`](./models/duration.md), and [`TimeRange`](./models/time-range.md) values.
-- [Runtime](./runtime/clock.md) — Mutable [`Clock`](./runtime/clock.md), [shared clock](./runtime/current-clock.md), [clock listeners](./runtime/clock-listener.md), and [locale resources](./runtime/locales.md).
+- [utilities](./utilities/date.md) — Stateless helpers for dates, durations, timezones, and time series.
+- [models](./models/date-time.md) — Immutable temporal values and ranges.
+- [runtime](./runtime/clock.md) — Clocks, shared time state, event listeners, and locale integration.
 
-All public APIs use standard JavaScript values and ISO 8601 representations without exposing Moment.js objects.
+Runtime services and locale resources can be initialized through [setup](./setup.md).
+
+::: info
+
+All public APIs use standard JavaScript values and ISO 8601 representations without exposing **Moment.js** objects.
+
+:::
 
 ## Installation
 
