@@ -51,7 +51,7 @@ yarn add @kalisio/common-time
 import {
   DateTime, Duration, TimeRange,
   date, duration, timezone, timeSeries,
-  Clock, getCurrentClock, setCurrentClock, createClockListener,
+  Clock, getCurrentClock, setCurrentClock,
   registerTimeLocales, loadTimeLocale
 } from '@kalisio/common-time'
 ```
@@ -211,16 +211,25 @@ clock.dispose()
 
 `getCurrentClock()` returns a lazily initialized realtime clock if none is installed. Installing a new current clock does not dispose the previous one.
 
-### Managing clock listeners
+### Listening to clock events
+
+To subscribe several handlers at once, use [`listen`](../common-core/runtime/event-listeners.md#listen) from 
+[common-core](../common-core/index.md). 
 
 ```js
-const listener = createClockListener({
+import { listen } from '@kalisio/common-core/runtime'
+
+const stop = listen(getCurrentClock(), {
   tick: ({ time, range }) => console.log(time.toISOString(), range),
   change: ({ status }) => console.log(status)
 })
 
-listener.attach(getCurrentClock())
-listener.detach()
+// Removes every subscription at once
+stop()
 ```
 
-Listeners can be attached to another `Clock` explicitly; they do not automatically follow changes to the shared current clock.
+::: warning
+
+Subscriptions do not follow the shared current clock: after `setCurrentClock()`, subscribe again on the new clock.
+
+:::
