@@ -35,6 +35,7 @@ Parses a YAML string using `js-yaml` and returns the resulting JavaScript value.
 | `text` | `string` | yes | YAML text to parse |
 | `options` | `object` | no | Parsing options |
 | `options.parser` | `object` | no | Options passed to `js-yaml` |
+| `options.request` | `object` | no | Options passed to `request` when reading a remote source |
 
 ### Returns
 

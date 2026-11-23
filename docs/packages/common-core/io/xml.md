@@ -99,7 +99,7 @@ const data = await xml.parse('<note><to>World</to></note>')
 Pass options to `fast-xml-parser`:
 
 ```js
-const data = await xml.parse('<note category="reminder"/>', {
+const data = await xml.parse('<note category="reminder"/>', {import { xml } from '@kalisio/common-core/io/xml'import { xml } from '@kalisio/common-core/io/xml'
   parser: {
     attributeNamePrefix: ''
   }
@@ -199,7 +199,7 @@ Also propagates errors thrown by `xml.parse()`, including XML validation and par
 Read XML into JSON:
 
 ```js
-import { xml } from '@kalisio/common-core/io'
+import { xml } from '@kalisio/common-core/io/xml'
 
 const data = await xml.read('./note.xml')
 ```

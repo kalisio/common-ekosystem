@@ -1,5 +1,4 @@
 ---
-
 title: csv
 description: Parse and read CSV sources with optional row mapping and JSON Schema validation.
 ---
@@ -36,7 +35,7 @@ The `header` option controls how columns are mapped:
 * if `true`, the first row of the CSV is used as the header and rows are returned as objects,
 * if an array of strings is provided, the CSV is assumed to have no header and the supplied names are used to map each row to an object.
 
-When a custom header is provided, `meta.fields` is populated with the supplied column names.
+When a custom header is provided, `parseMeta.fields` is populated with the supplied column names.
 
 Additional PapaParse configuration can be supplied through the `parser` option.
 
@@ -133,13 +132,13 @@ Throws if `rowSchema` cannot be compiled by AJV.
 ### Examples
 
 ```js
-// Parse rows as arrays
+import { csv } from '@kalisio/common-core/io/csv'
 
+// Parse rows as arrays
 const result = csv.parse(`
 Paris,2.3522,48.8566
 Toulouse,1.4442,43.6047
 `)
-
 // result.data
 // [
 //   ['Paris', '2.3522', '48.8566'],
@@ -149,7 +148,6 @@ Toulouse,1.4442,43.6047
 
 ```js
 // Use the first CSV row as the header
-
 const result = csv.parse(`
 name,longitude,latitude
 Paris,2.3522,48.8566
@@ -157,10 +155,8 @@ Toulouse,1.4442,43.6047
 `, {
   header: true
 })
-
-// result.meta.fields
+// result.parseMeta.fields
 // ['name', 'longitude', 'latitude']
-
 // result.data
 // [
 //   {
@@ -178,15 +174,13 @@ Toulouse,1.4442,43.6047
 
 ```js
 // Provide an external header
-
 const result = csv.parse(`
 Paris,2.3522,48.8566
 Toulouse,1.4442,43.6047
 `, {
   header: ['name', 'longitude', 'latitude']
 })
-
-// result.meta.fields
+// result.parseMeta.fields
 // ['name', 'longitude', 'latitude']
 ```
 
@@ -200,7 +194,6 @@ Paris,2.3522,48.8566,France
 `, {
   header: ['name', 'longitude', 'latitude']
 })
-
 // result.data[0]
 // {
 //   name: 'Paris',
@@ -212,7 +205,6 @@ Paris,2.3522,48.8566,France
 
 ```js
 // Pass PapaParse options
-
 const result = csv.parse(text, {
   header: true,
   parser: {
@@ -225,7 +217,6 @@ const result = csv.parse(text, {
 
 ```js
 // Validate and coerce rows using JSON Schema
-
 const rowSchema = {
   type: 'object',
   properties: {
@@ -241,7 +232,6 @@ const rowSchema = {
   },
   required: ['name', 'longitude', 'latitude']
 }
-
 const result = csv.parse(`
 name,longitude,latitude
 Paris,2.3522,48.8566
@@ -250,7 +240,6 @@ Toulouse,1.4442,43.6047
   header: true,
   rowSchema
 })
-
 // result.data
 // [
 //   {
@@ -264,7 +253,6 @@ Toulouse,1.4442,43.6047
 //     latitude: 43.6047
 //   }
 // ]
-
 // result.validationErrors
 // []
 ```
@@ -279,7 +267,6 @@ Paris,invalid,48.8566
   header: true,
   rowSchema
 })
-
 // result.validationErrors
 // [
 //   {
@@ -335,8 +322,7 @@ Throws under the same conditions as `csv.parse`.
 const result = await csv.read('./stations.csv', {
   header: true
 })
-
-console.log(result.meta.fields)
+console.log(result.parseMeta.fields)
 ```
 
 ```js
@@ -369,4 +355,3 @@ const result = await csv.read('https://example.com/stations.csv', {
   }
 })
 ```
-
