@@ -9,6 +9,9 @@ describe('timezone', () => {
   })
 
   describe('isValid', () => {
+    it.fails('returns false for an invalid timezone that matches an inherited property', () => {
+      expect(timezone.isValid('constructor')).toBe(false)
+    })
     it('accepts IANA names, links and UTC', () => {
       expect(timezone.isValid('Europe/Paris')).toBe(true)
       expect(timezone.isValid('US/Eastern')).toBe(true)

@@ -37,12 +37,12 @@ Creates a running clock. In `realtime` mode, it follows system time and ignores 
 | `mode` | `string` | `'realtime'` | `'realtime'` or `'simulated'`. |
 | `timezone` | `string` | `'UTC'` | IANA timezone for parsing and representing instants. |
 | `speed` | `number` | `1` | Finite nonzero multiplier; negative values reverse simulated time. Realtime requires `1`. |
-| `tickInterval` | `number` | `1000` | Real milliseconds between notifications; `0` disables the periodic timer. |
-| `window` | `object \| null` | `null` | `{ start, end }` duration offsets relative to the current instant. |
+| `tickInterval` | `number` | `1000` | Integer from 0 to 2147483647 in real milliseconds. Zero disables the periodic timer. |
+| `window` | `object \| null` | `null` | `{ start, end }` offsets relative to the current instant, as ISO duration strings or `Duration` instances. |
 | `bounds` | `object \| null` | `null` | `{ start, end }` instants restricting playback. |
 | `loop` | `boolean` | `false` | Wrap at bounds rather than end; requires nonempty bounds. |
 
-`window` uses **time-based** ISO 8601 durations, such as `-PT3H` and `PT0S`. Calendar offsets (`P1D`, `P1M`, etc.) are not supported. Offsets must be ordered. The `bounds` range is half-open: `[start, end)`.
+`window` uses **time-based** ISO 8601 durations, such as `-PT3H` and `PT0S`. Calendar offsets (`P1D`, `P1M`, etc.) are not supported. Offsets must be ordered. The `bounds` range is half-open, `[start, end)`. With looping disabled, reaching `end` or crossing below `start` ends playback and leaves the clock at the corresponding bound.
 
 ### Throws
 
@@ -203,7 +203,7 @@ clock.configure(changes)
 
 ### Description
 
-Validates and applies partial configuration changes without replacing the instance. `undefined` values leave options unchanged; `window: null` or `bounds: null` clear those options. Validation failure keeps the previous configuration. A successful change emits `change`, and may emit `end` if new bounds are reached.
+Validates and applies partial configuration changes without replacing the instance. `undefined` values leave options unchanged; `window: null` or `bounds: null` clear those options. Validation failure keeps the previous configuration. A valid reconfiguration of an ended clock preserves its ended status. A successful change emits `change`, and may emit `end` if new bounds are reached.
 
 ### Parameters
 
@@ -284,7 +284,7 @@ clock.resume()
 
 ### Description
 
-Resumes a paused clock. An ended clock must first be moved using `set()` or `reset()`. A successful transition emits `resume`, then `change`; if bounds are reached immediately, `end` is emitted instead of `resume`.
+Resumes a paused clock. An ended clock must first be moved using `set()` or `reset()`. A successful transition emits `resume`, then `change`. A realtime clock returns to wall-clock time when resumed. If that puts it outside its non-looping bounds, it emits `end`.
 
 ### Returns
 
@@ -369,7 +369,7 @@ clock.off(event, callback)
 
 ### Description
 
-Callbacks receive the event payload directly, not an event bus envelope. `on()` subscribes, `once()` subscribes for one notification, and `off()` removes one matching subscription. `on()` and `once()` return unsubscribe functions.
+Callbacks receive the event payload directly. `on()` subscribes, `once()` subscribes for one notification, and `off()` removes one matching subscription. `on()` and `once()` return unsubscribe functions.
 
 | Event | Payload | Description |
 |-------|---------|-------------|
@@ -387,7 +387,7 @@ Callbacks receive the event payload directly, not an event bus envelope. `on()` 
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `event` | `string` | yes | Event name. |
+| `event` | `string \| symbol` | yes | Event name. Built-in clock events use the strings listed above. |
 | `callback` | `function` | yes | Receives the corresponding payload. |
 
 ### Returns

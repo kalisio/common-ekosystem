@@ -17,9 +17,9 @@ Moment.js is in maintenance mode and does not receive major feature updates. Its
 
 The package is organized into three modules:
 
-- [Utilities](./utilities/date.md) — Functional date, duration, and timezone helpers.
+- Utilities for [dates](./utilities/date.md), [durations](./utilities/duration.md), [timezones](./utilities/timezone.md), and [time series](./utilities/time-series.md).
 - [Models](./models/date-time.md) — Immutable [`DateTime`](./models/date-time.md), [`Duration`](./models/duration.md), and [`TimeRange`](./models/time-range.md) values.
-- [Runtime](./runtime/clock.md) — Mutable [`Clock`](./runtime/clock.md), [shared clock](./runtime/current-clock.md), and [clock listeners](./runtime/clock-listener.md).
+- [Runtime](./runtime/clock.md) — Mutable [`Clock`](./runtime/clock.md), [shared clock](./runtime/current-clock.md), [clock listeners](./runtime/clock-listener.md), and [locale resources](./runtime/locales.md).
 
 All public APIs use standard JavaScript values and ISO 8601 representations without exposing Moment.js objects.
 
@@ -44,7 +44,9 @@ yarn add @kalisio/common-time
 ```js
 import {
   DateTime, Duration, TimeRange,
-  Clock, getCurrentClock, setCurrentClock, createClockListener
+  date, duration, timezone, timeSeries,
+  Clock, getCurrentClock, setCurrentClock, createClockListener,
+  registerTimeLocales, loadTimeLocale
 } from '@kalisio/common-time'
 ```
 
@@ -70,11 +72,11 @@ departure.toJSON()
 `Duration` represents ISO 8601 durations, including fixed time amounts and calendar periods.
 
 ```js
-const duration = Duration.from('PT3H')
-duration.asMilliseconds() // 10800000
+const elapsed = Duration.from('PT3H')
+elapsed.asMilliseconds() // 10800000
 
 const start = DateTime.from('2026-11-20T10:00:00Z')
-const end = start.add(duration)
+const end = start.add(elapsed)
 end.toISOString() // '2026-11-20T13:00:00.000Z'
 ```
 
@@ -165,7 +167,7 @@ clock.on('loop', ({ cycles, direction }) => {
 })
 ```
 
-Without looping, the clock stops on reaching the bounds and enters the `ended` state. With looping, it wraps within the configured bounds.
+Without looping, the clock ends at the upper bound or after crossing below the lower bound. Its final instant is the corresponding bound. With looping, it wraps within the configured bounds.
 
 ### Listening to clock events
 

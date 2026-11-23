@@ -33,7 +33,7 @@ Installs a non-disposed `Clock`, or restores the default when passed `null`, `un
 
 ### Throws
 
-`TypeError` when the value is not a `Clock`, `null`, or `undefined`; `Error` when the supplied clock has been disposed.
+`AssertionError` outside production mode for an invalid argument. `Error` when the supplied clock has been disposed.
 
 ### Examples
 
@@ -85,3 +85,5 @@ export function getCurrentRange () {
 ```
 
 Call `getCurrentClock()` when needed instead of storing a shared clock reference at module initialization, since the installed clock can change.
+
+For initialization within the package source, see [setup](../setup.md).

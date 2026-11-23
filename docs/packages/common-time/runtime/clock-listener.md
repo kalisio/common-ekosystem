@@ -49,13 +49,12 @@ Callbacks receive the corresponding event payload directly, as with `Clock.on`.
 
 | Type | Description |
 |------|-------------|
-| `TypeError` | The handlers argument is not a plain object, an event name is invalid, or a handler is not a function. |
+| `AssertionError` | Outside production mode, an invalid handlers object, event name, or callback. |
 
 ### Examples
 
 ```js
-import { Clock } from '@kalisio/common-time'
-import { createClockListener } from '@kalisio/common-time'
+import { Clock, createClockListener } from '@kalisio/common-time'
 
 const clock = new Clock()
 
@@ -160,8 +159,8 @@ The target clock must be an active `Clock` instance.
 
 | Type | Description |
 |------|-------------|
-| `TypeError` | The argument is not a `Clock` instance. |
-| `Error` | The target clock has been disposed or a subscription fails. |
+| `AssertionError` | Outside production mode, the target is invalid or disposed. |
+| `Error` | A subscription fails. |
 
 ### Examples
 

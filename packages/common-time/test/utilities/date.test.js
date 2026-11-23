@@ -198,6 +198,14 @@ describe('date', () => {
   })
 
   describe('startOf and endOf', () => {
+    it.each([
+      ['2026-10-25T02:30:00+02:00', '2026-10-25T00:00:00.000Z', '2026-10-25T00:59:59.999Z'],
+      ['2026-10-25T02:30:00+01:00', '2026-10-25T01:00:00.000Z', '2026-10-25T01:59:59.999Z']
+    ])('finds the boundaries of the repeated local hour containing %s', (input, start, end) => {
+      const options = { timezone: 'Europe/Paris' }
+      expect(date.startOf(input, 'hour', options).toISOString()).toBe(start)
+      expect(date.endOf(input, 'hour', options).toISOString()).toBe(end)
+    })
     it('finds the start and end of a day in a timezone', () => {
       const input = '2026-03-29T12:00:00Z'
       expect(date.startOf(input, 'day', { timezone: 'Europe/Paris' }).toISOString()).toBe('2026-03-28T23:00:00.000Z')
@@ -297,6 +305,9 @@ describe('date', () => {
   })
 
   describe('date alignment', () => {
+    it.fails('floors to the grid without rounding a safe-integer millisecond step', () => {
+      expect(date.floor(2, Number.MAX_SAFE_INTEGER).getTime()).toBe(0)
+    })
     it('floors to a 90-minute step', () => {
       expect(date.floor('2026-11-22T02:05:00Z', 'PT90M').toISOString()).toBe('2026-11-22T01:30:00.000Z')
     })

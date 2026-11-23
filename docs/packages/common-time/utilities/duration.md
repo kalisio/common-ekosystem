@@ -11,6 +11,10 @@ Durations are represented as ISO 8601 strings. Calculations are based on `moment
 
 Calendar units (years, months, weeks, and days) are distinguished from time units (hours, minutes, seconds, and milliseconds). Calendar durations cannot be converted directly into milliseconds without a reference date.
 
+```js
+import { duration } from '@kalisio/common-time'
+```
+
 ## parse
 
 ### Signature

@@ -9,7 +9,11 @@ The `DateTime` class represents an immutable instant associated with an IANA tim
 
 The underlying instant is stored as a Unix timestamp in milliseconds. The timezone determines how dates are formatted and how calendar operations are performed.
 
-All operations return new instances without modifying the original object.
+Operations that change the instant or timezone return a new instance.
+
+```js
+import { DateTime } from '@kalisio/common-time'
+```
 
 ## Constructor
 
@@ -36,7 +40,7 @@ Strings without an explicit offset are interpreted in the selected timezone. Str
 | `value` | `Date \| number \| string \| DateTime \| object` | no | Date value or snapshot. Defaults to the current time. |
 | `options` | `object` | no | Construction options. |
 | `options.timezone` | `string` | no | IANA timezone. Defaults to `UTC` or the inherited timezone. |
-| `options.format` | `string` | no | Custom Moment parsing format for date strings. |
+| `options.format` | `string` | no | Custom Moment parsing format for date strings. Locale-sensitive tokens follow the [date.parse](../utilities/date.md#parse) rules. |
 
 A JSON snapshot has the following structure:
 
@@ -88,7 +92,7 @@ DateTime.from(value, options)
 
 ### Description
 
-Creates a `DateTime` from the specified value.
+Creates a `DateTime` from the specified value. Omitting the value uses the current instant.
 
 If `value` is already a `DateTime` and `options` is omitted, the existing instance is returned.
 
@@ -96,7 +100,7 @@ If `value` is already a `DateTime` and `options` is omitted, the existing instan
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `value` | `Date \| number \| string \| DateTime \| object` | yes | Date value or snapshot. |
+| `value` | `Date \| number \| string \| DateTime \| object` | no | Date value or snapshot. Defaults to the current instant. |
 | `options` | `object` | no | Same options as the constructor. |
 
 ### Returns

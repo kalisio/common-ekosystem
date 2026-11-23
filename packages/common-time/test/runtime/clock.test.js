@@ -93,6 +93,19 @@ describe('Clock', () => {
   })
 
   describe('time', () => {
+    it('keeps window offsets in elapsed time across the spring DST transition', () => {
+      const clock = create({
+        mode: 'simulated',
+        timezone: 'Europe/Paris',
+        window: { start: '-PT1H', end: 'PT1H' }
+      }, '2026-03-29T01:30:00')
+      vi.advanceTimersByTime(3600000)
+      const { time, range } = clock.state()
+      expect(time.toString()).toBe('2026-03-29T03:30:00.000+02:00')
+      expect(range.start.toString()).toBe('2026-03-29T01:30:00.000+01:00')
+      expect(range.end.toString()).toBe('2026-03-29T04:30:00.000+02:00')
+      expect(range.duration.asMilliseconds()).toBe(7200000)
+    })
     it('follows the wall clock in realtime mode', () => {
       const clock = create()
       vi.advanceTimersByTime(5000)
@@ -362,6 +375,16 @@ describe('Clock', () => {
   })
 
   describe('loop', () => {
+    it.fails('preserves the initial instant within very wide looping bounds', () => {
+      const start = -(2 ** 52)
+      const initialTime = start + 2
+      const clock = create({
+        mode: 'simulated',
+        bounds: { start, end: (2 ** 52) - 1 },
+        loop: true
+      }, initialTime)
+      expect(clock.now().timestamp).toBe(initialTime)
+    })
     it('wraps the time within the bounds', () => {
       const clock = create({ speed: 3600, bounds: BOUNDS, loop: true, tickInterval: 0 }, BOUNDS.start)
       vi.advanceTimersByTime(2500)

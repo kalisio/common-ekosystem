@@ -21,7 +21,7 @@ new TimeRange(start, end, options)
 
 ### Description
 
-Creates a range from two instants, another `TimeRange`, a JSON snapshot, or an ISO 8601 `start/end` string. Bounds may be `DateTime`, native `Date`, millisecond timestamps, or date-time strings. The timezone is inherited from a `DateTime` start, copied range, or snapshot; otherwise it defaults to `UTC`. `options.timezone` overrides it.
+Creates a range from two instants, another `TimeRange`, a JSON snapshot, or an ISO 8601 `start/end` string. Bounds may be `DateTime`, native `Date`, millisecond timestamps, or date-time strings. The timezone is inherited from a `DateTime` start, copied range, or snapshot; otherwise it defaults to `UTC`. `options.timezone` overrides it. For an existing range, snapshot, or ISO interval string, pass `undefined` for `end` when supplying `options`.
 
 ### Parameters
 
@@ -77,7 +77,7 @@ Creates a range from the same inputs as the constructor. Returns an existing `Ti
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
 | `value` | `TimeRange \| object \| string \| DateTime \| Date \| number` | yes | Range, snapshot, ISO interval, or start instant. |
-| `end` | `DateTime \| Date \| number \| string` | no | Optional end instant. |
+| `end` | `DateTime \| Date \| number \| string` | conditional | End instant when passing two bounds. |
 | `options` | `object` | no | Construction options, including `timezone`. |
 
 ### Returns
@@ -89,7 +89,8 @@ Creates a range from the same inputs as the constructor. Returns an existing `Ti
 ### Examples
 
 ```js
-TimeRange.from(range) === range // true
+const original = new TimeRange(0, 3600000)
+TimeRange.from(original) === original // true
 TimeRange.from('2026-11-20T12:00:00Z', '2026-11-20T14:00:00Z')
 ```
 
@@ -100,7 +101,7 @@ TimeRange.from('2026-11-20T12:00:00Z', '2026-11-20T14:00:00Z')
 | `start` | `DateTime` | Inclusive start bound. |
 | `end` | `DateTime` | Exclusive end bound. |
 | `timezone` | `string` | IANA timezone associated with both bounds. |
-| `duration` | `Duration` | Exact elapsed duration calculated from timestamps. |
+| `duration` | `Duration` | Elapsed duration calculated from timestamps. Spans above `Number.MAX_SAFE_INTEGER` milliseconds may lose precision. |
 
 All properties are read-only. The object is frozen; operations return new instances rather than modifying it. Calendar-day ranges crossing daylight saving changes can last 23 or 25 hours.
 

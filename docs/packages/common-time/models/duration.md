@@ -9,6 +9,10 @@ The `Duration` class represents an immutable duration backed by a normalized ISO
 
 It supports calendar units (years, months, weeks, days) and time units (hours, minutes, seconds, milliseconds). Arithmetic returns new instances without modifying the original duration.
 
+```js
+import { Duration } from '@kalisio/common-time'
+```
+
 ## Constructor
 
 ### Signature
@@ -285,7 +289,7 @@ duration.asMilliseconds()
 
 Returns the duration in milliseconds.
 
-Only time-based durations can be converted. Nonzero calendar components require a reference date and are therefore rejected.
+Conversion rejects nonzero calendar components in the normalized duration. Normalization can collapse a nominal cancellation such as `P1DT-24H` to `P0D`, which converts to zero. To validate the original input before normalization, use [duration.asMilliseconds](../utilities/duration.md#asmilliseconds).
 
 ### Returns
 

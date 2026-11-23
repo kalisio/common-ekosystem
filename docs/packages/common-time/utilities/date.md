@@ -9,7 +9,11 @@ Utility functions for parsing, validating, formatting, comparing, and manipulati
 
 Dates are represented as native JavaScript `Date` instances. Operations use `moment-timezone` internally without exposing Moment instances.
 
-Unless otherwise specified, the default timezone is `UTC` and the default locale is English (`en`).
+The default timezone is `UTC`. Formatting and period boundaries use English (`en`) by default.
+
+```js
+import { date } from '@kalisio/common-time'
+```
 
 ## parse
 
@@ -23,7 +27,7 @@ date.parse(value, options)
 
 Parses a date value and returns a new native JavaScript `Date` instance.
 
-Accepts a `Date`, a timestamp in milliseconds, or a strictly parsed ISO 8601 string. A custom parsing format can also be provided.
+Accepts a `Date`, a timestamp in milliseconds, or a strictly parsed ISO 8601 string. A custom parsing format can also be provided. Locale-sensitive tokens such as `MMMM` use Moment’s active locale.
 
 Strings without an explicit UTC offset are interpreted in the specified timezone, or UTC by default. Strings with an explicit offset preserve the instant defined by that offset, regardless of the timezone option.
 
@@ -100,7 +104,7 @@ Formats a date in the specified timezone and locale using Moment formatting toke
 
 The default format is `YYYY-MM-DDTHH:mm:ss.SSSZ`. The default timezone is UTC and the default locale is English.
 
-The requested locale must already be loaded in Moment.
+The requested [locale](../runtime/locales.md) must already be loaded in Moment.
 
 ### Parameters
 
@@ -141,7 +145,7 @@ date.format('2026-11-20T13:00:00Z', 'HH:mm z', {
 })
 // '14:00 CET'
 
-// Requires the French Moment locale to be loaded
+// Load French as shown in Time locales before running this example.
 date.format('2026-11-20T13:00:00Z', 'dddd D MMMM', {
   locale: 'fr'
 })
@@ -164,7 +168,7 @@ Negative amounts subtract time.
 
 Calendar units are applied in the specified timezone, taking daylight-saving transitions and varying month lengths into account.
 
-Fractional calendar amounts follow Moment's rounding rules. Days and months are rounded to the nearest integer, with halves rounded away from zero; weeks, quarters, and years follow the corresponding calendar-unit conversions. Fractions of hours and smaller units are preserved.
+Fractional calendar amounts follow Moment's rounding rules. Days and months are rounded to the nearest integer, with halves rounded away from zero; weeks, quarters, and years follow the corresponding calendar-unit conversions. Fractions of hours and smaller units contribute to the result at whole-millisecond precision.
 
 ### Parameters
 
@@ -369,6 +373,7 @@ date.startOf('2026-11-20T13:00:00Z', 'month').toISOString()
 date.startOf('2026-11-20T13:00:00Z', 'isoWeek').toISOString()
 // '2026-11-16T00:00:00.000Z'
 
+// Load French as shown in Time locales before running this example.
 date.startOf('2026-11-20T13:00:00Z', 'week', {
   locale: 'fr'
 }).toISOString()
@@ -424,6 +429,7 @@ date.endOf('2026-11-20T13:00:00Z', 'month').toISOString()
 date.endOf('2028-02-10T12:00:00Z', 'month').toISOString()
 // '2028-02-29T23:59:59.999Z'
 
+// Load French as shown in Time locales before running this example.
 date.endOf('2026-11-20T13:00:00Z', 'week', {
   locale: 'fr'
 }).toISOString()
@@ -715,4 +721,49 @@ date.isValid('2026-11-20', {
   timezone: 'Mars/Olympus'
 })
 // false
+```
+
+## floor, ceil, round
+
+### Signatures
+
+```js
+date.floor(value, step, options)
+date.ceil(value, step, options)
+date.round(value, step, options)
+```
+
+### Description
+
+Aligns an instant to a grid of equally spaced instants. `floor` selects the grid point at or before the instant, `ceil` selects the point at or after it, and `round` selects the nearest point. Ties in `round` favor the later point. Grid spacing is measured in elapsed milliseconds across timezone offset changes.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `value` | `DateTime \| Date \| number \| string` | yes | Instant to align. ISO strings without an offset use UTC. |
+| `step` | `Duration \| string \| number` | yes | Fixed time duration or millisecond count. It must resolve to a positive safe integer in milliseconds. |
+| `options.origin` | `DateTime \| Date \| number \| string` | no | Grid anchor. Defaults to the Unix epoch. |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `Date` | A new native date at the selected grid point. |
+
+### Throws
+
+An invalid step, a distance from the origin outside the safe integer range, or a result outside the native Date range throws a `RangeError`. Very large steps or distances can cause rounding errors even when both values are safe integers.
+
+### Examples
+
+```js
+date.floor('2026-11-20T12:28:00Z', 'PT15M').toISOString()
+// '2026-11-20T12:15:00.000Z'
+
+date.ceil('2026-11-20T12:28:00Z', 'PT15M').toISOString()
+// '2026-11-20T12:30:00.000Z'
+
+date.round(1500, 1000).getTime()
+// 2000
 ```

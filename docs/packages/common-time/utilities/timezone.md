@@ -9,6 +9,10 @@ Utility functions for validating, normalizing, listing, and working with IANA ti
 
 All timezone names use the IANA timezone database provided by `moment-timezone`. Timezone offsets and abbreviations are resolved for a specific instant to account for daylight-saving time changes.
 
+```js
+import { timezone } from '@kalisio/common-time'
+```
+
 ## isValid
 
 ### Signature
@@ -227,7 +231,7 @@ When omitted, `at` defaults to the current time.
 | Type | Description |
 |------|-------------|
 | `RangeError` | The timezone or date is invalid. |
-| `TypeError` | The date value has an unsupported type or format. |
+| `TypeError` | The instant has an unsupported type or is a blank string. |
 
 ### Examples
 
@@ -289,7 +293,7 @@ When omitted, `at` defaults to the current time.
 | Type | Description |
 |------|-------------|
 | `RangeError` | The timezone or date is invalid. |
-| `TypeError` | The date value has an unsupported type or format. |
+| `TypeError` | The instant has an unsupported type or is a blank string. |
 
 ### Examples
 
@@ -308,4 +312,45 @@ timezone.abbreviation('America/New_York', '2026-07-15T12:00:00Z')
 
 timezone.abbreviation('UTC')
 // 'UTC'
+```
+
+## format
+
+### Signature
+
+```js
+timezone.format(name, at, pattern, options)
+```
+
+### Description
+
+Formats an instant in the given timezone using Moment tokens. An ISO string without an offset is interpreted in that timezone. The default pattern returns the UTC offset at that instant.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `name` | `string` | yes | IANA timezone name or link. |
+| `at` | `Date \| number \| string` | no | Native date, millisecond timestamp, or strict ISO 8601 string. Defaults to the current time. |
+| `pattern` | `string` | no | Non-blank formatting pattern. Defaults to `Z`. |
+| `options.locale` | `string` | no | Loaded [Moment locale](../runtime/locales.md). Defaults to `en`. |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `string` | Formatted date or offset. |
+
+### Throws
+
+`TypeError` for an unsupported date input type or a blank or non-string pattern. `RangeError` for an invalid date, unknown timezone, or unloaded locale. Some invalid zone names, such as `constructor`, can produce a `TypeError` from the timezone lookup.
+
+### Examples
+
+```js
+timezone.format('Europe/Paris', '2026-07-15T12:00:00Z')
+// '+02:00'
+
+timezone.format('Europe/Paris', '2026-07-15T12:00:00Z', 'HH:mm z')
+// '14:00 CEST'
 ```
