@@ -134,6 +134,25 @@ is.instanceOf({}, Shape)           // false
 
 `constructor` must be a function.
 
+### symbol
+
+Checks whether a value is a JavaScript primitive symbol.
+
+```js
+is.symbol(value)
+```
+
+```js
+is.symbol(Symbol('id'))   // true
+is.symbol(Symbol.for('id')) // true
+is.symbol(Symbol.iterator)  // true
+
+is.symbol('id')             // false
+is.symbol(Object(Symbol())) // false
+is.symbol(null)             // false
+is.symbol(undefined)        // false
+```
+
 ### emptyObject
 
 Checks whether a value is a plain object with no enumerable own properties.
@@ -234,12 +253,18 @@ is.hex('0xff')     // false
 
 ### dataUri
 
-Checks whether a value is a base64 data URI.
+Checks whether a string starts with `data:` and contains
+the `;base64,` marker.
+
+::: info
+
+This predicate does not validate the Base64 payload.
+
+:::
 
 ```js
 is.dataUri(value)
 ```
-
 
 ### url
 
@@ -268,26 +293,31 @@ is.url('/foo/bar') // false
 
 ### authorityUrl
 
-Checks whether a value is a valid hierarchical URL using the `scheme://authority` form with a non-empty host.
+Checks whether a value is a valid URL using the `scheme://authority` form with a non-empty authority.
 
-Standard single-host URLs are validated with `URL.canParse()`. Multi-host authorities, such as MongoDB replica-set URLs, are also supported.
+Standard single-host URLs are validated with `URL.canParse()`. Multi-host authorities, such
+as MongoDB replica-set URLs, are also supported.
 
-URLs without a host, such as `mailto:` and `file:` URLs, are rejected.
+Credentials are allowed on the first host only. Commas in credentials must be percent-encoded.
+
+URLs without an authority, such as `mailto:` and `file:///` URLs, are rejected.
+
+This predicate does not restrict URL schemes or guarantee that a URL is safe to fetch.
 
 ```js
-is.hostUrl(value)
+is.authorityUrl(value)
 ```
 
 ```js
-is.hostUrl('https://example.com') // true
-is.hostUrl('s3://bucket/path/to/file') // true
-is.hostUrl('mongodb://h1:27017,h2:27017/db') // true
-is.hostUrl('mongodb://user:pass@h1:27017,h2:27017/db') // true
+is.authorityUrl('https://example.com') // true
+is.authorityUrl('s3://bucket/path/to/file') // true
+is.authorityUrl('mongodb://h1:27017,h2:27017/db') // true
+is.authorityUrl('mongodb://user:pass@h1:27017,h2:27017/db') // true
 
-is.hostUrl('mailto:user@example.com') // false
-is.hostUrl('file:///tmp/file.txt') // false
-is.hostUrl('example.com') // false
-is.hostUrl('/foo/bar') // false
+is.authorityUrl('mailto:user@example.com') // false
+is.authorityUrl('file:///tmp/file.txt') // false
+is.authorityUrl('example.com') // false
+is.authorityUrl('/foo/bar') // false
 ```
 
 ### fetchableUrl
@@ -505,7 +535,7 @@ Checks whether a finite number belongs to the range `[min, max)`.
 is.inRangeExclusiveMax(value, min, max)
 ```
 
-Throws when `max < min`.
+Throws when `max <= min`.
 
 ## Integers
 

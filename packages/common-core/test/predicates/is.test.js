@@ -207,32 +207,33 @@ describe('is.instanceOf', () => {
   })
 })
 
-describe('is.instanceOf', () => {
-  class Foo {}
-  class Bar extends Foo {}
-  it('returns true for an instance of the class', () => {
-    expect(is.instanceOf(new Foo(), Foo)).toBe(true)
+describe('is.symbol', () => {
+  it('returns true for a unique symbol', () => {
+    expect(is.symbol(Symbol('test'))).toBe(true)
+    expect(is.symbol(Symbol('id'))).toBe(true)
   })
-  it('returns true for an instance of a subclass', () => {
-    expect(is.instanceOf(new Bar(), Foo)).toBe(true)
+
+  it('returns true for a registered symbol', () => {
+    expect(is.symbol(Symbol.for('id'))).toBe(true)
   })
-  it('returns true for built-in classes', () => {
-    expect(is.instanceOf(new Date(), Date)).toBe(true)
-    expect(is.instanceOf([], Array)).toBe(true)
+
+  it('returns true for a well-known symbol', () => {
+    expect(is.symbol(Symbol.iterator)).toBe(true)
   })
-  it('returns false for an instance of another class', () => {
-    expect(is.instanceOf(new Foo(), Bar)).toBe(false)
-    expect(is.instanceOf({}, Foo)).toBe(false)
+
+  it('returns false for a boxed symbol', () => {
+    expect(is.symbol(Object(Symbol('id')))).toBe(false)
   })
-  it('returns false for primitives, null and undefined', () => {
-    expect(is.instanceOf('a', String)).toBe(false)
-    expect(is.instanceOf(null, Foo)).toBe(false)
-    expect(is.instanceOf(undefined, Foo)).toBe(false)
-  })
-  it('throws if constructor is not a function', () => {
-    expect(() => is.instanceOf(new Foo(), null)).toThrow()
-    expect(() => is.instanceOf(new Foo(), {})).toThrow()
-    expect(() => is.instanceOf(new Foo(), 'Foo')).toThrow()
+
+  it('returns false for non-symbol values', () => {
+    expect(is.symbol('id')).toBe(false)
+    expect(is.symbol(42)).toBe(false)
+    expect(is.symbol(true)).toBe(false)
+    expect(is.symbol({})).toBe(false)
+    expect(is.symbol([])).toBe(false)
+    expect(is.symbol(() => {})).toBe(false)
+    expect(is.symbol(null)).toBe(false)
+    expect(is.symbol(undefined)).toBe(false)
   })
 })
 
@@ -428,6 +429,10 @@ describe('is.char', () => {
   })
   it('returns false for undefined', () => {
     expect(is.char(undefined)).toBe(false)
+  })
+  it('rejects line terminators', () => {
+    expect(is.char('\n')).toBe(false)
+    expect(is.char('\r')).toBe(false)
   })
 })
 
@@ -1486,6 +1491,9 @@ describe('is.inRangeExclusiveMax', () => {
   it('throws when max is less than min', () => {
     expect(() => is.inRangeExclusiveMax(5, 10, 1)).toThrow()
   })
+  it('throws when min equals max', () => {
+    expect(() => is.inRangeExclusiveMax(1, 1, 1)).toThrow()
+  })
 })
 
 describe('is.arrayOfLengthAtLeast', () => {
@@ -1683,6 +1691,9 @@ describe('is.dataUri', () => {
   })
   it('returns false for a number', () => {
     expect(is.dataUri(123)).toBe(false)
+  })
+  it('only checks the Base64 marker', () => {
+    expect(is.dataUri('data:text/plain;base64,%%%%')).toBe(true)
   })
 })
 
