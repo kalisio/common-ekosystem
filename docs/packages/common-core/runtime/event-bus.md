@@ -1,102 +1,102 @@
 ---
 title: event-bus
-description: Lightweight event bus with independent subscriptions and explicit lifecycle management.
+description: EventBus class with independent subscriptions and shared runtime access.
 ---
 
 # event-bus
 
-## Description
+`EventBus` dispatches events synchronously in subscription order. Subscriptions are independent, even when the same callback is registered several times. Listener errors and rejected promises are logged without interrupting other listeners.
 
-Provides a lightweight event bus for communication between application components. Events are dispatched synchronously,
-in subscription order, with no external dependencies.
+## EventBus
 
-Each subscription is independent, including repeated registrations of the same callback. Listener errors and asynchronous
-rejections are reported through the shared logger under `['common-core', 'event-bus']`. They do not interrupt the other
-listeners, and `emit()` never awaits asynchronous listeners.
-
-## Functions
-
-### createEventBus
-
-Creates an event bus with private state.
-
-#### Signature
+### Signature
 
 ```js
-createEventBus()
+new EventBus()
 ```
 
-#### Returns
+### Properties
 
-| Member | Signature | Description |
+| Property | Type | Description |
 |---|---|---|
-| `destroyed` | `boolean` | Read-only destruction state |
-| `on` | `on(event, callback)` | Subscribes and returns an unsubscribe function |
-| `once` | `once(event, callback)` | Subscribes for a single invocation |
-| `off` | `off(event, callback)` | Removes the first matching subscription |
-| `offAll` | `offAll(event)` | Removes all subscriptions for the given event |
-| `emit` | `emit(event, data)` | Dispatches an event synchronously |
-| `listenerCount` | `listenerCount(event)` | Counts subscriptions for the given event |
-| `destroy` | `destroy()` | Permanently destroys the bus and clears its listeners |
+| `destroyed` | `boolean` | Read-only destruction state. |
 
-`event` must be a non-empty string or a symbol. `data` accepts any value, including `undefined`.
+### Methods
 
-Each listener receives:
+| Method | Description |
+|---|---|
+| `on(event, callback)` | Subscribes to an event and returns an unsubscribe function. |
+| `once(event, callback)` | Subscribes to a single invocation and returns an unsubscribe function. |
+| `off(event, callback)` | Removes the first matching subscription. |
+| `offAll(event)` | Removes all subscriptions for the event. |
+| `emit(event, data)` | Synchronously dispatches an event. |
+| `listenerCount(event)` | Returns the number of subscriptions for the event. |
+| `destroy()` | Permanently destroys the bus and clears its listeners. |
+
+`event` must be a non-empty string or a symbol. A listener receives an envelope:
 
 ```js
-{ type: event, timestamp: Date.now(), data }
+{
+  type: event,
+  timestamp: Date.now(),
+  data
+}
 ```
 
-A returned unsubscribe function only removes its own subscription. Listeners added during an emission are excluded from
-that emission, and listeners removed before their turn are skipped. A `once` subscription is removed before invocation,
-including during nested emissions.
+`data` can be any value, including `undefined`.
 
-#### Throws
+A returned unsubscribe function removes only its own subscription. Listeners added during an emission are excluded from that emission; listeners removed before their turn are skipped. A `once()` subscription is removed before the callback runs, including in nested emissions.
 
-| Condition | Error |
-|---|---|
-| Invalid subscription event | AssertionError: `event must be a non-empty string or a symbol` |
-| Invalid callback | AssertionError: `callback must be a function` |
-| Subscription after destruction | Error: `event bus has been destroyed` |
+After `destroy()`, emissions are ignored and new subscriptions throw an error. Existing subscriptions cannot be restored.
 
-Errors thrown by listeners are logged rather than propagated by `emit()`.
-
-## Examples
-
-### Subscribe and emit
+### Example
 
 ```js
-import { createEventBus } from '@kalisio/common-core/runtime'
+import { EventBus } from '@kalisio/common-core/runtime'
 
-const bus = createEventBus()
-const unsubscribe = bus.on('layer:added', ({ data }) => {
+const bus = new EventBus()
+const stop = bus.on('layer:added', ({ data }) => {
   console.log(data.layerId)
 })
 
 bus.emit('layer:added', { layerId: 'roads' })
-unsubscribe()
-```
-
-### One-time and asynchronous listeners
-
-```js
-bus.once('ready', ({ data }) => console.log(data))
-bus.emit('ready', { initialized: true })
-bus.emit('ready') // The listener is not called again.
-
-bus.on('updated', async ({ data }) => {
-  await processUpdate(data)
-})
-bus.emit('updated', { id: 42 }) // Does not await the listener.
-```
-
-### Remove and destroy
-
-```js
-bus.offAll('updated')
-console.log(bus.listenerCount('updated')) // 0
+stop()
 bus.destroy()
-console.log(bus.destroyed) // true
 ```
 
-Further emissions have no effect, and new subscriptions are rejected.
+## setEventBus
+
+### Signature
+
+```js
+setEventBus(bus)
+```
+
+Installs an `EventBus` instance as the shared runtime bus. An invalid instance raises an assertion error. This function returns `undefined`.
+
+## getEventBus
+
+### Signature
+
+```js
+getEventBus()
+```
+
+Returns the shared `EventBus` instance, or `undefined` if none has been installed.
+
+### Example
+
+```js
+import { EventBus, getEventBus, setEventBus } from '@kalisio/common-core/runtime'
+
+setEventBus(new EventBus())
+
+const stop = getEventBus().on('ready', ({ data }) => {
+  console.log(data)
+})
+
+getEventBus().emit('ready', { initialized: true })
+stop()
+```
+
+Applications can also install the bus through [`setup()`](../setup.md). To subscribe to several events or await the next matching emission, see [event-listeners](./event-listeners.md).

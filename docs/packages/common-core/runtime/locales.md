@@ -1,392 +1,117 @@
 ---
 title: Locales
-description: Runtime management of supported locales and localized resources.
+description: Shared runtime management of supported locales and localized resources.
 ---
 
 # Locales
 
-Manages supported locales, locale preferences, and localized resources contributed by multiple packages.
+`Locales` manages supported locale codes, the current locale, locale resolution, and localized resource contributions. Locale codes are normalized with `Intl.getCanonicalLocales()` (BCP 47).
 
-Each `Locales` instance maintains its own configuration and resource registries. Resources are organized by namespace and can be registered multiple times to support application-specific overrides.
+The application creates and installs one shared instance. Packages contribute resources to that instance by namespace; `Locales` does not merge or load those resources itself.
 
-Locale identifiers follow the BCP 47 standard and are normalized using `Intl.getCanonicalLocales()`.
-
-## Locales
+## Constructor
 
 ### Signature
 
 ```js
-new Locales({ defaultLocale, fallbackLocale, eventBus } = {})
+new Locales({ default: 'en', fallback: 'en' } = {})
 ```
-
-### Description
-
-Creates an independent locale manager.
-
-The default and fallback locales must be registered before resolving locales, changing the current locale, or retrieving resources.
-
-No global instance is created automatically.
 
 ### Parameters
 
-| Name | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `defaultLocale` | `string` | no | `'en'` | Initial locale |
-| `fallbackLocale` | `string` | no | `'en'` | Locale used when no preference matches |
-| `eventBus` | `object` | no | `undefined` | Optional event bus supporting `emit()` |
+| Option | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `default` | `string` | no | `'en'` | Initially selected locale. |
+| `fallback` | `string` | no | `'en'` | Fallback locale used in resolution and resource lookup. |
 
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `Locales` | A new locale manager |
+The default and fallback locales are automatically registered when the instance is created. Do not register them again.
 
 ### Example
 
 ```js
 import { Locales } from '@kalisio/common-core/runtime'
 
-const locales = new Locales({
-  defaultLocale: 'en',
-  fallbackLocale: 'en'
-})
-
-locales.register('en', { label: 'English' })
+const locales = new Locales({ default: 'en', fallback: 'en' })
 locales.register('fr', { label: 'Français' })
+
+locales.list() // ['en', 'fr']
 ```
 
-## createLocales
+## Locale management
 
-### Signature
-
-```js
-createLocales(options)
-```
-
-### Description
-
-Factory function equivalent to `new Locales(options)`.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `options` | `object` | no | Options passed to the `Locales` constructor |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `Locales` | A new locale manager |
-
-### Example
-
-```js
-import { createLocales } from '@kalisio/common-core/runtime'
-
-const locales = createLocales({
-  defaultLocale: 'fr',
-  fallbackLocale: 'en'
-})
-```
-
-## register
-
-### Signature
+### register
 
 ```js
 locales.register(code, metadata = {})
 ```
 
-### Description
+Registers a supported locale and optional plain-object metadata. Throws when the normalized locale is already registered. Returns the metadata.
 
-Registers a supported locale and optional metadata.
-
-Locale identifiers are normalized automatically. Registering the same normalized locale more than once throws an error.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `code` | `string` | yes | BCP 47 locale identifier |
-| `metadata` | `object` | no | Additional locale metadata |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `object` | Registered metadata |
-
-### Example
-
-```js
-locales.register('en', { label: 'English' })
-locales.register('fr', { label: 'Français' })
-locales.register('fr-ca', { label: 'Français (Canada)' })
-
-locales.list()
-// ['en', 'fr', 'fr-CA']
-```
-
-## list
-
-### Signature
+### list
 
 ```js
 locales.list()
 ```
 
-### Description
+Returns the registered locale codes in insertion order (`string[]`).
 
-Returns the registered locale identifiers in registration order.
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `string[]` | Array of normalized locale identifiers |
-
-### Example
-
-```js
-locales.list()
-// ['en', 'fr', 'fr-CA']
-```
-
-## getCurrent
-
-### Signature
+### getCurrent
 
 ```js
 locales.getCurrent()
 ```
 
-### Description
+Returns the current normalized locale code.
 
-Returns the current locale.
-
-Initially, the current locale is the configured `defaultLocale`.
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `string` | Current normalized locale identifier |
-
-### Example
-
-```js
-locales.getCurrent()
-// 'en'
-```
-
-## setCurrent
-
-### Signature
+### setCurrent
 
 ```js
 locales.setCurrent(code)
 ```
 
-### Description
+Selects a previously registered locale. Throws `RangeError` for an unknown locale. Does nothing if the locale is already current.
 
-Changes the current locale.
+If the shared event bus has been configured, a successful change emits `locale:changed` with data `{ locale, previous }`. Listeners receive the standard event envelope `{ type, timestamp, data }`.
 
-The locale must already be registered. If it differs from the current locale, a `locale:changed` event is emitted when an event bus is configured.
-
-No event is emitted when the locale remains unchanged.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `code` | `string` | yes | Registered locale identifier |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `undefined` | No return value |
-
-### Example
-
-```js
-locales.setCurrent('fr')
-locales.getCurrent()
-// 'fr'
-
-// An unregistered locale is rejected
-locales.setCurrent('de')
-// RangeError: Unknown locale: de
-```
-
-### Events
-
-| Event | Data | Description |
-|-------|------|-------------|
-| `locale:changed` | `{ locale, previous }` | Emitted when the current locale changes |
-
-```js
-import { createEventBus, createLocales } from '@kalisio/common-core/runtime'
-
-const eventBus = createEventBus()
-const locales = createLocales({ eventBus })
-
-locales.register('en')
-locales.register('fr')
-
-eventBus.on('locale:changed', event => {
-  console.log(event.data)
-})
-
-locales.setCurrent('fr')
-// { locale: 'fr', previous: 'en' }
-```
-
-## resolve
-
-### Signature
+### resolve
 
 ```js
 locales.resolve(...codes)
 ```
 
-### Description
+Resolves the first supported locale from the requested preferences, trying progressively less specific language tags before the configured fallback. Invalid preferences are skipped. Without arguments, starts with the current locale.
 
-Resolves the best supported locale from an ordered list of preferences.
-
-Each preference is normalized and progressively reduced from its most specific form to its parent language.
-
-Invalid preferences are ignored. When no preference matches, the configured fallback locale is returned.
-
-When called without arguments, the current locale is used.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `...codes` | `string[]` | no | Locale preferences in priority order |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `string` | Best matching registered locale, or fallback locale |
-
-### Examples
+### Example
 
 ```js
-// Supported locales: en, fr
+const locales = new Locales({ default: 'en', fallback: 'en' })
+locales.register('fr', { label: 'Français' })
 
-locales.resolve('fr-CA')
-// 'fr'
+locales.resolve('fr-CA') // 'fr'
+locales.resolve('de', 'fr-FR') // 'fr'
+locales.resolve('de') // 'en'
 
-locales.resolve('de', 'fr-FR')
-// 'fr'
-
-locales.resolve('de', 'it')
-// 'en'
-
-locales.resolve('*', 'invalid_locale', 'fr')
-// 'fr'
+locales.setCurrent('fr')
+locales.getCurrent() // 'fr'
 ```
 
-Resolve browser preferences:
+## Resource contributions
 
-```js
-const preferred = locales.resolve(...navigator.languages)
-locales.setCurrent(preferred)
-```
-
-A parent match for an earlier preference takes priority over an exact match for a later preference.
-
-HTTP `Accept-Language` headers must be parsed into an ordered list before being passed to `resolve()`.
-
-## registerResources
-
-### Signature
+### registerResources
 
 ```js
 locales.registerResources(namespace, resources)
 ```
 
-### Description
+Registers a contribution under a non-empty namespace. `resources` must be a plain object whose keys are BCP 47 locale identifiers and whose values are defined resources. A namespace can receive multiple contributions, including application overrides. The corresponding locale does not need to be registered as a selectable locale.
 
-Registers localized resources under a namespace.
-
-Multiple contributions can be registered under the same namespace. Existing contributions are preserved, allowing applications to provide overrides.
-
-Resources can contain arbitrary defined values, including translation dictionaries or resource loader functions.
-
-Locale identifiers are normalized automatically. Duplicate identifiers within a single contribution are rejected.
-
-Resources can be registered before their locales are declared.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `namespace` | `string` | yes | Resource namespace |
-| `resources` | `object` | yes | Map of locale identifiers to resources |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `undefined` | No return value |
-
-### Example
+### getResources
 
 ```js
-locales.registerResources('common-geospatial', {
-  en: { north: 'North', south: 'South' },
-  fr: { north: 'Nord', south: 'Sud' }
-})
-
-// Additional contribution from the application
-locales.registerResources('common-geospatial', {
-  fr: { north: 'Nord géographique' }
-})
+locales.getResources(namespace, code = locales.getCurrent())
 ```
 
-Resources are not automatically merged or loaded. Consumers are responsible for interpreting and combining the registered contributions.
-
-## getResources
-
-### Signature
-
-```js
-locales.getResources(namespace, code = currentLocale)
-```
-
-### Description
-
-Returns the localized resource contributions for a namespace.
-
-Resources are returned in the following priority order:
-
-1. Exact requested locale.
-2. Progressively less specific parent locales.
-3. Configured fallback locale.
-
-For each locale, the most recently registered contributions are returned first.
-
-The requested locale does not need to be registered as a supported application locale.
-
-No resource merging or asynchronous loading is performed.
-
-### Parameters
-
-| Name | Type | Required | Description |
-|------|------|----------|-------------|
-| `namespace` | `string` | yes | Resource namespace |
-| `code` | `string` | no | Requested locale; defaults to current locale |
-
-### Returns
-
-| Type | Description |
-|------|-------------|
-| `Array<{ locale, resource }>` | Ordered resource contributions; empty if none are available |
+Returns an array of `{ locale, resource }` contributions, ordered first by locale specificity (requested locale, parent tags, fallback), then by contribution recency (newest first). No merging or loading is performed.
 
 ### Example
 
@@ -396,7 +121,6 @@ locales.registerResources('messages', {
   fr: { greeting: 'Bonjour' },
   'fr-CA': { greeting: 'Allô' }
 })
-
 locales.registerResources('messages', {
   fr: { greeting: 'Salut' }
 })
@@ -410,39 +134,40 @@ locales.getResources('messages', 'fr-CA')
 // ]
 ```
 
-The consumer can select the first matching contribution or merge compatible resources according to its own rules.
+## Shared instance
 
-## Example: package contributions
-
-Packages can expose explicit registration functions accepting a `Locales` instance.
+### setLocales
 
 ```js
-// common-geospatial
-export function registerGeospatialLocales (locales) {
-  locales.registerResources('common-geospatial', {
-    en: enMessages,
-    fr: frMessages
-  })
-}
+setLocales(locales)
 ```
 
-The application registers its supported locales and installs the resources it needs.
+Installs a `Locales` instance. An invalid argument raises an assertion error.
+
+### getLocales
 
 ```js
-import { createLocales } from '@kalisio/common-core/runtime'
-import { registerGeospatialLocales } from '@kalisio/common-geospatial'
+getLocales()
+```
 
-const locales = createLocales({
-  defaultLocale: 'en',
-  fallbackLocale: 'en'
+Returns the installed instance. Throws an assertion error if no instance has been installed.
+
+### Example: application initialization
+
+```js
+import { setup } from '@kalisio/common-core/setup'
+import { EventBus, Locales, getLocales } from '@kalisio/common-core/runtime'
+
+const bus = new EventBus()
+const locales = new Locales({ default: 'en', fallback: 'en' })
+locales.register('fr', { label: 'Français' })
+
+bus.on('locale:changed', ({ data }) => {
+  console.log(data.locale, data.previous)
 })
 
-locales.register('en')
-locales.register('fr')
-
-registerGeospatialLocales(locales)
-
-locales.setCurrent(locales.resolve('fr-CA'))
+setup({ bus, locales })
+getLocales().setCurrent('fr')
 ```
 
-The same `Locales` instance can be shared across packages without requiring a global singleton.
+The runtime bus is shared rather than passed to the `Locales` constructor. See [event-bus](./event-bus.md) and [setup](../setup.md).
