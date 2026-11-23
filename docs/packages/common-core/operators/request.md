@@ -1,4 +1,3 @@
-
 ---
 title: request
 description: Create a URL-bound HTTP request with retry, timeout and cancellation support.
@@ -32,8 +31,8 @@ request(url, options = {})
 
 | Parameter | Type | Description |
 |---|---|---|
-| `url` | string \| URL | HTTP(S) URL bound to the operation |
-| `options` | Object | Default requester and native fetch options |
+| `url` | `string \| URL` | HTTP(S) URL bound to the operation |
+| `options` | `object` | Default requester and native fetch options |
 
 The main options are:
 
@@ -55,7 +54,8 @@ An operation exposing:
 
 | Member | Signature | Description |
 |---|---|---|
-| `fetch` | `fetch(options = {})` | Fetches the bound URL and returns a native `Response` |
+| `url` | `string \| URL` | Read-only URL bound to the operation |
+| `fetch` | `fetch(options = {})` | Fetches the bound URL and returns a `Promise<Response>` |
 | `abort` | `abort(reason)` | Cancels all active calls and prevents further use |
 | `signal` | `AbortSignal` | Read-only shared cancellation signal |
 | `aborted` | `boolean` | Read-only cancellation state |
@@ -75,16 +75,18 @@ An operation exposing:
 `fetch(options)` always targets the URL supplied to `request()`. It does not accept another URL.
 
 ```js
-import { request } from '@kalisio/common-core/operators'
+import { request } from '@kalisio/common-core/operators/request'
 
 const req = request('https://example.com/api/resources', { retries: 2 })
 const response = await req.fetch()
 const data = await response.json()
 ```
 
-The bound URL can be reused with different options:
+The bound URL can be inspected and reused with different options:
 
 ```js
+console.log(req.url) // 'https://example.com/api/resources'
+
 await req.fetch()
 await req.fetch({ method: 'HEAD', retries: 0 })
 ```
@@ -128,6 +130,8 @@ Once aborted, create a new operation to make another request.
 ### Default and per-call options
 
 ```js
+import { request } from '@kalisio/common-core/operators/request'
+
 const req = request('https://example.com/api/resources', {
   retries: 3,
   timeout: 5000,
@@ -145,6 +149,7 @@ const response = await req.fetch({
 ### Custom retry policy
 
 ```js
+import { request } from '@kalisio/common-core/operators/request'
 import { shouldRetryByDefault } from '@kalisio/common-core/runtime'
 
 const req = request('https://example.com/api/resources', {
@@ -158,6 +163,8 @@ await req.fetch()
 ### Cancellation
 
 ```js
+import { request } from '@kalisio/common-core/operators/request'
+
 const req = request('https://example.com/api/resources', { retries: 2 })
 
 const loading = req.fetch()
@@ -170,6 +177,8 @@ await loading // Rejects with the cancellation reason.
 ### Streaming
 
 ```js
+import { request } from '@kalisio/common-core/operators/request'
+
 const req = request('https://example.com/api/download')
 const response = await req.fetch()
 const reader = response.body.getReader()
