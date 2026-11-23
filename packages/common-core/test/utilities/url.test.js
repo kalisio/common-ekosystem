@@ -23,6 +23,10 @@ describe('url.build', () => {
   it('throws if params is empty', () => {
     expect(() => url.build('https://example.com', {})).toThrow('params must be a non empty object')
   })
+  it('replaces duplicate parameters through addQueryParam', () => {
+    expect(url.build('https://example.com/?a=1&a=2&b=3', { a: 4 }))
+      .toBe('https://example.com/?a=4&b=3')
+  })
 })
 
 describe('url.parse', () => {
@@ -74,6 +78,25 @@ describe('url.parse', () => {
   })
   it('throws if defaultPort is not a number', () => {
     expect(() => url.parse('https://example.com', '80')).toThrow('defaultPort must be a number')
+  })
+  it('replaces duplicate parameters through addQueryParam', () => {
+    expect(url.build('https://example.com/?a=1&a=2&b=3', { a: 4 }))
+      .toBe('https://example.com/?a=4&b=3')
+  })
+  it('preserves plus signs when decoding query values', () => {
+    expect(url.parse('https://example.com/?q=a+b&title=a%20b').query)
+      .toEqual({ q: 'a+b', title: 'a b' })
+  })
+  it('keeps the last occurrence of a repeated query key', () => {
+    expect(url.parse('https://example.com/?q=first&q=second').query)
+      .toEqual({ q: 'second' })
+  })
+  it('decodes percent-encoded query keys', () => {
+    expect(url.parse('https://example.com/?a%20b=hello').query)
+      .toEqual({ 'a b': 'hello' })
+  })
+  it('throws on malformed percent-encoded query parameters', () => {
+    expect(() => url.parse('https://example.com/?q=%ZZ')).toThrow(URIError)
   })
 })
 
@@ -153,6 +176,10 @@ describe('url.encode', () => {
     expect(() => url.encode('https://example.com', { preservePlaceholders: 1 }))
       .toThrow('options must be a valid options object')
   })
+  it('encodes percent signs in already encoded URLs again', () => {
+    expect(url.encode('https://example.com/a%20b'))
+      .toBe('https://example.com/a%2520b')
+  })
 })
 
 describe('url.obfuscate', () => {
@@ -180,6 +207,10 @@ describe('url.obfuscate', () => {
   })
   it('throws if mask is not a string', () => {
     expect(() => url.obfuscate('https://user:pass@example.com', 123)).toThrow('mask must be a string')
+  })
+  it('does not mask secrets in query parameters or fragments', () => {
+    expect(url.obfuscate('https://user:pass@example.com/path?token=secret#fragment'))
+      .toBe('https://*****:*****@example.com/path?token=secret#fragment')
   })
 })
 
