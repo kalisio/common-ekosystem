@@ -1,4 +1,3 @@
-
 ---
 title: Factory
 description: Registry of creator functions for constructing values on demand.

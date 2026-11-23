@@ -1,4 +1,3 @@
-
 ---
 title: Cache
 description: LRU cache with optional entry limit and time-to-live expiration.

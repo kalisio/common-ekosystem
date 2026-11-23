@@ -1,4 +1,3 @@
-
 ---
 title: Registry
 description: Generic named registry for storing and retrieving values by key.
