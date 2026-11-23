@@ -1,20 +1,23 @@
 import { assert, is } from '../predicates/index.js'
 import { Registry } from '../structures/registry.js'
+import { getEventBus } from './event-bus.js'
 
 export class Locales {
   #locales = new Registry('locales')
   #resources = new Registry('locale-resources')
   #current
-  #defaultLocale
-  #fallbackLocale
-  #eventBus
+  #default
+  #fallback
 
-  constructor ({ defaultLocale = 'en', fallbackLocale = 'en', eventBus } = {}) {
-    assert.that(eventBus, value => is.nil(value) || is.function(value.emit), 'eventBus must support emit()')
-    this.#defaultLocale = Locales.#normalize(defaultLocale)
-    this.#fallbackLocale = Locales.#normalize(fallbackLocale)
-    this.#current = this.#defaultLocale
-    this.#eventBus = eventBus
+  constructor ({ default: defaultCode = 'en', fallback = 'en' } = {}) {
+    this.#default = Locales.#normalize(defaultCode)
+    this.#fallback = Locales.#normalize(fallback)
+    this.#current = this.#default
+
+    this.#locales.register(this.#default, {})
+    if (this.#fallback !== this.#default) {
+      this.#locales.register(this.#fallback, {})
+    }
   }
 
   static #normalize (code) {
@@ -64,17 +67,15 @@ export class Locales {
   setCurrent (code) {
     const locale = Locales.#normalize(code)
     if (!this.#locales.has(locale)) throw new RangeError(`Unknown locale: ${locale}`)
-    this.#ensureReady()
     if (locale === this.#current) return
     const previous = this.#current
     this.#current = locale
-    this.#eventBus?.emit('locale:changed', { locale, previous })
+    getEventBus()?.emit('locale:changed', { locale, previous })
   }
 
   resolve (...codes) {
-    this.#ensureReady()
     const requested = codes.length > 0 ? codes : [this.#current]
-    for (const candidate of Locales.#candidates(requested, this.#fallbackLocale, { skipInvalid: true })) {
+    for (const candidate of Locales.#candidates(requested, this.#fallback, { skipInvalid: true })) {
       if (this.#locales.has(candidate)) return candidate
     }
   }
@@ -101,10 +102,9 @@ export class Locales {
   // No merging or loading takes place: each package interprets its own data.
   getResources (namespace, code = this.#current) {
     assert.that(namespace, is.nonEmptyString, 'namespace must be a non-empty string')
-    this.#ensureReady()
     const contributions = this.#resources.get(namespace) ?? []
     const result = []
-    for (const locale of Locales.#candidates([code], this.#fallbackLocale)) {
+    for (const locale of Locales.#candidates([code], this.#fallback)) {
       for (let i = contributions.length - 1; i >= 0; i--) {
         if (contributions[i].has(locale)) {
           result.push({ locale, resource: contributions[i].get(locale) })
@@ -113,17 +113,16 @@ export class Locales {
     }
     return result
   }
-
-  #ensureReady () {
-    if (!this.#locales.has(this.#defaultLocale)) {
-      throw new Error(`Default locale is not registered: ${this.#defaultLocale}`)
-    }
-    if (!this.#locales.has(this.#fallbackLocale)) {
-      throw new Error(`Fallback locale is not registered: ${this.#fallbackLocale}`)
-    }
-  }
 }
 
-export function createLocales (options) {
-  return new Locales(options)
+let globalLocales
+
+export function setLocales (locales) {
+  assert.that(locales, value => is.instanceOf(value, Locales), 'locales must be an instance of Locales')
+  globalLocales = locales
+}
+
+export function getLocales () {
+  assert.that(globalLocales, is.defined, 'locales must be configured')
+  return globalLocales
 }

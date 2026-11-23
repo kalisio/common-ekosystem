@@ -22,7 +22,8 @@ export default mergeConfig(baseConfig, defineConfig({
         'operators/quantify': 'src/operators/quantify.js',
         'operators/request': 'src/operators/request.js',
         'operators/sanitize': 'src/operators/sanitize.js',
-        'operators/transform': 'src/operators/transform.js'
+        'operators/transform': 'src/operators/transform.js',
+        setup: 'src/setup.js'
       }
     }
   }

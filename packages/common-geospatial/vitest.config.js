@@ -9,6 +9,7 @@ export default mergeConfig(baseConfig, defineConfig({
   root: __dirname,
   test: {
     name: 'common-geospatial',
-    environment: 'node'
+    environment: 'node',
+    setupFiles: ['./test/setup.js']
   }
 }))

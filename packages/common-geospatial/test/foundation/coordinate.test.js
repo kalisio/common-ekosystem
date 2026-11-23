@@ -1,3 +1,5 @@
+import { getLocales } from '@kalisio/common-core/runtime'
+import { AXES } from '../../src/foundation/axes.js'
 import {
   truncateCoordinate,
   normalizeCoordinate,
@@ -9,13 +11,11 @@ import {
   DEFAULT_COORDINATE_PRECISION,
   MAX_COORDINATE_PRECISION
 } from '../../src/foundation/coordinate.js'
-import { AXES } from '../../src/foundation/axes.js'
-import { setLocale } from '../../src/foundation/localization.js'
 
-const { DD, DDM, DMS /*, /*DDM_AERO: DDMAero */ } = COORDINATE_MODELS
+const { DD, DDM, DMS, DDM_AERO } = COORDINATE_MODELS
 
 beforeEach(() => {
-  setLocale('en')
+  getLocales().setCurrent('en')
 })
 
 describe('truncateCoordinate', () => {
@@ -147,7 +147,7 @@ describe('guessCoordinateAxis', () => {
     expect(result).toBeUndefined()
   })
   it('should work with french locale directions', () => {
-    setLocale('fr')
+    getLocales().setCurrent('fr')
     expect(guessCoordinateAxis(48, 'O')).toBe(AXES.LONGITUDE)
     expect(guessCoordinateAxis(48, 'Nord')).toBe(AXES.LATITUDE)
   })
@@ -204,6 +204,29 @@ describe('convertCoordinate', () => {
     expect(aero.degrees).toBe(48)
     expect(aero.minutes).toBeCloseTo(30)
     expect(aero.direction).toBe('N')
+  })
+  it('should convert DDM_AERO to DD', () => {
+    const aero = DDM_AERO('48513N')
+    const dd = convertCoordinate(aero, 'DD')
+    expect(dd.isValid()).toBe(true)
+    expect(dd.degrees).toBeCloseTo(48.855)
+    expect(dd.direction).toBe('N')
+  })
+  it('should convert DDM_AERO to DDM', () => {
+    const aero = DDM_AERO('002209W')
+    const ddm = convertCoordinate(aero, 'DDM')
+    expect(ddm.isValid()).toBe(true)
+    expect(ddm.degrees).toBe(2)
+    expect(ddm.minutes).toBeCloseTo(20.9)
+    expect(ddm.direction).toBe('W')
+  })
+  it('should round-trip DD through DDM_AERO', () => {
+    const dd = DD({ degrees: 48.5, direction: 'N' })
+    const aero = convertCoordinate(dd, 'DDM_AERO')
+    const result = convertCoordinate(aero, 'DD')
+    expect(aero.toString()).toBe('48300N')
+    expect(result.degrees).toBeCloseTo(dd.degrees)
+    expect(result.direction).toBe(dd.direction)
   })
 })
 
@@ -272,6 +295,14 @@ describe('parseCoordinate', () => {
       const coord = parseCoordinate('48.8566 ° N')
       expect(coord).not.toBe(null)
       expect(coord.isValid()).toBe(true)
+    })
+    it('should recognize the french west direction', () => {
+      const coord = parseCoordinate('002209O')
+      expect(coord).not.toBe(null)
+      expect(coord.isValid()).toBe(true)
+      expect(coord.format).toBe(COORDINATE_FORMATS.DDM_AERO)
+      expect(coord.direction).toBe('O')
+      expect(coord.minutes).toBeCloseTo(20.9)
     })
   })
 

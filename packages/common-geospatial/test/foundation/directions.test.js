@@ -1,3 +1,4 @@
+import { getLocales } from '@kalisio/common-core/runtime'
 import {
   getDirections,
   getDirectionSymbols,
@@ -14,10 +15,9 @@ import {
   getDirectionAxis
 } from '../../src/foundation/directions.js'
 import { AXES } from '../../src/foundation/axes.js'
-import { setLocale } from '../../src/foundation/localization.js'
 
 beforeEach(() => {
-  setLocale('en')
+  getLocales().setCurrent('en')
 })
 
 describe('getDirections', () => {
@@ -43,7 +43,7 @@ describe('getDirections', () => {
     expect(() => getDirections('UNKNOWN')).toThrow()
   })
   it('should reflect locale change', () => {
-    setLocale('fr')
+    getLocales().setCurrent('fr')
     const result = getDirections(AXES.LONGITUDE)
     expect(result.some(d => d.symbol === 'O')).toBe(true)
   })
@@ -55,7 +55,7 @@ describe('getNorth', () => {
     expect(getNorth().label).toBe('North')
   })
   it('should return the NORTH direction object in french', () => {
-    setLocale('fr')
+    getLocales().setCurrent('fr')
     expect(getNorth().symbol).toBe('N')
     expect(getNorth().label).toBe('Nord')
   })
@@ -67,7 +67,7 @@ describe('getSouth', () => {
     expect(getSouth().label).toBe('South')
   })
   it('should return the SOUTH direction object in french', () => {
-    setLocale('fr')
+    getLocales().setCurrent('fr')
     expect(getSouth().symbol).toBe('S')
     expect(getSouth().label).toBe('Sud')
   })
@@ -79,7 +79,7 @@ describe('getEast', () => {
     expect(getEast().label).toBe('East')
   })
   it('should return the EAST direction object in french', () => {
-    setLocale('fr')
+    getLocales().setCurrent('fr')
     expect(getEast().symbol).toBe('E')
     expect(getEast().label).toBe('Est')
   })
@@ -91,7 +91,7 @@ describe('getWest', () => {
     expect(getWest().label).toBe('West')
   })
   it('should return the WEST direction object in french', () => {
-    setLocale('fr')
+    getLocales().setCurrent('fr')
     expect(getWest().symbol).toBe('O')
     expect(getWest().label).toBe('Ouest')
   })
@@ -115,13 +115,17 @@ describe('isValidDirection', () => {
     expect(isValidDirection('north')).toBe(true)
     expect(isValidDirection('NORTH')).toBe(true)
   })
-  it('should return true for french symbols', () => {
-    setLocale('fr')
+  it('should recognize french directions even when the current locale is english', () => {
     expect(isValidDirection('O')).toBe(true)
     expect(isValidDirection('Ouest')).toBe(true)
   })
-  it('should still accept W in french locale via the en fallback', () => {
-    setLocale('fr')
+  it('should recognize french symbols and labels', () => {
+    getLocales().setCurrent('fr')
+    expect(isValidDirection('O')).toBe(true)
+    expect(isValidDirection('Ouest')).toBe(true)
+  })
+  it('should still accept W in french locale', () => {
+    getLocales().setCurrent('fr')
     expect(isValidDirection('W')).toBe(true)
   })
   it('should return false for an unknown direction', () => {
@@ -142,8 +146,11 @@ describe('isNorth', () => {
   it('should return true for label North', () => {
     expect(isNorth('North')).toBe(true)
   })
+  it('should recognize french label Nord in english locale', () => {
+    expect(isNorth('Nord')).toBe(true)
+  })
   it('should return true for french label Nord', () => {
-    setLocale('fr')
+    getLocales().setCurrent('fr')
     expect(isNorth('Nord')).toBe(true)
   })
   it('should be case insensitive', () => {
@@ -168,7 +175,7 @@ describe('isSouth', () => {
     expect(isSouth('South')).toBe(true)
   })
   it('should return true for french label Sud', () => {
-    setLocale('fr')
+    getLocales().setCurrent('fr')
     expect(isSouth('Sud')).toBe(true)
   })
   it('should return false for other directions', () => {
@@ -189,7 +196,7 @@ describe('isEast', () => {
     expect(isEast('East')).toBe(true)
   })
   it('should return true for french label Est', () => {
-    setLocale('fr')
+    getLocales().setCurrent('fr')
     expect(isEast('Est')).toBe(true)
   })
   it('should return false for other directions', () => {
@@ -209,16 +216,19 @@ describe('isWest', () => {
   it('should return true for label West', () => {
     expect(isWest('West')).toBe(true)
   })
+  it('should recognize french symbol O in english locale', () => {
+    expect(isWest('O')).toBe(true)
+  })
   it('should return true for french symbol O', () => {
-    setLocale('fr')
+    getLocales().setCurrent('fr')
     expect(isWest('O')).toBe(true)
   })
   it('should return true for french label Ouest', () => {
-    setLocale('fr')
+    getLocales().setCurrent('fr')
     expect(isWest('Ouest')).toBe(true)
   })
-  it('should still accept W in french locale via the en fallback', () => {
-    setLocale('fr')
+  it('should still accept W in french locale', () => {
+    getLocales().setCurrent('fr')
     expect(isWest('W')).toBe(true)
   })
   it('should return false for other directions', () => {
@@ -251,7 +261,7 @@ describe('getDirectionAxis', () => {
     expect(getDirectionAxis('North')).toBe(AXES.LATITUDE)
   })
   it('should work with french locale', () => {
-    setLocale('fr')
+    getLocales().setCurrent('fr')
     expect(getDirectionAxis('O')).toBe(AXES.LONGITUDE)
     expect(getDirectionAxis('Nord')).toBe(AXES.LATITUDE)
   })
@@ -262,16 +272,21 @@ describe('getDirectionAxis', () => {
 })
 
 describe('getDirectionSymbols', () => {
-  it('should return the symbols of all axes', () => {
-    expect(getDirectionSymbols().sort()).toEqual(['E', 'N', 'S', 'W'])
+  it('should return the symbols of all registered locales', () => {
+    expect(getDirectionSymbols().sort()).toEqual(['E', 'N', 'O', 'S', 'W'])
   })
   it('should restrict to the symbols of an axis', () => {
     expect(getDirectionSymbols(AXES.LATITUDE).sort()).toEqual(['N', 'S'])
-    expect(getDirectionSymbols(AXES.LONGITUDE).sort()).toEqual(['E', 'W'])
+    expect(getDirectionSymbols(AXES.LONGITUDE).sort()).toEqual(['E', 'O', 'W'])
   })
-  it('should merge current and fallback locale symbols without duplicates', () => {
-    setLocale('fr')
-    expect(getDirectionSymbols().sort()).toEqual(['E', 'N', 'O', 'S', 'W'])
+  it('should return the same symbols after a locale change', () => {
+    const symbols = getDirectionSymbols().sort()
+    getLocales().setCurrent('fr')
+    expect(getDirectionSymbols().sort()).toEqual(symbols)
+  })
+  it('should remove duplicate symbols across locales', () => {
+    expect(getDirectionSymbols().filter(symbol => symbol === 'N')).toHaveLength(1)
+    expect(getDirectionSymbols().filter(symbol => symbol === 'S')).toHaveLength(1)
   })
   it('should return an empty array for altitude axis', () => {
     expect(getDirectionSymbols(AXES.ALTITUDE)).toEqual([])
@@ -282,15 +297,15 @@ describe('getDirectionSymbols', () => {
 })
 
 describe('getDirectionPattern', () => {
-  it('should join the symbols of all axes', () => {
-    expect(getDirectionPattern().split('|').sort()).toEqual(['E', 'N', 'S', 'W'])
+  it('should join the symbols of all registered locales', () => {
+    expect(getDirectionPattern().split('|').sort()).toEqual(['E', 'N', 'O', 'S', 'W'])
   })
   it('should restrict to the symbols of an axis', () => {
     expect(getDirectionPattern(AXES.LATITUDE).split('|').sort()).toEqual(['N', 'S'])
-    expect(getDirectionPattern(AXES.LONGITUDE).split('|').sort()).toEqual(['E', 'W'])
+    expect(getDirectionPattern(AXES.LONGITUDE).split('|').sort()).toEqual(['E', 'O', 'W'])
   })
-  it('should include the current and fallback locale symbols', () => {
-    setLocale('fr')
+  it('should include all registered locale symbols after a locale change', () => {
+    getLocales().setCurrent('fr')
     expect(getDirectionPattern(AXES.LONGITUDE).split('|').sort()).toEqual(['E', 'O', 'W'])
   })
   it('should return an empty pattern for altitude axis', () => {

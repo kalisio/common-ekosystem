@@ -1,7 +1,7 @@
-import { createEventBus } from '../../src/runtime/event-bus.js'
+import { EventBus, setEventBus, getEventBus } from '../../src/runtime/event-bus.js'
 import { setLogger } from '../../src/runtime/logger.js'
 
-const flush = () => new Promise((resolve) => setTimeout(resolve))
+const flush = () => new Promise(resolve => setTimeout(resolve))
 const mockLogger = () => {
   const error = vi.fn()
   const factory = vi.fn(() => ({ error }))
@@ -14,32 +14,32 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-describe('eventBus creation', () => {
+describe('EventBus construction', () => {
   it('creates a live bus without options', () => {
-    const bus = createEventBus()
+    const bus = new EventBus()
     expect(bus.destroyed).toBe(false)
     expect(bus.listenerCount('test')).toBe(0)
   })
   it('creates independent instances', () => {
-    const first = createEventBus()
-    const second = createEventBus()
+    const first = new EventBus()
+    const second = new EventBus()
     first.on('test', () => {})
     expect(first.listenerCount('test')).toBe(1)
     expect(second.listenerCount('test')).toBe(0)
   })
 })
 
-describe('eventBus.on and emit', () => {
+describe('EventBus.on and emit', () => {
   it('passes a { type, timestamp, data } payload', () => {
     vi.spyOn(Date, 'now').mockReturnValue(1000)
-    const bus = createEventBus()
+    const bus = new EventBus()
     const listener = vi.fn()
     bus.on('layer:added', listener)
     bus.emit('layer:added', { layerId: 'roads' })
     expect(listener).toHaveBeenCalledWith({ type: 'layer:added', timestamp: 1000, data: { layerId: 'roads' } })
   })
   it('accepts any data, type and timestamp keys included', () => {
-    const bus = createEventBus()
+    const bus = new EventBus()
     const listener = vi.fn()
     bus.on('test', listener)
     bus.emit('test', 'abc')
@@ -50,7 +50,7 @@ describe('eventBus.on and emit', () => {
     expect(listener.mock.calls.every(([payload]) => payload.type === 'test')).toBe(true)
   })
   it('calls listeners in subscription order', () => {
-    const bus = createEventBus()
+    const bus = new EventBus()
     const calls = []
     bus.on('test', () => calls.push(1))
     bus.on('test', () => calls.push(2))
@@ -58,14 +58,14 @@ describe('eventBus.on and emit', () => {
     expect(calls).toEqual([1, 2])
   })
   it('only calls the listeners of the emitted event', () => {
-    const bus = createEventBus()
+    const bus = new EventBus()
     const listener = vi.fn()
     bus.on('other', listener)
     bus.emit('test')
     expect(listener).not.toHaveBeenCalled()
   })
   it('supports symbol events', () => {
-    const bus = createEventBus()
+    const bus = new EventBus()
     const event = Symbol('test')
     const listener = vi.fn()
     bus.on(event, listener)
@@ -73,7 +73,7 @@ describe('eventBus.on and emit', () => {
     expect(listener).toHaveBeenCalledWith(expect.objectContaining({ type: event, data: 1 }))
   })
   it('counts listeners', () => {
-    const bus = createEventBus()
+    const bus = new EventBus()
     bus.on('test', () => {})
     bus.once('test', () => {})
     bus.on('other', () => {})
@@ -82,7 +82,7 @@ describe('eventBus.on and emit', () => {
     expect(bus.listenerCount('unknown')).toBe(0)
   })
   it('rejects invalid events and callbacks', () => {
-    const bus = createEventBus()
+    const bus = new EventBus()
     expect(() => bus.on('', () => {})).toThrow()
     expect(() => bus.on(1, () => {})).toThrow()
     expect(() => bus.on('test')).toThrow()
@@ -90,9 +90,9 @@ describe('eventBus.on and emit', () => {
   })
 })
 
-describe('eventBus unsubscription', () => {
+describe('EventBus unsubscription', () => {
   it('removes the subscription with the returned function', () => {
-    const bus = createEventBus()
+    const bus = new EventBus()
     const listener = vi.fn()
     const unsubscribe = bus.on('test', listener)
     unsubscribe()
@@ -101,7 +101,7 @@ describe('eventBus unsubscription', () => {
     expect(bus.listenerCount('test')).toBe(0)
   })
   it('only removes its own subscription when called repeatedly', () => {
-    const bus = createEventBus()
+    const bus = new EventBus()
     const listener = vi.fn()
     const unsubscribe = bus.on('test', listener)
     bus.on('test', listener)
@@ -110,7 +110,7 @@ describe('eventBus unsubscription', () => {
     expect(bus.listenerCount('test')).toBe(1)
   })
   it('does not remove a newer subscription of the same callback', () => {
-    const bus = createEventBus()
+    const bus = new EventBus()
     const listener = vi.fn()
     const unsubscribe = bus.on('test', listener)
     bus.off('test', listener)
@@ -120,7 +120,7 @@ describe('eventBus unsubscription', () => {
     expect(listener).toHaveBeenCalledTimes(1)
   })
   it('removes the first subscription of a callback with off', () => {
-    const bus = createEventBus()
+    const bus = new EventBus()
     const listener = vi.fn()
     bus.on('test', listener)
     bus.on('test', listener)
@@ -129,7 +129,7 @@ describe('eventBus unsubscription', () => {
     expect(listener).toHaveBeenCalledTimes(1)
   })
   it('removes once subscriptions with off', () => {
-    const bus = createEventBus()
+    const bus = new EventBus()
     const listener = vi.fn()
     bus.once('test', listener)
     bus.off('test', listener)
@@ -137,11 +137,11 @@ describe('eventBus unsubscription', () => {
     expect(listener).not.toHaveBeenCalled()
   })
   it('ignores unknown subscriptions in off', () => {
-    const bus = createEventBus()
+    const bus = new EventBus()
     expect(() => bus.off('test', () => {})).not.toThrow()
   })
   it('removes every subscription of an event with offAll', () => {
-    const bus = createEventBus()
+    const bus = new EventBus()
     const listener = vi.fn()
     const other = vi.fn()
     bus.on('test', listener)
@@ -157,9 +157,9 @@ describe('eventBus unsubscription', () => {
   })
 })
 
-describe('eventBus.once', () => {
+describe('EventBus.once', () => {
   it('calls the listener a single time', () => {
-    const bus = createEventBus()
+    const bus = new EventBus()
     const listener = vi.fn()
     bus.once('test', listener)
     bus.emit('test', 1)
@@ -169,7 +169,7 @@ describe('eventBus.once', () => {
     expect(bus.listenerCount('test')).toBe(0)
   })
   it('calls the listener a single time when emissions are nested', () => {
-    const bus = createEventBus()
+    const bus = new EventBus()
     const listener = vi.fn()
     let nested = false
     bus.on('test', () => {
@@ -182,7 +182,7 @@ describe('eventBus.once', () => {
     expect(listener).toHaveBeenCalledTimes(1)
   })
   it('removes a once listener before invoking its callback', () => {
-    const bus = createEventBus()
+    const bus = new EventBus()
     const listener = vi.fn(() => bus.emit('test'))
     bus.once('test', listener)
     bus.emit('test')
@@ -190,7 +190,7 @@ describe('eventBus.once', () => {
     expect(bus.listenerCount('test')).toBe(0)
   })
   it('can be cancelled with the returned function', () => {
-    const bus = createEventBus()
+    const bus = new EventBus()
     const listener = vi.fn()
     const unsubscribe = bus.once('test', listener)
     unsubscribe()
@@ -199,9 +199,9 @@ describe('eventBus.once', () => {
   })
 })
 
-describe('eventBus emission changes', () => {
+describe('EventBus emission changes', () => {
   it('does not call listeners added during the emission', () => {
-    const bus = createEventBus()
+    const bus = new EventBus()
     const added = vi.fn()
     bus.on('test', () => bus.on('test', added))
     bus.emit('test')
@@ -210,7 +210,7 @@ describe('eventBus emission changes', () => {
     expect(added).toHaveBeenCalledOnce()
   })
   it('skips listeners removed during the emission', () => {
-    const bus = createEventBus()
+    const bus = new EventBus()
     const removed = vi.fn()
     bus.on('test', () => unsubscribe())
     const unsubscribe = bus.on('test', removed)
@@ -218,7 +218,7 @@ describe('eventBus emission changes', () => {
     expect(removed).not.toHaveBeenCalled()
   })
   it('skips listeners removed by offAll during the emission', () => {
-    const bus = createEventBus()
+    const bus = new EventBus()
     const removed = vi.fn()
     bus.on('test', () => bus.offAll('test'))
     bus.on('test', removed)
@@ -227,10 +227,10 @@ describe('eventBus emission changes', () => {
   })
 })
 
-describe('eventBus errors', () => {
+describe('EventBus errors', () => {
   it('logs errors thrown by listeners and notifies the others', () => {
     const log = mockLogger()
-    const bus = createEventBus()
+    const bus = new EventBus()
     const error = new Error('failure')
     const after = vi.fn()
     bus.on('test', () => { throw error })
@@ -241,7 +241,7 @@ describe('eventBus errors', () => {
   })
   it('logs rejections of async listeners', async () => {
     const log = mockLogger()
-    const bus = createEventBus()
+    const bus = new EventBus()
     const error = new Error('failure')
     bus.on('test', async () => { throw error })
     bus.emit('test')
@@ -250,14 +250,14 @@ describe('eventBus errors', () => {
   })
   it('uses the common-core event-bus logger category', () => {
     const log = mockLogger()
-    const bus = createEventBus()
+    const bus = new EventBus()
     bus.on('test', () => { throw new Error('failure') })
     bus.emit('test')
     expect(log.factory).toHaveBeenCalledWith(['common-core', 'event-bus'])
   })
   it('does not interrupt emissions when the logger fails', () => {
     setLogger(() => ({ error () { throw new Error('logger failed') } }))
-    const bus = createEventBus()
+    const bus = new EventBus()
     const after = vi.fn()
     bus.on('test', () => { throw new Error('failure') })
     bus.on('test', after)
@@ -266,9 +266,9 @@ describe('eventBus errors', () => {
   })
 })
 
-describe('eventBus.destroy', () => {
+describe('EventBus.destroy', () => {
   it('removes every listener and marks the bus destroyed', () => {
-    const bus = createEventBus()
+    const bus = new EventBus()
     const listener = vi.fn()
     bus.on('test', listener)
     bus.destroy()
@@ -278,17 +278,51 @@ describe('eventBus.destroy', () => {
     expect(listener).not.toHaveBeenCalled()
   })
   it('rejects new subscriptions', () => {
-    const bus = createEventBus()
+    const bus = new EventBus()
     bus.destroy()
     expect(() => bus.on('test', () => {})).toThrow()
     expect(() => bus.once('test', () => {})).toThrow()
   })
   it('stops an emission in progress', () => {
-    const bus = createEventBus()
+    const bus = new EventBus()
     const after = vi.fn()
     bus.on('test', () => bus.destroy())
     bus.on('test', after)
     bus.emit('test')
     expect(after).not.toHaveBeenCalled()
+  })
+})
+
+describe('global event bus', () => {
+  it('returns undefined when no event bus has been configured', async () => {
+    vi.resetModules()
+    const { getEventBus } = await import('../../src/runtime/event-bus.js')
+    expect(getEventBus()).toBeUndefined()
+  })
+  it('installs and retrieves the global event bus', () => {
+    const bus = new EventBus()
+    setEventBus(bus)
+    expect(getEventBus()).toBe(bus)
+  })
+  it('rejects invalid instances and preserves the global one', () => {
+    const bus = new EventBus()
+    setEventBus(bus)
+    for (const value of [undefined, null, {}, 'event', 42]) {
+      expect(() => setEventBus(value)).toThrow('bus must be an instance of EventBus')
+      expect(getEventBus()).toBe(bus)
+    }
+  })
+  it('replaces the global event bus', () => {
+    const first = new EventBus()
+    const second = new EventBus()
+    setEventBus(first)
+    setEventBus(second)
+    expect(getEventBus()).toBe(second)
+  })
+  it('returns the installed instance without copying its state', () => {
+    const bus = new EventBus()
+    setEventBus(bus)
+    bus.on('test', () => {})
+    expect(getEventBus().listenerCount('test')).toBe(1)
   })
 })

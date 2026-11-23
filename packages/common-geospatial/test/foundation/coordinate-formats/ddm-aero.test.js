@@ -1,4 +1,4 @@
-import { setLocale } from '../../../src/foundation/index.js'
+import { getLocales } from '@kalisio/common-core/runtime'
 import { DDMAero } from '../../../src/foundation/coordinate-formats/ddm-aero.js'
 
 describe('DDMAero', () => {
@@ -53,7 +53,7 @@ describe('DDMAero', () => {
 
   describe('from string', () => {
     beforeEach(() => {
-      setLocale('fr')
+      getLocales().setCurrent('fr')
     })
     it('should parse a latitude string', () => {
       const ddm = DDMAero('48510N')

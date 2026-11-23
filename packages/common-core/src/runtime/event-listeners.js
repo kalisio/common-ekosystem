@@ -1,6 +1,3 @@
-// Helpers built on a single contract: on(event, callback) returns an unsubscribe
-// function. Any emitter implementing it works, the event bus and the clock included.
-
 // Subscribes each handler to its event and returns a stop function removing
 // them all. Keys can be strings or symbols. Aborting the signal stops them too.
 // If a subscription fails, the ones already made are removed before rethrowing.

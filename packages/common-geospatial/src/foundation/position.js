@@ -1,6 +1,7 @@
 import proj4 from 'proj4'
 import { assert, is, conform, optional } from '@kalisio/common-core/predicates'
 import { object, math } from '@kalisio/common-core/utilities'
+import { nvector } from '../utilities/index.js'
 import { AXES } from './axes.js'
 import { isWest, isSouth } from './directions.js'
 import {
@@ -10,12 +11,6 @@ import {
   parseCoordinate,
   truncateCoordinate
 } from './coordinate.js'
-import {
-  positionToNVector,
-  nVectorToPosition,
-  angleBetweenNVectors,
-  destinationNVector
-} from './nvector.js'
 import { hasProjection, WGS84 } from './projections.js'
 
 export const IS_SAME_POSITION_OPTIONS_SCHEMA = {
@@ -144,12 +139,12 @@ export function destinationFromPosition (position, bearing, distance) {
     { value: bearing, validator: is.number, message: 'bearing must be a number' },
     { value: distance, validator: is.number, message: 'distance must be a number' }
   ])
-  const destination = destinationNVector(
-    positionToNVector(position),
+  const destination = nvector.destination(
+    nvector.fromPosition(position),
     math.to.radians(bearing),
     distance / EARTH_RADIUS
   )
-  return nVectorToPosition(destination)
+  return nvector.toPosition(destination)
 }
 
 export function distanceBetweenPositions (position1, position2) {
@@ -157,5 +152,5 @@ export function distanceBetweenPositions (position1, position2) {
     { value: position1, validator: isValidPosition, message: 'position1 must be a valid position' },
     { value: position2, validator: isValidPosition, message: 'position2 must be a valid position' }
   ])
-  return angleBetweenNVectors(positionToNVector(position1), positionToNVector(position2)) * EARTH_RADIUS
+  return nvector.angleBetween(nvector.fromPosition(position1), nvector.fromPosition(position2)) * EARTH_RADIUS
 }

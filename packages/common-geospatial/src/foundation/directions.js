@@ -1,15 +1,17 @@
 import { assert, is } from '@kalisio/common-core/predicates'
-import { getLocale, getActiveLocales, getMessages } from './localization.js'
+import { getLocales } from '@kalisio/common-core/runtime'
+import { locales } from '../utilities/locales.js'
 import { AXES, isLatitude, isLongitude, isValidAxis } from './axes.js'
 
 function getLocalizedDirections () {
-  return getMessages(getLocale()).DIRECTIONS
+  const code = getLocales().getCurrent()
+  return locales.getMessages(code).DIRECTIONS
 }
 
 function collectLocalizedSymbols (keys) {
   const symbols = new Set()
-  for (const code of getActiveLocales()) {
-    const { DIRECTIONS } = getMessages(code)
+  for (const messages of Object.values(locales.getMessages())) {
+    const { DIRECTIONS } = messages
     for (const key of keys) symbols.add(DIRECTIONS[key].symbol)
   }
   return [...symbols]
@@ -18,8 +20,8 @@ function collectLocalizedSymbols (keys) {
 function isValidDirectionOf (type, dir) {
   if (!is.string(dir)) return false
   const value = dir.toUpperCase()
-  return getActiveLocales().some((code) => {
-    const { label, symbol } = getMessages(code).DIRECTIONS[type]
+  return Object.values(locales.getMessages()).some(({ DIRECTIONS }) => {
+    const { label, symbol } = DIRECTIONS[type]
     return value === label.toUpperCase() || value === symbol.toUpperCase()
   })
 }
@@ -48,7 +50,7 @@ export function getDirectionSymbols (axis = null) {
 // Escaped regex alternation of the direction symbols of an axis (or of all axes)
 export function getDirectionPattern (axis = null) {
   return getDirectionSymbols(axis)
-    .map((symbol) => symbol.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&'))
+    .map(symbol => symbol.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&'))
     .join('|')
 }
 

@@ -1,8 +1,8 @@
 import { assert, is, conform } from '@kalisio/common-core/predicates'
 import { math } from '@kalisio/common-core/utilities'
+import { nvector } from '../utilities/index.js'
 import { isSamePosition, IS_SAME_POSITION_OPTIONS_SCHEMA } from './position.js'
 import { isValidPositions, truncatePositions } from './positions.js'
-import { positionToNVector, crossNVectorArcs } from './nvector.js'
 
 export function isValidRing (ring, options = {}) {
   if (!is.arrayOfLengthAtLeast(ring, 4)) return false
@@ -48,11 +48,11 @@ export function ringsIntersect (ring1, ring2) {
     { value: ring1, validator: isValidRing, message: 'ring1 must be a valid closed ring' },
     { value: ring2, validator: isValidRing, message: 'ring2 must be a valid closed ring' }
   ])
-  const points1 = ring1.map(positionToNVector)
-  const points2 = ring2.map(positionToNVector)
+  const points1 = ring1.map(nvector.fromPosition)
+  const points2 = ring2.map(nvector.fromPosition)
   for (let i = 0; i < points1.length - 1; i++) {
     for (let j = 0; j < points2.length - 1; j++) {
-      if (crossNVectorArcs(points1[i], points1[i + 1], points2[j], points2[j + 1])) {
+      if (nvector.crossArcs(points1[i], points1[i + 1], points2[j], points2[j + 1])) {
         return true
       }
     }
@@ -62,7 +62,7 @@ export function ringsIntersect (ring1, ring2) {
 
 export function ringSelfIntersections (ring) {
   assert.that(ring, isValidRing, 'ring must be a valid closed ring')
-  const points = ring.map(positionToNVector)
+  const points = ring.map(nvector.fromPosition)
   const pairs = []
   const edgeCount = points.length - 1
   for (let i = 0; i < edgeCount; i++) {
@@ -70,11 +70,11 @@ export function ringSelfIntersections (ring) {
       // Skip adjacent edges: they share a vertex by construction, including the
       // wrap-around pair (first edge, last edge) meeting at the closing vertex.
       // Any other shared vertex (a duplicate position) is handled by
-      // crossNVectorArcs, whose angular tolerance absorbs the floating-point
+      // nvector.crossArcs, whose angular tolerance absorbs the floating-point
       // noise at a coincident vertex -- no explicit shared-position guard needed.
       if (j === i + 1) continue
       if (i === 0 && j === edgeCount - 1) continue
-      if (crossNVectorArcs(points[i], points[i + 1], points[j], points[j + 1])) {
+      if (nvector.crossArcs(points[i], points[i + 1], points[j], points[j + 1])) {
         pairs.push([i, j])
       }
     }

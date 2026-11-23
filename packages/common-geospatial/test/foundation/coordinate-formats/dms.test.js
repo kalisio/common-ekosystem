@@ -1,4 +1,4 @@
-import { setLocale } from '../../../src/foundation/index.js'
+import { getLocales } from '@kalisio/common-core/runtime'
 import { DMS } from '../../../src/foundation/coordinate-formats/dms.js'
 
 describe('DMS', () => {
@@ -57,7 +57,7 @@ describe('DMS', () => {
 
   describe('from string', () => {
     beforeEach(() => {
-      setLocale('fr')
+      getLocales().setCurrent('fr')
     })
     it('should parse a signed value', () => {
       const dms = DMS("-48°51'23.76\"")

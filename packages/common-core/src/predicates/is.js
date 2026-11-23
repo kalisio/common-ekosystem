@@ -30,6 +30,10 @@ export const is = {
     return value instanceof constructor
   },
 
+  symbol (value) {
+    return typeof value === 'symbol'
+  },
+
   emptyObject (value) {
     return is.plainObject(value) && Object.keys(value).length === 0
   },

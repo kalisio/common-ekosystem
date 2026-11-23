@@ -2,97 +2,101 @@ import { assert, is } from '../predicates/index.js'
 import { getLogger } from './logger.js'
 
 const logger = getLogger(['common-core', 'event-bus'])
+const isEventName = value => is.nonEmptyString(value) || is.symbol(value)
 
-const isEventName = (value) => is.nonEmptyString(value) || typeof value === 'symbol'
+export class EventBus {
+  #listeners = new Map()
+  #destroyed = false
 
-export function createEventBus () {
-  // Each subscription is an entry of its own, so that the function returned
-  // by on() or once() only ever removes that subscription.
-  const listeners = new Map()
-  let destroyed = false
+  get destroyed () {
+    return this.#destroyed
+  }
 
-  function assertSubscription (event, callback) {
-    if (destroyed) throw new Error('event bus has been destroyed')
+  #assertSubscription (event, callback) {
+    if (this.#destroyed) throw new Error('event bus has been destroyed')
     assert.that(event, isEventName, 'event must be a non-empty string or a symbol')
     assert.that(callback, is.function, 'callback must be a function')
   }
 
   // A removed entry is flagged so that an emission in progress skips it.
-  function removeEntry (event, entry) {
-    const entries = listeners.get(event)
+  #removeEntry (event, entry) {
+    const entries = this.#listeners.get(event)
     if (!entries) return
     const index = entries.indexOf(entry)
     if (index === -1) return
     entries.splice(index, 1)
     entry.removed = true
-    if (entries.length === 0) listeners.delete(event)
+    if (entries.length === 0) this.#listeners.delete(event)
   }
 
-  function subscribe (event, callback, once) {
+  // Each subscription has its own entry and unsubscribe function.
+  #subscribe (event, callback, once) {
     const entry = { callback, once, removed: false }
-    if (!listeners.has(event)) listeners.set(event, [])
-    listeners.get(event).push(entry)
-    return () => removeEntry(event, entry)
+    if (!this.#listeners.has(event)) this.#listeners.set(event, [])
+    this.#listeners.get(event).push(entry)
+    return () => this.#removeEntry(event, entry)
   }
 
-  return {
+  on (event, callback) {
+    this.#assertSubscription(event, callback)
+    return this.#subscribe(event, callback, false)
+  }
 
-    get destroyed () {
-      return destroyed
-    },
+  once (event, callback) {
+    this.#assertSubscription(event, callback)
+    return this.#subscribe(event, callback, true)
+  }
 
-    on (event, callback) {
-      assertSubscription(event, callback)
-      return subscribe(event, callback, false)
-    },
+  // Removes the first subscription of the callback, once() included.
+  off (event, callback) {
+    const entry = this.#listeners.get(event)?.find(candidate => candidate.callback === callback)
+    if (entry) this.#removeEntry(event, entry)
+  }
 
-    once (event, callback) {
-      assertSubscription(event, callback)
-      return subscribe(event, callback, true)
-    },
+  offAll (event) {
+    for (const entry of this.#listeners.get(event) ?? []) entry.removed = true
+    this.#listeners.delete(event)
+  }
 
-    // Removes the first subscription of the callback, once() ones included.
-    off (event, callback) {
-      const entry = listeners.get(event)?.find((candidate) => candidate.callback === callback)
-      if (entry) removeEntry(event, entry)
-    },
-
-    offAll (event) {
-      for (const entry of listeners.get(event) ?? []) entry.removed = true
-      listeners.delete(event)
-    },
-
-    // Listeners receive { type, timestamp, data }, data being any value.
-    // Listeners added during an emission are not called by it; listeners
-    // removed during an emission are skipped, so a once() listener is called
-    // a single time even when emissions are nested.
-    emit (event, data) {
-      if (destroyed) return
-      const payload = { type: event, timestamp: Date.now(), data }
-      const snapshot = [...(listeners.get(event) ?? [])]
-      for (const entry of snapshot) {
-        if (destroyed) break
-        if (entry.removed) continue
-        if (entry.once) removeEntry(event, entry)
-        try {
-          const result = entry.callback(payload)
-          if (typeof result?.then === 'function') {
-            Promise.resolve(result).catch((error) => logger.error(error, event))
-          }
-        } catch (error) {
-          logger.error(error, event)
+  // Listeners receive { type, timestamp, data }.
+  // Added listeners are skipped during the current emission.
+  // Removed listeners are skipped, including during nested emissions.
+  emit (event, data) {
+    if (this.#destroyed) return
+    const payload = { type: event, timestamp: Date.now(), data }
+    const snapshot = [...(this.#listeners.get(event) ?? [])]
+    for (const entry of snapshot) {
+      if (this.#destroyed) break
+      if (entry.removed) continue
+      if (entry.once) this.#removeEntry(event, entry)
+      try {
+        const result = entry.callback(payload)
+        if (is.function(result?.then)) {
+          Promise.resolve(result).catch(error => logger.error(error, event))
         }
+      } catch (error) {
+        logger.error(error, event)
       }
-    },
-
-    listenerCount (event) {
-      return listeners.get(event)?.length ?? 0
-    },
-
-    destroy () {
-      destroyed = true
-      listeners.clear()
     }
-
   }
+
+  listenerCount (event) {
+    return this.#listeners.get(event)?.length ?? 0
+  }
+
+  destroy () {
+    this.#destroyed = true
+    this.#listeners.clear()
+  }
+}
+
+let globalEventBus
+
+export function setEventBus (bus) {
+  assert.that(bus, value => is.instanceOf(value, EventBus), 'bus must be an instance of EventBus')
+  globalEventBus = bus
+}
+
+export function getEventBus () {
+  return globalEventBus
 }

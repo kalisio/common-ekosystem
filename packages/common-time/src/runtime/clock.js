@@ -1,5 +1,5 @@
 import { is } from '@kalisio/common-core/predicates'
-import { createEventBus } from '@kalisio/common-core/runtime'
+import { EventBus } from '@kalisio/common-core/runtime'
 import { DateTime } from '../models/date-time.js'
 import { Duration } from '../models/duration.js'
 import { TimeRange } from '../models/time-range.js'
@@ -131,7 +131,7 @@ function toOffsets (config) {
 
 export class Clock {
   #config
-  #bus = createEventBus()
+  #bus = new EventBus()
   #offsets = null
   #anchorTime
   // Monotonic reference for the elapsed time in simulated mode: system clock adjustments do not affect it

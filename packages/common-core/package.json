@@ -68,6 +68,11 @@
       "development": "./src/operators/transform.js",
       "import": "./dist/operators/transform.mjs",
       "require": "./dist/operators/transform.cjs"
+    },
+    "./setup": {
+      "development": "./src/setup.js",
+      "import": "./dist/setup.mjs",
+      "require": "./dist/setup.cjs"
     }
   },
   "files": [
@@ -221,6 +226,10 @@
       "./operators/transform": {
         "import": "./dist/operators/transform.mjs",
         "require": "./dist/operators/transform.cjs"
+      },
+      "./setup": {
+        "import": "./setup.mjs",
+        "require": "./setup.cjs"
       }
     }
   }

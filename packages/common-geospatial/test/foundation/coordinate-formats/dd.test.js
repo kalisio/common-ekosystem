@@ -1,4 +1,4 @@
-import { setLocale } from '../../../src/foundation/index.js'
+import { getLocales } from '@kalisio/common-core/runtime'
 import { DD } from '../../../src/foundation/coordinate-formats/dd.js'
 
 describe('DD', () => {
@@ -57,7 +57,7 @@ describe('DD', () => {
 
   describe('from string', () => {
     beforeEach(() => {
-      setLocale('fr')
+      getLocales().setCurrent('fr')
     })
     it('should parse a signed negative value', () => {
       const dd = DD('-48.8566')
