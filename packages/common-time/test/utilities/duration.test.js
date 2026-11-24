@@ -16,7 +16,7 @@ describe('duration', () => {
       expect(duration.parse('+P1D')).toBe('P1D')
     })
     it('produces stable normalized representations', () => {
-      for (const value of ['PT90M', 'P13M', 'PT-3H', 'P1W2D', 'P1M-1D', 'PT1,5S']) {
+      for (const value of ['PT90M', 'P13M', 'PT-3H', 'P1W2D', '-P1M1D', 'PT1,5S']) {
         const normalized = duration.parse(value)
         expect(duration.parse(normalized)).toBe(normalized)
       }
@@ -36,8 +36,10 @@ describe('duration', () => {
       }
       expect(duration.parse(0, 'year')).toBe('P0D')
     })
-    it('writes a calendar day minus 24 hours as P0D, as Moment does', () => {
-      expect(duration.parse('P1DT-24H')).toBe('P0D')
+    it('rejects components of opposite signs, as Temporal does', () => {
+      for (const value of ['P1M-1D', 'P1DT-24H', 'P1W-1D', 'PT1H-30M', '-P1DT-1H']) {
+        expect(() => duration.parse(value)).toThrow(RangeError)
+      }
     })
     it('accepts fractional components with a dot or a comma', () => {
       expect(duration.parse('P1.5D')).toBe('P1.5D')
@@ -50,7 +52,6 @@ describe('duration', () => {
       expect(duration.parse('-PT1H')).toBe('-PT1H')
       expect(duration.parse('P-1D')).toBe('-P1D')
       expect(duration.parse('PT-3H')).toBe('-PT3H')
-      expect(duration.parse('P1M-1D')).toBe('P1M-1D')
     })
     it('accepts designators in any case', () => {
       expect(duration.parse('p1d')).toBe('P1D')
@@ -103,7 +104,7 @@ describe('duration', () => {
       expect(duration.isValid(90, 'minutes')).toBe(true)
     })
     it('returns false instead of throwing', () => {
-      for (const [value, unit] of [['P'], ['P1H'], [null], [NaN, 'day'], [5], [1, 'fortnight'], ['P1D', 'day']]) {
+      for (const [value, unit] of [['P'], ['P1H'], ['P1M-1D'], [null], [NaN, 'day'], [5], [1, 'fortnight'], ['P1D', 'day']]) {
         expect(duration.isValid(value, unit)).toBe(false)
       }
     })
@@ -150,8 +151,16 @@ describe('duration', () => {
       expect(duration.subtract('P1D', 'P1D')).toBe('P0D')
       expect(duration.subtract('P1M', 'P1M')).toBe('P0D')
     })
-    it('keeps components of opposite signs when calendar units cannot be combined', () => {
-      expect(duration.subtract('P1M', 'P1D')).toBe('P1M-1D')
+    it('rejects results whose components would have opposite signs', () => {
+      expect(() => duration.subtract('P1M', 'P1D')).toThrow(RangeError)
+      expect(() => duration.add('P1D', '-PT1H')).toThrow(RangeError)
+      // Moment would write P0D, although a calendar day is not always 24 hours long
+      expect(() => duration.subtract('P1D', 'PT24H')).toThrow(RangeError)
+    })
+    it('combines opposite signs within the same group', () => {
+      expect(duration.subtract('P1Y', 'P1M')).toBe('P11M')
+      expect(duration.subtract('PT1H', 'PT90M')).toBe('-PT30M')
+      expect(duration.add('P1D', '-P1D')).toBe('P0D')
     })
     it('accepts lowercase designators', () => {
       expect(duration.add('p1d', 'pt1h')).toBe('P1DT1H')
@@ -198,7 +207,7 @@ describe('duration', () => {
       }
       expect(() => duration.asMilliseconds(1, 'day')).toThrow(RangeError)
     })
-    it('rejects mixed calendar and time durations, even when Moment writes them as P0D', () => {
+    it('rejects durations whose components have opposite signs', () => {
       expect(() => duration.asMilliseconds('P1M-1D')).toThrow(RangeError)
       expect(() => duration.asMilliseconds('P1DT-24H')).toThrow(RangeError)
     })

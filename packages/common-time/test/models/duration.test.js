@@ -59,8 +59,10 @@ describe('Duration', () => {
     })
     it('preserves calendar units', () => {
       expect(new Duration('P1M').add('P1D').toISOString()).toBe('P1M1D')
-      expect(new Duration('P1M').subtract('P1D').toISOString()).toBe('P1M-1D')
       expect(new Duration('PT23H').add('PT2H').toISOString()).toBe('PT25H')
+    })
+    it('rejects results whose components would have opposite signs', () => {
+      expect(() => new Duration('P1M').subtract('P1D')).toThrow(RangeError)
     })
     it('returns new instances without changing the operands', () => {
       const left = new Duration('PT1H')
@@ -81,14 +83,11 @@ describe('Duration', () => {
       expect(new Duration('PT1H').negate().toISOString()).toBe('-PT1H')
       expect(new Duration('-P1D').negate().toISOString()).toBe('P1D')
     })
-    it('negates mixed-sign durations as a whole', () => {
-      expect(new Duration('P1M-1D').negate().toISOString()).toBe('-P1M-1D')
-    })
     it('keeps zero unsigned', () => {
       expect(new Duration('P0D').negate().toISOString()).toBe('P0D')
     })
     it('restores the original duration when negated twice', () => {
-      for (const value of ['PT3H', '-PT3H', 'P1M-1D', 'P0D']) {
+      for (const value of ['PT3H', '-PT3H', '-P1M1D', 'P0D']) {
         const original = new Duration(value)
         expect(original.negate().negate().equals(original)).toBe(true)
       }
@@ -125,8 +124,9 @@ describe('Duration', () => {
       expect(() => new Duration('P1D').asMilliseconds()).toThrow(RangeError)
       expect(() => new Duration('P1M').asMilliseconds()).toThrow(RangeError)
     })
-    it.fails('rejects P1DT-24H like duration.asMilliseconds', () => {
-      expect(() => new Duration('P1DT-24H').asMilliseconds()).toThrow(RangeError)
+    it('rejects components of opposite signs, like duration.asMilliseconds', () => {
+      expect(() => new Duration('P1DT-24H')).toThrow(RangeError)
+      expect(() => new Duration('P1M-1D')).toThrow(RangeError)
     })
   })
 
@@ -139,7 +139,7 @@ describe('Duration', () => {
       expect(JSON.stringify({ value })).toBe('{"value":"PT1H30M"}')
     })
     it('round-trips through JSON', () => {
-      const value = new Duration('P1M-1D')
+      const value = new Duration('-P1M1D')
       expect(Duration.from(JSON.parse(JSON.stringify(value))).equals(value)).toBe(true)
     })
   })

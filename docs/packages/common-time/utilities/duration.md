@@ -38,9 +38,7 @@ Normalization follows Moment's rules:
 - Zero durations are represented as `P0D`.
 - Fractional seconds are rounded to millisecond precision.
 
-ISO 8601 designators are case-insensitive. Signed durations and individually signed components are supported, including Moment extensions such as `P1M-1D`.
-
-Normalization can lose distinctions between calendar and time components when their nominal totals cancel. For example, `P1DT-24H` becomes `P0D`.
+ISO 8601 designators are case-insensitive. Signed durations and individually signed components are supported, but all nonzero components must share the same sign. As in Temporal, durations such as `P1M-1D` or `P1DT-24H` are rejected: a calendar day is not always 24 hours long.
 
 ### Parameters
 
@@ -62,7 +60,7 @@ Supported numeric units: `year`, `quarter`, `month`, `week`, `day`, `hour`, `min
 | Type | Description |
 |------|-------------|
 | `TypeError` | The input type is unsupported, the numeric amount is not finite, or the unit is missing or unexpectedly provided. |
-| `RangeError` | The ISO 8601 duration or the unit is invalid. |
+| `RangeError` | The ISO 8601 duration or the unit is invalid, or the components have opposite signs. |
 
 ### Examples
 
@@ -113,7 +111,7 @@ duration.add(left, right)
 
 Adds two ISO 8601 durations and returns a normalized ISO 8601 string.
 
-Calendar components are preserved rather than converted into fixed amounts of milliseconds. The resulting duration follows Moment's normalization rules.
+Calendar components are preserved rather than converted into fixed amounts of milliseconds. The resulting duration follows Moment's normalization rules. A result whose components would have opposite signs, such as `P1D` plus `-PT1H`, is rejected.
 
 Both arguments must be ISO 8601 duration strings.
 
@@ -135,7 +133,7 @@ Both arguments must be ISO 8601 duration strings.
 | Type | Description |
 |------|-------------|
 | `TypeError` | An argument is not an ISO 8601 duration string. |
-| `RangeError` | A duration is invalid. |
+| `RangeError` | A duration is invalid, or the result would have components of opposite signs. |
 
 ### Examples
 
@@ -168,7 +166,7 @@ duration.subtract(left, right)
 
 Subtracts the second ISO 8601 duration from the first and returns a normalized ISO 8601 string.
 
-Calendar units are preserved. When the result contains calendar components of opposite signs, Moment's extended ISO representation may be returned.
+Calendar units are preserved. A result whose components would have opposite signs, such as `P1M` minus `P1D`, is rejected.
 
 Both arguments must be ISO 8601 duration strings.
 
@@ -190,7 +188,7 @@ Both arguments must be ISO 8601 duration strings.
 | Type | Description |
 |------|-------------|
 | `TypeError` | An argument is not an ISO 8601 duration string. |
-| `RangeError` | A duration is invalid. |
+| `RangeError` | A duration is invalid, or the result would have components of opposite signs. |
 
 ### Examples
 
@@ -205,7 +203,7 @@ duration.subtract('PT1H', '-PT30M')
 // 'PT1H30M'
 
 duration.subtract('P1M', 'P1D')
-// 'P1M-1D'
+// RangeError
 
 duration.subtract('P1D', 'P1D')
 // 'P0D'
@@ -227,7 +225,7 @@ Accepts an ISO 8601 duration string or a finite number with an explicit unit.
 
 Durations containing nonzero calendar components (years, months, weeks, or days) are rejected because their elapsed length may depend on a reference date and timezone.
 
-Zero-valued calendar components are accepted. Calendar components are checked before normalization, so a duration such as `P1DT-24H` is rejected even though Moment normalizes it to `P0D`.
+Zero-valued calendar components are accepted.
 
 ### Parameters
 

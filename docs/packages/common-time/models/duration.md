@@ -39,7 +39,7 @@ ISO 8601 representations are normalized using Moment's duration rules. When copy
 | Type | Description |
 |------|-------------|
 | `TypeError` | Unsupported input, missing numeric unit, or a unit provided when copying a `Duration`. |
-| `RangeError` | Invalid duration or unit. |
+| `RangeError` | Invalid duration or unit, or components of opposite signs. |
 
 ### Examples
 
@@ -141,7 +141,7 @@ Calendar components are preserved according to Moment's normalization rules. The
 | Type | Description |
 |------|-------------|
 | `TypeError` | Unsupported input or missing numeric unit. |
-| `RangeError` | Invalid duration or unit. |
+| `RangeError` | Invalid duration or unit, or components of opposite signs. |
 
 ### Examples
 
@@ -289,7 +289,7 @@ duration.asMilliseconds()
 
 Returns the duration in milliseconds.
 
-Conversion rejects nonzero calendar components in the normalized duration. Normalization can collapse a nominal cancellation such as `P1DT-24H` to `P0D`, which converts to zero. To validate the original input before normalization, use [duration.asMilliseconds](../utilities/duration.md#asmilliseconds).
+Conversion rejects nonzero calendar components.
 
 ### Returns
 

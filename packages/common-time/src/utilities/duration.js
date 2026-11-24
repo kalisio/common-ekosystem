@@ -13,6 +13,16 @@ const ISO_DURATION = new RegExp(
   `(?:T(?:${COMPONENT}H)?(?:${COMPONENT}M)?(?:${COMPONENT}S)?)?$`
 )
 
+// The overall sign applies to every component, so only the signs of the nonzero components can differ
+function hasMixedSigns (iso) {
+  const signs = new Set()
+  for (const [, amount] of iso.replace(/^[+-]?P/, '').matchAll(/([+-]?\d+(?:[.,]\d+)?)[YMWDHS]/g)) {
+    const value = Number(amount.replace(',', '.'))
+    if (value !== 0) signs.add(Math.sign(value))
+  }
+  return signs.size > 1
+}
+
 function normalizeUnit (unit) {
   const normalized = is.string(unit) ? moment.normalizeUnits(unit) : undefined
   if (!UNITS.includes(normalized)) {
@@ -31,6 +41,10 @@ function toMoment (value, unit) {
     const iso = value.toUpperCase()
     if (!ISO_DURATION.test(iso) || !/[YMWDHS]$/.test(iso)) {
       throw new RangeError(`Invalid ISO 8601 duration: ${value}`)
+    }
+    // As in Temporal: a calendar day is not always 24 hours long, so P1DT-24H is not zero
+    if (hasMixedSigns(iso)) {
+      throw new RangeError(`Duration components must share the same sign: ${value}`)
     }
     parsed = moment.duration(iso)
   } else if (is.number(value)) {
@@ -52,26 +66,43 @@ function toMoment (value, unit) {
 /**
  * Returns a normalized ISO 8601 duration string, following Moment's rules: weeks become days,
  * 12 months become a year, seconds and minutes carry over up to hours but hours never become days,
- * a zero duration is P0D. Components of opposite signs (P1M-1D) are a Moment extension
- * that strict ISO 8601 parsers reject. Beware that Moment writes P0D for any duration whose total,
- * counting 24 hours a day, is zero: P1DT-24H becomes P0D.
+ * a zero duration is P0D. As in Temporal, components of opposite signs (P1M-1D, P1DT-24H) are rejected.
  */
 function parse (value, unit) {
   return toMoment(value, unit).toISOString()
 }
 
+// Opposite sign of a normalized duration, whose components share the overall sign
+function negate (iso) {
+  if (iso === 'P0D') return iso
+  return iso.startsWith('-') ? iso.slice(1) : `-${iso}`
+}
+
+// Operands of opposite signs can leave Moment's groups (months, days, time) with opposite signs:
+// Moment then writes P1M-1D, or P0D when their nominal totals cancel, as for P1D - PT24H.
+// Normalized durations are canonical, so the groups only cancel exactly when the operands match.
+function combine (left, right, operation) {
+  const first = parse(left)
+  const second = parse(right)
+  const result = toMoment(first)[operation](toMoment(second)).toISOString()
+  const cancelling = operation === 'add' ? negate(second) : second
+  if (hasMixedSigns(result) || (result === 'P0D' && first !== cancelling)) {
+    throw new RangeError(`Duration ${operation} would mix components of opposite signs: ${left}, ${right}`)
+  }
+  return result
+}
+
 /** Adds two ISO 8601 durations, preserving calendar units. */
 function add (left, right) {
-  return toMoment(left).add(toMoment(right)).toISOString()
+  return combine(left, right, 'add')
 }
 
 /** Subtracts two ISO 8601 durations, preserving calendar units. */
 function subtract (left, right) {
-  return toMoment(left).subtract(toMoment(right)).toISOString()
+  return combine(left, right, 'subtract')
 }
 
-// Calendar components are read from the input, not from the normalized string,
-// since Moment writes P1DT-24H as P0D although a calendar day is not always 24 hours long
+// Calendar components are read from the input, before normalization
 function hasCalendarComponent (value, unit) {
   if (is.number(value)) return value !== 0 && CALENDAR_UNITS.includes(normalizeUnit(unit))
   const datePart = value.toUpperCase().replace(/^[+-]?P/, '').split('T')[0]
