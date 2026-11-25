@@ -7,9 +7,11 @@ description: Utility functions for creating and manipulating authorization abili
 
 Utility functions for creating and manipulating CASL abilities.
 
-All abilities share the same condition matcher, supporting MongoDB-style conditions, including the `$and`, `$or` and `$nor` logical operators.
+All abilities share the same [condition matcher](./conditions-matcher.md), supporting MongoDB-style conditions, including the `$and`, `$or` and `$nor` logical operators.
 
 Unsupported operators and invalid conditions are rejected when abilities are created or updated, including in production.
+
+Rules are evaluated in reverse definition order: the last applicable rule takes precedence. Use these utilities to validate conditions instead of updating a CASL ability directly.
 
 ## create
 
@@ -42,7 +44,7 @@ An ability created without rules does not grant any permission.
 ### Examples
 
 ```js
-import { abilities } from '@kalisio/common-authorization/utilities'
+import { abilities } from '@kalisio/common-authorization'
 
 const ability = abilities.create([
   { action: 'read', subject: 'projects' },
@@ -236,3 +238,55 @@ Combining empty conditions:
 abilities.mergeConditions({}, undefined)
 // undefined
 ```
+
+## defineRoleAbilities
+
+### Signature
+
+```js
+await abilities.defineRoleAbilities(builder, registry, roles, definitions, scope)
+```
+
+### Description
+
+Resolves the supplied role or roles through the registry, then executes matching definition callbacks sequentially in resolution order. A definition callback receives the CASL builder and may be asynchronous. Roles without a definition are skipped. Each role is resolved once. When supplied, `scope` is combined with the conditions of every rule added by the callback, including deny rules. A scope function receives the individual rule. Existing builder rules are not changed by scoping.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `builder` | `AbilityBuilder` | yes | CASL ability builder |
+| `registry` | `RoleRegistry` | yes | Role registry (or compatible resolver) |
+| `roles` | `string \| string[]` | yes | Role names to resolve |
+| `definitions` | `Object` | yes | Mapping of role names to definition functions |
+| `scope` | `Object \| Function` | no | Conditions or `(rule) => conditions` |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `Promise<void>` | Completes after the rules have been added |
+
+### Examples
+
+```js
+import { abilities, permissions, RoleRegistry } from '@kalisio/common-authorization'
+
+const roles = new RoleRegistry()
+roles.register('member', {})
+roles.register('manager', { inherits: ['member'] })
+
+const builder = abilities.createBuilder()
+await abilities.defineRoleAbilities(builder, roles, 'manager', {
+  member: ({ can }) => can('read', 'projects'),
+  manager: ({ can }) => can('update', 'projects')
+}, { organizationId: 'org-1' })
+
+const ability = builder.build()
+permissions.can(ability, 'update', 'projects', { organizationId: 'org-1' })
+// true
+```
+
+::: warning
+Scoping a deny rule restricts that rule to its scope as well. Always await asynchronous role definitions before building the ability. The scope does not automatically attach attributes to subjects or database queries.
+:::

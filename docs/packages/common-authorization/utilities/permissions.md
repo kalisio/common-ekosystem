@@ -44,7 +44,7 @@ The caller is responsible for ensuring that additional attributes originate from
 ### Examples
 
 ```js
-import { permissions } from '@kalisio/common-authorization/utilities'
+import { permissions } from '@kalisio/common-authorization'
 
 const project = {
   name: 'My project',
@@ -89,6 +89,8 @@ Returns `false` if the ability is absent.
 Type-level checks and checks on partial subjects are useful for user interface decisions but are not sufficient to authorize an operation on a resource.
 
 Resource-level authorization requires all relevant subject properties. Field-level restrictions must also be checked when applicable.
+
+Missing properties are evaluated as absent. Conditions such as `$exists: false`, `$ne`, or `$nin` can match partial subjects; an applicable deny rule may also be missed. Use trusted attributes and complete resource instances. See [conditions-matcher](./conditions-matcher.md).
 :::
 
 ### Parameters
@@ -112,7 +114,7 @@ Resource-level authorization requires all relevant subject properties. Field-lev
 ### Examples
 
 ```js
-import { abilities, permissions } from '@kalisio/common-authorization/utilities'
+import { abilities, permissions } from '@kalisio/common-authorization'
 
 const { can, build } = abilities.createBuilder()
 
@@ -227,3 +229,87 @@ permissions.cannot(ability, 'read', 'projects')
 permissions.cannot(ability, 'update', 'projects')
 // true
 ```
+
+## toMongoQuery
+
+### Signature
+
+```js
+permissions.toMongoQuery(ability, action, subjectType, options)
+```
+
+### Description
+
+Builds a MongoDB filter from the applicable rules, including aliases and rule priority. Deny conditions are incorporated as exclusions. With `options.field`, the filter selects documents on which the action is permitted for that field; it is not a projection. Without a field, it is not a guarantee that every field can be accessed.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `ability` | `Ability` | yes | Ability to evaluate; nil grants no access |
+| `action` | `string` | yes | Action to perform |
+| `subjectType` | `string` | yes | Subject type |
+| `options` | `Object` | no | Query options |
+| `options.field` | `string` | no | Field to evaluate |
+| `options.attributes` | `Object` | no | Trusted virtual subject attributes, not stored document fields |
+
+### Returns
+
+| Type | Description |
+|------|-------------|
+| `Object \| null` | MongoDB filter, `{}` for unrestricted documents, or `null` for no access |
+
+### Examples
+
+```js
+import { abilities, permissions } from '@kalisio/common-authorization'
+
+const { can, build } = abilities.createBuilder()
+can('read', 'projects', { ownerId: 'user-1' })
+const ability = build()
+
+permissions.toMongoQuery(ability, 'read', 'projects')
+// { ownerId: 'user-1' }
+permissions.toMongoQuery(ability, 'remove', 'projects')
+// null
+```
+
+Combine the result with application filters without overwriting authorization conditions:
+
+```js
+const filter = permissions.toMongoQuery(ability, 'read', 'projects')
+if (filter === null) {
+  // Deny the request or return an empty result without querying the database
+} else {
+  const query = { $and: [filter, { archived: false }] }
+  // Execute the database query with this combined filter
+}
+```
+
+### Resolving virtual attributes
+
+Additional attributes represent trusted values not stored in the collection, for example the organization of a request. The converter separates the top-level conjuncts (including nested `$and` branches) into attribute-only and stored-field conditions, using the first segment of each field path. Attribute-only conditions are evaluated in memory. If they fail, the entire rule is discarded; if they match, only its stored-field conditions remain.
+
+```js
+const ability = abilities.create([{
+  action: 'read',
+  subject: 'projects',
+  conditions: { context: 'org-1', published: true }
+}])
+
+permissions.toMongoQuery(ability, 'read', 'projects', {
+  attributes: { context: 'org-1' }
+})
+// { published: true }
+
+permissions.toMongoQuery(ability, 'read', 'projects', {
+  attributes: { context: 'org-2' }
+})
+// null
+```
+
+Logical expressions mixing virtual attributes and stored fields in the same `$or` or `$nor` cannot be separated by this converter and are rejected. For instance, a condition such as `{ $or: [{ context: 'org-1' }, { published: true }] }` is rejected when `context` is supplied as an attribute. Use separate rules or conjunctive conditions when appropriate, preserving the intended policy and rule priority.
+
+::: warning
+Never interpret `null` as `{}`. Always supply all required trusted virtual attributes. If an attribute is omitted, the corresponding condition may be emitted as a database field condition; missing fields can satisfy some negative or null conditions. Do not rely on this as a safe default. Use complete resource instances or the generated filters for server-side authorization, and enforce field restrictions independently for every relevant field.
+:::
