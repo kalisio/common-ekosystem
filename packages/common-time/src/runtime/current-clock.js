@@ -1,4 +1,4 @@
-import { assert, is } from '@kalisio/common-core/predicates'
+import { ensure, is } from '@kalisio/common-core/predicates'
 import { Clock } from './clock.js'
 
 let fallback = null
@@ -15,7 +15,8 @@ function getFallback () {
 export function setCurrentClock (clock) {
   const next = clock ?? null
   if (next !== null) {
-    assert.that(next, v => is.instanceOf(v, Clock), 'clock must be a Clock instance')
+    // checked in production too: an invalid clock would otherwise only fail later, wherever it is used
+    ensure.that(next, v => is.instanceOf(v, Clock), 'clock must be a Clock instance')
     if (next.disposed) {
       throw new Error('setCurrentClock expects a Clock that has not been disposed')
     }

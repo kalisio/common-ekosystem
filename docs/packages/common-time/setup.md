@@ -19,7 +19,9 @@ setup(options = {})
 |---|---|---|---|
 | `clock` | `Clock` | no | Active clock to install as the shared clock. |
 
-`setup()` installs the clock when provided. Omitting `clock` or passing `undefined` leaves the current clock unchanged. A disposed clock raises an `Error`. Outside production mode, invalid options raise an `AssertionError`.
+`setup()` installs the clock when provided. Omitting `clock` or passing `undefined` leaves the current clock unchanged.
+A disposed clock raises an `Error`. Outside production mode, invalid options raise an `AssertionError`. In production mode,
+a `clock` that is not a `Clock` instance still raises the `TypeError` of [`setCurrentClock()`](./runtime/current-clock.md#setcurrentclock).
 
 ## Returns
 

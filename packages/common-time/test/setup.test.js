@@ -55,6 +55,18 @@ describe('setup', () => {
     clock.dispose()
     expect(() => setup({ clock })).toThrow('disposed')
   })
+  it('still rejects a clock that is not a Clock instance in production', async () => {
+    vi.stubEnv('NODE_ENV', 'production')
+    vi.resetModules()
+    try {
+      const { setup } = await import('@kalisio/common-time/setup')
+      expect(() => setup({ clock: {} })).toThrow(TypeError)
+      expect(() => setup({ clock: {} })).toThrow('clock must be a Clock instance')
+    } finally {
+      vi.unstubAllEnvs()
+      vi.resetModules()
+    }
+  })
   it('preserves the current clock when setup fails', () => {
     const clock = createClock()
     setup({ clock })

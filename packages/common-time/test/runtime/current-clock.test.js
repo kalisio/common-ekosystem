@@ -51,9 +51,21 @@ describe('current clock', () => {
     ])('rejects %s and keeps the installed clock', (name, value) => {
       const clock = new Clock()
       setCurrentClock(clock)
+      expect(() => setCurrentClock(value)).toThrow(TypeError)
       expect(() => setCurrentClock(value)).toThrow('clock must be a Clock instance')
       expect(getCurrentClock()).toBe(clock)
       clock.dispose()
+    })
+    it('rejects an invalid clock in production too', async () => {
+      vi.stubEnv('NODE_ENV', 'production')
+      vi.resetModules()
+      try {
+        const { setCurrentClock } = await import('../../src/runtime/current-clock.js')
+        expect(() => setCurrentClock({ now: () => 0 })).toThrow(TypeError)
+      } finally {
+        vi.unstubAllEnvs()
+        vi.resetModules()
+      }
     })
     it('rejects a disposed clock and keeps the installed clock', () => {
       const disposed = new Clock()

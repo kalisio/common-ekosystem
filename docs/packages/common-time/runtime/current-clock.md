@@ -33,7 +33,7 @@ Installs a non-disposed `Clock`, or restores the default when passed `null`, `un
 
 ### Throws
 
-`AssertionError` outside production mode for an invalid argument. `Error` when the supplied clock has been disposed.
+`TypeError`, in production too, when the argument is neither a `Clock`, `null` nor `undefined`. `Error` when the supplied clock has been disposed.
 
 ### Examples
 
