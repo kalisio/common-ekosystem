@@ -18,9 +18,11 @@ function hasMixedSigns (iso) {
   const signs = new Set()
   const body = iso.replace(/^[+-]?P/, '')
   // Sticky flag: each token must start right where the previous one ended,
-  // so the engine never retries from every position → linear cost
-  for (const [, amount] of body.matchAll(/T?([+-]?\d+(?:[.,]\d+)?)[YMWDHS]/gy)) {
-    const value = Number(amount.replace(',', '.'))
+  // so the engine never retries from every position → linear cost.
+  // The regex is stateful (lastIndex), so it must stay local to the function.
+  const token = /T?([+-]?\d+(?:[.,]\d+)?)[YMWDHS]/y
+  for (let match = token.exec(body); match; match = token.exec(body)) {
+    const value = Number(match[1].replace(',', '.'))
     if (value !== 0) signs.add(Math.sign(value))
   }
   return signs.size > 1
