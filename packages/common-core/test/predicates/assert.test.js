@@ -383,3 +383,34 @@ describe('assert.any', () => {
     }).toThrow('Must be string')
   })
 })
+
+describe('assert enablement', () => {
+  const failing = { value: 1, validator: () => false, message: 'should not be checked' }
+  // ENABLED is computed when the module loads, so reload it after stubbing the env
+  async function load (env) {
+    vi.stubEnv('NODE_ENV', env)
+    vi.resetModules()
+    const { assert } = await import('../../src/predicates/assert.js')
+    return assert
+  }
+  afterEach(() => {
+    vi.unstubAllEnvs()
+    vi.resetModules()
+  })
+  it('skips assert.that in production', async () => {
+    const assert = await load('production')
+    expect(() => assert.that(failing.value, failing.validator, failing.message)).not.toThrow()
+  })
+  it('skips assert.all in production', async () => {
+    const assert = await load('production')
+    expect(() => assert.all([failing])).not.toThrow()
+  })
+  it('skips assert.any in production', async () => {
+    const assert = await load('production')
+    expect(() => assert.any([failing])).not.toThrow()
+  })
+  it('checks assertions outside production', async () => {
+    const assert = await load('development')
+    expect(() => assert.that(failing.value, failing.validator, failing.message)).toThrow('should not be checked')
+  })
+})

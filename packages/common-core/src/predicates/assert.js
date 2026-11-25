@@ -1,6 +1,12 @@
-const ENABLED =
-  typeof process === 'undefined' ||
-  process.env?.NODE_ENV !== 'production'
+// Keep process.env.NODE_ENV literal so that consumer bundlers can replace it
+const ENABLED = (() => {
+  try {
+    return process.env.NODE_ENV !== 'production'
+  } catch {
+    // no process and no bundler replacement: keep assertions on
+    return true
+  }
+})()
 
 export class AssertionError extends Error {
   constructor (message) {
