@@ -36,7 +36,10 @@ function getType (value) {
   return 'other'
 }
 
-const order = (left, right) => left === right ? 0 : left > right ? 1 : -1
+const order = (left, right) => {
+  if (left === right) return 0
+  return left > right ? 1 : -1
+}
 
 function orderNumbers (left, right) {
   if (left < right) return -1
