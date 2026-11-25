@@ -1,4 +1,3 @@
-
 ---
 title: common-authorization
 description: Permission management for the Kalisio ekosystem
