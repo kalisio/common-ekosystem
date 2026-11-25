@@ -1,4 +1,4 @@
-import { is, assert, has, conform, optional, AssertionError } from '../predicates/index.js'
+import { is, assert, ensure, has, conform, optional } from '../predicates/index.js'
 import { schedule } from '../utilities/index.js'
 import { getLogger } from './logger.js'
 
@@ -75,17 +75,17 @@ function resolveMethod (input, init) {
 
 function validateRetryBody (input, body, retries) {
   if (retries === 0) return
-  if (!isReplayableBody(body)) {
-    throw new AssertionError(
-      'body must be replayable (string, ArrayBuffer, Blob, URLSearchParams or FormData) when retries > 0; ' +
-      'read the stream into memory before calling, or set retries to 0'
-    )
-  }
-  if (isRequest(input) && input.body !== null) {
-    throw new AssertionError(
-      'a Request with a body cannot be retried; pass the URL and body via fetch options instead, or set retries to 0'
-    )
-  }
+  ensure.that(
+    body,
+    isReplayableBody,
+    'body must be replayable (string, ArrayBuffer, Blob, URLSearchParams or FormData) when retries > 0; ' +
+    'read the stream into memory before calling, or set retries to 0'
+  )
+  ensure.that(
+    input,
+    (value) => !isRequest(value) || value.body === null,
+    'a Request with a body cannot be retried; pass the URL and body via fetch options instead, or set retries to 0'
+  )
 }
 
 function combineSignals (...signals) {

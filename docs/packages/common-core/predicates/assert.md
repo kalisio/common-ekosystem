@@ -9,6 +9,8 @@ Functions that throw an `AssertionError` if validation fails. Used to guard func
 
 Assertions are **disabled in production**: when `process.env.NODE_ENV === 'production'`, every function returns immediately without running its validators. They are meant to catch programming errors during development and testing, not to validate untrusted runtime data.
 
+For checks that must still run in production, such as untrusted runtime data, use [`ensure`](./ensure.md), which has the same API. `assert` is built on it: each function calls its `ensure` counterpart with `AssertionError` as error type.
+
 ## AssertionError
 
 The error class thrown by all `assert` functions. Extends `Error` with `name` set to `'AssertionError'`, so it can be caught and distinguished from operational errors or engine-thrown `TypeError`s.

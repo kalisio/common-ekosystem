@@ -49,7 +49,7 @@ Each module is exposed through dedicated package subpaths. There is no root `@ka
 ### Predicates
 
 ```js
-import { is, has, assert, conform, optional, match } from '@kalisio/common-core/predicates'
+import { is, has, assert, ensure, conform, optional, match } from '@kalisio/common-core/predicates'
 ```
 
 See [predicates](./predicates/is.md).

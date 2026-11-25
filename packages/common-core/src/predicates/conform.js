@@ -1,6 +1,7 @@
 import { is } from './is.js'
 import { has } from './has.js'
-import { assert, AssertionError } from './assert.js'
+import { assert } from './assert.js'
+import { ensure } from './ensure.js'
 
 function check (obj, schema, path = '') {
   return Object.entries(schema).every(([key, validator]) => {
@@ -13,12 +14,9 @@ function check (obj, schema, path = '') {
       // recursive check
       return is.plainObject(value) && check(value, validator, fullPath)
     }
-    if (typeof validator === 'function') {
-      // validate value
-      return validator(value)
-    }
-    // raise an error
-    throw new AssertionError(`Invalid validator for key "${fullPath}"`)
+    ensure.that(validator, is.function, `Invalid validator for key "${fullPath}"`)
+    // validate value
+    return validator(value)
   })
 }
 

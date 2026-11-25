@@ -25,6 +25,7 @@ The schema is an object where keys are property names and values are either:
 
 Returns `true` if the object conform to the schema, `false` otherwise.
 Throws an [`AssertionError`](./assert.md) if `obj` or `schema` are not plain objects.
+Throws a `TypeError` through [`ensure`](./ensure.md), in production too, if a schema value is neither a function nor a nested schema object.
 
 ### Parameters
 

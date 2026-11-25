@@ -1,4 +1,4 @@
-import { conform, is, optional, AssertionError } from '../../src/predicates/index.js'
+import { conform, is, optional } from '../../src/predicates/index.js'
 
 describe('conform.schema', () => {
   describe('arguments validation', () => {
@@ -41,19 +41,31 @@ describe('conform.schema', () => {
     it('should throw if a validator is a number', () => {
       const schema = { name: 42 }
       const obj = { name: 'Alice' }
-      expect(() => conform.schema(obj, schema)).toThrow(AssertionError)
+      expect(() => conform.schema(obj, schema)).toThrow(TypeError)
     })
 
     it('should throw if a validator is a string', () => {
       const schema = { name: 'string' }
       const obj = { name: 'Alice' }
-      expect(() => conform.schema(obj, schema)).toThrow(AssertionError)
+      expect(() => conform.schema(obj, schema)).toThrow(TypeError)
     })
 
     it('should throw if a validator is null', () => {
       const schema = { name: null }
       const obj = { name: 'Alice' }
-      expect(() => conform.schema(obj, schema)).toThrow(AssertionError)
+      expect(() => conform.schema(obj, schema)).toThrow(TypeError)
+    })
+
+    it('should still throw on an invalid validator in production', async () => {
+      vi.stubEnv('NODE_ENV', 'production')
+      vi.resetModules()
+      try {
+        const { conform } = await import('../../src/predicates/index.js')
+        expect(() => conform.schema({ name: 'Alice' }, { name: 42 })).toThrow(TypeError)
+      } finally {
+        vi.unstubAllEnvs()
+        vi.resetModules()
+      }
     })
   })
 

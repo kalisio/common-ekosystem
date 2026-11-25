@@ -1,3 +1,5 @@
+import { ensure } from './ensure.js'
+
 // Keep process.env.NODE_ENV literal so that consumer bundlers can replace it
 const ENABLED = (() => {
   try {
@@ -15,29 +17,17 @@ export class AssertionError extends Error {
   }
 }
 
-function check (value, validator, message) {
-  if (!validator(value)) throw new AssertionError(message)
-}
-
+// Development-time checks: ensure raising AssertionError, skipped in production
 export const assert = {
   that (value, validator, message) {
-    if (!ENABLED) return
-    check(value, validator, message)
+    if (ENABLED) ensure.that(value, validator, message, AssertionError)
   },
 
   all (validations) {
-    if (!ENABLED) return
-    for (const { value, validator, message } of validations) {
-      check(value, validator, message)
-    }
+    if (ENABLED) ensure.all(validations, AssertionError)
   },
 
   any (validations) {
-    if (!ENABLED) return
-    if (validations.length === 0) return
-    const passed = validations.some(({ value, validator }) => validator(value))
-    if (!passed) {
-      throw new AssertionError(validations.map(({ message }) => message).join(' or '))
-    }
+    if (ENABLED) ensure.any(validations, AssertionError)
   }
 }

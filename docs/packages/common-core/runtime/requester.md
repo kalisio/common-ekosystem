@@ -68,7 +68,8 @@ The default backoff doubles between attempts, is capped at 30 seconds, and uses 
 is returned without retrying.
 
 With retries enabled, the body must be replayable: string, `ArrayBuffer`, typed array, `Blob`, `URLSearchParams`,
-`FormData` or no body. Streams and a `Request` input already carrying a body are rejected.
+`FormData` or no body. Streams and a `Request` input already carrying a body are rejected with a `TypeError`,
+in production too.
 
 `timeout` only covers waiting for the response headers, not subsequent body consumption. To bound the complete
 exchange, pass a signal such as `AbortSignal.timeout(5000)`.

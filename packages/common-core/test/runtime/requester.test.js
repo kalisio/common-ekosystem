@@ -307,7 +307,7 @@ describe('bodies', () => {
   }
   it('rejects a stream body with retries, before any call', async () => {
     const calls = mockFetch(ok())
-    await expect(createRequester({ retries: 1 }).fetch(URL_, { method: 'PUT', body: streamBody(), duplex: 'half' })).rejects.toThrow(AssertionError)
+    await expect(createRequester({ retries: 1 }).fetch(URL_, { method: 'PUT', body: streamBody(), duplex: 'half' })).rejects.toThrow(TypeError)
     expect(calls.length).toBe(0)
   })
   it('accepts a stream body without retries', async () => {
@@ -323,21 +323,34 @@ describe('bodies', () => {
   it('checks the default body unless the call overrides it, even with null', async () => {
     const calls = mockFetch(ok())
     const client = createRequester({ method: 'PUT', body: streamBody(), duplex: 'half', retries: 1 })
-    await expect(client.fetch(URL_)).rejects.toThrow(AssertionError)
+    await expect(client.fetch(URL_)).rejects.toThrow(TypeError)
     await client.fetch(URL_, { body: null })
     expect(calls.length).toBe(1)
+  })
+  it('rejects a stream body with retries in production too', async () => {
+    vi.stubEnv('NODE_ENV', 'production')
+    vi.resetModules()
+    try {
+      const { createRequester } = await import('../../src/runtime/index.js')
+      const calls = mockFetch(ok())
+      await expect(createRequester({ retries: 1 }).fetch(URL_, { method: 'PUT', body: streamBody(), duplex: 'half' })).rejects.toThrow(TypeError)
+      expect(calls.length).toBe(0)
+    } finally {
+      vi.unstubAllEnvs()
+      vi.resetModules()
+    }
   })
   it('rejects a Request with a body when retries > 0', async () => {
     const calls = mockFetch(ok())
     const request = new Request(URL_, { method: 'POST', body: 'x' })
-    await expect(createRequester({ retries: 1 }).fetch(request)).rejects.toThrow(AssertionError)
+    await expect(createRequester({ retries: 1 }).fetch(request)).rejects.toThrow(TypeError)
     expect(calls.length).toBe(0)
   })
   it('rejects a Request with a body even when the options replace it', async () => {
     const calls = mockFetch(ok())
     const form = new FormData()
     form.set('a', '1')
-    await expect(createRequester({ retries: 1 }).fetch(new Request(URL_, { method: 'POST', body: form }), { body: new FormData() })).rejects.toThrow(AssertionError)
+    await expect(createRequester({ retries: 1 }).fetch(new Request(URL_, { method: 'POST', body: form }), { body: new FormData() })).rejects.toThrow(TypeError)
     expect(calls.length).toBe(0)
   })
   it('accepts a Request with a body without retries', async () => {
