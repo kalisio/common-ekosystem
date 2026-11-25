@@ -18,7 +18,7 @@ has.key (obj, key)
 ### Description
 
 Check if an object has a specific own property.
-Throws a `TypeError` if `obj` is not a plain object or `key` is not a string.
+Throws an [`AssertionError`](./assert.md) if `obj` is not a plain object or `key` is not a non-empty string.
 
 ### Parameters
 
@@ -52,7 +52,7 @@ has.keys (obj, keys)
 ### Description
 
 Check if an object has all of the specified own properties.
-Throws a `TypeError` if `obj` is not a plain object or `keys` is not a non-empty array of strings.
+Throws an [`AssertionError`](./assert.md) if `obj` is not a plain object or `keys` is not a non-empty array of non-empty strings.
 
 ### Parameters
 
@@ -120,8 +120,7 @@ has.path (obj, path)
 ### Description
 
 Check if an object has a nested property at the given dot-notation path.
-Uses the `in` operator instead of `Object.hasOwn` to safely handle Vue proxy objects.
-Throws a `TypeError` if `obj` is not a plain object or `path` is not a non-empty string.
+Throws an [`AssertionError`](./assert.md) if `obj` is not a plain object or `path` is not a non-empty string.
 
 ### Parameters
 

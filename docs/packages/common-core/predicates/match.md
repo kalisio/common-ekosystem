@@ -18,7 +18,7 @@ match.pattern (value, pattern)
 ### Description
 
 Check if a string match a regular expression.
-Throws a `TypeError` if `value` is not a string or `pattern` is not a `RegExp`.
+Throws an [`AssertionError`](./assert.md) if `value` is not a string or `pattern` is not a `RegExp`.
 
 ### Parameters
 
