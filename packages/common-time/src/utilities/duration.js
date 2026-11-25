@@ -16,7 +16,10 @@ const ISO_DURATION = new RegExp(
 // The overall sign applies to every component, so only the signs of the nonzero components can differ
 function hasMixedSigns (iso) {
   const signs = new Set()
-  for (const [, amount] of iso.replace(/^[+-]?P/, '').matchAll(/([+-]?\d+(?:[.,]\d+)?)[YMWDHS]/g)) {
+  const body = iso.replace(/^[+-]?P/, '')
+  // Sticky flag: each token must start right where the previous one ended,
+  // so the engine never retries from every position → linear cost
+  for (const [, amount] of body.matchAll(/T?([+-]?\d+(?:[.,]\d+)?)[YMWDHS]/gy)) {
     const value = Number(amount.replace(',', '.'))
     if (value !== 0) signs.add(Math.sign(value))
   }
