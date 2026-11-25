@@ -9,7 +9,11 @@ Functions that throw an error if validation fails. Used to guard inputs that mus
 
 Unlike [`assert`](./assert.md), `ensure` is **always active**: its validators run whatever the value of `process.env.NODE_ENV`, so keep them cheap on hot paths.
 
+::: tip
+
 Every function throws a `TypeError` by default. Pass an error type as last parameter to throw another one, such as `RangeError`, [`AssertionError`](./assert.md#assertionerror) or a custom `Error` subclass: it is instantiated with the failure message.
+
+:::
 
 ## that
 
