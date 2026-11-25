@@ -2,5 +2,6 @@
   "common-core",
   "common-geospatial",
   "common-graphics",
-  "common-time"
+  "common-time",
+  "common-authorization"
 ]

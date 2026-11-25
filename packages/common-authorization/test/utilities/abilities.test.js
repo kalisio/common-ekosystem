@@ -1,0 +1,304 @@
+import { subject } from '@casl/ability'
+import { ObjectId } from 'mongodb'
+import { abilities } from '../../src/utilities/index.js'
+
+const aliases = {
+  update: ['patch'],
+  read: ['get', 'find'],
+  remove: ['delete'],
+  all: ['read', 'create', 'update', 'remove']
+}
+
+const item = (properties = {}) => subject('items', { _id: 'item-1', ...properties })
+
+const invalid = [
+  ['$or with a string', { $or: 'invalid' }],
+  ['$or with an empty array', { $or: [] }],
+  ['$in with a scalar', { count: { $in: 5 } }],
+  ['$size with a string', { tags: { $size: 'two' } }]
+]
+
+const unsupported = [
+  ['$mod', { count: { $mod: [2, 0] } }],
+  ['$not', { count: { $not: { $eq: 1 } } }],
+  ['$where', { $where: 'this.count > 1' }],
+  ['$expr', { $expr: { $gt: ['$count', 1] } }],
+  ['a nested operator', { $or: [{ locked: true }, { count: { $mod: [2, 0] } }] }]
+]
+
+describe('abilities', () => {
+  describe('create', () => {
+    it('creates an ability without any permission by default', () => {
+      expect(abilities.create().can('read', 'items')).toBe(false)
+    })
+    it.each([
+      ['a string alias', { update: 'patch' }],
+      ['an empty alias', { update: [] }]
+    ])('rejects %s', (name, aliases) => {
+      expect(() => abilities.create([], { aliases })).toThrow('invalid ability options')
+    })
+    it.each([
+      ['null', null],
+      ['a string', 'read items']
+    ])('rejects a rule that is %s', (name, rule) => {
+      expect(() => abilities.create([rule])).toThrow(new TypeError('rule must be an object'))
+    })
+    it('rejects conditions that are not an object', () => {
+      expect(() => abilities.create([{ action: 'read', subject: 'items', conditions: 'locked' }]))
+        .toThrow(new TypeError('conditions must be an object'))
+    })
+    it('evaluates conditions on typed subjects', () => {
+      const ability = abilities.create([{ action: 'update', subject: 'items', conditions: { ownerId: 'user-1' } }])
+      expect(ability.can('update', item({ ownerId: 'user-1' }))).toBe(true)
+      expect(ability.can('update', item({ ownerId: 'user-2' }))).toBe(false)
+    })
+    it('resolves configured aliases, nested ones included', () => {
+      const ability = abilities.create([{ action: 'all', subject: 'items' }], { aliases })
+      for (const action of ['read', 'get', 'find', 'create', 'update', 'patch', 'remove', 'delete']) {
+        expect(ability.can(action, 'items')).toBe(true)
+      }
+      expect(ability.can('execute', 'items')).toBe(false)
+    })
+    it.each([
+      ['$or', { $or: [{ locked: true }, { archived: true }] }],
+      ['$and', { $and: [{ locked: true }, { archived: false }] }],
+      ['$nor', { $nor: [{ locked: false }] }]
+    ])('applies cannot rules written with %s', (name, conditions) => {
+      const ability = abilities.create([
+        { action: 'update', subject: 'items' },
+        { action: 'update', subject: 'items', inverted: true, conditions }
+      ])
+      expect(ability.can('update', item({ locked: true, archived: false }))).toBe(false)
+      expect(ability.can('update', item({ locked: false, archived: false }))).toBe(true)
+    })
+    it('evaluates nested logical operators in cannot rules', () => {
+      const ability = abilities.create([
+        { action: 'update', subject: 'items' },
+        {
+          action: 'update',
+          subject: 'items',
+          inverted: true,
+          conditions: {
+            $and: [
+              { $or: [{ locked: true }, { archived: true }] },
+              { $nor: [{ ownerId: 'user-1' }] }
+            ]
+          }
+        }
+      ])
+      expect(ability.can('update', item({ locked: true, ownerId: 'user-2' }))).toBe(false)
+      expect(ability.can('update', item({ archived: true, ownerId: 'user-2' }))).toBe(false)
+      expect(ability.can('update', item({ locked: true, ownerId: 'user-1' }))).toBe(true)
+      expect(ability.can('update', item({
+        locked: false, archived: false, ownerId: 'user-2'
+      }))).toBe(true)
+    })
+    it.each(unsupported)('rejects %s, which CASL would silently evaluate to false', (name, conditions) => {
+      const rules = [
+        { action: 'update', subject: 'items' },
+        { action: 'update', subject: 'items', inverted: true, conditions }
+      ]
+      expect(() => abilities.create(rules)).toThrow(TypeError)
+    })
+    it.each(invalid)('rejects %s as soon as the ability is built', (name, conditions) => {
+      expect(() => abilities.create([{ action: 'read', subject: 'items', conditions }])).toThrow(TypeError)
+    })
+    it('keeps the parser error as cause', () => {
+      try {
+        abilities.create([{ action: 'read', subject: 'items', conditions: { $or: 'invalid' } }])
+        expect.unreachable()
+      } catch (error) {
+        expect(error.message).toMatch(/^invalid conditions: /)
+        expect(error.cause).toBeInstanceOf(Error)
+      }
+    })
+    it('compares ObjectId values without taking them for operators', () => {
+      const id = new ObjectId()
+      const ability = abilities.create([{ action: 'update', subject: 'users', conditions: { _id: { $in: [id] } } }])
+      expect(ability.can('update', subject('users', { _id: new ObjectId(id.toHexString()) }))).toBe(true)
+      expect(ability.can('update', subject('users', { _id: new ObjectId() }))).toBe(false)
+    })
+  })
+
+  describe('createBuilder', () => {
+    it('builds with the shared matcher and the configured aliases, once destructured', () => {
+      const { can, cannot, build } = abilities.createBuilder({ aliases })
+      can('update', 'items')
+      cannot('update', 'items', { $or: [{ locked: true }, { archived: true }] })
+      const ability = build()
+      expect(ability.can('patch', item({ locked: false }))).toBe(true)
+      expect(ability.can('patch', item({ archived: true }))).toBe(false)
+    })
+    it('gives precedence to the last matching rule', () => {
+      const { can, cannot, build } = abilities.createBuilder()
+      can('update', 'items')
+      cannot('update', 'items', { locked: true })
+      can('update', 'items', { ownerId: 'user-1' })
+      const ability = build()
+      expect(ability.can('update', item({ locked: true, ownerId: 'user-1' }))).toBe(true)
+      expect(ability.can('update', item({ locked: true, ownerId: 'user-2' }))).toBe(false)
+      expect(ability.can('update', item({ locked: false, ownerId: 'user-2' }))).toBe(true)
+    })
+    it('keeps fields restrictions', () => {
+      const { can, build } = abilities.createBuilder()
+      can('update', 'items', ['title'], { ownerId: 'user-1' })
+      const ability = build()
+      expect(ability.can('update', item({ ownerId: 'user-1' }), 'title')).toBe(true)
+      expect(ability.can('update', item({ ownerId: 'user-1' }), 'ownerId')).toBe(false)
+    })
+    it('matches fields with patterns', () => {
+      const { can, build } = abilities.createBuilder()
+      can('update', 'items', ['meta.*'])
+      const ability = build()
+      expect(ability.can('update', item(), 'meta.title')).toBe(true)
+      expect(ability.can('update', item(), 'title')).toBe(false)
+    })
+    it('ignores options given to build', () => {
+      const { can, build } = abilities.createBuilder({ aliases })
+      can('update', 'items')
+      expect(build({ resolveAction: action => action }).can('patch', 'items')).toBe(true)
+    })
+    it.each([...unsupported, ...invalid])('rejects %s when building', (name, conditions) => {
+      const { cannot, build } = abilities.createBuilder()
+      cannot('update', 'items', conditions)
+      expect(() => build()).toThrow(TypeError)
+    })
+  })
+
+  describe('update', () => {
+    it('applies new rules to the same instance, with its options', () => {
+      const ability = abilities.create([{ action: 'read', subject: 'items' }], { aliases })
+      expect(abilities.update(ability, [{ action: 'update', subject: 'items' }])).toBe(ability)
+      expect(ability.can('get', 'items')).toBe(false)
+      expect(ability.can('patch', 'items')).toBe(true)
+    })
+    it('preserves custom condition and field matchers', () => {
+      const ability = abilities.create()
+      abilities.update(ability, [
+        {
+          action: 'update',
+          subject: 'items',
+          fields: ['meta.*'],
+          conditions: {
+            $or: [{ public: true }, { ownerId: 'user-1' }]
+          }
+        }
+      ])
+      expect(ability.can('update', item({ public: true }), 'meta.title')).toBe(true)
+      expect(ability.can('update', item({ ownerId: 'user-1' }), 'meta.title')).toBe(true)
+      expect(ability.can('update', item({ ownerId: 'user-2' }), 'meta.title')).toBe(false)
+      expect(ability.can('update', item({ public: true }), 'ownerId')).toBe(false)
+    })
+    it('leaves the ability unchanged when the rules are rejected', () => {
+      const ability = abilities.create([{ action: 'read', subject: 'items' }])
+      const rules = [{ action: 'read', subject: 'items', inverted: true, conditions: { count: { $mod: [2, 0] } } }]
+      expect(() => abilities.update(ability, rules)).toThrow(TypeError)
+      expect(ability.can('read', 'items')).toBe(true)
+    })
+    it('rejects anything but a CASL ability', () => {
+      expect(() => abilities.update({ update () {} }, [])).toThrow('ability must be a CASL ability')
+    })
+  })
+
+  describe('serialized rules', () => {
+    it('give the client the same decisions as the server', () => {
+      const { can, cannot, build } = abilities.createBuilder({ aliases })
+      can('read', 'items', { $or: [{ public: true }, { ownerId: 'user-1' }] })
+      can('update', 'items', { ownerId: 'user-1' })
+      cannot('update', 'items', { locked: true })
+      const server = build()
+      const client = abilities.create(JSON.parse(JSON.stringify(server.rules)), { aliases })
+      const checks = [
+        ['find', item({ public: true })],
+        ['find', item({ ownerId: 'user-2' })],
+        ['patch', item({ ownerId: 'user-1' })],
+        ['patch', item({ ownerId: 'user-1', locked: true })]
+      ]
+      for (const [action, resource] of checks) {
+        expect(client.can(action, resource)).toBe(server.can(action, resource))
+      }
+    })
+  })
+
+  describe('mergeConditions', () => {
+    it('returns undefined when there is no condition at all', () => {
+      expect(abilities.mergeConditions()).toBeUndefined()
+      expect(abilities.mergeConditions({}, null)).toBeUndefined()
+    })
+    it('returns a copy of the only non-empty side', () => {
+      const conditions = { ownerId: 'user-1' }
+      expect(abilities.mergeConditions(conditions, {})).toEqual(conditions)
+      expect(abilities.mergeConditions(undefined, conditions)).toEqual(conditions)
+      expect(abilities.mergeConditions(undefined, conditions)).not.toBe(conditions)
+    })
+    it('merges disjoint keys', () => {
+      expect(abilities.mergeConditions({ locked: false }, { organizationId: 'org-1' }))
+        .toEqual({ locked: false, organizationId: 'org-1' })
+    })
+    it.each([
+      ['a field', { context: 'org-1' }, { context: 'org-2' }],
+      ['an operator', { $or: [{ public: true }, { ownerId: 'user-1' }] }, { $or: [{ context: 'org-1' }, { context: 'org-2' }] }]
+    ])('nests both sides in $and when they share %s', (name, left, right) => {
+      expect(abilities.mergeConditions(left, right)).toEqual({ $and: [left, right] })
+    })
+    it('never mutates its arguments', () => {
+      const left = { locked: false }
+      const right = { organizationId: 'org-1' }
+      abilities.mergeConditions(left, right)
+      expect(left).toEqual({ locked: false })
+      expect(right).toEqual({ organizationId: 'org-1' })
+    })
+    it('keeps both constraints on a shared field', () => {
+      const conditions = abilities.mergeConditions({ age: { $gte: 18 } }, { age: { $lte: 65 } })
+      const ability = abilities.create([{ action: 'read', subject: 'items', conditions }])
+      expect(ability.can('read', item({ age: 30 }))).toBe(true)
+      expect(ability.can('read', item({ age: 10 }))).toBe(false)
+      expect(ability.can('read', item({ age: 70 }))).toBe(false)
+    })
+    it('combines logical operators with regular conditions', () => {
+      const conditions = abilities.mergeConditions(
+        { $or: [{ public: true }, { ownerId: 'user-1' }] },
+        { locked: false }
+      )
+      const ability = abilities.create([{ action: 'update', subject: 'items', conditions }])
+      expect(ability.can('update', item({ public: true, locked: false }))).toBe(true)
+      expect(ability.can('update', item({ public: true, locked: true }))).toBe(false)
+      expect(ability.can('update', item({
+        public: false, locked: false, ownerId: 'user-2'
+      }))).toBe(false)
+    })
+    it('produces conditions evaluated by the shared matcher', () => {
+      const conditions = abilities.mergeConditions(
+        { $or: [{ public: true }, { ownerId: 'user-1' }] },
+        { $or: [{ context: 'org-1' }, { context: 'org-2' }] }
+      )
+      const ability = abilities.create([{ action: 'read', subject: 'items', conditions }])
+      expect(ability.can('read', item({ public: true, context: 'org-2' }))).toBe(true)
+      expect(ability.can('read', item({ public: true, context: 'org-3' }))).toBe(false)
+    })
+  })
+
+  describe('in production', () => {
+    afterEach(() => {
+      vi.unstubAllEnvs()
+      vi.resetModules()
+    })
+    it.each([...unsupported, ...invalid])('still rejects %s, while assertions are disabled', async (name, conditions) => {
+      vi.stubEnv('NODE_ENV', 'production')
+      vi.resetModules()
+      const { abilities: production } = await import('../../src/utilities/abilities.js')
+      // Control: this assertion is skipped, so the production code path is really exercised
+      expect(() => production.create([], { aliases: { update: 'patch' } })).not.toThrow()
+      const rules = [{ action: 'update', subject: 'items', inverted: true, conditions }]
+      expect(() => production.create(rules)).toThrow(TypeError)
+
+      const { cannot, build } = production.createBuilder()
+      cannot('update', 'items', conditions)
+      expect(() => build()).toThrow(TypeError)
+
+      const ability = production.create([{ action: 'update', subject: 'items' }])
+      expect(() => production.update(ability, rules)).toThrow(TypeError)
+      expect(ability.can('update', 'items')).toBe(true)
+    })
+  })
+})

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "pnpm -r --filter './packages/*' build",
+    "build:common-authorization": "pnpm --filter @kalisio/common-authorization build",
     "build:common-core": "pnpm --filter @kalisio/common-core build",
     "build:common-geospatial": "pnpm --filter @kalisio/common-geospatial build",
     "build:common-graphics": "pnpm --filter @kalisio/common-graphics build",
@@ -16,6 +17,7 @@
     "docs:prepare": "pnpm --filter './examples/*' build",
     "inspect": "knip || true",
     "lint": "pnpm -r lint",
+    "lint:common-authorization": "pnpm --filter @kalisio/common-authorization lint",
     "lint:common-core": "pnpm --filter @kalisio/common-core lint",
     "lint:common-geospatial": "pnpm --filter @kalisio/common-geospatial lint",
     "lint:common-graphics": "pnpm --filter @kalisio/common-graphics lint",
@@ -28,6 +30,7 @@
     "pretest": "mkdir -p coverage",
     "release": "changeset publish",
     "test": "pnpm -r test",
+    "test:common-authorization": "pnpm --filter @kalisio/common-authorization test",
     "test:common-core": "pnpm --filter @kalisio/common-core test",
     "test:common-geospatial": "pnpm --filter @kalisio/common-geospatial test",
     "test:common-graphics": "pnpm --filter @kalisio/common-graphics test",

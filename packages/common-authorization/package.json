@@ -1,0 +1,79 @@
+{
+  "name": "@kalisio/common-authorization",
+  "description": "Permission management for the Kalisio ekosystem",
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "development": "./src/index.js",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "standard": {
+    "globals": [
+      "describe",
+      "it",
+      "test",
+      "expect",
+      "beforeAll",
+      "afterAll",
+      "beforeEach",
+      "afterEach",
+      "vi"
+    ],
+    "ignore": [
+      "dist/**"
+    ]
+  },
+  "scripts": {
+    "build": "vite build",
+    "postbuild": "publint",
+    "lint": "standard --fix",
+    "test": "vitest run --coverage"
+  },
+  "keywords": [
+    "common-authorization"
+  ],
+  "author": {
+    "name": "KALISIO",
+    "email": "contact@kalisio.com",
+    "url": "https://github.com/kalisio"
+  },
+  "contributors": [],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kalisio/common-ekosystem.git",
+    "directory": "packages/common-authorization"
+  },
+  "bugs": {
+    "url": "https://github.com/kalisio/common-ekosystem/issues"
+  },
+  "homepage": "https://github.com/kalisio/common-ekosystem/tree/main/packages/common-authorization",
+  "dependencies": {
+    "@ucast/mongo2js": "catalog:"
+  },
+  "devDependencies": {
+    "mongodb": "catalog:"
+  },
+  "peerDependencies": {
+    "@kalisio/common-core": "workspace:*",
+    "@casl/ability": "catalog:"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "import": "./dist/index.mjs",
+        "require": "./dist/index.cjs"
+      }
+    }
+  }
+}

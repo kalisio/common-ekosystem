@@ -6,12 +6,15 @@ settings:
 
 catalogs:
   default:
+    '@casl/ability':
+      specifier: 7.1.3
+      version: 7.1.3
     '@changesets/cli':
       specifier: 2.30.0
       version: 2.30.0
     '@kalisio/vitepress-theme':
-      specifier: 2.1.0
-      version: 2.1.0
+      specifier: 2.2.1
+      version: 2.2.1
     '@tmcw/togeojson':
       specifier: 7.1.2
       version: 7.1.2
@@ -27,6 +30,9 @@ catalogs:
     '@turf/meta':
       specifier: 7.3.5
       version: 7.3.5
+    '@ucast/mongo2js':
+      specifier: 2.0.0
+      version: 2.0.0
     '@vitest/coverage-v8':
       specifier: 5.1.0
       version: 5.1.0
@@ -191,7 +197,7 @@ importers:
     devDependencies:
       '@kalisio/vitepress-theme':
         specifier: 'catalog:'
-        version: 2.1.0(quasar@2.18.7)(vitepress@1.6.3(@algolia/client-search@5.57.0)(@types/node@25.6.0)(jwt-decode@4.0.0)(lightningcss@1.33.0)(postcss@8.5.18)(search-insights@2.17.3))(vue@3.5.30)
+        version: 2.2.1(quasar@2.18.7)(vitepress@1.6.3(@algolia/client-search@5.57.0)(@types/node@25.6.0)(jwt-decode@4.0.0)(lightningcss@1.33.0)(postcss@8.5.18)(search-insights@2.17.3))(vue@3.5.30)
       mermaid:
         specifier: 'catalog:'
         version: 10.8.0
@@ -228,6 +234,22 @@ importers:
       '@kalisio/common-graphics':
         specifier: workspace:*
         version: link:../../packages/common-graphics
+
+  packages/common-authorization:
+    dependencies:
+      '@casl/ability':
+        specifier: 'catalog:'
+        version: 7.1.3
+      '@kalisio/common-core':
+        specifier: workspace:*
+        version: link:../common-core
+      '@ucast/mongo2js':
+        specifier: 'catalog:'
+        version: 2.0.0
+    devDependencies:
+      mongodb:
+        specifier: 'catalog:'
+        version: 6.20.0
 
   packages/common-core:
     dependencies:
@@ -442,6 +464,9 @@ packages:
 
   '@braintree/sanitize-url@6.0.4':
     resolution: {integrity: sha512-s3jaWicZd0pkP0jf5ysyHUI/RE7MHos6qlToFcGWXVp+ykHOy77OUMrfbgJ9it2C5bow7OIQwYYaHjk9XlBQ2A==}
+
+  '@casl/ability@7.1.3':
+    resolution: {integrity: sha512-4V7ER1Q7r0be9dwpJQuSA99Cazk6gnFEpYpiCV1MCSkBoLAycMgrpXjsrFR06OHBtWlTeGKAhARXQKg+pw3fbg==}
 
   '@changesets/apply-release-plan@7.1.1':
     resolution: {integrity: sha512-9qPCm/rLx/xoOFXIHGB229+4GOL76S4MC+7tyOuTsR6+1jYlfFDQORdvwR5hDA6y4FL2BPt3qpbcQIS+dW85LA==}
@@ -1054,13 +1079,13 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@kalisio/vitepress-theme@2.1.0':
-    resolution: {integrity: sha512-J9H2qnp0JIwgSCZRW7ICAPwP4ZQeT5YUPybwtatDyv3PbvR7ENW+AXOYA8REPDjOz4IOwaHkT8aMBSpyEkV5yA==}
-    engines: {node: '>=20'}
+  '@kalisio/vitepress-theme@2.2.1':
+    resolution: {integrity: sha512-bNX27NHlN5NCVWOteqIshPWIcvqKb/jBhokV/5giA59aITFKQ0cZpbWa38viPc6jPHitd+U+uJykhNrAq/IqOQ==}
+    engines: {node: '>=22'}
     peerDependencies:
-      quasar: ~2.14.0
-      vitepress: ~1.6.0
-      vue: ~3.5.0
+      quasar: ^2.16.0
+      vitepress: ^1.6.0
+      vue: ^3.5.0
 
   '@manypkg/find-root@1.1.0':
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
@@ -1767,6 +1792,18 @@ packages:
 
   '@types/ws@8.18.1':
     resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
+
+  '@ucast/core@2.0.0':
+    resolution: {integrity: sha512-4XVx6LzPXZGvnZO5jp39cm/G4UvuwvEdtmg+9+4+zl6uFkCcB7UJacvtMYeBE56GJVT99Zqy6Pii7dGJq3Kz9Q==}
+
+  '@ucast/js@4.0.1':
+    resolution: {integrity: sha512-9O5xPBvwEWQk2WvO69Eh2WJB8QljVZ2vRVdFvfnKjlZwWXcYxp1lqLBhwXBU1AtuSgCvKhJPkXdjKJggUmAmQQ==}
+
+  '@ucast/mongo2js@2.0.0':
+    resolution: {integrity: sha512-vNBZzRnsfLr/TSxEoxz6W6hHQ5tmWsfEeC0nCq5z8RezC1AqIRy3cfHm8AGvlGtcn+cTSFQcZremfqnz6wm+nQ==}
+
+  '@ucast/mongo@3.0.0':
+    resolution: {integrity: sha512-kwuSH+kdB4GCR0LGhy/PEDm4PCflur89AlK82kNiYD0FvsA8A/p+0sx7m+/R8mMFAlmlkAd3VXp7sM/cLLYWYg==}
 
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
@@ -3156,8 +3193,8 @@ packages:
   kdbush@4.1.0:
     resolution: {integrity: sha512-e9vurzrXJQrFX6ckpHP3bvj5l+9CnYzkxDNnNQ1h2QTqdWsUAJgXiKdGNcOa1EY85dU8KbQ+z/FdQdB7P+9yfQ==}
 
-  keycloak-js@23.0.7:
-    resolution: {integrity: sha512-OmszsKzBhhm5yP4W1q/tMd+nNnKpOAdeVYcoGhphlv8Fj1bNk4wRTYzp7pn5BkvueLz7fhvKHz7uOc33524YrA==}
+  keycloak-js@23.0.4:
+    resolution: {integrity: sha512-Dq0X/8Gap9As3eAaeNRlQldxdBjMeKh2Q81QwykwihLAcG9hSZHuwFioldDmNbdzymguNMZpqfr3mK9hv+G8hA==}
 
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
@@ -4372,8 +4409,8 @@ packages:
       yaml:
         optional: true
 
-  vitepress-openapi@0.2.4:
-    resolution: {integrity: sha512-wzZ4n++Ais5nUG9X7h5V0wF+uvfu17xEb2RpK8Mdp0blGHU56E7WbSzBY8yr3/K2k0164XxVn/r+zYZIvqBKYQ==}
+  vitepress-openapi@0.2.1:
+    resolution: {integrity: sha512-CKMKfBo2pqtXqo3AVypHVQE2+kl+sZ683Q0UDf7ejEBTQEccuLjL3LDJiegXYqf+HW1gxOp3p1Q5QnYITkgGag==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24.0.0}
     peerDependencies:
       vitepress: '>=1.0.0'
@@ -4695,6 +4732,10 @@ snapshots:
   '@bcoe/v8-coverage@1.0.2': {}
 
   '@braintree/sanitize-url@6.0.4': {}
+
+  '@casl/ability@7.1.3':
+    dependencies:
+      '@ucast/mongo2js': 2.0.0
 
   '@changesets/apply-release-plan@7.1.1':
     dependencies:
@@ -5210,14 +5251,14 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@kalisio/vitepress-theme@2.1.0(quasar@2.18.7)(vitepress@1.6.3(@algolia/client-search@5.57.0)(@types/node@25.6.0)(jwt-decode@4.0.0)(lightningcss@1.33.0)(postcss@8.5.18)(search-insights@2.17.3))(vue@3.5.30)':
+  '@kalisio/vitepress-theme@2.2.1(quasar@2.18.7)(vitepress@1.6.3(@algolia/client-search@5.57.0)(@types/node@25.6.0)(jwt-decode@4.0.0)(lightningcss@1.33.0)(postcss@8.5.18)(search-insights@2.17.3))(vue@3.5.30)':
     dependencies:
-      keycloak-js: 23.0.7
+      keycloak-js: 23.0.4
       lodash-es: 4.18.1
       moment: 2.30.1
       quasar: 2.18.7
       vitepress: 1.6.3(@algolia/client-search@5.57.0)(@types/node@25.6.0)(jwt-decode@4.0.0)(lightningcss@1.33.0)(postcss@8.5.18)(search-insights@2.17.3)
-      vitepress-openapi: 0.2.4(vitepress@1.6.3(@algolia/client-search@5.57.0)(@types/node@25.6.0)(jwt-decode@4.0.0)(lightningcss@1.33.0)(postcss@8.5.18)(search-insights@2.17.3))(vue@3.5.30)
+      vitepress-openapi: 0.2.1(vitepress@1.6.3(@algolia/client-search@5.57.0)(@types/node@25.6.0)(jwt-decode@4.0.0)(lightningcss@1.33.0)(postcss@8.5.18)(search-insights@2.17.3))(vue@3.5.30)
       vue: 3.5.30
     transitivePeerDependencies:
       - '@vue/composition-api'
@@ -5785,6 +5826,22 @@ snapshots:
     dependencies:
       '@types/node': 25.6.0
     optional: true
+
+  '@ucast/core@2.0.0': {}
+
+  '@ucast/js@4.0.1':
+    dependencies:
+      '@ucast/core': 2.0.0
+
+  '@ucast/mongo2js@2.0.0':
+    dependencies:
+      '@ucast/core': 2.0.0
+      '@ucast/js': 4.0.1
+      '@ucast/mongo': 3.0.0
+
+  '@ucast/mongo@3.0.0':
+    dependencies:
+      '@ucast/core': 2.0.0
 
   '@ungap/structured-clone@1.3.0': {}
 
@@ -7407,7 +7464,7 @@ snapshots:
 
   kdbush@4.1.0: {}
 
-  keycloak-js@23.0.7:
+  keycloak-js@23.0.4:
     dependencies:
       base64-js: 1.5.1
       js-sha256: 0.10.1
@@ -8854,7 +8911,7 @@ snapshots:
       jiti: 2.6.1
       yaml: 2.8.3
 
-  vitepress-openapi@0.2.4(vitepress@1.6.3(@algolia/client-search@5.57.0)(@types/node@25.6.0)(jwt-decode@4.0.0)(lightningcss@1.33.0)(postcss@8.5.18)(search-insights@2.17.3))(vue@3.5.30):
+  vitepress-openapi@0.2.1(vitepress@1.6.3(@algolia/client-search@5.57.0)(@types/node@25.6.0)(jwt-decode@4.0.0)(lightningcss@1.33.0)(postcss@8.5.18)(search-insights@2.17.3))(vue@3.5.30):
     dependencies:
       '@vueuse/core': 14.4.0(vue@3.5.30)
       class-variance-authority: 0.7.1

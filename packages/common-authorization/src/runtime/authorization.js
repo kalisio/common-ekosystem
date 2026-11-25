@@ -1,0 +1,122 @@
+import { Cache, Registry } from '@kalisio/common-core/structures'
+import { object } from '@kalisio/common-core/utilities'
+import { assert, conform, is, optional } from '@kalisio/common-core/predicates'
+import { abilities } from '../utilities/index.js'
+import { RoleRegistry } from './role-registry.js'
+
+const OPTIONS_SCHEMA = {
+  // Validated by abilities
+  aliases: optional(is.plainObject),
+  // max and ttl are validated by Cache
+  cache: optional(value => is.plainObject(value) && conform.schema(value, { key: is.function }))
+}
+
+export class Authorization {
+  #roles = new RoleRegistry()
+  #hooks = new Registry('authorization-hooks')
+  #hooksVersion = 0
+  #abilityOptions
+  #cache
+  #key
+
+  constructor (options = {}) {
+    assert.that(
+      options,
+      value => is.plainObject(value) && conform.schema(value, OPTIONS_SCHEMA),
+      'invalid authorization options'
+    )
+    const { aliases, cache } = options
+    // A copy: the configuration must not change during the lifetime of the instance
+    this.#abilityOptions = is.defined(aliases) ? { aliases: object.clone(aliases) } : {}
+    // Checks the aliases now, with the same validation as every ability, rather than on the first one
+    abilities.create([], this.#abilityOptions)
+    if (is.defined(cache)) {
+      const { key, ...cacheOptions } = cache
+      this.#cache = new Cache('abilities', cacheOptions)
+      this.#key = key
+    }
+  }
+
+  get roles () {
+    return this.#roles
+  }
+
+  // Hooks run in registration order: as the last matching rule wins in CASL, a later hook takes precedence
+  registerHook (name, hook) {
+    assert.that(hook, is.function, 'hook must be a function')
+    this.#hooks.register(name, hook)
+    this.#hooksVersion++
+  }
+
+  unregisterHook (name) {
+    const removed = this.#hooks.unregister(name)
+    if (removed) this.#hooksVersion++
+    return removed
+  }
+
+  // Always builds a new ability. Each hook receives the principal, the functions to define rules
+  // and the context, then runs once the previous one has completed
+  async defineAbility (principal, context = {}) {
+    assert.that(context, is.plainObject, 'context must be an object')
+    const builder = abilities.createBuilder(this.#abilityOptions)
+    const definitions = {
+      can: builder.can,
+      cannot: builder.cannot,
+      defineRoleAbilities: (roles, roleDefinitions, scope) =>
+        abilities.defineRoleAbilities(builder, this.#roles, roles, roleDefinitions, scope)
+    }
+    // A copy: hooks registered meanwhile only apply to the next abilities
+    for (const hook of this.#hooks.values()) await hook(principal, definitions, context)
+    return builder.build()
+  }
+
+  // The cache holds a private copy of the rules, never an ability
+  async getAbility (principal, context = {}) {
+    assert.that(context, is.plainObject, 'context must be an object')
+    if (is.nil(this.#cache)) return this.defineAbility(principal, context)
+    const key = this.#getKey(principal, context)
+    const epoch = this.#getEpoch()
+    let entry = this.#cache.get(key)
+    if (is.nil(entry) || entry.epoch !== epoch) {
+      // The computation is cached as soon as it starts, so that concurrent calls share it
+      entry = { epoch, rules: this.#defineRules(principal, context) }
+      this.#cache.set(key, entry)
+      // A failure is not cached. Only our own entry is removed: a newer one may have replaced it
+      entry.rules.catch(() => {
+        if (this.#cache.get(key) === entry) this.#cache.unregister(key)
+      })
+    }
+    // Every ability gets its own copy, so that it is isolated from the others and behaves as one built by defineAbility
+    return abilities.create(object.clone(await entry.rules), this.#abilityOptions)
+  }
+
+  // Only affects the next calls: a computation in progress still returns the rules it defines,
+  // so that an invalidation is not an immediate revocation
+  invalidateAbility (principal, context = {}) {
+    assert.that(context, is.plainObject, 'context must be an object')
+    if (is.nil(this.#cache)) return false
+    return this.#cache.unregister(this.#getKey(principal, context))
+  }
+
+  clearAbilities () {
+    this.#cache?.clear()
+  }
+
+  async #defineRules (principal, context) {
+    const ability = await this.defineAbility(principal, context)
+    // A private copy: conditions may hold values shared with the hooks, such as an array of the principal
+    return object.clone(ability.rules)
+  }
+
+  #getKey (principal, context) {
+    const key = this.#key(principal, context)
+    // A key that is not a string, an ObjectId for instance, would never be found again
+    assert.that(key, is.nonEmptyString, 'cache key must be a non-empty string')
+    return key
+  }
+
+  // Changes whenever roles or hooks do, so that entries computed before are stale
+  #getEpoch () {
+    return `${this.#roles.version}:${this.#hooksVersion}`
+  }
+}
