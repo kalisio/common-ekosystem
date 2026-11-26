@@ -29,16 +29,8 @@ describe('shape helpers', () => {
         height: 50,
         margin: 0,
         shape: '<path />',
-        icon: {
-          transform: {
-            translate: [50, 50]
-          }
-        },
-        text: {
-          transform: {
-            translate: [50, 50]
-          }
-        },
+        icon: undefined,
+        text: undefined,
         style: undefined
       })
     })
@@ -62,23 +54,36 @@ describe('shape helpers', () => {
           classes: ['icon']
         },
         text: {
-          value: 'A'
+          label: 'A'
         },
         style: '.shape {}'
       }, '<path />')
       expect(result.icon).toEqual({
-        transform: {
-          translate: [50, 50]
-        },
         classes: ['icon']
       })
       expect(result.text).toEqual({
-        transform: {
-          translate: [50, 50]
-        },
-        value: 'A'
+        label: 'A'
       })
       expect(result.style).toBe('.shape {}')
+    })
+    it('preserves overlay origins and transformations', () => {
+      const icon = {
+        classes: ['icon'],
+        origin: [25, 30],
+        transform: {
+          rotate: [45]
+        }
+      }
+      const text = {
+        label: 'A',
+        origin: [50, 40],
+        transform: {
+          translate: [0, -10]
+        }
+      }
+      const result = setupStandardShape({ icon, text }, '<path />')
+      expect(result.icon).toEqual(icon)
+      expect(result.text).toEqual(text)
     })
     it('uses a custom size computation function', () => {
       const computeSize = () => ({

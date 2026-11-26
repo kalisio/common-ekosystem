@@ -80,8 +80,8 @@ describe('SVG', () => {
       mockParams.icon = { url: 'icon.png' }
       const svg = toSVG(mockParams, { svgCache })
       expect(svg).toContain(`<g>${mockParams.shape}<g transform="translate(50 50)"><text`)
-      expect(svg).toContain('</text></g><image')
-      expect(svg).toMatch(/\/><\/g><\/svg>$/)
+      expect(svg).toContain('</text></g><g transform="translate(50 50)"><image')
+      expect(svg).toMatch(/\/><\/g><\/g><\/svg>$/)
     })
     it('should throw when width is missing', () => {
       delete mockParams.width
@@ -164,14 +164,22 @@ describe('SVG', () => {
     })
     it('should apply transform relative to the center', () => {
       const result = toSVGTextElement({ text: { label: 'Test', transform: { translate: [0, 75] } }, height: 100 })
-      expect(result).toMatch(/^<g transform="translate\(50 50\)"><text [^>]*transform="translate\(0 75\)"/)
+      expect(result).toMatch(/^<g transform="translate\(50 50\)"><g transform="translate\(0 75\)"><text [^>]*>Test<\/text><\/g><\/g>$/)
+    })
+    it('should apply a custom text origin', () => {
+      const result = toSVGTextElement({ text: { label: 'Test', origin: [25, 30] }, height: 100 })
+      expect(result).toMatch(/^<g transform="translate\(25 30\)"><text [^>]*>Test<\/text><\/g>$/)
+    })
+    it('should apply transform relative to a custom text origin', () => {
+      const result = toSVGTextElement({ text: { label: 'Test', origin: [0, 0], transform: { scale: [2] } }, height: 100 })
+      expect(result).toMatch(/^<g transform="translate\(0 0\)"><g transform="scale\(2\)"><text [^>]*>Test<\/text><\/g><\/g>$/)
     })
     it('should throw when height is missing', () => {
       expect(() => toSVGTextElement({ text: { label: 'Test' } })).toThrow('height must be a positive number')
     })
     it('should rotate around the text anchor', () => {
       const result = toSVGTextElement({ text: { label: 'Test', transform: { rotate: [45] } }, height: 100 })
-      expect(result).toContain('transform="rotate(45)"')
+      expect(result).toMatch(/^<g transform="translate\(50 50\)"><g transform="rotate\(45\)"><text [^>]*>Test<\/text><\/g><\/g>$/)
     })
     it('should render a numeric label 0', () => {
       const result = toSVGTextElement({ text: { label: 0 }, height: 100 })
@@ -195,8 +203,32 @@ describe('SVG', () => {
     })
     it('should generate icon element with classes', () => {
       const result = toSVGIconElement({ icon: { classes: 'fa fa-star' }, height: 100 })
-      expect(result).toContain('<foreignObject')
+      expect(result).toMatch(/^<g transform="translate\(50 50\)"><foreignObject x="-50" y="-50" width="100" height="100">/)
       expect(result).toContain('class="fa fa-star"')
+    })
+    it.each([
+      { classes: 'fa fa-star' },
+      { symbol: '#pin' },
+      { url: 'icon.png' }
+    ])('should apply a custom icon origin to %j', (icon) => {
+      const result = toSVGIconElement({ icon: { ...icon, origin: [25, 30] }, height: 100 })
+      expect(result).toMatch(/^<g transform="translate\(25 30\)">/)
+    })
+    it.each([
+      { classes: 'fa fa-star' },
+      { symbol: '#pin' },
+      { url: 'icon.png' }
+    ])('should apply transform relative to the icon origin for %j', (icon) => {
+      const result = toSVGIconElement({
+        icon: { ...icon, origin: [25, 30], transform: { translate: [0, -10], scale: [2] } },
+        height: 100
+      })
+      expect(result).toMatch(/^<g transform="translate\(25 30\)"><g transform="translate\(0 -10\) scale\(2\)">/)
+      expect(result).toMatch(/<\/g><\/g>$/)
+    })
+    it('should rotate an icon around its default origin', () => {
+      const result = toSVGIconElement({ icon: { symbol: '#pin', transform: { rotate: [45] } }, height: 100 })
+      expect(result).toMatch(/^<g transform="translate\(50 50\)"><g transform="rotate\(45\)"><svg /)
     })
     it('should join an array of classes', () => {
       const result = toSVGIconElement({ icon: { classes: ['fa', null, 'fa-star'] }, height: 100 })
@@ -225,20 +257,20 @@ describe('SVG', () => {
     })
     it('should generate well-formed markup for a symbol', () => {
       const result = toSVGIconElement({ icon: { symbol: '#pin' }, height: 100 })
-      expect(result).toBe('<svg x="0" y="0" width="100" height="100" opacity="1" fill="#000000"><use href="#pin"/></svg>')
+      expect(result).toBe('<g transform="translate(50 50)"><svg x="-50" y="-50" width="100" height="100" opacity="1" fill="#000000"><use href="#pin"/></svg></g>')
     })
     it('should apply symbol size, color and opacity', () => {
       const result = toSVGIconElement({ icon: { symbol: '#pin', size: 25, color: 'red', opacity: 0.5 }, height: 50 })
-      expect(result).toContain('x="25" y="25" width="50" height="50"')
+      expect(result).toContain('x="-25" y="-25" width="50" height="50"')
       expect(result).toContain('opacity="0.5" fill="red"')
     })
     it('should generate image element with url', () => {
       const result = toSVGIconElement({ icon: { url: 'icon.png' }, height: 100 })
-      expect(result).toBe('<image href="icon.png" x="0" y="0" width="100" height="100" preserveAspectRatio="xMidYMid meet"/>')
+      expect(result).toBe('<g transform="translate(50 50)"><image href="icon.png" x="-50" y="-50" width="100" height="100" preserveAspectRatio="xMidYMid meet"/></g>')
     })
     it('should apply image size with scale', () => {
       const result = toSVGIconElement({ icon: { url: 'icon.png', size: 25 }, height: 50 })
-      expect(result).toContain('x="25" y="25" width="50" height="50"')
+      expect(result).toContain('x="-25" y="-25" width="50" height="50"')
     })
     it('should prefer classes over symbol and url', () => {
       const result = toSVGIconElement({ icon: { classes: 'fa fa-star', symbol: '#pin', url: 'icon.png' }, height: 100 })
@@ -273,7 +305,8 @@ describe('SVG', () => {
       expect(result).toBe('<title>My Shape</title>')
     })
     it('should render a numeric label 0', () => {
-      expect(toSVGTitleElement({ label: 0 })).toBe('<title>0</title>')
+      const result = toSVGTitleElement({ label: 0 })
+      expect(result).toBe('<title>0</title>')
     })
   })
 
@@ -320,12 +353,12 @@ describe('SVG', () => {
       expect(result).toContain('stroke-opacity="0.7"')
     })
     it('should apply stroke dash properties', () => {
-      const result = toSVGStyleAttributes({ stroke: { color: 'black', dashArray: '5,5', dashOffset: '2' } })
+      const result = toSVGStyleAttributes({ stroke: { dashArray: '5,5', dashOffset: '2' } })
       expect(result).toContain('stroke-dasharray="5,5"')
       expect(result).toContain('stroke-dashoffset="2"')
     })
     it('should apply stroke line properties', () => {
-      const result = toSVGStyleAttributes({ stroke: { color: 'black', lineCap: 'round', lineJoin: 'bevel', miterLimit: '4' } })
+      const result = toSVGStyleAttributes({ stroke: { lineCap: 'round', lineJoin: 'bevel', miterLimit: '4' } })
       expect(result).toContain('stroke-linecap="round"')
       expect(result).toContain('stroke-linejoin="bevel"')
       expect(result).toContain('stroke-miterlimit="4"')
@@ -361,7 +394,8 @@ describe('SVG', () => {
       expect(result).toBe('transform="rotate(45 50 50) translate(10 20) scale(2 2)"')
     })
     it('should accept a number for rotate', () => {
-      expect(toSVGTransformAttribute({ rotate: 45 })).toBe('transform="rotate(45)"')
+      const result = toSVGTransformAttribute({ rotate: 45 })
+      expect(result).toBe('transform="rotate(45)"')
     })
   })
 })
