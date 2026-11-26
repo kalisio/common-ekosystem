@@ -22,18 +22,8 @@ export function setupStandardShape (params, shape, computeSize = computeStandard
     ...computeSize(params),
     margin: params.stroke ? params.stroke.width ?? 1 : 0,
     shape,
-    icon: {
-      transform: {
-        translate: [50, 50]
-      },
-      ...params.icon
-    },
-    text: {
-      transform: {
-        translate: [50, 50]
-      },
-      ...params.text
-    },
+    icon: params.icon,
+    text: params.text,
     style: params.style
   }
 }

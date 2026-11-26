@@ -10,7 +10,9 @@ Factory class for managing shape builders and creating shapes that can be render
 The factory automatically registers built-in shapes. See [Built-in shapes](./builtin-shapes.md) for the available types and their parameters.
 
 ::: tip
+
 Shapes can also be explored and previewed in the [Shape Studio](../../../playground/shape-studio).
+
 :::
 
 ## constructor
@@ -185,8 +187,11 @@ Rendering results are cached when a `key` is provided.
 Throws if:
 
 - `params` is not an object containing `shape`.
+
 - The requested shape type is unknown.
+
 - The resulting `width` or `height` is not a positive integer.
+
 - The resulting `margin` is not a non-negative integer.
 
 ### Parameters
@@ -226,6 +231,7 @@ const shape = factory.build({
 })
 
 const svg = shape.toSVG()
+
 const png = await shape.toPNG()
 ```
 
@@ -290,12 +296,16 @@ Icons can be provided through CSS classes, an image URL, or an SVG sprite symbol
 | `color` | Icon color, used for CSS icons or SVG symbols | inherited or black for SVG symbols |
 | `opacity` | SVG symbol opacity | `1` |
 | `size` | Icon size, interpreted according to the rendering mode | mode-dependent |
+| `origin` | Icon anchor point as `[x, y]` in SVG viewBox units | `[50, 50]` |
+| `transform` | SVG transformation in the local coordinate space of the icon. See [transform sub-object](#transform-sub-object) | `undefined` |
 
 For CSS-based icons, the renderer creates a `foreignObject` containing an HTML icon element.
 
 For SVG symbols, it creates an SVG `use` element. Image URLs produce an SVG `image` element.
 
 The default CSS icon font size is `12` before scaling to the shape height. SVG symbols and images occupy the normalized viewBox when no size is supplied.
+
+All icon types are centered on their `origin`. Transformations are applied relative to this point. See [overlay positioning](#overlay-positioning).
 
 Example:
 
@@ -324,20 +334,20 @@ If `text.label` is absent or empty, the text element is omitted. Numeric labels,
 | `variant` | Font variant | inherited |
 | `cursor` | CSS cursor style | inherited |
 | `classes` | CSS class name or array of class names | `undefined` |
-| `transform` | SVG transformation applied to the text | `undefined` |
+| `origin` | Text anchor point as `[x, y]` in SVG viewBox units | `[50, 50]` |
+| `transform` | SVG transformation in the local coordinate space of the text. See [transform sub-object](#transform-sub-object) | `undefined` |
 
-Text is wrapped in a group translated to the normalized shape center. The generated text uses:
+Text is centered on its `origin`. The generated text uses:
 
 ```svg
 text-anchor="middle"
+
 alignment-baseline="central"
 ```
 
 Font size is scaled relative to the shape height.
 
-The optional `transform` is applied to the text element within its containing group. It can provide additional translation, rotation, or scaling.
-
-Coordinates are expressed in SVG viewBox units. Standard shape geometry uses a normalized coordinate space from `0` to `100`.
+Transformations are applied relative to the text origin. See [overlay positioning](#overlay-positioning).
 
 CSS classes can be styled through the shape-level `style` property or through external stylesheets when the SVG is embedded directly in the DOM.
 
@@ -355,6 +365,39 @@ text: {
 }
 ```
 
+### overlay positioning
+
+Icons and text use the same positioning model. Standard shape geometry uses a normalized coordinate space from `0` to `100` on both axes.
+
+- `origin` specifies the overlay anchor point in this coordinate space. It defaults to `[50, 50]`, the center of the normalized shape geometry, unless the builder supplies another origin.
+- `transform` specifies an optional transformation in the overlay's local coordinate space, where `[0, 0]` corresponds to its origin.
+
+Translation values are expressed in SVG viewBox units, not output pixels. Positive values move the overlay to the right and down. Rotation and scaling use the local origin unless an explicit rotation pivot is provided.
+
+For example, move a text overlay 20 units above the default center:
+
+```js
+text: {
+  label: 'A',
+  transform: {
+    translate: [0, -20]
+  }
+}
+```
+
+To position an icon at a different anchor point and rotate it around that point:
+
+```js
+icon: {
+  symbol: '/assets/icons.svg#aircraft',
+  size: 24,
+  origin: [50, 30],
+  transform: {
+    rotate: [45]
+  }
+}
+```
+
 ### transform sub-object
 
 Defines geometric SVG transformations.
@@ -367,7 +410,9 @@ Defines geometric SVG transformations.
 | `skewX` | Horizontal skew angle in degrees |
 | `skewY` | Vertical skew angle in degrees |
 
-Transformations are emitted in this order: `rotate`, `translate`, `scale`, `skewX`, `skewY`.
+Transformations are emitted in this order: `rotate`, `translate`, `scale`, `skewX`, `skewY`. When multiple transformations are combined, their order follows SVG transform composition rules.
+
+For geometry, transformation coordinates refer to the shape coordinate space. For icon and text overlays, they refer to the local coordinate space defined by `origin`. For example, `rotate: [45]` rotates an overlay around its origin, whereas `rotate: [45, 50, 50]` specifies a pivot offset by `[50, 50]` in that local coordinate space.
 
 Example:
 
@@ -391,10 +436,14 @@ Example:
 
 ```js
 style: `
+
   .shape-label {
     font-family: sans-serif;
+
     font-weight: bold;
+
     pointer-events: none;
   }
+
 `
 ```

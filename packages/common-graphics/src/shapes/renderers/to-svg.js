@@ -72,7 +72,15 @@ export function toSVGTextElement (params) {
   if (text.variant) attrs += ` font-variant="${text.variant}"`
   if (text.cursor) attrs += ` cursor="${text.cursor}"`
   if (text.transform) attrs += ` ${toSVGTransformAttribute(text.transform)}`
-  return `<g transform="translate(50 50)"><text ${attrs}>${text.label}</text></g>`
+  return toSVGOverlayElement(`<text ${attrs}>${text.label}</text>`, text)
+}
+
+function toSVGOverlayElement (element, options) {
+  const [x, y] = options.origin ?? [50, 50]
+  if (options.transform) {
+    element = `<g ${toSVGTransformAttribute(options.transform)}>${element}</g>`
+  }
+  return `<g transform="translate(${x} ${y})">${element}</g>`
 }
 
 export function toSVGIconElement (params) {
@@ -80,6 +88,8 @@ export function toSVGIconElement (params) {
   if (!icon) return ''
   const classNames = toClassNames(icon.classes)
   if (!classNames && !icon.url && !icon.symbol) return ''
+
+  let element
   if (classNames) {
     const size = (icon.size ?? 12) * toScale(height)
     let iconStyle = `font-size:${size}px;`
@@ -87,16 +97,19 @@ export function toSVGIconElement (params) {
     const iconElement = `<i style="${iconStyle}" class="${classNames}"></i>`
     const divStyle = 'display:flex;align-items:center;justify-content:center;height:100%;width:100%;'
     const divElement = `<div xmlns="http://www.w3.org/1999/xhtml" style="${divStyle}">${iconElement}</div>`
-    return `<foreignObject width="100" height="100">${divElement}</foreignObject>`
+    element = `<foreignObject x="-50" y="-50" width="100" height="100">${divElement}</foreignObject>`
+  } else {
+    const size = is.defined(icon.size) ? icon.size * toScale(height) : 100
+    const offset = -size / 2
+    if (icon.symbol) {
+      const color = icon.color ?? '#000000'
+      const opacity = icon.opacity ?? 1
+      element = `<svg x="${offset}" y="${offset}" width="${size}" height="${size}" opacity="${opacity}" fill="${color}"><use href="${icon.symbol}"/></svg>`
+    } else {
+      element = `<image href="${icon.url}" x="${offset}" y="${offset}" width="${size}" height="${size}" preserveAspectRatio="xMidYMid meet"/>`
+    }
   }
-  const size = is.defined(icon.size) ? icon.size * toScale(height) : 100
-  const offset = (100 - size) / 2
-  if (icon.symbol) {
-    const color = icon.color ?? '#000000'
-    const opacity = icon.opacity ?? 1
-    return `<svg x="${offset}" y="${offset}" width="${size}" height="${size}" opacity="${opacity}" fill="${color}"><use href="${icon.symbol}"/></svg>`
-  }
-  return `<image href="${icon.url}" x="${offset}" y="${offset}" width="${size}" height="${size}" preserveAspectRatio="xMidYMid meet"/>`
+  return toSVGOverlayElement(element, icon)
 }
 
 export function toSVGTitleElement (params) {
