@@ -1,5 +1,5 @@
 import { assert, is, conform, optional } from '@kalisio/common-core/predicates'
-import { Clock, setCurrentClock } from './runtime/index.js'
+import { Clock, setGlobalClock } from './runtime/index.js'
 
 const SETUP_OPTIONS_SCHEMA = {
   clock: optional(value => is.instanceOf(value, Clock))
@@ -12,5 +12,5 @@ export function setup (options = {}) {
     'invalid setup options'
   )
   const { clock } = options
-  if (is.defined(clock)) setCurrentClock(clock)
+  if (is.defined(clock)) setGlobalClock(clock)
 }

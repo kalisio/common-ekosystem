@@ -51,7 +51,7 @@ yarn add @kalisio/common-time
 import {
   DateTime, Duration, TimeRange,
   date, duration, timezone, timeSeries,
-  Clock, getCurrentClock, setCurrentClock,
+  Clock, getGlobalClock, setGlobalClock,
   registerTimeLocales, loadTimeLocale
 } from '@kalisio/common-time'
 ```
@@ -111,18 +111,21 @@ clock.dispose()
 
 ### Sharing a clock across modules
 
-Use [getCurrentClock and setCurrentClock](./runtime/current-clock.md) to share a clock instance across application modules.
+Use [global-clock](./runtime/global-clock.md) to share a clock
+instance across application modules.
+
+The application must configure the global clock before
+other modules access it.
 
 ```js
 // Application initialization
 const clock = new Clock({ timezone: 'Europe/Paris' })
-setCurrentClock(clock)
+setGlobalClock(clock)
 
 // Other modules
-getCurrentClock().now()
-getCurrentClock().range()
+getGlobalClock().now()
+getGlobalClock().range()
 
 // Application shutdown
-setCurrentClock(null)
 clock.dispose()
 ```

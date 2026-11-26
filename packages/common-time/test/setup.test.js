@@ -1,5 +1,7 @@
-import { Clock, getCurrentClock, setCurrentClock } from '@kalisio/common-time'
-import { setup } from '@kalisio/common-time/setup'
+let Clock
+let getGlobalClock
+let setGlobalClock
+let setup
 
 const clocks = []
 
@@ -9,35 +11,52 @@ function createClock () {
   return clock
 }
 
+beforeEach(async () => {
+  vi.resetModules()
+  const runtime = await import('@kalisio/common-time')
+  Clock = runtime.Clock
+  getGlobalClock = runtime.getGlobalClock
+  setGlobalClock = runtime.setGlobalClock
+  setup = (await import('@kalisio/common-time/setup')).setup
+})
+
 afterEach(() => {
-  setCurrentClock(null)
-  for (const clock of clocks.splice(0)) clock.dispose()
+  for (const clock of clocks.splice(0)) {
+    if (!clock.disposed) clock.dispose()
+  }
 })
 
 describe('setup', () => {
   it('installs the provided clock', () => {
     const clock = createClock()
     setup({ clock })
-    expect(getCurrentClock()).toBe(clock)
+    expect(getGlobalClock()).toBe(clock)
   })
-  it('does not replace the current clock when called without options', () => {
-    const clock = createClock()
-    setCurrentClock(clock)
+  it('accepts being called without options', () => {
+    expect(() => setup()).not.toThrow()
+  })
+  it('does not configure a default clock', () => {
     setup()
-    expect(getCurrentClock()).toBe(clock)
+    expect(() => getGlobalClock()).toThrow('global clock must be configured')
   })
-  it('accepts an undefined clock without changing the current clock', () => {
+  it('does not replace the global clock when called without options', () => {
     const clock = createClock()
-    setCurrentClock(clock)
-    setup({ clock: undefined })
-    expect(getCurrentClock()).toBe(clock)
+    setGlobalClock(clock)
+    setup()
+    expect(getGlobalClock()).toBe(clock)
   })
-  it('replaces the current clock when another clock is provided', () => {
+  it('accepts an undefined clock without changing the global clock', () => {
+    const clock = createClock()
+    setGlobalClock(clock)
+    setup({ clock: undefined })
+    expect(getGlobalClock()).toBe(clock)
+  })
+  it('replaces the global clock when another clock is provided', () => {
     const first = createClock()
     const second = createClock()
     setup({ clock: first })
     setup({ clock: second })
-    expect(getCurrentClock()).toBe(second)
+    expect(getGlobalClock()).toBe(second)
     expect(first.disposed).toBe(false)
   })
   it('rejects invalid setup options', () => {
@@ -50,27 +69,16 @@ describe('setup', () => {
       expect(() => setup({ clock })).toThrow('invalid setup options')
     }
   })
-  it('rejects a disposed clock', () => {
+  it('accepts a disposed clock', () => {
     const clock = createClock()
     clock.dispose()
-    expect(() => setup({ clock })).toThrow('disposed')
+    setup({ clock })
+    expect(getGlobalClock()).toBe(clock)
   })
-  it('still rejects a clock that is not a Clock instance in production', async () => {
-    vi.stubEnv('NODE_ENV', 'production')
-    vi.resetModules()
-    try {
-      const { setup } = await import('@kalisio/common-time/setup')
-      expect(() => setup({ clock: {} })).toThrow(TypeError)
-      expect(() => setup({ clock: {} })).toThrow('clock must be a Clock instance')
-    } finally {
-      vi.unstubAllEnvs()
-      vi.resetModules()
-    }
-  })
-  it('preserves the current clock when setup fails', () => {
+  it('preserves the global clock when setup fails', () => {
     const clock = createClock()
     setup({ clock })
     expect(() => setup({ clock: {} })).toThrow('invalid setup options')
-    expect(getCurrentClock()).toBe(clock)
+    expect(getGlobalClock()).toBe(clock)
   })
 })

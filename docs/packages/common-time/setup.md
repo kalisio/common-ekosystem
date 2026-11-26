@@ -1,11 +1,12 @@
 ---
 title: setup
-description: Configure the shared clock for an application.
+description: Configure the global application clock.
 ---
 
 # setup
 
-Configures the shared clock used by `common-time`. The application owns the clock's creation and lifecycle.
+Registers the application clock to be shared across modules.
+The clock is created and managed by the application.
 
 ## Signature
 
@@ -16,35 +17,39 @@ setup(options = {})
 ## Parameters
 
 | Option | Type | Required | Description |
-|---|---|---|---|
-| `clock` | `Clock` | no | Active clock to install as the shared clock. |
+|--------|------|----------|-------------|
+| `clock` | `Clock` | no | The clock instance to install globally |
 
-`setup()` installs the clock when provided. Omitting `clock` or passing `undefined` leaves the current clock unchanged.
-A disposed clock raises an `Error`. Outside production mode, invalid options raise an `AssertionError`. In production mode,
-a `clock` that is not a `Clock` instance still raises the `TypeError` of [`setCurrentClock()`](./runtime/current-clock.md#setcurrentclock).
+If a clock is supplied, it becomes the global clock.
+If the option is absent or undefined, the existing
+global reference remains unchanged.
+
+No default clock is created.
 
 ## Returns
 
 | Type | Description |
-|---|---|
-| `undefined` | No return value. |
+|------|-------------|
+| `void` | No return value |
 
 ## Example
 
 ```js
 import { setup } from '@kalisio/common-time/setup'
-import { Clock, getCurrentClock } from '@kalisio/common-time'
+import { Clock, getGlobalClock } from '@kalisio/common-time'
 
 const clock = new Clock({ timezone: 'Europe/Paris' })
+
 setup({ clock })
 
-getCurrentClock().now()
+getGlobalClock().now()
 ```
 
-## Shared clock
+## Global clock
 
 | Service | Access | Behavior |
-|---|---|---|
-| Clock | `getCurrentClock()` | Returns the installed clock. Defaults to a lazily created realtime clock. |
+|---------|--------|----------|
+| Clock | `getGlobalClock()` | Retrieves the explicitly configured clock |
 
-See [current-clock](./runtime/current-clock.md).
+For direct access and registration, see
+[global-clock](./runtime/global-clock.md).
