@@ -89,14 +89,3 @@ export class EventBus {
     this.#listeners.clear()
   }
 }
-
-let globalEventBus
-
-export function setEventBus (bus) {
-  assert.that(bus, value => is.instanceOf(value, EventBus), 'bus must be an instance of EventBus')
-  globalEventBus = bus
-}
-
-export function getEventBus () {
-  return globalEventBus
-}

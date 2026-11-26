@@ -1,8 +1,20 @@
-import { Locales, setLocales, getLocales } from '../../src/runtime/locales.js'
-import { EventBus, setEventBus } from '../../src/runtime/event-bus.js'
+let setLocales
+let getLocales
+let EventBus
+let setGlobalEventBus
+
+beforeEach(async () => {
+  vi.resetModules()
+  const runtime = await import('../../src/runtime/index.js')
+  setLocales = runtime.setLocales
+  getLocales = runtime.getLocales
+  EventBus = runtime.EventBus
+  setGlobalEventBus = runtime.setGlobalEventBus
+})
 
 function setup (codes = [], options = {}) {
-  const locales = new Locales(options)
+  setLocales(options)
+  const locales = getLocales()
   const registered = new Set(locales.list())
   for (const code of codes) {
     const normalized = Intl.getCanonicalLocales(code)[0]
@@ -14,26 +26,26 @@ function setup (codes = [], options = {}) {
 }
 
 describe('Locales', () => {
-  describe('construction', () => {
+  describe('initialization', () => {
     it('starts on the normalized default locale', () => {
-      const locales = new Locales({ default: 'fr-ca', fallback: 'en' })
+      const locales = setup([], { default: 'fr-ca', fallback: 'en' })
       expect(locales.getCurrent()).toBe('fr-CA')
     })
     it('registers default and fallback automatically', () => {
-      const locales = new Locales({ default: 'fr', fallback: 'en' })
+      const locales = setup([], { default: 'fr', fallback: 'en' })
       expect([...locales.list()]).toEqual(['fr', 'en'])
       expect(locales.resolve()).toBe('fr')
       expect(locales.resolve('de')).toBe('en')
     })
     it('registers the locale only once when default and fallback are identical', () => {
-      const locales = new Locales()
+      const locales = setup()
       expect([...locales.list()]).toEqual(['en'])
     })
     it('rejects a malformed default locale', () => {
-      expect(() => new Locales({ default: 'en_US' })).toThrow(RangeError)
+      expect(() => setLocales({ default: 'en_US' })).toThrow(RangeError)
     })
     it('rejects a malformed fallback locale', () => {
-      expect(() => new Locales({ fallback: '*' })).toThrow(RangeError)
+      expect(() => setLocales({ fallback: '*' })).toThrow(RangeError)
     })
   })
 
@@ -49,7 +61,7 @@ describe('Locales', () => {
       const bus = new EventBus()
       const listener = vi.fn()
       bus.on('locale:changed', listener)
-      setEventBus(bus)
+      setGlobalEventBus(bus)
       const locales = setup(['fr'])
       locales.setCurrent('fr')
       expect(locales.getCurrent()).toBe('fr')
@@ -67,9 +79,9 @@ describe('Locales', () => {
       first.on('locale:changed', firstListener)
       second.on('locale:changed', secondListener)
       const locales = setup(['fr'])
-      setEventBus(first)
+      setGlobalEventBus(first)
       locales.setCurrent('fr')
-      setEventBus(second)
+      setGlobalEventBus(second)
       locales.setCurrent('en')
       expect(firstListener).toHaveBeenCalledTimes(1)
       expect(secondListener).toHaveBeenCalledTimes(1)
@@ -86,15 +98,13 @@ describe('Locales', () => {
       const bus = new EventBus()
       const listener = vi.fn()
       bus.on('locale:changed', listener)
-      setEventBus(bus)
+      setGlobalEventBus(bus)
       const locales = setup()
       locales.setCurrent('en')
       expect(listener).not.toHaveBeenCalled()
     })
-    it('works without a configured event bus', async () => {
-      vi.resetModules()
-      const { Locales } = await import('../../src/runtime/locales.js')
-      const locales = new Locales({ default: 'en', fallback: 'fr' })
+    it('works without a configured event bus', () => {
+      const locales = setup([], { default: 'en', fallback: 'fr' })
       expect(() => locales.setCurrent('fr')).not.toThrow()
       expect(locales.getCurrent()).toBe('fr')
     })
@@ -176,7 +186,9 @@ describe('Locales', () => {
     it('normalizes resource locales', () => {
       const locales = setup()
       locales.registerResources('time', { 'en-us': { id: 'en-US' } })
-      expect(locales.getResources('time', 'en-US')).toEqual([{ locale: 'en-US', resource: { id: 'en-US' } }])
+      expect(locales.getResources('time', 'en-US')).toEqual([
+        { locale: 'en-US', resource: { id: 'en-US' } }
+      ])
     })
     it('rejects duplicate locales within one contribution', () => {
       const locales = setup()
@@ -194,7 +206,7 @@ describe('Locales', () => {
       expect(locales.getResources('time')).toEqual([])
     })
     it('accepts resources registered before additional locales', () => {
-      const locales = new Locales()
+      const locales = setup()
       locales.registerResources('time', { fr: { id: 'fr' } })
       locales.register('fr')
       expect(locales.getResources('time', 'fr')).toEqual([{ locale: 'fr', resource: { id: 'fr' } }])
@@ -202,37 +214,68 @@ describe('Locales', () => {
   })
 })
 
-describe('current locales', () => {
-  it('throws when no locales have been configured', async () => {
-    vi.resetModules()
-    const { getLocales } = await import('../../src/runtime/locales.js')
-    expect(() => getLocales()).toThrow('locales must be configured')
+describe('global locales', () => {
+  describe('getLocales', () => {
+    it('returns null before configuration', () => {
+      expect(getLocales()).toBeNull()
+    })
+    it('returns the same instance on successive calls', () => {
+      setLocales()
+      expect(getLocales()).toBe(getLocales())
+    })
+    it('reflects changes to the configured locales', () => {
+      const locales = setup(['fr'])
+      locales.setCurrent('fr')
+      expect(getLocales().getCurrent()).toBe('fr')
+    })
   })
-  it('installs and retrieves the current locales', () => {
-    const locales = setup(['fr'])
-    setLocales(locales)
-    expect(getLocales()).toBe(locales)
-  })
-  it('rejects an invalid instance and preserves the current one', () => {
-    const locales = setup()
-    setLocales(locales)
-    for (const value of [undefined, null, {}, 'en', 42]) {
-      expect(() => setLocales(value)).toThrow('locales must be an instance of Locales')
+
+  describe('setLocales', () => {
+    it('accepts no options', () => {
+      setLocales()
+      expect(getLocales().getCurrent()).toBe('en')
+      expect([...getLocales().list()]).toEqual(['en'])
+    })
+    it('accepts empty options', () => {
+      setLocales({})
+      expect(getLocales().getCurrent()).toBe('en')
+    })
+    it('accepts undefined options', () => {
+      setLocales(undefined)
+      expect(getLocales().getCurrent()).toBe('en')
+    })
+    it('configures the default and fallback locales', () => {
+      setLocales({ default: 'fr', fallback: 'en' })
+      expect(getLocales().getCurrent()).toBe('fr')
+      expect([...getLocales().list()]).toEqual(['fr', 'en'])
+    })
+    it('rejects invalid options', () => {
+      for (const options of [null, 'en', 42, [], () => {}]) {
+        expect(() => setLocales(options)).toThrow('options must be a plain object')
+      }
+    })
+    it('preserves the current instance when options are invalid', () => {
+      const locales = setup(['fr'])
+      expect(() => setLocales(null)).toThrow('options must be a plain object')
       expect(getLocales()).toBe(locales)
-    }
-  })
-  it('replaces the current locales', () => {
-    const first = setup(['fr'])
-    const second = setup(['de'])
-    setLocales(first)
-    setLocales(second)
-    expect(getLocales()).toBe(second)
-    expect([...getLocales().list()]).toEqual(['en', 'de'])
-  })
-  it('reflects changes to the installed instance', () => {
-    const locales = setup(['fr'])
-    setLocales(locales)
-    locales.setCurrent('fr')
-    expect(getLocales().getCurrent()).toBe('fr')
+    })
+    it('preserves the current instance when a locale is invalid', () => {
+      const locales = setup(['fr'])
+      expect(() => setLocales({ default: 'en_US' })).toThrow(RangeError)
+      expect(getLocales()).toBe(locales)
+    })
+    it('replaces the current instance', () => {
+      const first = setup(['fr'])
+      const second = setup(['de'])
+      expect(second).not.toBe(first)
+      expect(getLocales()).toBe(second)
+      expect([...getLocales().list()]).toEqual(['en', 'de'])
+    })
+    it('does not preserve resources from the previous instance', () => {
+      const locales = setup()
+      locales.registerResources('time', { en: { id: 'time' } })
+      setLocales()
+      expect(getLocales().getResources('time')).toEqual([])
+    })
   })
 })

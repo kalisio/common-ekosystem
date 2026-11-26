@@ -1,8 +1,8 @@
 import { assert, is } from '../predicates/index.js'
 import { Registry } from '../structures/registry.js'
-import { getEventBus } from './event-bus.js'
+import { getGlobalEventBus } from './global-event-bus.js'
 
-export class Locales {
+class Locales {
   #locales = new Registry('locales')
   #resources = new Registry('locale-resources')
   #current
@@ -70,7 +70,7 @@ export class Locales {
     if (locale === this.#current) return
     const previous = this.#current
     this.#current = locale
-    getEventBus()?.emit('locale:changed', { locale, previous })
+    getGlobalEventBus()?.emit('locale:changed', { locale, previous })
   }
 
   resolve (...codes) {
@@ -115,14 +115,13 @@ export class Locales {
   }
 }
 
-let globalLocales
+let globalLocales = null
 
-export function setLocales (locales) {
-  assert.that(locales, value => is.instanceOf(value, Locales), 'locales must be an instance of Locales')
-  globalLocales = locales
+export function setLocales (options = {}) {
+  assert.that(options, is.plainObject, 'options must be a plain object')
+  globalLocales = new Locales(options)
 }
 
 export function getLocales () {
-  assert.that(globalLocales, is.defined, 'locales must be configured')
   return globalLocales
 }

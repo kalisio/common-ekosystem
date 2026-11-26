@@ -1,5 +1,6 @@
 export * from './event-listeners.js'
 export * from './event-bus.js'
+export * from './global-event-bus.js'
 export * from './locales.js'
 export * from './logger.js'
 export * from './requester.js'

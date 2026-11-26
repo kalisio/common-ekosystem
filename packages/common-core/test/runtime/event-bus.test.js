@@ -1,4 +1,4 @@
-import { EventBus, setEventBus, getEventBus } from '../../src/runtime/event-bus.js'
+import { EventBus } from '../../src/runtime/event-bus.js'
 import { setLogger } from '../../src/runtime/logger.js'
 
 const flush = () => new Promise(resolve => setTimeout(resolve))
@@ -290,39 +290,5 @@ describe('EventBus.destroy', () => {
     bus.on('test', after)
     bus.emit('test')
     expect(after).not.toHaveBeenCalled()
-  })
-})
-
-describe('global event bus', () => {
-  it('returns undefined when no event bus has been configured', async () => {
-    vi.resetModules()
-    const { getEventBus } = await import('../../src/runtime/event-bus.js')
-    expect(getEventBus()).toBeUndefined()
-  })
-  it('installs and retrieves the global event bus', () => {
-    const bus = new EventBus()
-    setEventBus(bus)
-    expect(getEventBus()).toBe(bus)
-  })
-  it('rejects invalid instances and preserves the global one', () => {
-    const bus = new EventBus()
-    setEventBus(bus)
-    for (const value of [undefined, null, {}, 'event', 42]) {
-      expect(() => setEventBus(value)).toThrow('bus must be an instance of EventBus')
-      expect(getEventBus()).toBe(bus)
-    }
-  })
-  it('replaces the global event bus', () => {
-    const first = new EventBus()
-    const second = new EventBus()
-    setEventBus(first)
-    setEventBus(second)
-    expect(getEventBus()).toBe(second)
-  })
-  it('returns the installed instance without copying its state', () => {
-    const bus = new EventBus()
-    setEventBus(bus)
-    bus.on('test', () => {})
-    expect(getEventBus().listenerCount('test')).toBe(1)
   })
 })

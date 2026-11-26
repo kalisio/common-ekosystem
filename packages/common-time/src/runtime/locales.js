@@ -1,12 +1,12 @@
-import { assert, is } from '@kalisio/common-core/predicates'
+import { is } from '@kalisio/common-core/predicates'
+import { getLocales } from '@kalisio/common-core/runtime'
 import moment from 'moment-timezone'
 
 const NAMESPACE = 'common-time'
 
 // Registers the Moment locales supported by common-time.
-export function registerTimeLocales (locales) {
-  assert.that(locales, value => is.object(value) && is.function(value.registerResources), 'locales must support registerResources()')
-  locales.registerResources(NAMESPACE, {
+export function registerTimeLocales () {
+  getLocales().registerResources(NAMESPACE, {
     en: { locale: 'en' },
     fr: {
       locale: 'fr',
@@ -16,8 +16,8 @@ export function registerTimeLocales (locales) {
 }
 
 // Loads the best matching Moment locale and returns its code.
-export async function loadTimeLocale (locales, code) {
-  assert.that(locales, value => is.object(value) && is.function(value.getResources), 'locales must support getResources()')
+export async function loadTimeLocale (code) {
+  const locales = getLocales()
   const [entry] = locales.getResources(NAMESPACE, code)
   if (!entry) throw new RangeError(`No Moment locale available for: ${code ?? locales.getCurrent()}`)
   const { locale, load } = entry.resource

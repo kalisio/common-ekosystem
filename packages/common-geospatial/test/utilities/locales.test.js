@@ -1,21 +1,10 @@
-import { getLocales, Locales, setLocales } from '@kalisio/common-core/runtime'
+import { getLocales, setLocales } from '@kalisio/common-core/runtime'
 import { locales, setup } from '../../src/index.js'
 
 describe('locales.getMessages', () => {
-  let previousRegistry
-
-  beforeEach(() => {
-    previousRegistry = getLocales()
-  })
-
-  afterEach(() => {
-    setLocales(previousRegistry)
-  })
-
   it('resolves a parent language and uses the configured fallback for an unsupported language', () => {
-    const registry = new Locales({ default: 'en', fallback: 'fr' })
-    setLocales(registry)
-    setup({ locales: registry })
+    setLocales({ default: 'en', fallback: 'fr' })
+    setup()
 
     const french = locales.getMessages('fr')
     expect(french.DIRECTIONS.WEST).toEqual({ label: 'Ouest', symbol: 'O' })
@@ -23,21 +12,18 @@ describe('locales.getMessages', () => {
     expect(locales.getMessages('fr-CA')).toBe(french)
     expect(locales.getMessages('de-DE')).toBe(french)
   })
-
   it('returns the highest-priority catalog as a whole', () => {
-    const registry = new Locales()
+    setLocales()
     const custom = { VALIDATION: { INVALID_GEOMETRY: 'Custom translation' } }
-    setLocales(registry)
-    setup({ locales: registry, messages: { fr: custom } })
+    setup({ messages: { fr: custom } })
 
     expect(locales.getMessages('fr')).toBe(custom)
   })
-
   it('maps registered locale codes to their resolved catalogs when called without a code', () => {
-    const registry = new Locales()
+    setLocales()
+    const registry = getLocales()
     registry.register('fr-CA')
-    setLocales(registry)
-    setup({ locales: registry })
+    setup()
     registry.setCurrent('fr-CA')
 
     expect(locales.getMessages()).toEqual({
@@ -45,11 +31,9 @@ describe('locales.getMessages', () => {
       'fr-CA': locales.getMessages('fr')
     })
   })
-
   it('returns undefined for a code with no matching resource', () => {
-    const registry = new Locales({ default: 'de', fallback: 'it' })
-    setLocales(registry)
-    setup({ locales: registry })
+    setLocales({ default: 'de', fallback: 'it' })
+    setup()
 
     expect(locales.getMessages('de')).toBeUndefined()
     expect(locales.getMessages()).toEqual({ de: undefined, it: undefined })

@@ -1,6 +1,7 @@
 import { setup } from '../src/setup.js'
-import { Locales, getLocales } from '../src/runtime/locales.js'
-import { EventBus, getEventBus } from '../src/runtime/event-bus.js'
+import { getLocales } from '../src/runtime/locales.js'
+import { EventBus } from '../src/runtime/event-bus.js'
+import { getGlobalEventBus } from '../src/runtime/global-event-bus.js'
 import { getLogger, setLogger } from '../src/runtime/logger.js'
 
 describe('setup', () => {
@@ -25,23 +26,29 @@ describe('setup', () => {
     logger.info('hello')
     expect(implementation.info).toHaveBeenCalledWith('hello')
   })
-  it('configures the global locales', () => {
-    const locales = new Locales()
-    setup({ locales })
-    expect(getLocales()).toBe(locales)
+  it('configures the locales', () => {
+    setup({ locales: { default: 'fr', fallback: 'en' } })
+    expect(getLocales().getCurrent()).toBe('fr')
+    expect([...getLocales().list()]).toEqual(['fr', 'en'])
+  })
+  it('accepts empty locales options', () => {
+    setup({ locales: {} })
+    expect(getLocales().getCurrent()).toBe('en')
+    expect([...getLocales().list()]).toEqual(['en'])
   })
   it('configures the global event bus', () => {
     const bus = new EventBus()
     setup({ bus })
-    expect(getEventBus()).toBe(bus)
+    expect(getGlobalEventBus()).toBe(bus)
   })
   it('accepts logger, locales and bus together', () => {
-    const locales = new Locales()
+    const locales = { default: 'fr', fallback: 'en' }
     const bus = new EventBus()
     const implementation = { debug: vi.fn() }
     setup({ locales, bus, logger: () => implementation })
-    expect(getLocales()).toBe(locales)
-    expect(getEventBus()).toBe(bus)
+    expect(getLocales().getCurrent()).toBe('fr')
+    expect([...getLocales().list()]).toEqual(['fr', 'en'])
+    expect(getGlobalEventBus()).toBe(bus)
     getLogger('test').debug('ready')
     expect(implementation.debug).toHaveBeenCalledWith('ready')
   })
@@ -58,8 +65,8 @@ describe('setup', () => {
       expect(() => setup({ logger })).toThrow('invalid setup options')
     }
   })
-  it('rejects invalid locales', () => {
-    for (const locales of [42, 'fr', {}, [], () => {}]) {
+  it('rejects invalid locales options', () => {
+    for (const locales of [42, 'fr', [], () => {}]) {
       expect(() => setup({ locales })).toThrow('invalid setup options')
     }
   })
@@ -69,21 +76,29 @@ describe('setup', () => {
     }
   })
   it('validates options before configuring services', () => {
-    const locales = new Locales()
     const bus = new EventBus()
-    setup({ locales, bus })
-    expect(() => setup({ locales: new Locales(), bus: new EventBus(), logger: 42 })).toThrow('invalid setup options')
+    setup({ locales: { default: 'fr' }, bus })
+    const locales = getLocales()
+    expect(() => setup({
+      locales: { default: 'de' },
+      bus: new EventBus(),
+      logger: 42
+    })).toThrow('invalid setup options')
     expect(getLocales()).toBe(locales)
-    expect(getEventBus()).toBe(bus)
+    expect(getGlobalEventBus()).toBe(bus)
   })
   it('preserves existing services when options are omitted', () => {
-    const locales = new Locales()
     const bus = new EventBus()
     const implementation = { info: vi.fn() }
-    setup({ locales, bus, logger: () => implementation })
+    setup({
+      locales: { default: 'fr' },
+      bus,
+      logger: () => implementation
+    })
+    const locales = getLocales()
     setup({})
     expect(getLocales()).toBe(locales)
-    expect(getEventBus()).toBe(bus)
+    expect(getGlobalEventBus()).toBe(bus)
     getLogger('test').info('hello')
     expect(implementation.info).toHaveBeenCalledWith('hello')
   })
