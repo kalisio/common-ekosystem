@@ -24,8 +24,8 @@ The authorization model relies on the following concepts:
 
 | Concept | Description |
 |---------|-------------|
-| Principal | The identity performing an action, such as a user, service, application, or agent. |
-| Ability | A set of authorization rules associated with a principal. |
+| Actor | The identity performing an action, such as a user, service, application, or agent. |
+| Ability | A set of authorization rules associated with an actor. |
 | Rule | A definition allowing or denying an action on a subject. |
 | Action | The operation to perform. |
 | Subject type | The type of resource targeted by an action. |
@@ -143,7 +143,7 @@ const authorization = new Authorization({
     update: ['patch']
   },
   cache: {
-    key: principal => principal._id,
+    key: actor => actor._id,
     max: 1000,
     ttl: 60000
   }
@@ -152,8 +152,8 @@ const authorization = new Authorization({
 authorization.roles.register('member', {})
 authorization.roles.register('manager', { inherits: ['member'] })
 
-authorization.registerHook('projects', async (principal, { defineRoleAbilities }) => {
-  for (const organization of principal.organizations) {
+authorization.registerHook('projects', async (actor, { defineRoleAbilities }) => {
+  for (const organization of actor.organizations) {
     await defineRoleAbilities(organization.role, {
       member: ({ can }) => can('read', 'projects'),
       manager: ({ can }) => can('update', 'projects')
@@ -161,7 +161,7 @@ authorization.registerHook('projects', async (principal, { defineRoleAbilities }
   }
 })
 
-const principal = {
+const actor = {
   _id: 'user-1',
   organizations: [
     { _id: 'org-1', role: 'manager' },
@@ -169,20 +169,20 @@ const principal = {
   ]
 }
 
-const principalAbility = await authorization.getAbility(principal)
+const actorAbility = await authorization.getAbility(actor)
 
-permissions.can(principalAbility, 'patch', 'projects', {
+permissions.can(actorAbility, 'patch', 'projects', {
   organizationId: 'org-1'
 }) // true
 
-permissions.can(principalAbility, 'patch', 'projects', {
+permissions.can(actorAbility, 'patch', 'projects', {
   organizationId: 'org-2'
 }) // false
 ```
 
 Authorization supports asynchronous hooks, scoped permissions, and optional caching with LRU eviction 
 and expiration. Changes to roles or hooks make cached rules stale. Applications can explicitly invalidate 
-cached rules when a principal's permissions change.
+cached rules when an actor's permissions change.
 
 ### Sharing authorization across modules
 
@@ -194,7 +194,7 @@ authorization instance across application modules.
 setGlobalAuthorization(authorization)
 
 // Other modules
-const sharedAbility = await getGlobalAuthorization().getAbility(principal)
+const sharedAbility = await getGlobalAuthorization().getAbility(actor)
 ```
 
 Multiple independent authorization instances can also be created when required.

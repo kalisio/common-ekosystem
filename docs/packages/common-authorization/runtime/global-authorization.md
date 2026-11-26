@@ -68,5 +68,5 @@ const ability = await authorization.getAbility({ _id: 'user-1' })
 ```
 
 ::: info
-Sharing the instance does not imply sharing a principal or an ability. Each consumer still computes or retrieves the ability for its own principal and context. For independent authorization policies, create separate `Authorization` instances.
+Sharing the instance does not imply sharing an actor or an ability. Each consumer still computes or retrieves the ability for its own actor and context. For independent authorization policies, create separate `Authorization` instances.
 :::

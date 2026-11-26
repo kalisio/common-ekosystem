@@ -4,7 +4,7 @@ import { Authorization, RoleRegistry } from '../../src/runtime/index.js'
 import { permissions } from '../../src/utilities/index.js'
 
 const aliases = { update: ['patch'], read: ['get', 'find'] }
-const key = principal => principal?._id ?? 'anonymous'
+const key = actor => actor?._id ?? 'anonymous'
 
 const user = {
   _id: 'user-1',
@@ -15,13 +15,13 @@ const user = {
 }
 const otherUser = { _id: 'user-2', organizations: [] }
 
-// Registers the roles and a hook scoping them to each organization of the principal
+// Registers the roles and a hook scoping them to each organization of the actor
 function createAuthorization (options = {}) {
   const authorization = new Authorization({ aliases, ...options })
   authorization.roles.register('member', {})
   authorization.roles.register('manager', { inherits: ['member'] })
-  const hook = vi.fn(async (principal, { defineRoleAbilities }) => {
-    for (const organization of principal?.organizations ?? []) {
+  const hook = vi.fn(async (actor, { defineRoleAbilities }) => {
+    for (const organization of actor?.organizations ?? []) {
       await defineRoleAbilities(organization.role, {
         member: ({ can }) => can('read', 'items'),
         manager: ({ can }) => can('update', 'items')
@@ -49,13 +49,13 @@ describe('Authorization', () => {
   })
 
   describe('hooks', () => {
-    it('receive the principal, the functions to define rules and the context', async () => {
+    it('receive the actor, the functions to define rules and the context', async () => {
       const authorization = new Authorization()
       const hook = vi.fn()
       authorization.registerHook('test', hook)
       await authorization.defineAbility(user, { organizationId: 'org-1' })
-      const [principal, definitions, context] = hook.mock.calls[0]
-      expect(principal).toBe(user)
+      const [actor, definitions, context] = hook.mock.calls[0]
+      expect(actor).toBe(user)
       expect(Object.keys(definitions)).toEqual(['can', 'cannot', 'defineRoleAbilities'])
       expect(context).toEqual({ organizationId: 'org-1' })
     })
@@ -72,8 +72,8 @@ describe('Authorization', () => {
     })
     it('take precedence over the hooks registered before them', async () => {
       const authorization = new Authorization()
-      authorization.registerHook('grant', (principal, { can }) => can('read', 'items'))
-      authorization.registerHook('deny', (principal, { cannot }) => cannot('read', 'items'))
+      authorization.registerHook('grant', (actor, { can }) => can('read', 'items'))
+      authorization.registerHook('deny', (actor, { cannot }) => cannot('read', 'items'))
       expect((await authorization.defineAbility(user)).can('read', 'items')).toBe(false)
     })
     it('registered while hooks run only apply to the next abilities', async () => {
@@ -130,7 +130,7 @@ describe('Authorization', () => {
       authorization.roles.register('editor', { inherits: ['member'] })
       authorization.roles.register('reviewer', { inherits: ['member'] })
       authorization.roles.register('manager', { inherits: ['editor', 'reviewer'] })
-      authorization.registerHook('items', (principal, { defineRoleAbilities }) => defineRoleAbilities('manager', {
+      authorization.registerHook('items', (actor, { defineRoleAbilities }) => defineRoleAbilities('manager', {
         member: ({ can }) => can('update', 'items'),
         editor: ({ cannot }) => cannot('update', 'items', { locked: true }),
         reviewer: ({ can }) => can('review', 'items')
@@ -141,9 +141,9 @@ describe('Authorization', () => {
       expect(permissions.can(ability, 'update', 'items', { locked: false })).toBe(true)
       expect(permissions.can(ability, 'review', 'items', { locked: true })).toBe(true)
     })
-    it('defines the abilities of an anonymous principal', async () => {
+    it('defines the abilities of an anonymous actor', async () => {
       const { authorization } = createAuthorization()
-      authorization.registerHook('public', (principal, { can }) => can('read', 'publications'))
+      authorization.registerHook('public', (actor, { can }) => can('read', 'publications'))
       const ability = await authorization.defineAbility(null)
       expect(ability.can('read', 'publications')).toBe(true)
       expect(ability.can('read', 'items')).toBe(false)
@@ -197,21 +197,21 @@ describe('Authorization', () => {
     })
     it('gives every ability its own copy of the rules, isolated from the hooks', async () => {
       const authorization = new Authorization({ cache: { key } })
-      const principal = { _id: 'user-1', organizationIds: ['org-1', 'org-2'] }
+      const actor = { _id: 'user-1', organizationIds: ['org-1', 'org-2'] }
       authorization.registerHook('items', ({ organizationIds }, { can }) => {
         can('read', 'items', { context: { $in: organizationIds } })
       })
-      const first = await authorization.getAbility(principal)
+      const first = await authorization.getAbility(actor)
       expect(Object.isFrozen(first.rules)).toBe(false)
       first.rules[0].conditions.context.$in.push('org-3')
-      principal.organizationIds.push('org-4')
-      const second = await authorization.getAbility(principal)
+      actor.organizationIds.push('org-4')
+      const second = await authorization.getAbility(actor)
       expect(second.rules[0].conditions.context.$in).toEqual(['org-1', 'org-2'])
     })
     it('keeps the aliases given at construction', async () => {
       const aliases = { update: ['patch'] }
       const authorization = new Authorization({ aliases, cache: { key } })
-      authorization.registerHook('items', (principal, { can }) => can('update', 'items'))
+      authorization.registerHook('items', (actor, { can }) => can('update', 'items'))
       aliases.update.push('replace')
       expect((await authorization.defineAbility(user)).can('replace', 'items')).toBe(false)
       expect((await authorization.getAbility(user)).can('replace', 'items')).toBe(false)
@@ -226,7 +226,7 @@ describe('Authorization', () => {
     it('keeps values such as ObjectId comparable', async () => {
       const authorization = new Authorization({ cache: { key } })
       const id = new ObjectId()
-      authorization.registerHook('users', (principal, { can }) => can('update', 'users', { _id: id }))
+      authorization.registerHook('users', (actor, { can }) => can('update', 'users', { _id: id }))
       const ability = await authorization.getAbility(user)
       expect(permissions.can(ability, 'update', 'users', { _id: new ObjectId(id.toHexString()) })).toBe(true)
       expect(permissions.can(ability, 'update', 'users', { _id: new ObjectId() })).toBe(false)
@@ -247,12 +247,12 @@ describe('Authorization', () => {
     it('recomputes the rules once hooks change', async () => {
       const { authorization, hook } = createAuthorization({ cache: { key } })
       await authorization.getAbility(user)
-      authorization.registerHook('public', (principal, { can }) => can('read', 'publications'))
+      authorization.registerHook('public', (actor, { can }) => can('read', 'publications'))
       const ability = await authorization.getAbility(user)
       expect(hook).toHaveBeenCalledTimes(2)
       expect(ability.can('read', 'publications')).toBe(true)
     })
-    it('recomputes the rules of an invalidated principal only', async () => {
+    it('recomputes the rules of an invalidated actor only', async () => {
       const { authorization, hook } = createAuthorization({ cache: { key } })
       await authorization.getAbility(user)
       await authorization.getAbility(otherUser)
@@ -317,9 +317,9 @@ describe('Authorization', () => {
     })
     it('isolates cached rules by context when the key includes it', async () => {
       const authorization = new Authorization({
-        cache: { key: (principal, context) => JSON.stringify([principal._id, context.organizationId]) }
+        cache: { key: (actor, context) => JSON.stringify([actor._id, context.organizationId]) }
       })
-      const hook = vi.fn((principal, { can }, context) => {
+      const hook = vi.fn((actor, { can }, context) => {
         can('read', 'items', { context: context.organizationId })
       })
       authorization.registerHook('items', hook)
@@ -359,7 +359,7 @@ describe('Authorization', () => {
       const authorization = new Authorization({ cache: { key } })
       const date = new Date('2026-11-20T10:00:00Z')
       const pattern = /^public-/i
-      authorization.registerHook('items', (principal, { can }) => {
+      authorization.registerHook('items', (actor, { can }) => {
         can('read', 'items', { createdAt: { $gte: date }, name: { $regex: pattern } })
       })
       const first = await authorization.getAbility(user)
@@ -386,7 +386,7 @@ describe('Authorization', () => {
     it('isolates ObjectId values across cached abilities', async () => {
       const authorization = new Authorization({ cache: { key } })
       const id = new ObjectId()
-      authorization.registerHook('users', (principal, { can }) => can('read', 'users', { _id: id }))
+      authorization.registerHook('users', (actor, { can }) => can('read', 'users', { _id: id }))
       const first = await authorization.getAbility(user)
       const second = await authorization.getAbility(user)
       const firstId = first.rules[0].conditions._id
@@ -404,7 +404,7 @@ describe('Authorization', () => {
       const gate = Promise.withResolvers()
       const started = Promise.withResolvers()
       let granted = true
-      const hook = vi.fn(async (principal, { can }) => {
+      const hook = vi.fn(async (actor, { can }) => {
         const allowed = granted
         if (allowed) {
           started.resolve()
@@ -437,7 +437,7 @@ describe('Authorization', () => {
       expect(hook).toHaveBeenCalledTimes(4)
     })
     it('rejects a key that is not a string', async () => {
-      const authorization = new Authorization({ cache: { key: principal => principal._id } })
+      const authorization = new Authorization({ cache: { key: actor => actor._id } })
       await expect(authorization.getAbility({ _id: new ObjectId() }))
         .rejects.toThrow('cache key must be a non-empty string')
       expect(() => authorization.invalidateAbility({ _id: new ObjectId() })).toThrow('cache key must be a non-empty string')

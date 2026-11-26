@@ -5,7 +5,7 @@ description: Registry of roles and their inheritance relationships.
 
 # RoleRegistry
 
-A specialized [Registry](../../common-core/structures/registry.md) that stores role definitions and resolves their inheritance. It does not associate roles with principals or define permission rules. Use [Authorization](./authorization.md) or [abilities.defineRoleAbilities()](../utilities/abilities.md#defineroleabilities) to translate roles into rules.
+A specialized [Registry](../../common-core/structures/registry.md) that stores role definitions and resolves their inheritance. It does not associate roles with actors or define permission rules. Use [Authorization](./authorization.md) or [abilities.defineRoleAbilities()](../utilities/abilities.md#defineroleabilities) to translate roles into rules.
 
 ## Constructor
 

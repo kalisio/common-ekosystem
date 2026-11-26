@@ -54,9 +54,9 @@ export class Authorization {
     return removed
   }
 
-  // Always builds a new ability. Each hook receives the principal, the functions to define rules
+  // Always builds a new ability. Each hook receives the actor, the functions to define rules
   // and the context, then runs once the previous one has completed
-  async defineAbility (principal, context = {}) {
+  async defineAbility (actor, context = {}) {
     assert.that(context, is.plainObject, 'context must be an object')
     const builder = abilities.createBuilder(this.#abilityOptions)
     const definitions = {
@@ -66,20 +66,20 @@ export class Authorization {
         abilities.defineRoleAbilities(builder, this.#roles, roles, roleDefinitions, scope)
     }
     // A copy: hooks registered meanwhile only apply to the next abilities
-    for (const hook of this.#hooks.values()) await hook(principal, definitions, context)
+    for (const hook of this.#hooks.values()) await hook(actor, definitions, context)
     return builder.build()
   }
 
   // The cache holds a private copy of the rules, never an ability
-  async getAbility (principal, context = {}) {
+  async getAbility (actor, context = {}) {
     assert.that(context, is.plainObject, 'context must be an object')
-    if (is.nil(this.#cache)) return this.defineAbility(principal, context)
-    const key = this.#getKey(principal, context)
+    if (is.nil(this.#cache)) return this.defineAbility(actor, context)
+    const key = this.#getKey(actor, context)
     const epoch = this.#getEpoch()
     let entry = this.#cache.get(key)
     if (is.nil(entry) || entry.epoch !== epoch) {
       // The computation is cached as soon as it starts, so that concurrent calls share it
-      entry = { epoch, rules: this.#defineRules(principal, context) }
+      entry = { epoch, rules: this.#defineRules(actor, context) }
       this.#cache.set(key, entry)
       // A failure is not cached. Only our own entry is removed: a newer one may have replaced it
       entry.rules.catch(() => {
@@ -92,24 +92,24 @@ export class Authorization {
 
   // Only affects the next calls: a computation in progress still returns the rules it defines,
   // so that an invalidation is not an immediate revocation
-  invalidateAbility (principal, context = {}) {
+  invalidateAbility (actor, context = {}) {
     assert.that(context, is.plainObject, 'context must be an object')
     if (is.nil(this.#cache)) return false
-    return this.#cache.unregister(this.#getKey(principal, context))
+    return this.#cache.unregister(this.#getKey(actor, context))
   }
 
   clearAbilities () {
     this.#cache?.clear()
   }
 
-  async #defineRules (principal, context) {
-    const ability = await this.defineAbility(principal, context)
-    // A private copy: conditions may hold values shared with the hooks, such as an array of the principal
+  async #defineRules (actor, context) {
+    const ability = await this.defineAbility(actor, context)
+    // A private copy: conditions may hold values shared with the hooks, such as an array of the actor
     return object.clone(ability.rules)
   }
 
-  #getKey (principal, context) {
-    const key = this.#key(principal, context)
+  #getKey (actor, context) {
+    const key = this.#key(actor, context)
     // A key that is not a string, an ObjectId for instance, would never be found again
     assert.that(key, is.nonEmptyString, 'cache key must be a non-empty string')
     return key

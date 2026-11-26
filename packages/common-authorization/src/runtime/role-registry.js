@@ -5,7 +5,7 @@ const DEFINITION_SCHEMA = {
   inherits: optional(value => is.arrayOf(value, is.nonEmptyString))
 }
 
-// Knows roles and their inheritance, neither principals nor resources
+// Knows roles and their inheritance, neither actors nor resources
 export class RoleRegistry extends Registry {
   #version = 0
 
