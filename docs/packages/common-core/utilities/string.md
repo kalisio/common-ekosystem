@@ -144,7 +144,7 @@ Normalizes a string by optionally collapsing whitespace, stripping diacritics, a
 
 ### Throws
 
-Throws a `TypeError` if `str` is not a string, or if `options` does not conform to the expected schema (e.g. wrong option type).
+Development assertions raise an `AssertionError` if `str` is not a string, or if `options` does not conform to the expected schema (e.g. wrong option type).
 
 ### Examples
 
@@ -198,7 +198,7 @@ Can be passed directly as the callback to `Array.prototype.sort`.
 
 ### Throws
 
-Throws a `TypeError` if `str1` or `str2` is not a string, or if `options` does not conform to the expected schema.
+Development assertions raise an `AssertionError` if `str1` or `str2` is not a string, or if `options` does not conform to the expected schema.
 
 ### Examples
 
@@ -246,7 +246,7 @@ By default (`reverse: false`), only base characters (e.g. `a`) are expanded to t
 
 ### Throws
 
-Throws a `TypeError` if `pattern` is not a string.
+Development assertions raise an `AssertionError` if `pattern` is not a string.
 
 ### Examples
 
@@ -289,7 +289,7 @@ Converts a string into a URL-friendly slug by stripping diacritics, lowercasing,
 
 ### Throws
 
-Throws a `TypeError` if `str` is not a string or if `separator` is not a single character.
+Development assertions raise an `AssertionError` if `str` is not a string or if `separator` is not a single character.
 
 ### Examples
 
@@ -335,7 +335,7 @@ Extracts the initials of a string by taking the first character of each word, up
 
 ### Throws
 
-Throws a `TypeError` if `str` is not a string.
+Development assertions raise an `AssertionError` if `str` is not a string.
 
 ### Examples
 
@@ -374,7 +374,7 @@ The function recognizes words from common naming conventions such as camel case,
 
 ### Throws
 
-Throws a `TypeError` if `str` is not a string.
+Development assertions raise an `AssertionError` if `str` is not a string.
 
 ### Examples
 
@@ -421,7 +421,7 @@ Capitalizes the first character of a string and lowercases the remaining charact
 
 ### Throws
 
-Throws a `TypeError` if `str` is not a string.
+Development assertions raise an `AssertionError` if `str` is not a string.
 
 ### Examples
 
@@ -465,7 +465,7 @@ The first word is lowercased and subsequent words are capitalized.
 
 ### Throws
 
-Throws a `TypeError` if `str` is not a string.
+Development assertions raise an `AssertionError` if `str` is not a string.
 
 ### Examples
 
@@ -509,7 +509,7 @@ and each word is capitalized.
 
 ### Throws
 
-Throws a `TypeError` if `str` is not a string.
+Development assertions raise an `AssertionError` if `str` is not a string.
 
 ### Examples
 
@@ -553,7 +553,7 @@ diacritics, lowercased, and joined with `-`.
 
 ### Throws
 
-Throws a `TypeError` if `str` is not a string.
+Development assertions raise an `AssertionError` if `str` is not a string.
 
 ### Examples
 
@@ -597,7 +597,7 @@ removing diacritics, lowercased, and joined with `_`.
 
 ### Throws
 
-Throws a `TypeError` if `str` is not a string.
+Development assertions raise an `AssertionError` if `str` is not a string.
 
 ### Examples
 
@@ -641,7 +641,7 @@ removing diacritics, uppercased, and joined with `_`.
 
 ### Throws
 
-Throws a `TypeError` if `str` is not a string.
+Development assertions raise an `AssertionError` if `str` is not a string.
 
 ### Examples
 
@@ -685,7 +685,7 @@ removing diacritics, lowercased, and joined with `.`.
 
 ### Throws
 
-Throws a `TypeError` if `str` is not a string.
+Development assertions raise an `AssertionError` if `str` is not a string.
 
 ### Examples
 
@@ -726,7 +726,7 @@ Converts a string to upper case.
 
 ### Throws
 
-Throws a `TypeError` if `str` is not a string.
+Development assertions raise an `AssertionError` if `str` is not a string.
 
 ### Examples
 
@@ -764,7 +764,7 @@ Converts a string to lower case.
 
 ### Throws
 
-Throws a `TypeError` if `str` is not a string.
+Development assertions raise an `AssertionError` if `str` is not a string.
 
 ### Examples
 
@@ -806,7 +806,7 @@ Unlike the other case conversion helpers based on `transformWords`, `startCase()
 
 ### Throws
 
-Throws a `TypeError` if `str` is not a string.
+Development assertions raise an `AssertionError` if `str` is not a string.
 
 ### Examples
 

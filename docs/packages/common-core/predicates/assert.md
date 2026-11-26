@@ -7,7 +7,7 @@ description: Functions that throw an AssertionError if validation fails. Used to
 
 Functions that throw an `AssertionError` if validation fails. Used to guard function inputs against violated preconditions.
 
-Assertions are **disabled in production**: when `process.env.NODE_ENV === 'production'`, every function returns immediately without running its validators. They are meant to catch programming errors during development and testing, not to validate untrusted runtime data.
+Each assertion returns immediately when `process.env.NODE_ENV === 'production'`. Browser bundles can disable assertions by replacing that expression at build time. Assertions stay enabled in environments where `process` is unavailable and the expression is left as written.
 
 For checks that must still run in production, such as untrusted runtime data, use [`ensure`](./ensure.md), which has the same API. `assert` is built on it: each function calls its `ensure` counterpart with `AssertionError` as error type.
 
@@ -16,7 +16,7 @@ For checks that must still run in production, such as untrusted runtime data, us
 The error class thrown by all `assert` functions. Extends `Error` with `name` set to `'AssertionError'`, so it can be caught and distinguished from operational errors or engine-thrown `TypeError`s.
 
 ```js
-import { assert, AssertionError } from './assert.js'
+import { assert, AssertionError, is } from '@kalisio/common-core/predicates'
 
 try {
   assert.that(-1, is.positive, 'must be positive')

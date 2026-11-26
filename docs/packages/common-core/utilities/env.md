@@ -13,7 +13,7 @@ Runtime environment detection utilities. All properties are evaluated once at mo
 |------|------|-------------|
 | `browser` | `boolean` | `true` when running in a browser main thread (not a Worker) |
 | `node` | `boolean` | `true` when running in Node.js |
-| `worker` | `boolean` | `true` when running in a dedicated or shared Web Worker |
+| `worker` | `boolean` | `true` when running in a Web Worker, including Service Workers |
 | `serviceWorker` | `boolean` | `true` when running in a Service Worker |
 | `test` | `boolean` | `true` when `NODE_ENV` is `'test'` |
 | `dev` | `boolean` | `true` when `NODE_ENV` is `'development'` |
@@ -29,7 +29,7 @@ Runtime environment detection utilities. All properties are evaluated once at mo
 ## Examples
 
 ```js
-import { env } from '@kalisio/common-core'
+import { env } from '@kalisio/common-core/utilities'
 
 if (env.browser) {
   // browser-only code

@@ -42,7 +42,7 @@ If the promise passed in is already track, it is returned as-is.
 
 ### Throws
 
-Throws a `TypeError` if `promiseOrExecutor` is neither a `Promise` nor a function.
+Development assertions raise an `AssertionError` if `promiseOrExecutor` is neither a `Promise` nor a function.
 
 ### Examples
 

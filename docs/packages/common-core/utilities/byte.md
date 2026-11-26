@@ -33,7 +33,7 @@ Encodes a string, `ArrayBuffer`, or `ArrayBufferView` to a base64 string. Handle
 
 ### Throws
 
-Throws a `TypeError` if `value` is not a string, `ArrayBuffer`, or `ArrayBufferView`.
+Development assertions raise an `AssertionError` if `value` is not a string, `ArrayBuffer`, or `ArrayBufferView`.
 
 ### Examples
 
@@ -74,7 +74,7 @@ Decodes a base64 string to a UTF-8 string.
 
 ### Throws
 
-Throws a `TypeError` if `value` is not a string.
+Development assertions raise an `AssertionError` if `value` is not a string.
 
 ### Examples
 
@@ -112,7 +112,7 @@ Decodes a base64 string to a `Uint8Array`. Useful when working with binary data 
 
 ### Throws
 
-Throws a `TypeError` if `value` is not a string.
+Development assertions raise an `AssertionError` if `value` is not a string.
 
 ### Examples
 
@@ -147,7 +147,7 @@ Encodes an `ArrayBuffer` or `ArrayBufferView` to a lowercase hex string.
 
 ### Throws
 
-Throws a `TypeError` if `value` is not an `ArrayBuffer` or `ArrayBufferView`.
+Development assertions raise an `AssertionError` if `value` is not an `ArrayBuffer` or `ArrayBufferView`.
 
 ### Examples
 
@@ -182,7 +182,7 @@ Decodes a hex string to a `Uint8Array`. Accepts both lowercase and uppercase hex
 
 ### Throws
 
-Throws a `TypeError` if `value` is not a string, has an odd length, or contains non-hex characters.
+Development assertions raise an `AssertionError` if `value` is not a string, is empty, has an odd length, or contains non-hex characters.
 
 ### Examples
 
@@ -220,7 +220,7 @@ Converts a base64-encoded data URI to a `Blob`. Automatically extracts the MIME 
 
 ### Throws
 
-Throws a `TypeError` if `value` is not a valid base64 data URI.
+Development assertions raise an `AssertionError` if `value` lacks the `data:` prefix or the `;base64,` marker. Invalid base64 payloads raise an `InvalidCharacterError` during decoding.
 
 ### Examples
 
@@ -229,6 +229,9 @@ const blob = byte.dataUriToBlob('data:text/plain;base64,aGVsbG8=')
 blob.type // 'text/plain'
 blob.size // 5
 
+```
+
+```js
 const blob = byte.dataUriToBlob('data:image/png;base64,iVBORw0KGgo=')
 blob.type // 'image/png'
 ```

@@ -31,7 +31,7 @@ request(url, options = {})
 
 | Parameter | Type | Description |
 |---|---|---|
-| `url` | `string \| URL` | HTTP(S) URL bound to the operation |
+| `url` | `string \| URL` | Fetch-compatible URL bound to the operation. See [`is.fetchableUrl`](../predicates/is.md#fetchableurl) for accepted schemes and relative references. |
 | `options` | `object` | Default requester and native fetch options |
 
 The main options are:
@@ -66,7 +66,9 @@ An operation exposing:
 |---|---|
 | Invalid URL | AssertionError: `url must be a valid url` |
 | Invalid requester or per-call options | AssertionError: `options must be a valid options object` |
-| A non-replayable body with retries enabled | AssertionError |
+| A non-replayable body with retries enabled | `TypeError` in all environments |
+
+The URL and options assertions run outside production.
 
 ## Behavior
 

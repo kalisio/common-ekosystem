@@ -35,19 +35,18 @@ Parses a YAML string using `js-yaml` and returns the resulting JavaScript value.
 | `text` | `string` | yes | YAML text to parse |
 | `options` | `object` | no | Parsing options |
 | `options.parser` | `object` | no | Options passed to `js-yaml` |
-| `options.request` | `object` | no | Options passed to `request` when reading a remote source |
 
 ### Returns
 
 | Type | Description |
 | --- | --- |
-| `object \| array \| string \| number \| boolean \| null` | The parsed YAML value |
+| `object \| array \| string \| number \| boolean \| null \| undefined` | The parsed YAML value |
 
 ### Throws
 
-Throws a `TypeError` if `text` is not a string or if `options` does not conform to the expected schema.
+Development assertions check that `text` is a string and validate the options object.
 
-Throws an error with code `yaml.ERROR_CODES.PARSE_FAILED` if parsing fails.
+Throws an error with code `yaml.ERROR_CODES.PARSE_FAILED` if parsing fails. The original error is available through the `cause` property.
 
 ### Examples
 
@@ -63,7 +62,7 @@ enabled: true
 Pass options to `js-yaml`:
 
 ```js
-import { yaml } from '@kalisio/common-core'
+import { yaml } from '@kalisio/common-core/io/yaml'
 
 const data = yaml.parse('name: Kalisio', {
   parser: {
@@ -84,7 +83,7 @@ yaml.read(input, options = {})
 
 Reads an external source as text, then parses the resulting content as YAML.
 
-A source can be a local file path in Node.js, a URL provided as a string or `URL` instance, or a `Blob`/`File` when supported by the runtime.
+Accepts HTTP(S) URLs as strings or `URL` objects, Node.js filesystem paths or `file:` URLs, and `Blob`/`File` objects. String sources also accept `data:` and `blob:` URLs, plus relative URL references when the runtime provides a base URL.
 
 ### Parameters
 
@@ -93,13 +92,14 @@ A source can be a local file path in Node.js, a URL provided as a string or `URL
 | `input` | `string \| URL \| Blob \| File` | yes | Source containing YAML data |
 | `options` | `object` | no | Reading and parsing options |
 | `options.encoding` | `string` | no | Character encoding used when reading a local file in Node.js. Defaults to `'utf-8'` |
+| `options.request` | `object` | no | Options passed to `request` when reading a remote source |
 | `options.parser` | `object` | no | Options passed to `js-yaml` |
 
 ### Returns
 
 | Type | Description |
 | --- | --- |
-| `Promise<object \| array \| string \| number \| boolean \| null>` | The parsed YAML value |
+| `Promise<object \| array \| string \| number \| boolean \| null \| undefined>` | The parsed YAML value |
 
 ### Throws
 
@@ -114,7 +114,7 @@ Also propagates errors thrown by `yaml.parse`.
 ### Examples
 
 ```js
-import { yaml } from '@kalisio/common-core'
+import { yaml } from '@kalisio/common-core/io/yaml'
 
 const data = await yaml.read('./config.yaml')
 ```

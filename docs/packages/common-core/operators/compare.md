@@ -39,7 +39,7 @@ Deeply compares two objects or arrays after normalizing them. Returns whether th
 
 ## Throws
 
-Throws a `TypeError` if `obj1` or `obj2` is not a plain object or array.
+Development assertions raise an `AssertionError` if `obj1` or `obj2` is not a plain object or array.
 
 ## Examples
 

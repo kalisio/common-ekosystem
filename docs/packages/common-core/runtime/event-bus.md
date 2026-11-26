@@ -36,7 +36,7 @@ new EventBus()
 `event` must be a non-empty string or a symbol. A listener receives an envelope:
 
 ```js
-{
+const envelope = {
   type: event,
   timestamp: Date.now(),
   data
@@ -64,38 +64,38 @@ stop()
 bus.destroy()
 ```
 
-## setEventBus
+## setGlobalEventBus
 
 ### Signature
 
 ```js
-setEventBus(bus)
+setGlobalEventBus(bus)
 ```
 
-Installs an `EventBus` instance as the shared runtime bus. An invalid instance raises an assertion error. This function returns `undefined`.
+Installs an `EventBus` instance as the shared runtime bus. Development assertions reject values that are incompatible with `EventBus`. This function returns `undefined`.
 
-## getEventBus
+## getGlobalEventBus
 
 ### Signature
 
 ```js
-getEventBus()
+getGlobalEventBus()
 ```
 
-Returns the shared `EventBus` instance, or `undefined` if none has been installed.
+Returns the shared `EventBus` instance, or `null` if none has been installed.
 
 ### Example
 
 ```js
-import { EventBus, getEventBus, setEventBus } from '@kalisio/common-core/runtime'
+import { EventBus, getGlobalEventBus, setGlobalEventBus } from '@kalisio/common-core/runtime'
 
-setEventBus(new EventBus())
+setGlobalEventBus(new EventBus())
 
-const stop = getEventBus().on('ready', ({ data }) => {
+const stop = getGlobalEventBus().on('ready', ({ data }) => {
   console.log(data)
 })
 
-getEventBus().emit('ready', { initialized: true })
+getGlobalEventBus().emit('ready', { initialized: true })
 stop()
 ```
 

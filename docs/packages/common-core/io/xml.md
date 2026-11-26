@@ -99,7 +99,7 @@ const data = await xml.parse('<note><to>World</to></note>')
 Pass options to `fast-xml-parser`:
 
 ```js
-const data = await xml.parse('<note category="reminder"/>', {import { xml } from '@kalisio/common-core/io/xml'import { xml } from '@kalisio/common-core/io/xml'
+const data = await xml.parse('<note category="reminder"/>', {
   parser: {
     attributeNamePrefix: ''
   }
@@ -160,7 +160,7 @@ xml.read(input, options = {})
 
 Reads an external source as text, then parses the resulting content as XML.
 
-A source can be a local file path in Node.js, a URL provided as a string or `URL` instance, or a `Blob`/`File` when supported by the runtime.
+Accepts HTTP(S) URLs as strings or `URL` objects, Node.js filesystem paths or `file:` URLs, and `Blob`/`File` objects. String sources also accept `data:` and `blob:` URLs, plus relative URL references when the runtime provides a base URL.
 
 Source reading is delegated to `source.readAsText()`, while XML parsing follows the same behavior as `xml.parse()`.
 

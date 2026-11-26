@@ -44,7 +44,7 @@ Parses a JSON string and returns the resulting JavaScript value.
 
 ### Throws
 
-Throws a `TypeError` if `text` is not a string or if `options` does not conform to the expected schema.
+Development assertions check that `text` is a string and validate the options object.
 
 Throws an error with code `json.ERROR_CODES.PARSE_FAILED` if the JSON cannot be parsed. The original `SyntaxError` is available through the `cause` property.
 
@@ -69,7 +69,7 @@ json.read(input, options = {})
 
 Reads an external source as text, then parses the resulting content as JSON.
 
-A source can be a local file path in Node.js, a URL provided as a string or `URL` instance, or a `Blob`/`File` when supported by the runtime.
+Accepts HTTP(S) URLs as strings or `URL` objects, Node.js filesystem paths or `file:` URLs, and `Blob`/`File` objects. String sources also accept `data:` and `blob:` URLs, plus relative URL references when the runtime provides a base URL.
 
 ### Parameters
 

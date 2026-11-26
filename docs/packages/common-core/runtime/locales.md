@@ -7,14 +7,14 @@ description: Shared runtime management of supported locales and localized resour
 
 `Locales` manages supported locale codes, the current locale, locale resolution, and localized resource contributions. Locale codes are normalized with `Intl.getCanonicalLocales()` (BCP 47).
 
-The application creates and installs one shared instance. Packages contribute resources to that instance by namespace; `Locales` does not merge or load those resources itself.
+The application initializes the shared manager with `setLocales()` or `setup()`. Packages retrieve it with `getLocales()` and contribute resources by namespace.
 
-## Constructor
+## Initialization
 
 ### Signature
 
 ```js
-new Locales({ default: 'en', fallback: 'en' } = {})
+setLocales(options = {})
 ```
 
 ### Parameters
@@ -24,14 +24,15 @@ new Locales({ default: 'en', fallback: 'en' } = {})
 | `default` | `string` | no | `'en'` | Initially selected locale. |
 | `fallback` | `string` | no | `'en'` | Fallback locale used in resolution and resource lookup. |
 
-The default and fallback locales are automatically registered when the instance is created. Do not register them again.
+The default and fallback locales are automatically registered when the instance is created. Register additional locale codes through the shared manager.
 
 ### Example
 
 ```js
-import { Locales } from '@kalisio/common-core/runtime'
+import { setLocales, getLocales } from '@kalisio/common-core/runtime'
 
-const locales = new Locales({ default: 'en', fallback: 'en' })
+setLocales({ default: 'en', fallback: 'en' })
+const locales = getLocales()
 locales.register('fr', { label: 'Français' })
 
 locales.list() // ['en', 'fr']
@@ -84,9 +85,6 @@ Resolves the first supported locale from the requested preferences, trying progr
 ### Example
 
 ```js
-const locales = new Locales({ default: 'en', fallback: 'en' })
-locales.register('fr', { label: 'Français' })
-
 locales.resolve('fr-CA') // 'fr'
 locales.resolve('de', 'fr-FR') // 'fr'
 locales.resolve('de') // 'en'
@@ -136,38 +134,29 @@ locales.getResources('messages', 'fr-CA')
 
 ## Shared instance
 
-### setLocales
-
-```js
-setLocales(locales)
-```
-
-Installs a `Locales` instance. An invalid argument raises an assertion error.
-
 ### getLocales
 
 ```js
 getLocales()
 ```
 
-Returns the installed instance. Throws an assertion error if no instance has been installed.
+Returns the shared manager or `null` before initialization. Calling `setLocales()` again replaces the manager with a fresh instance.
 
 ### Example: application initialization
 
 ```js
 import { setup } from '@kalisio/common-core/setup'
-import { EventBus, Locales, getLocales } from '@kalisio/common-core/runtime'
+import { EventBus, getLocales } from '@kalisio/common-core/runtime'
 
 const bus = new EventBus()
-const locales = new Locales({ default: 'en', fallback: 'en' })
-locales.register('fr', { label: 'Français' })
-
 bus.on('locale:changed', ({ data }) => {
   console.log(data.locale, data.previous)
 })
 
-setup({ bus, locales })
-getLocales().setCurrent('fr')
+setup({ bus, locales: { default: 'en', fallback: 'en' } })
+const locales = getLocales()
+locales.register('fr', { label: 'Français' })
+locales.setCurrent('fr')
 ```
 
-The runtime bus is shared rather than passed to the `Locales` constructor. See [event-bus](./event-bus.md) and [setup](../setup.md).
+Locale changes use the shared runtime bus. See [event-bus](./event-bus.md) and [setup](../setup.md).

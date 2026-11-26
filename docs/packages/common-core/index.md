@@ -76,8 +76,8 @@ See [Registry](./structures/registry.md), [Factory](./structures/factory.md), an
 
 ```js
 import {
-  EventBus, getEventBus,
-  Locales, getLocales,
+  EventBus, getGlobalEventBus,
+  setLocales, getLocales,
   getLogger,
   listen, waitFor,
   createRequester
@@ -92,13 +92,11 @@ See [EventBus](./runtime/event-bus.md), [Locales](./runtime/locales.md), [logger
 
 ```js
 import { setup } from '@kalisio/common-core/setup'
-import { EventBus, Locales } from '@kalisio/common-core/runtime'
+import { EventBus, getLocales } from '@kalisio/common-core/runtime'
 
 const bus = new EventBus()
-const locales = new Locales({ default: 'en', fallback: 'en' })
-locales.register('fr', { label: 'Français' })
-
-setup({ bus, locales })
+setup({ bus, locales: { default: 'en', fallback: 'en' } })
+getLocales().register('fr', { label: 'Français' })
 ```
 
 `setup()` may also receive a logger factory. Initialize `common-core` before setting up other packages that use these shared services.
@@ -118,8 +116,8 @@ Some IO modules use optional peer dependencies:
 
 | Module | Package |
 |---|---|
-| `io/csv` | `papaparse` |
-| `io/xml` | `fast-xml-parser`, `@xmldom/xmldom` |
+| `io/csv` | `papaparse`, `ajv` |
+| `io/xml` | `fast-xml-parser`. Install `@xmldom/xmldom` for DOM output when neither a native nor a custom DOM parser is available. |
 | `io/yaml` | `js-yaml` |
 
 Install the dependencies needed by the formats you use.

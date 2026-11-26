@@ -32,14 +32,14 @@ It is typically used with `conform` to define optional properties in a schema.
 ### Examples
 
 ```js
-import { conform, optional, is } from '@kalisio/common-core'
+import { conform, optional, is } from '@kalisio/common-core/predicates'
 
 const schema = {
   name: is.string,
   description: optional(is.string)
 }
 
-conform({ name: 'foo' }, schema)                     // true
-conform({ name: 'foo', description: 'bar' }, schema) // true
-conform({ name: 'foo', description: 42 }, schema)    // false
+conform.schema({ name: 'foo' }, schema)                     // true
+conform.schema({ name: 'foo', description: 'bar' }, schema) // true
+conform.schema({ name: 'foo', description: 42 }, schema)    // false
 ```

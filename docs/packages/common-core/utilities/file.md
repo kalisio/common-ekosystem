@@ -40,7 +40,7 @@ Parses a file path into its components. Supports both Unix and Windows path sepa
 
 ### Throws
 
-Throws a `TypeError` if `filePath` is not a string.
+Development assertions raise an `AssertionError` if `filePath` is not a string.
 
 ### Examples
 
@@ -95,7 +95,7 @@ Converts a size in bytes into a human-readable value and unit. The unit is autom
 
 ### Throws
 
-Throws a `TypeError` if `bytes` is not a number.
+Development assertions raise an `AssertionError` if `bytes` is not a number.
 
 ### Examples
 

@@ -17,15 +17,15 @@ conform.schema (obj, schema)
 
 ### Description
 
-Check if an object match a schema.
+Checks whether a plain object matches a schema. Extra properties are allowed. Use [`optional()`](./optional.md) to allow a property to be absent.
 The schema is an object where keys are property names and values are either:
 
 - a validator function (like `is.string`, `is.number`, etc.)
 - a nested schema object for sub-objects
 
 Returns `true` if the object conform to the schema, `false` otherwise.
-Throws an [`AssertionError`](./assert.md) if `obj` or `schema` are not plain objects.
-Throws a `TypeError` through [`ensure`](./ensure.md), in production too, if a schema value is neither a function nor a nested schema object.
+Development assertions raise an [`AssertionError`](./assert.md) if `obj` or `schema` are not plain objects.
+Throws a `TypeError` through [`ensure`](./ensure.md), in production too, if the check reaches a property whose schema value is neither a function nor a nested schema object.
 
 ### Parameters
 

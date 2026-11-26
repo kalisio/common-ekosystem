@@ -20,7 +20,7 @@ The `csv` namespace also exposes the error codes inherited from the `source` mod
 ### Signature
 
 ```js
-csv.parse (text, options)
+csv.parse(text, options = {})
 ```
 
 ### Description
@@ -95,7 +95,7 @@ When `rowSchema` is provided, the result additionally contains:
 Each validation error has the following structure:
 
 ```js
-{
+const validationError = {
   row: 1,
   errors: [
     {
@@ -281,7 +281,7 @@ Paris,invalid,48.8566
 ### Signature
 
 ```js
-await csv.read(input, options)
+csv.read(input, options = {})
 ```
 
 ### Description
@@ -301,7 +301,7 @@ The following source reading options are also supported:
 
 | Name      | Type     | Required | Description                             |
 | --------- | -------- | -------- | --------------------------------------- |
-| `input`   | source   | yes      | File path, URL, or `File`/`Blob`.       |
+| `input` | `string \| URL \| Blob \| File` | yes | HTTP(S) URL, Node.js filesystem path or `file:` URL, or `Blob`/`File`. String sources also accept `data:` and `blob:` URLs, plus relative URL references when the runtime provides a base URL. |
 | `options` | `object` | no       | CSV parsing and source reading options. |
 
 ### Returns
@@ -312,7 +312,7 @@ The following source reading options are also supported:
 
 ### Throws
 
-Throws if the source cannot be read.
+Rejects with code `csv.ERROR_CODES.UNSUPPORTED_SOURCE` for an unsupported source, or `csv.ERROR_CODES.READ_FAILED` if reading fails. Following an unsuccessful HTTP response, the cause has code `csv.ERROR_CODES.HTTP_ERROR` and includes `status` and `statusText`.
 
 Throws under the same conditions as `csv.parse`.
 

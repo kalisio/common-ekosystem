@@ -17,7 +17,7 @@ locale.get()
 
 ### Description
 
-Returns the current locale string. In a browser environment, reads from `navigator.languages` with a fallback to `navigator.language`. In a non-browser environment (Node.js), falls back to `Intl.DateTimeFormat().resolvedOptions().locale`.
+Returns `navigator.languages[0]` or `navigator.language` when `navigator` is available. Otherwise, it uses `Intl.DateTimeFormat().resolvedOptions().locale`.
 
 ### Returns
 

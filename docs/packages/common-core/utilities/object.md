@@ -46,7 +46,7 @@ Circular references are not supported.
 
 ### Throws
 
-Throws a `TypeError` if `obj` is `null` or `undefined`, or if `options` does not conform to the expected schema.
+Development assertions raise an `AssertionError` if `obj` is `null` or `undefined`, or if `options` does not conform to the expected schema.
 
 ### Examples
 
@@ -359,8 +359,6 @@ reference
 //   name: 'Alice',
 //   role: 'user'
 // }
-
-The existing object reference is preserved, while properties not present in source are removed.
 ```
 
 ::: warning
@@ -410,7 +408,7 @@ Key and element ordering always uses a strict, accent- and case-sensitive compar
 
 ### Throws
 
-Throws a `TypeError` if `obj` is not an array or a plain object, or if `options` does not conform to the expected schema.
+Development assertions raise an `AssertionError` if `obj` is not an array or a plain object, or if `options` does not conform to the expected schema.
 
 ### Examples
 
@@ -476,7 +474,7 @@ Reorders the keys of a plain object based on a given string property of its valu
 
 ### Throws
 
-Throws a `TypeError` if `obj` is not a plain object, if `property` is not a string, if `options` does not conform to the expected schema, or if the resolved property value on any entry is not a string.
+Development assertions raise an `AssertionError` if `obj` is not a plain object, if `property` is not a string, if `options` does not conform to the expected schema, or if the resolved property value on any entry is not a string.
 
 ### Examples
 
@@ -519,7 +517,7 @@ Falsy values such as `false`, `0`, and `null` are returned as-is.
 
 ### Throws
 
-Throws a `TypeError` if `obj` is `null` or `undefined`, or if `path` is not a non-empty string.
+Development assertions raise an `AssertionError` if `obj` is `null` or `undefined`, or if `path` is not a non-empty string.
 
 ### Examples
 
@@ -578,7 +576,7 @@ Flattens a nested object into a single-level object using dot notation keys. Rec
 
 ### Throws
 
-Throws a `TypeError` if `obj` is not a plain object.
+Development assertions raise an `AssertionError` if `obj` is not a plain object.
 
 ### Examples
 
@@ -628,7 +626,7 @@ Sorts an array of objects by a given string property. Comparison is delegated to
 
 ### Throws
 
-Throws a `TypeError` if `arr` is not an array, if `property` is not a string, if `options` does not conform to the expected schema, or if the resolved property value on any item is not a string.
+Development assertions raise an `AssertionError` if `arr` is not an array, if `property` is not a string, if `options` does not conform to the expected schema, or if the resolved property value on any item is not a string.
 
 ### Examples
 

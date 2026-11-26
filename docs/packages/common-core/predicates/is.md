@@ -51,9 +51,9 @@ is.object(value)
 ```
 
 ```js
-is.object({...})
+is.object({ name: 'Alice' })
 // true
-is.object([...])
+is.object([1, 2])
 // true
 is.object(new Date())
 // true
@@ -64,7 +64,7 @@ is.object(null)
 is.object('foo')
 // false
 
-Class instances are considered objects:
+// Class instances are considered objects.
 
 class Foo {}
 is.object(new Foo())
@@ -82,9 +82,9 @@ is.plainObject(value)
 ```
 
 ```js
-is.plainObject({...})
+is.plainObject({ name: 'Alice' })
 // true
-is.plainObject([...])
+is.plainObject([1, 2])
 // false
 is.plainObject(new Date())
 // false

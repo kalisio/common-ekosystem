@@ -35,18 +35,18 @@ By default, transformations are applied in place. Set `inPlace` to `false` to cl
 | `options.pick`        | `string[]` | no | Keep only the listed properties |
 | `options.omit`        | `string[]` | no | Remove the listed properties |
 | `options.merge`       | `object` | no | Merge additional properties into each element |
-| `options.asArray`     | `boolean` | no | Return the result as an array even if the input was a plain object |
-| `options.asObject`    | `boolean` | no | Return the first element when the input was an array |
+| `options.asArray`     | `boolean` | no | Keep a single-object result wrapped in an array |
+| `options.asObject`    | `boolean` | no | Return the first element of an array result, or `{}` if it is empty |
 
 ## Returns
 
 | Type  | Description |
 | --- | --- |
-| `object \| array` | The transformed result. Type matches the input unless `asArray` or `asObject` is set |
+| `object \| array` | The transformed result. The output shape depends on `toArray`, `asArray`, and `asObject` |
 
 ## Throws
 
-Throws a `TypeError` if:
+Development assertions raise an `AssertionError` in the following cases.
 
 * `obj` is not a plain object or array
 * `options` is not a plain object
@@ -61,7 +61,7 @@ Throws a `TypeError` if:
 
 Renames or remaps properties. Each entry maps an input path to an output path.
 
-```js
+```text
 options.mapping = {
   [inputPath]: outputPath | { path, values?, delete? }
 }
@@ -112,7 +112,7 @@ transform(
 
 Converts or transforms values at given paths. Each entry maps a path to a conversion descriptor.
 
-```js
+```text
 options.unitMapping = {
   [path]: {
     asNumber?,

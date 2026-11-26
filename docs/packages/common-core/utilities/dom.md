@@ -46,7 +46,7 @@ Parsing remains the responsibility of the corresponding IO module.
 ### Signature
 
 ```js
-dom.children (node, name?)
+dom.children(node, name)
 ```
 
 ### Description
@@ -98,7 +98,7 @@ dom.children(root, 'Title')
 ### Signature
 
 ```js
-dom.child (node, name?)
+dom.child(node, name)
 ```
 
 ### Description
