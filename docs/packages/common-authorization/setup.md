@@ -51,6 +51,6 @@ getGlobalAuthorization() === authorization // true
 
 | Service | Access | Behavior |
 |---|---|---|
-| Authorization | `getGlobalAuthorization()` | Returns the installed authorization instance. Throws an error if no instance has been configured. |
+| Authorization | `getGlobalAuthorization()` | Returns the installed authorization instance or `undefined` before registration. |
 
 See [global-authorization](./runtime/global-authorization.md).

@@ -5,7 +5,7 @@ description: Access to the shared authorization instance.
 
 # global-authorization
 
-Functions for sharing an [Authorization](./authorization.md) instance across application modules. The application creates and configures the instance before other modules access it. There is no default instance.
+Functions for sharing an [Authorization](./authorization.md) instance across application modules. The application creates and registers the instance it wants to share.
 
 ## setGlobalAuthorization
 
@@ -50,13 +50,13 @@ getGlobalAuthorization()
 
 ### Description
 
-Returns the installed instance. Call it only after the application has configured global authorization.
+Returns the installed instance. Callers must handle the absence of an instance before using it to make an authorization decision.
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `Authorization` | The shared authorization instance |
+| `Authorization \| undefined` | The shared authorization instance, or `undefined` before registration. |
 
 ### Examples
 
@@ -64,7 +64,8 @@ Returns the installed instance. Call it only after the application has configure
 import { getGlobalAuthorization } from '@kalisio/common-authorization'
 
 const authorization = getGlobalAuthorization()
-const ability = authorization.getAbility({ _id: 'user-1' })
+const ability = authorization?.getAbility({ _id: 'user-1' })
+const canRead = ability?.can('read', 'Document') ?? false
 ```
 
 ::: info

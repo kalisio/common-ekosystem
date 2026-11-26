@@ -31,8 +31,7 @@ describe('setup', () => {
   })
   it('does not create a default authorization', () => {
     setup()
-    expect(() => getGlobalAuthorization())
-      .toThrow('authorization must be configured')
+    expect(getGlobalAuthorization()).toBeUndefined()
   })
   it('preserves the global authorization when called without options', () => {
     const authorization = new Authorization()

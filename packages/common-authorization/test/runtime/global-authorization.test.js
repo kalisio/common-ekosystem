@@ -40,9 +40,8 @@ describe('global authorization', () => {
   })
 
   describe('getGlobalAuthorization', () => {
-    it('rejects access before initialization', () => {
-      expect(() => getGlobalAuthorization())
-        .toThrow('authorization must be configured')
+    it('returns undefined before initialization', () => {
+      expect(getGlobalAuthorization()).toBeUndefined()
     })
     it('returns the same instance on every call', () => {
       const authorization = new Authorization()

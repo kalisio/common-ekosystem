@@ -187,14 +187,14 @@ cached rules when an actor's permissions change.
 ### Sharing authorization across modules
 
 Use [getGlobalAuthorization and setGlobalAuthorization](./runtime/global-authorization.md) to share an
-authorization instance across application modules.
+authorization instance across application modules. The getter returns `undefined` until an instance is registered.
 
 ```js
 // Application initialization, using the configured instance above
 setGlobalAuthorization(authorization)
 
 // Other modules
-const sharedAbility = getGlobalAuthorization().getAbility(actor)
+const sharedAbility = getGlobalAuthorization()?.getAbility(actor)
 ```
 
 Multiple independent authorization instances can also be created when required.

@@ -13,6 +13,5 @@ export function setGlobalAuthorization (authorization) {
 }
 
 export function getGlobalAuthorization () {
-  assert.that(globalAuthorization, is.defined, 'authorization must be configured')
   return globalAuthorization
 }
