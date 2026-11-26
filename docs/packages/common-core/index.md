@@ -57,10 +57,10 @@ See [predicates](./predicates/is.md).
 ### Utilities
 
 ```js
-import { url, string, object, schedule } from '@kalisio/common-core/utilities'
+import { url, string, object, promise, schedule } from '@kalisio/common-core/utilities'
 ```
 
-See [utilities](./utilities/url.md).
+See [URL utilities](./utilities/url.md) and [promise utilities](./utilities/promise.md), including the [synchronous result check](./utilities/promise.md#checknotthenable).
 
 ### Structures
 

@@ -77,6 +77,14 @@ describe('Authorization', () => {
       expect(() => authorization.getAbility(user)).toThrow(new TypeError('hook async must be synchronous'))
       expect(authorization.invalidateAbility(user)).toBe(false)
     })
+    it('rejects a hook returning a thenable without executing it', async () => {
+      const then = vi.fn()
+      const authorization = new Authorization()
+      authorization.registerHook('lazy', () => ({ then }))
+      expect(() => authorization.defineAbility(user)).toThrow(new TypeError('hook lazy must be synchronous'))
+      await new Promise(resolve => setImmediate(resolve))
+      expect(then).not.toHaveBeenCalled()
+    })
     it('reject a failing asynchronous hook, without leaving its rejection unhandled', async () => {
       const unhandled = vi.fn()
       process.on('unhandledRejection', unhandled)

@@ -1,6 +1,40 @@
 import { AssertionError } from '../../src/predicates/index.js'
 import { promise } from '../../src/utilities/index.js'
 
+describe('promise.checkNotThenable', () => {
+  it('returns non-thenable values unchanged without invoking functions', () => {
+    const sync = vi.fn(() => 1)
+    const asyncFunction = vi.fn(async () => 1)
+    for (const value of [undefined, null, false, 0, 1n, '', Symbol('value'), {}, { then: true }, sync, asyncFunction]) {
+      expect(promise.checkNotThenable(value)).toBe(value)
+    }
+    expect(sync).not.toHaveBeenCalled()
+    expect(asyncFunction).not.toHaveBeenCalled()
+  })
+
+  it('throws immediately with the default message for pending and fulfilled promises', () => {
+    for (const value of [new Promise(() => {}), Promise.resolve(1)]) {
+      expect(() => promise.checkNotThenable(value)).toThrow(new TypeError('Unexpected thenable'))
+    }
+  })
+
+  it('throws with a custom message without executing an arbitrary thenable', async () => {
+    const then = vi.fn()
+    expect(() => promise.checkNotThenable({ then }, 'Result must be synchronous'))
+      .toThrow(new TypeError('Result must be synchronous'))
+    // Let any queued promise assimilation run before checking the method.
+    await new Promise(resolve => setImmediate(resolve))
+    expect(then).not.toHaveBeenCalled()
+  })
+
+  it('handles discarded native promise rejections', async () => {
+    const rejected = Promise.reject(new Error('failure'))
+    expect(() => promise.checkNotThenable(rejected)).toThrow(new TypeError('Unexpected thenable'))
+    // Let Node report unhandled rejections to Vitest without attaching test handlers.
+    await new Promise(resolve => setImmediate(resolve))
+  })
+})
+
 describe('promise.track', () => {
   it('accepts a Promise as argument', () => {
     const p = promise.track(Promise.resolve(42))

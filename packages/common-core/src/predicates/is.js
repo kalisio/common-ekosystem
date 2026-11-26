@@ -294,6 +294,14 @@ export const is = {
     return typeof value === 'function'
   },
 
+  promise (value) {
+    return value instanceof Promise
+  },
+
+  thenable (value) {
+    return is.function(value?.then)
+  },
+
   abortSignal (value) {
     return value instanceof AbortSignal
   },

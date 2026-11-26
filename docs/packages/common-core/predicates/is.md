@@ -757,6 +757,35 @@ Checks whether a value is a function.
 is.function(value)
 ```
 
+## Promises and thenables
+
+### promise
+
+Returns `true` when the value is an instance of the current JavaScript realm's `Promise` constructor. A promise from another realm, such as an iframe, can return `false` here and still pass `is.thenable()`.
+
+```js
+import { is } from '@kalisio/common-core/predicates'
+
+is.promise(Promise.resolve(42)) // true
+is.promise({ then: resolve => resolve(42) }) // false
+```
+
+### thenable
+
+Returns `true` when the value has a callable `then` property. This includes native promises and objects with a `then` method. The predicate reads the property without calling the method or invoking the value.
+
+```js
+import { is } from '@kalisio/common-core/predicates'
+
+is.thenable(Promise.resolve(42)) // true
+is.thenable({ then: resolve => resolve(42) }) // true
+is.thenable({ then: true }) // false
+is.thenable(async () => 42) // false
+is.thenable(null) // false
+```
+
+To require a synchronous result, use [`promise.checkNotThenable()`](../utilities/promise.md#checknotthenable).
+
 ## Abort signals
 
 ### abortSignal

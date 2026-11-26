@@ -1,7 +1,7 @@
 import { Ability, AbilityBuilder, createAliasResolver, fieldPatternMatcher } from '@casl/ability'
 import { assert, conform, ensure, is, optional } from '@kalisio/common-core/predicates'
+import { promise } from '@kalisio/common-core/utilities'
 import { conditionsMatcher, ensureConditions } from './conditions-matcher.js'
-import { ensureSynchronous } from './predicates.js'
 
 const OPTIONS_SCHEMA = {
   aliases: optional(value => is.plainObject(value) &&
@@ -72,10 +72,10 @@ export const abilities = {
     for (const role of registry.resolve(is.string(roles) ? [roles] : roles)) {
       if (!Object.hasOwn(definitions, role)) continue
       const start = builder.rules.length
-      ensureSynchronous(definitions[role](builder), `definition of role ${role} must be synchronous`)
+      promise.checkNotThenable(definitions[role](builder), `definition of role ${role} must be synchronous`)
       if (is.nil(scope)) continue
       for (const rule of builder.rules.slice(start)) {
-        const conditions = is.function(scope) ? ensureSynchronous(scope(rule), 'scope must be synchronous') : scope
+        const conditions = is.function(scope) ? promise.checkNotThenable(scope(rule), 'scope must be synchronous') : scope
         // Not an assertion: other conditions would silently leave the rule unscoped in production too
         ensure.that(conditions, isConditions, 'scope must return an object or nil')
         rule.conditions = abilities.mergeConditions(rule.conditions, conditions)

@@ -1,11 +1,52 @@
 ---
 title: promise
-description: Utility functions for creating and inspecting track promises.
+description: Validate synchronous results, inspect promise state, and run concurrent tasks.
 ---
 
 # promise
 
-Utility functions for creating and inspecting track promises.
+Validate synchronous results, inspect promise state, and run concurrent tasks.
+
+## checkNotThenable
+
+### Signature
+
+```js
+promise.checkNotThenable(value, message = 'Unexpected thenable')
+```
+
+### Description
+
+Uses [`is.thenable()`](../predicates/is.md#thenable) to check for a callable `then` property. This validation stays active in production.
+
+For promises recognized by [`is.promise()`](../predicates/is.md#promise), the method attaches a rejection handler to prevent unhandled rejections. It does not call the `then` method of an arbitrary thenable. It does not wait for, resolve, or cancel a promise. The caller remains responsible for handling rejections from promises originating in another JavaScript realm.
+
+### Parameters
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `value` | `*` | yes | Value to check |
+| `message` | `string` | no | Error message for a thenable |
+
+### Returns
+
+Returns the original value when it has no callable `then` property.
+
+### Throws
+
+Throws a `TypeError` with the supplied or default message when the value is a thenable.
+
+### Examples
+
+```js
+import { promise } from '@kalisio/common-core/utilities'
+
+const result = { count: 42 }
+promise.checkNotThenable(result) === result // true
+
+promise.checkNotThenable(Promise.resolve(result), 'Expected an immediate count')
+// Throws TypeError: Expected an immediate count
+```
 
 ## track
 

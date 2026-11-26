@@ -1,3 +1,4 @@
+import { runInNewContext } from 'node:vm'
 import { is } from '../../src/predicates/index.js'
 
 describe('is.defined', () => {
@@ -1118,6 +1119,62 @@ describe('is.booleanFalse', () => {
   })
   it('returns false for undefined', () => {
     expect(is.booleanFalse(undefined)).toBe(false)
+  })
+})
+
+describe('is.promise', () => {
+  it('returns false for values that are not Promise instances', () => {
+    const sync = vi.fn(() => 1)
+    const asyncFunction = vi.fn(async () => 1)
+    const then = vi.fn()
+    for (const value of [undefined, null, false, 0, 1n, '', Symbol('value'), {}, { then: true }, { then }, sync, asyncFunction]) {
+      expect(is.promise(value)).toBe(false)
+    }
+    expect(sync).not.toHaveBeenCalled()
+    expect(asyncFunction).not.toHaveBeenCalled()
+    expect(then).not.toHaveBeenCalled()
+  })
+
+  it('recognizes pending, fulfilled and rejected promises', async () => {
+    const pending = new Promise(() => {})
+    const rejected = Promise.reject(new Error('failure'))
+    expect(is.promise(pending)).toBe(true)
+    expect(is.promise(Promise.resolve(1))).toBe(true)
+    expect(is.promise(rejected)).toBe(true)
+    await expect(rejected).rejects.toThrow('failure')
+  })
+
+  it('distinguishes a promise from another realm from a local promise', () => {
+    const value = runInNewContext('Promise.resolve(1)')
+    expect(is.promise(value)).toBe(false)
+    expect(is.thenable(value)).toBe(true)
+  })
+})
+
+describe('is.thenable', () => {
+  it('returns false for values without a callable then property', () => {
+    const sync = vi.fn(() => 1)
+    const asyncFunction = vi.fn(async () => 1)
+    for (const value of [undefined, null, false, 0, 1n, '', Symbol('value'), {}, { then: true }, sync, asyncFunction]) {
+      expect(is.thenable(value)).toBe(false)
+    }
+    expect(sync).not.toHaveBeenCalled()
+    expect(asyncFunction).not.toHaveBeenCalled()
+  })
+
+  it('recognizes pending, fulfilled and rejected promises', async () => {
+    expect(is.thenable(new Promise(() => {}))).toBe(true)
+    const rejected = Promise.reject(new Error('failure'))
+    expect(is.thenable(Promise.resolve(1))).toBe(true)
+    expect(is.thenable(rejected)).toBe(true)
+    await expect(rejected).rejects.toThrow('failure')
+  })
+
+  it('recognizes a callable then property without invoking it', () => {
+    const then = vi.fn()
+    expect(is.thenable({ then })).toBe(true)
+    expect(is.thenable(Object.create({ then }))).toBe(true)
+    expect(then).not.toHaveBeenCalled()
   })
 })
 

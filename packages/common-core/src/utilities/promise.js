@@ -1,4 +1,4 @@
-import { is, assert, conform, optional } from '../predicates/index.js'
+import { is, assert, conform, ensure, optional } from '../predicates/index.js'
 import { object } from './object.js'
 
 const TRACKABLE_SYMBOL = Symbol('trackablePromise')
@@ -11,10 +11,20 @@ const CONCURRENT_DEFAULTS = { concurrency: Infinity }
 
 export const promise = {
 
+  checkNotThenable (value, message = 'Unexpected thenable') {
+    const thenable = is.thenable(value)
+    // Prevent unhandled rejections from native promises.
+    // Do not assimilate arbitrary thenables as calling their then()
+    // method may trigger their execution.
+    if (is.promise(value)) value.catch(() => {})
+    ensure.that(thenable, is.booleanFalse, message)
+    return value
+  },
+
   track (promiseOrExecutor) {
     assert.that(
       promiseOrExecutor,
-      (v) => is.function(v) || v instanceof Promise,
+      (v) => is.function(v) || is.promise(v),
       'promiseOrExecutor must be a Promise or an executor function'
     )
     const p = is.function(promiseOrExecutor)

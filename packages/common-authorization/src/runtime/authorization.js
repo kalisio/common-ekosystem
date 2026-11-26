@@ -1,8 +1,7 @@
-import { Cache, Registry } from '@kalisio/common-core/structures'
-import { object } from '@kalisio/common-core/utilities'
 import { assert, conform, is, optional } from '@kalisio/common-core/predicates'
+import { Cache, Registry } from '@kalisio/common-core/structures'
+import { object, promise } from '@kalisio/common-core/utilities'
 import { abilities } from '../utilities/index.js'
-import { ensureSynchronous } from '../utilities/predicates.js'
 import { RoleRegistry } from './role-registry.js'
 
 // A safety net rather than a revocation mechanism: invalidation remains the application's responsibility
@@ -70,7 +69,7 @@ export class Authorization {
         abilities.defineRoleAbilities(builder, this.#roles, roles, roleDefinitions, scope)
     }
     for (const [name, hook] of this.#hooks.entries()) {
-      ensureSynchronous(hook(actor, definitions, context), `hook ${name} must be synchronous`)
+      promise.checkNotThenable(hook(actor, definitions, context), `hook ${name} must be synchronous`)
     }
     return builder.build()
   }
