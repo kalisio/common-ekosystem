@@ -244,12 +244,12 @@ abilities.mergeConditions({}, undefined)
 ### Signature
 
 ```js
-await abilities.defineRoleAbilities(builder, registry, roles, definitions, scope)
+abilities.defineRoleAbilities(builder, registry, roles, definitions, scope)
 ```
 
 ### Description
 
-Resolves the supplied role or roles through the registry, then executes matching definition callbacks sequentially in resolution order. A definition callback receives the CASL builder and may be asynchronous. Roles without a definition are skipped. Each role is resolved once. When supplied, `scope` is combined with the conditions of every rule added by the callback, including deny rules. A scope function receives the individual rule. Existing builder rules are not changed by scoping.
+Resolves the supplied role or roles through the registry, then executes matching definition callbacks sequentially in resolution order. A definition callback receives the CASL builder and must be synchronous. Roles without a definition are skipped. Each role is resolved once. When supplied, `scope` is combined with the conditions of every rule added by the callback, including deny rules. A scope function receives the individual rule and must synchronously return conditions or nil. Existing builder rules are not changed by scoping. A definition returning a promise, or a scope function returning anything but conditions, is rejected with a `TypeError`, in production too.
 
 ### Parameters
 
@@ -265,7 +265,7 @@ Resolves the supplied role or roles through the registry, then executes matching
 
 | Type | Description |
 |------|-------------|
-| `Promise<void>` | Completes after the rules have been added |
+| `void` | No return value; the rules have been added |
 
 ### Examples
 
@@ -277,7 +277,7 @@ roles.register('member', {})
 roles.register('manager', { inherits: ['member'] })
 
 const builder = abilities.createBuilder()
-await abilities.defineRoleAbilities(builder, roles, 'manager', {
+abilities.defineRoleAbilities(builder, roles, 'manager', {
   member: ({ can }) => can('read', 'projects'),
   manager: ({ can }) => can('update', 'projects')
 }, { organizationId: 'org-1' })
@@ -288,5 +288,5 @@ permissions.can(ability, 'update', 'projects', { organizationId: 'org-1' })
 ```
 
 ::: warning
-Scoping a deny rule restricts that rule to its scope as well. Always await asynchronous role definitions before building the ability. The scope does not automatically attach attributes to subjects or database queries.
+Scoping a deny rule restricts that rule to its scope as well. The scope does not automatically attach attributes to subjects or database queries.
 :::

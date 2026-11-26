@@ -1,6 +1,7 @@
 import { Ability, AbilityBuilder, createAliasResolver, fieldPatternMatcher } from '@casl/ability'
 import { assert, conform, ensure, is, optional } from '@kalisio/common-core/predicates'
 import { conditionsMatcher, ensureConditions } from './conditions-matcher.js'
+import { ensureSynchronous } from './predicates.js'
 
 const OPTIONS_SCHEMA = {
   aliases: optional(value => is.plainObject(value) &&
@@ -41,7 +42,8 @@ export const abilities = {
     const abilityOptions = getAbilityOptions(options)
     return new AbilityBuilder(rules => {
       ensureRules(rules)
-      return new Ability(rules, abilityOptions)
+      // A copy: rules defined through the builder afterwards must not alter the ability
+      return new Ability([...rules], abilityOptions)
     })
   },
 
@@ -51,7 +53,8 @@ export const abilities = {
     return ability.update(rules)
   },
 
-  async defineRoleAbilities (builder, registry, roles, definitions, scope) {
+  // Definitions and scope functions must be synchronous
+  defineRoleAbilities (builder, registry, roles, definitions, scope) {
     assert.all([
       { value: builder, validator: value => is.instanceOf(value, AbilityBuilder), message: 'builder must be a CASL ability builder' },
       { value: registry, validator: value => is.function(value?.resolve), message: 'registry must resolve roles' },
@@ -69,10 +72,13 @@ export const abilities = {
     for (const role of registry.resolve(is.string(roles) ? [roles] : roles)) {
       if (!Object.hasOwn(definitions, role)) continue
       const start = builder.rules.length
-      await definitions[role](builder)
+      ensureSynchronous(definitions[role](builder), `definition of role ${role} must be synchronous`)
       if (is.nil(scope)) continue
       for (const rule of builder.rules.slice(start)) {
-        rule.conditions = abilities.mergeConditions(rule.conditions, is.function(scope) ? scope(rule) : scope)
+        const conditions = is.function(scope) ? ensureSynchronous(scope(rule), 'scope must be synchronous') : scope
+        // Not an assertion: other conditions would silently leave the rule unscoped in production too
+        ensure.that(conditions, isConditions, 'scope must return an object or nil')
+        rule.conditions = abilities.mergeConditions(rule.conditions, conditions)
       }
     }
   },

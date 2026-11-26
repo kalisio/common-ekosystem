@@ -32,7 +32,8 @@ Omitting `authorization` or passing `undefined` leaves the current instance unch
 ## Example
 
 ```js
-import { setup, Authorization, getGlobalAuthorization } from '@kalisio/common-authorization'
+import { Authorization, getGlobalAuthorization } from '@kalisio/common-authorization'
+import { setup } from '@kalisio/common-authorization/setup'
 
 const authorization = new Authorization({
   aliases: {

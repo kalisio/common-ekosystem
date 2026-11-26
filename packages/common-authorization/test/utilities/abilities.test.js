@@ -1,6 +1,7 @@
 import { subject } from '@casl/ability'
 import { ObjectId } from 'mongodb'
 import { abilities } from '../../src/utilities/index.js'
+import { RoleRegistry } from '../../src/runtime/index.js'
 
 const aliases = {
   update: ['patch'],
@@ -163,6 +164,79 @@ describe('abilities', () => {
       cannot('update', 'items', conditions)
       expect(() => build()).toThrow(TypeError)
     })
+    it('isolates the built ability from rules defined afterwards', () => {
+      const { can, build } = abilities.createBuilder()
+      can('read', 'items')
+      const ability = build()
+      can('remove', 'items')
+      expect(ability.rules).toHaveLength(1)
+      expect(ability.can('remove', 'items')).toBe(false)
+    })
+  })
+
+  describe('defineRoleAbilities', () => {
+    function createRoles () {
+      const roles = new RoleRegistry()
+      roles.register('member', {})
+      roles.register('manager', { inherits: ['member'] })
+      return roles
+    }
+    const definitions = {
+      member: ({ can }) => can('read', 'items'),
+      manager: ({ can, cannot }) => {
+        can('update', 'items')
+        cannot('update', 'items', { locked: true })
+      }
+    }
+    it('defines the rules of every resolved role, synchronously', () => {
+      const builder = abilities.createBuilder()
+      expect(abilities.defineRoleAbilities(builder, createRoles(), 'manager', definitions)).toBeUndefined()
+      const ability = builder.build()
+      expect(ability.can('read', item())).toBe(true)
+      expect(ability.can('update', item({ locked: false }))).toBe(true)
+      expect(ability.can('update', item({ locked: true }))).toBe(false)
+    })
+    it('scopes the rules with an object or a function', () => {
+      const builder = abilities.createBuilder()
+      abilities.defineRoleAbilities(builder, createRoles(), ['member'], definitions, { context: 'org-1' })
+      abilities.defineRoleAbilities(builder, createRoles(), ['manager'], definitions, rule => ({ context: `org-2-${rule.action}` }))
+      const ability = builder.build()
+      expect(ability.can('read', item({ context: 'org-1' }))).toBe(true)
+      expect(ability.can('read', item({ context: 'org-3' }))).toBe(false)
+      expect(ability.can('update', item({ context: 'org-2-update' }))).toBe(true)
+      expect(ability.can('update', item({ context: 'org-2-update', locked: true }))).toBe(false)
+    })
+    it('rejects an asynchronous definition', () => {
+      const builder = abilities.createBuilder()
+      expect(() => abilities.defineRoleAbilities(builder, createRoles(), 'member', {
+        member: async ({ can }) => can('read', 'items')
+      })).toThrow(new TypeError('definition of role member must be synchronous'))
+    })
+    it.each([
+      ['an asynchronous scope', async () => ({ context: 'org-1' }), 'scope must be synchronous'],
+      ['a scope returning an array', () => [{ context: 'org-1' }], 'scope must return an object or nil']
+    ])('rejects %s', (name, scope, message) => {
+      const builder = abilities.createBuilder()
+      expect(() => abilities.defineRoleAbilities(builder, createRoles(), 'member', definitions, scope))
+        .toThrow(new TypeError(message))
+    })
+    it.each([
+      ['definition', { member: async () => { throw new Error('failure') } }, undefined, 'definition of role member must be synchronous'],
+      ['scope', definitions, async () => { throw new Error('failure') }, 'scope must be synchronous']
+    ])('rejects a failing asynchronous %s, without leaving its rejection unhandled', async (name, roleDefinitions, scope, message) => {
+      const unhandled = vi.fn()
+      process.on('unhandledRejection', unhandled)
+      try {
+        const builder = abilities.createBuilder()
+        expect(() => abilities.defineRoleAbilities(builder, createRoles(), 'member', roleDefinitions, scope))
+          .toThrow(new TypeError(message))
+        // Unhandled rejections are reported once the current task completes
+        await new Promise(resolve => setTimeout(resolve, 0))
+        expect(unhandled).not.toHaveBeenCalled()
+      } finally {
+        process.off('unhandledRejection', unhandled)
+      }
+    })
   })
 
   describe('update', () => {
@@ -299,6 +373,19 @@ describe('abilities', () => {
       const ability = production.create([{ action: 'update', subject: 'items' }])
       expect(() => production.update(ability, rules)).toThrow(TypeError)
       expect(ability.can('update', 'items')).toBe(true)
+    })
+    it('still rejects asynchronous definitions and scopes, while assertions are disabled', async () => {
+      vi.stubEnv('NODE_ENV', 'production')
+      vi.resetModules()
+      const { abilities: production } = await import('../../src/utilities/abilities.js')
+      const roles = new RoleRegistry()
+      roles.register('member', {})
+      expect(() => production.defineRoleAbilities(production.createBuilder(), roles, 'member', {
+        member: async ({ can }) => can('read', 'items')
+      })).toThrow(TypeError)
+      expect(() => production.defineRoleAbilities(production.createBuilder(), roles, 'member', {
+        member: ({ can }) => can('read', 'items')
+      }, async () => ({ context: 'org-1' }))).toThrow(TypeError)
     })
   })
 })

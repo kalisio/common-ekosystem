@@ -20,9 +20,9 @@ function createAuthorization (options = {}) {
   const authorization = new Authorization({ aliases, ...options })
   authorization.roles.register('member', {})
   authorization.roles.register('manager', { inherits: ['member'] })
-  const hook = vi.fn(async (actor, { defineRoleAbilities }) => {
+  const hook = vi.fn((actor, { defineRoleAbilities }) => {
     for (const organization of actor?.organizations ?? []) {
-      await defineRoleAbilities(organization.role, {
+      defineRoleAbilities(organization.role, {
         member: ({ can }) => can('read', 'items'),
         manager: ({ can }) => can('update', 'items')
       }, { context: organization._id })
@@ -49,34 +49,55 @@ describe('Authorization', () => {
   })
 
   describe('hooks', () => {
-    it('receive the actor, the functions to define rules and the context', async () => {
+    it('receive the actor, the functions to define rules and the context', () => {
       const authorization = new Authorization()
       const hook = vi.fn()
       authorization.registerHook('test', hook)
-      await authorization.defineAbility(user, { organizationId: 'org-1' })
+      authorization.defineAbility(user, { organizationId: 'org-1' })
       const [actor, definitions, context] = hook.mock.calls[0]
       expect(actor).toBe(user)
       expect(Object.keys(definitions)).toEqual(['can', 'cannot', 'defineRoleAbilities'])
       expect(context).toEqual({ organizationId: 'org-1' })
     })
-    it('run in registration order, each one once the previous one has completed', async () => {
+    it('run in registration order', () => {
       const authorization = new Authorization()
       const calls = []
-      authorization.registerHook('first', async () => {
-        await new Promise(resolve => setTimeout(resolve, 10))
-        calls.push('first')
-      })
-      authorization.registerHook('second', () => calls.push('second'))
-      await authorization.defineAbility(user)
+      authorization.registerHook('first', () => { calls.push('first') })
+      authorization.registerHook('second', () => { calls.push('second') })
+      authorization.defineAbility(user)
       expect(calls).toEqual(['first', 'second'])
     })
-    it('take precedence over the hooks registered before them', async () => {
+    it.each([
+      ['an asynchronous hook', async (actor, { can }) => can('read', 'items')],
+      ['a hook returning a promise', (actor, { can }) => Promise.resolve(can('read', 'items'))]
+    ])('reject %s, without building any ability', (name, hook) => {
+      const authorization = new Authorization({ cache: { key } })
+      authorization.registerHook('async', hook)
+      expect(() => authorization.defineAbility(user)).toThrow(new TypeError('hook async must be synchronous'))
+      expect(() => authorization.getAbility(user)).toThrow(new TypeError('hook async must be synchronous'))
+      expect(authorization.invalidateAbility(user)).toBe(false)
+    })
+    it('reject a failing asynchronous hook, without leaving its rejection unhandled', async () => {
+      const unhandled = vi.fn()
+      process.on('unhandledRejection', unhandled)
+      try {
+        const authorization = new Authorization()
+        authorization.registerHook('async', async () => { throw new Error('hook failure') })
+        expect(() => authorization.defineAbility(user)).toThrow(new TypeError('hook async must be synchronous'))
+        // Unhandled rejections are reported once the current task completes
+        await new Promise(resolve => setTimeout(resolve, 0))
+        expect(unhandled).not.toHaveBeenCalled()
+      } finally {
+        process.off('unhandledRejection', unhandled)
+      }
+    })
+    it('take precedence over the hooks registered before them', () => {
       const authorization = new Authorization()
       authorization.registerHook('grant', (actor, { can }) => can('read', 'items'))
       authorization.registerHook('deny', (actor, { cannot }) => cannot('read', 'items'))
-      expect((await authorization.defineAbility(user)).can('read', 'items')).toBe(false)
+      expect(authorization.defineAbility(user).can('read', 'items')).toBe(false)
     })
-    it('registered while hooks run only apply to the next abilities', async () => {
+    it('registered while hooks run only apply to the next abilities', () => {
       const authorization = new Authorization()
       const late = vi.fn()
       let registered = false
@@ -85,20 +106,20 @@ describe('Authorization', () => {
         registered = true
         authorization.registerHook('late', late)
       })
-      await authorization.defineAbility(user)
+      authorization.defineAbility(user)
       expect(late).not.toHaveBeenCalled()
-      await authorization.defineAbility(user)
+      authorization.defineAbility(user)
       expect(late).toHaveBeenCalledTimes(1)
     })
     it('cannot be registered twice under the same name', () => {
       const { authorization } = createAuthorization()
       expect(() => authorization.registerHook('organizations', () => {})).toThrow('entry already registered: organizations')
     })
-    it('no longer run once unregistered', async () => {
+    it('no longer run once unregistered', () => {
       const { authorization, hook } = createAuthorization()
       expect(authorization.unregisterHook('organizations')).toBe(true)
       expect(authorization.unregisterHook('organizations')).toBe(false)
-      await authorization.defineAbility(user)
+      authorization.defineAbility(user)
       expect(hook).not.toHaveBeenCalled()
     })
     it('reject a hook that is not a function', () => {
@@ -107,24 +128,24 @@ describe('Authorization', () => {
   })
 
   describe('defineAbility', () => {
-    it('builds a new ability on every call', async () => {
+    it('builds a new ability on every call', () => {
       const { authorization, hook } = createAuthorization()
-      const first = await authorization.defineAbility(user)
-      const second = await authorization.defineAbility(user)
+      const first = authorization.defineAbility(user)
+      const second = authorization.defineAbility(user)
       expect(first).toBeInstanceOf(Ability)
       expect(first).not.toBe(second)
       expect(hook).toHaveBeenCalledTimes(2)
     })
-    it('scopes role abilities to each organization, with the configured aliases', async () => {
+    it('scopes role abilities to each organization, with the configured aliases', () => {
       const { authorization } = createAuthorization()
-      const ability = await authorization.defineAbility(user)
+      const ability = authorization.defineAbility(user)
       expect(permissions.can(ability, 'patch', 'items', { context: 'org-1' })).toBe(true)
       expect(permissions.can(ability, 'find', 'items', { context: 'org-1' })).toBe(true)
       expect(permissions.can(ability, 'patch', 'items', { context: 'org-2' })).toBe(false)
       expect(permissions.can(ability, 'find', 'items', { context: 'org-2' })).toBe(true)
       expect(permissions.cannot(ability, 'find', 'items', { context: 'org-3' })).toBe(true)
     })
-    it('keeps a restriction inherited through a diamond', async () => {
+    it('keeps a restriction inherited through a diamond', () => {
       const authorization = new Authorization()
       authorization.roles.register('member', {})
       authorization.roles.register('editor', { inherits: ['member'] })
@@ -135,39 +156,39 @@ describe('Authorization', () => {
         editor: ({ cannot }) => cannot('update', 'items', { locked: true }),
         reviewer: ({ can }) => can('review', 'items')
       }))
-      const ability = await authorization.defineAbility(user)
+      const ability = authorization.defineAbility(user)
       // Repeating member after editor would grant again what editor restricts
       expect(permissions.can(ability, 'update', 'items', { locked: true })).toBe(false)
       expect(permissions.can(ability, 'update', 'items', { locked: false })).toBe(true)
       expect(permissions.can(ability, 'review', 'items', { locked: true })).toBe(true)
     })
-    it('defines the abilities of an anonymous actor', async () => {
+    it('defines the abilities of an anonymous actor', () => {
       const { authorization } = createAuthorization()
       authorization.registerHook('public', (actor, { can }) => can('read', 'publications'))
-      const ability = await authorization.defineAbility(null)
+      const ability = authorization.defineAbility(null)
       expect(ability.can('read', 'publications')).toBe(true)
       expect(ability.can('read', 'items')).toBe(false)
     })
-    it('fails when a hook does', async () => {
+    it('fails when a hook does', () => {
       const { authorization } = createAuthorization()
       authorization.registerHook('failing', () => { throw new Error('hook failure') })
-      await expect(authorization.defineAbility(user)).rejects.toThrow('hook failure')
+      expect(() => authorization.defineAbility(user)).toThrow('hook failure')
     })
-    it('fails on a role unknown to the registry', async () => {
+    it('fails on a role unknown to the registry', () => {
       const { authorization } = createAuthorization()
-      await expect(authorization.defineAbility({ organizations: [{ _id: 'org-1', role: 'admin' }] }))
-        .rejects.toThrow(new TypeError('unknown role: admin'))
+      expect(() => authorization.defineAbility({ organizations: [{ _id: 'org-1', role: 'admin' }] }))
+        .toThrow(new TypeError('unknown role: admin'))
     })
-    it('rejects a context that is not an object', async () => {
-      await expect(new Authorization().defineAbility(user, 'org-1')).rejects.toThrow('context must be an object')
+    it('rejects a context that is not an object', () => {
+      expect(() => new Authorization().defineAbility(user, 'org-1')).toThrow('context must be an object')
     })
   })
 
   describe('getAbility without cache', () => {
-    it('defines a new ability on every call', async () => {
+    it('defines a new ability on every call', () => {
       const { authorization, hook } = createAuthorization()
-      await authorization.getAbility(user)
-      await authorization.getAbility(user)
+      authorization.getAbility(user)
+      authorization.getAbility(user)
       expect(hook).toHaveBeenCalledTimes(2)
       expect(authorization.invalidateAbility(user)).toBe(false)
       expect(() => authorization.clearAbilities()).not.toThrow()
@@ -178,144 +199,136 @@ describe('Authorization', () => {
     afterEach(() => {
       vi.useRealTimers()
     })
-    it('computes the rules once per key', async () => {
+    it('computes the rules once per key', () => {
       const { authorization, hook } = createAuthorization({ cache: { key } })
-      await authorization.getAbility(user)
-      await authorization.getAbility(user)
-      await authorization.getAbility(otherUser)
+      authorization.getAbility(user)
+      authorization.getAbility(user)
+      authorization.getAbility(otherUser)
       expect(hook).toHaveBeenCalledTimes(2)
     })
-    it('returns a new ability on every call, which may be altered without affecting the others', async () => {
+    it('returns a new ability on every call, which may be altered without affecting the others', () => {
       const { authorization } = createAuthorization({ cache: { key } })
-      const first = await authorization.getAbility(user)
-      const second = await authorization.getAbility(user)
+      const first = authorization.getAbility(user)
+      const second = authorization.getAbility(user)
       expect(first).toBeInstanceOf(Ability)
       expect(first).not.toBe(second)
       first.update([])
       expect(first.can('find', 'items')).toBe(false)
-      expect(permissions.can(await authorization.getAbility(user), 'patch', 'items', { context: 'org-1' })).toBe(true)
+      expect(permissions.can(authorization.getAbility(user), 'patch', 'items', { context: 'org-1' })).toBe(true)
     })
-    it('gives every ability its own copy of the rules, isolated from the hooks', async () => {
+    it('gives every ability its own copy of the rules, isolated from the hooks', () => {
       const authorization = new Authorization({ cache: { key } })
       const actor = { _id: 'user-1', organizationIds: ['org-1', 'org-2'] }
       authorization.registerHook('items', ({ organizationIds }, { can }) => {
         can('read', 'items', { context: { $in: organizationIds } })
       })
-      const first = await authorization.getAbility(actor)
+      const first = authorization.getAbility(actor)
       expect(Object.isFrozen(first.rules)).toBe(false)
       first.rules[0].conditions.context.$in.push('org-3')
       actor.organizationIds.push('org-4')
-      const second = await authorization.getAbility(actor)
+      const second = authorization.getAbility(actor)
       expect(second.rules[0].conditions.context.$in).toEqual(['org-1', 'org-2'])
     })
-    it('keeps the aliases given at construction', async () => {
+    it('keeps the aliases given at construction', () => {
       const aliases = { update: ['patch'] }
       const authorization = new Authorization({ aliases, cache: { key } })
       authorization.registerHook('items', (actor, { can }) => can('update', 'items'))
       aliases.update.push('replace')
-      expect((await authorization.defineAbility(user)).can('replace', 'items')).toBe(false)
-      expect((await authorization.getAbility(user)).can('replace', 'items')).toBe(false)
-      expect((await authorization.getAbility(user)).can('patch', 'items')).toBe(true)
+      expect(authorization.defineAbility(user).can('replace', 'items')).toBe(false)
+      expect(authorization.getAbility(user).can('replace', 'items')).toBe(false)
+      expect(authorization.getAbility(user).can('patch', 'items')).toBe(true)
     })
-    it('validates the context even when the rules are cached', async () => {
+    it('validates the context even when the rules are cached', () => {
       const { authorization } = createAuthorization({ cache: { key } })
-      await authorization.getAbility(user)
-      await expect(authorization.getAbility(user, 'org-1')).rejects.toThrow('context must be an object')
+      authorization.getAbility(user)
+      expect(() => authorization.getAbility(user, 'org-1')).toThrow('context must be an object')
       expect(() => authorization.invalidateAbility(user, 'org-1')).toThrow('context must be an object')
     })
-    it('keeps values such as ObjectId comparable', async () => {
+    it('keeps values such as ObjectId comparable', () => {
       const authorization = new Authorization({ cache: { key } })
       const id = new ObjectId()
       authorization.registerHook('users', (actor, { can }) => can('update', 'users', { _id: id }))
-      const ability = await authorization.getAbility(user)
+      const ability = authorization.getAbility(user)
       expect(permissions.can(ability, 'update', 'users', { _id: new ObjectId(id.toHexString()) })).toBe(true)
       expect(permissions.can(ability, 'update', 'users', { _id: new ObjectId() })).toBe(false)
     })
-    it('shares a computation between concurrent calls', async () => {
+    it('recomputes the rules once roles change', () => {
       const { authorization, hook } = createAuthorization({ cache: { key } })
-      const abilities = await Promise.all([1, 2, 3].map(() => authorization.getAbility(user)))
-      expect(hook).toHaveBeenCalledTimes(1)
-      expect(new Set(abilities).size).toBe(3)
-    })
-    it('recomputes the rules once roles change', async () => {
-      const { authorization, hook } = createAuthorization({ cache: { key } })
-      await authorization.getAbility(user)
+      authorization.getAbility(user)
       authorization.roles.register('owner', { inherits: ['manager'] })
-      await authorization.getAbility(user)
+      authorization.getAbility(user)
       expect(hook).toHaveBeenCalledTimes(2)
     })
-    it('recomputes the rules once hooks change', async () => {
+    it('recomputes the rules once hooks change', () => {
       const { authorization, hook } = createAuthorization({ cache: { key } })
-      await authorization.getAbility(user)
+      authorization.getAbility(user)
       authorization.registerHook('public', (actor, { can }) => can('read', 'publications'))
-      const ability = await authorization.getAbility(user)
+      const ability = authorization.getAbility(user)
       expect(hook).toHaveBeenCalledTimes(2)
       expect(ability.can('read', 'publications')).toBe(true)
     })
-    it('recomputes the rules of an invalidated actor only', async () => {
+    it('recomputes the rules of an invalidated actor only', () => {
       const { authorization, hook } = createAuthorization({ cache: { key } })
-      await authorization.getAbility(user)
-      await authorization.getAbility(otherUser)
+      authorization.getAbility(user)
+      authorization.getAbility(otherUser)
       expect(authorization.invalidateAbility(user)).toBe(true)
       expect(authorization.invalidateAbility(user)).toBe(false)
-      await authorization.getAbility(user)
-      await authorization.getAbility(otherUser)
+      authorization.getAbility(user)
+      authorization.getAbility(otherUser)
       expect(hook).toHaveBeenCalledTimes(3)
     })
-    it('recomputes every rules once cleared', async () => {
+    it('recomputes every rules once cleared', () => {
       const { authorization, hook } = createAuthorization({ cache: { key } })
-      await authorization.getAbility(user)
-      await authorization.getAbility(otherUser)
+      authorization.getAbility(user)
+      authorization.getAbility(otherUser)
       authorization.clearAbilities()
-      await authorization.getAbility(user)
-      await authorization.getAbility(otherUser)
+      authorization.getAbility(user)
+      authorization.getAbility(otherUser)
       expect(hook).toHaveBeenCalledTimes(4)
     })
-    it('does not cache a failure', async () => {
+    it('does not cache a failure', () => {
       const { authorization, hook } = createAuthorization({ cache: { key } })
-      hook.mockRejectedValueOnce(new Error('hook failure'))
-      await expect(authorization.getAbility(user)).rejects.toThrow('hook failure')
-      await expect(authorization.getAbility(user)).resolves.toBeInstanceOf(Ability)
+      hook.mockImplementationOnce(() => { throw new Error('hook failure') })
+      expect(() => authorization.getAbility(user)).toThrow('hook failure')
+      expect(authorization.getAbility(user)).toBeInstanceOf(Ability)
       expect(hook).toHaveBeenCalledTimes(2)
     })
-    it('keeps a newer computation when an invalidated one fails', async () => {
-      const authorization = new Authorization({ cache: { key } })
-      // Promises resolved from the outside, to control when each call of the hook completes
-      const gates = [Promise.withResolvers(), Promise.withResolvers()]
-      let calls = 0
-      authorization.registerHook('slow', async () => {
-        const call = calls++
-        await gates[call].promise
-        if (call === 0) throw new Error('first failure')
-      })
-      const first = authorization.getAbility(user)
-      authorization.invalidateAbility(user)
-      const second = authorization.getAbility(user)
-      gates[0].resolve()
-      await expect(first).rejects.toThrow('first failure')
-      gates[1].resolve()
-      await expect(second).resolves.toBeInstanceOf(Ability)
-      await authorization.getAbility(user)
-      expect(calls).toBe(2)
+    it('expires the rules after 60 seconds by default', () => {
+      vi.useFakeTimers({ toFake: ['Date'] })
+      const { authorization, hook } = createAuthorization({ cache: { key } })
+      authorization.getAbility(user)
+      vi.setSystemTime(Date.now() + 59999)
+      authorization.getAbility(user)
+      vi.setSystemTime(Date.now() + 2)
+      authorization.getAbility(user)
+      expect(hook).toHaveBeenCalledTimes(2)
     })
-    it('expires the rules after the ttl', async () => {
+    it('never expires the rules with a ttl of 0', () => {
+      vi.useFakeTimers({ toFake: ['Date'] })
+      const { authorization, hook } = createAuthorization({ cache: { key, ttl: 0 } })
+      authorization.getAbility(user)
+      vi.setSystemTime(Date.now() + 24 * 3600 * 1000)
+      authorization.getAbility(user)
+      expect(hook).toHaveBeenCalledTimes(1)
+    })
+    it('expires the rules after the ttl', () => {
       vi.useFakeTimers({ toFake: ['Date'] })
       const { authorization, hook } = createAuthorization({ cache: { key, ttl: 1000 } })
-      await authorization.getAbility(user)
+      authorization.getAbility(user)
       vi.setSystemTime(Date.now() + 999)
-      await authorization.getAbility(user)
+      authorization.getAbility(user)
       vi.setSystemTime(Date.now() + 2)
-      await authorization.getAbility(user)
+      authorization.getAbility(user)
       expect(hook).toHaveBeenCalledTimes(2)
     })
-    it('evicts the least recently used rules', async () => {
+    it('evicts the least recently used rules', () => {
       const { authorization, hook } = createAuthorization({ cache: { key, max: 1 } })
-      await authorization.getAbility(user)
-      await authorization.getAbility(otherUser)
-      await authorization.getAbility(user)
+      authorization.getAbility(user)
+      authorization.getAbility(otherUser)
+      authorization.getAbility(user)
       expect(hook).toHaveBeenCalledTimes(3)
     })
-    it('isolates cached rules by context when the key includes it', async () => {
+    it('isolates cached rules by context when the key includes it', () => {
       const authorization = new Authorization({
         cache: { key: (actor, context) => JSON.stringify([actor._id, context.organizationId]) }
       })
@@ -325,45 +338,45 @@ describe('Authorization', () => {
       authorization.registerHook('items', hook)
       const firstContext = { organizationId: 'org-1' }
       const secondContext = { organizationId: 'org-2' }
-      const first = await authorization.getAbility(user, firstContext)
-      const second = await authorization.getAbility(user, secondContext)
+      const first = authorization.getAbility(user, firstContext)
+      const second = authorization.getAbility(user, secondContext)
       expect(permissions.can(first, 'read', 'items', { context: 'org-1' })).toBe(true)
       expect(permissions.can(first, 'read', 'items', { context: 'org-2' })).toBe(false)
       expect(permissions.can(second, 'read', 'items', { context: 'org-2' })).toBe(true)
       expect(permissions.can(second, 'read', 'items', { context: 'org-1' })).toBe(false)
       expect(authorization.invalidateAbility(user, firstContext)).toBe(true)
-      await authorization.getAbility(user, secondContext)
+      authorization.getAbility(user, secondContext)
       expect(hook).toHaveBeenCalledTimes(2)
-      await authorization.getAbility(user, firstContext)
+      authorization.getAbility(user, firstContext)
       expect(hook).toHaveBeenCalledTimes(3)
     })
-    it('recomputes permissions after a role inheritance changes', async () => {
+    it('recomputes permissions after a role inheritance changes', () => {
       const { authorization, hook } = createAuthorization({ cache: { key } })
-      const before = await authorization.getAbility(user)
+      const before = authorization.getAbility(user)
       expect(permissions.can(before, 'find', 'items', { context: 'org-1' })).toBe(true)
       authorization.roles.replace('manager', { inherits: [] })
-      const after = await authorization.getAbility(user)
+      const after = authorization.getAbility(user)
       expect(permissions.can(after, 'find', 'items', { context: 'org-1' })).toBe(false)
       expect(permissions.can(after, 'patch', 'items', { context: 'org-1' })).toBe(true)
       expect(permissions.can(after, 'find', 'items', { context: 'org-2' })).toBe(true)
       expect(hook).toHaveBeenCalledTimes(2)
     })
-    it('recomputes permissions after a hook is removed', async () => {
+    it('recomputes permissions after a hook is removed', () => {
       const { authorization, hook } = createAuthorization({ cache: { key } })
-      expect((await authorization.getAbility(user)).can('find', 'items')).toBe(true)
+      expect(authorization.getAbility(user).can('find', 'items')).toBe(true)
       expect(authorization.unregisterHook('organizations')).toBe(true)
-      expect((await authorization.getAbility(user)).can('find', 'items')).toBe(false)
+      expect(authorization.getAbility(user).can('find', 'items')).toBe(false)
       expect(hook).toHaveBeenCalledTimes(1)
     })
-    it('preserves dates and regular expressions when cloning rules', async () => {
+    it('preserves dates and regular expressions when cloning rules', () => {
       const authorization = new Authorization({ cache: { key } })
       const date = new Date('2026-11-20T10:00:00Z')
       const pattern = /^public-/i
       authorization.registerHook('items', (actor, { can }) => {
         can('read', 'items', { createdAt: { $gte: date }, name: { $regex: pattern } })
       })
-      const first = await authorization.getAbility(user)
-      const second = await authorization.getAbility(user)
+      const first = authorization.getAbility(user)
+      const second = authorization.getAbility(user)
       const conditions = first.rules[0].conditions
       expect(conditions.createdAt.$gte).toBeInstanceOf(Date)
       expect(conditions.name.$regex).toBeInstanceOf(RegExp)
@@ -372,7 +385,7 @@ describe('Authorization', () => {
       expect(conditions.name.$regex).not.toBe(second.rules[0].conditions.name.$regex)
       expect(conditions.name.$regex.flags).toBe('i')
       conditions.createdAt.$gte.setUTCFullYear(2030)
-      const third = await authorization.getAbility(user)
+      const third = authorization.getAbility(user)
       expect(permissions.can(third, 'read', 'items', {
         createdAt: new Date('2026-11-21T10:00:00Z'), name: 'PUBLIC-item'
       })).toBe(true)
@@ -383,12 +396,12 @@ describe('Authorization', () => {
         createdAt: new Date('2026-11-21T10:00:00Z'), name: 'private-item'
       })).toBe(false)
     })
-    it('isolates ObjectId values across cached abilities', async () => {
+    it('isolates ObjectId values across cached abilities', () => {
       const authorization = new Authorization({ cache: { key } })
       const id = new ObjectId()
       authorization.registerHook('users', (actor, { can }) => can('read', 'users', { _id: id }))
-      const first = await authorization.getAbility(user)
-      const second = await authorization.getAbility(user)
+      const first = authorization.getAbility(user)
+      const second = authorization.getAbility(user)
       const firstId = first.rules[0].conditions._id
       const secondId = second.rules[0].conditions._id
       expect(firstId).toBeInstanceOf(ObjectId)
@@ -397,50 +410,42 @@ describe('Authorization', () => {
       expect(firstId.toHexString()).toBe(id.toHexString())
       firstId.id[0] ^= 255
       expect(secondId.toHexString()).toBe(id.toHexString())
-      expect((await authorization.getAbility(user)).rules[0].conditions._id.toHexString()).toBe(id.toHexString())
+      expect(authorization.getAbility(user).rules[0].conditions._id.toHexString()).toBe(id.toHexString())
     })
-    it('does not restore invalidated rules when an older computation completes', async () => {
-      const authorization = new Authorization({ cache: { key } })
-      const gate = Promise.withResolvers()
-      const started = Promise.withResolvers()
-      let granted = true
-      const hook = vi.fn(async (actor, { can }) => {
-        const allowed = granted
-        if (allowed) {
-          started.resolve()
-          await gate.promise
-          can('read', 'items')
-        }
-      })
-      authorization.registerHook('items', hook)
-      const first = authorization.getAbility(user)
-      await started.promise
-      granted = false
-      expect(authorization.invalidateAbility(user)).toBe(true)
-      const second = await authorization.getAbility(user)
-      gate.resolve()
-      expect((await first).can('read', 'items')).toBe(true)
-      expect(second.can('read', 'items')).toBe(false)
-      expect((await authorization.getAbility(user)).can('read', 'items')).toBe(false)
-      expect(hook).toHaveBeenCalledTimes(2)
-    })
-    it('refreshes the recency of a cached entry when accessed', async () => {
+    it('refreshes the recency of a cached entry when accessed', () => {
       const { authorization, hook } = createAuthorization({ cache: { key, max: 2 } })
       const thirdUser = { _id: 'user-3', organizations: [] }
-      await authorization.getAbility(user)
-      await authorization.getAbility(otherUser)
-      await authorization.getAbility(user)
-      await authorization.getAbility(thirdUser)
-      await authorization.getAbility(user)
+      authorization.getAbility(user)
+      authorization.getAbility(otherUser)
+      authorization.getAbility(user)
+      authorization.getAbility(thirdUser)
+      authorization.getAbility(user)
       expect(hook).toHaveBeenCalledTimes(3)
-      await authorization.getAbility(otherUser)
+      authorization.getAbility(otherUser)
       expect(hook).toHaveBeenCalledTimes(4)
     })
-    it('rejects a key that is not a string', async () => {
+    it('rejects a key that is not a string', () => {
       const authorization = new Authorization({ cache: { key: actor => actor._id } })
-      await expect(authorization.getAbility({ _id: new ObjectId() }))
-        .rejects.toThrow('cache key must be a non-empty string')
+      expect(() => authorization.getAbility({ _id: new ObjectId() }))
+        .toThrow('cache key must be a non-empty string')
       expect(() => authorization.invalidateAbility({ _id: new ObjectId() })).toThrow('cache key must be a non-empty string')
+    })
+  })
+
+  describe('in production', () => {
+    afterEach(() => {
+      vi.unstubAllEnvs()
+      vi.resetModules()
+    })
+    it('still rejects an asynchronous hook, while assertions are disabled', async () => {
+      vi.stubEnv('NODE_ENV', 'production')
+      vi.resetModules()
+      const { Authorization } = await import('../../src/runtime/authorization.js')
+      const authorization = new Authorization()
+      // Control: this assertion is skipped, so the production code path is really exercised
+      expect(() => authorization.defineAbility(user, 'org-1')).not.toThrow()
+      authorization.registerHook('async', async (actor, { can }) => can('read', 'items'))
+      expect(() => authorization.defineAbility(user)).toThrow(new TypeError('hook async must be synchronous'))
     })
   })
 })

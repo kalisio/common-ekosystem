@@ -295,6 +295,37 @@ describe('permissions', () => {
     })
   })
 
+  describe('toMongoQuery', () => {
+    // Alters every nested object and array, as a hook completing or converting a query in place would
+    function alter (value) {
+      if (Array.isArray(value)) {
+        value.forEach(alter)
+        value.push('altered')
+      } else if (value !== null && typeof value === 'object') {
+        Object.values(value).forEach(alter)
+        value.altered = true
+      }
+    }
+    it.each([
+      ['a single can rule', [
+        { action: 'read', subject: 'items', conditions: { context: { $in: ['org-1'] }, items: { $elemMatch: { kind: 'x' } } } }
+      ]],
+      ['can and cannot rules', [
+        { action: 'read', subject: 'items', conditions: { context: { $in: ['org-1'] }, items: { $elemMatch: { kind: 'x' } } } },
+        { action: 'read', subject: 'items', inverted: true, conditions: { locked: { $in: [true] } } }
+      ]]
+    ])('returns a filter that can be altered without altering the ability, with %s', (name, rules) => {
+      const ability = abilities.create(rules)
+      const before = structuredClone(ability.rules)
+      const query = permissions.toMongoQuery(ability, 'read', 'items')
+      const expected = structuredClone(query)
+      alter(query)
+      expect(ability.rules).toEqual(before)
+      expect(permissions.toMongoQuery(ability, 'read', 'items')).toEqual(expected)
+      expect(permissions.can(ability, 'read', 'items', { context: 'org-1', items: [{ kind: 'x' }], locked: false })).toBe(true)
+    })
+  })
+
   describe('in production', () => {
     afterEach(() => {
       vi.unstubAllEnvs()

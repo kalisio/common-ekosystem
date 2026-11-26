@@ -152,9 +152,9 @@ const authorization = new Authorization({
 authorization.roles.register('member', {})
 authorization.roles.register('manager', { inherits: ['member'] })
 
-authorization.registerHook('projects', async (actor, { defineRoleAbilities }) => {
+authorization.registerHook('projects', (actor, { defineRoleAbilities }) => {
   for (const organization of actor.organizations) {
-    await defineRoleAbilities(organization.role, {
+    defineRoleAbilities(organization.role, {
       member: ({ can }) => can('read', 'projects'),
       manager: ({ can }) => can('update', 'projects')
     }, { organizationId: organization._id })
@@ -169,7 +169,7 @@ const actor = {
   ]
 }
 
-const actorAbility = await authorization.getAbility(actor)
+const actorAbility = authorization.getAbility(actor)
 
 permissions.can(actorAbility, 'patch', 'projects', {
   organizationId: 'org-1'
@@ -180,13 +180,13 @@ permissions.can(actorAbility, 'patch', 'projects', {
 }) // false
 ```
 
-Authorization supports asynchronous hooks, scoped permissions, and optional caching with LRU eviction 
-and expiration. Changes to roles or hooks make cached rules stale. Applications can explicitly invalidate 
+Authorization supports synchronous hooks, scoped permissions, and optional caching with LRU eviction
+and expiration. Changes to roles or hooks make cached rules stale. Applications can explicitly invalidate
 cached rules when an actor's permissions change.
 
 ### Sharing authorization across modules
 
-Use [getGlobalAuthorization and setGlobalAuthorization](./runtime/global-authorization.md) to share an 
+Use [getGlobalAuthorization and setGlobalAuthorization](./runtime/global-authorization.md) to share an
 authorization instance across application modules.
 
 ```js
@@ -194,14 +194,14 @@ authorization instance across application modules.
 setGlobalAuthorization(authorization)
 
 // Other modules
-const sharedAbility = await getGlobalAuthorization().getAbility(actor)
+const sharedAbility = getGlobalAuthorization().getAbility(actor)
 ```
 
 Multiple independent authorization instances can also be created when required.
 
 ### Sharing abilities across applications
 
-Authorization rules can be transferred between applications to reconstruct an ability using 
+Authorization rules can be transferred between applications to reconstruct an ability using
 [abilities.create()](./utilities/abilities.md#create).
 
 ```js
@@ -209,14 +209,14 @@ const rules = JSON.stringify(ability.rules)
 const clientAbility = abilities.create(JSON.parse(rules), { aliases })
 ```
 
-Applications must use the same action aliases and preserve condition value types when transferring rules. JSON 
-serialization is only suitable for JSON-compatible rules; values such as dates, regular expressions and BSON 
+Applications must use the same action aliases and preserve condition value types when transferring rules. JSON
+serialization is only suitable for JSON-compatible rules; values such as dates, regular expressions and BSON
 ObjectIds require a type-preserving representation.
 
 ::: warning
 
-Client-side permission checks are intended to control user interface behavior. Authorization must always be enforced 
-on the server side using trusted attributes and complete resource instances or authorization filters. Field-level 
+Client-side permission checks are intended to control user interface behavior. Authorization must always be enforced
+on the server side using trusted attributes and complete resource instances or authorization filters. Field-level
 restrictions must also be enforced when applicable.
 
 :::

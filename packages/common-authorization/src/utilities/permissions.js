@@ -1,6 +1,7 @@
 import { Ability, subject as setSubjectType } from '@casl/ability'
 import { rulesToCondition } from '@casl/ability/extra'
 import { assert, conform, is, optional } from '@kalisio/common-core/predicates'
+import { object } from '@kalisio/common-core/utilities'
 import { abilities } from './abilities.js'
 import { conditionsMatcher } from './conditions-matcher.js'
 
@@ -116,6 +117,7 @@ export const permissions = {
   // - null: no document, the query must not be run;
   // - {}: every document;
   // - otherwise a filter, to combine with another query through $and rather than by merging keys.
+  // The filter is a copy: altering it, as a query is, never alters the ability.
   // With a field, only the rules applying to it are taken into account, as in can: the filter selects
   // the documents on which the operation is allowed for this field, it is not a projection.
   // Attributes are properties which are not stored in the collection, such as a context: they are resolved
@@ -133,7 +135,8 @@ export const permissions = {
         .map(rule => is.defined(rule.conditions) ? resolveAttributes(rule, attributes) : rule)
         .filter(rule => rule !== null)
     }
-    return rulesToCondition(rules, convert, hooks)
+    const query = rulesToCondition(rules, convert, hooks)
+    return is.nil(query) ? null : object.clone(query)
   }
 
 }

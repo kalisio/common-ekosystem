@@ -64,7 +64,7 @@ Returns the installed instance. Call it only after the application has configure
 import { getGlobalAuthorization } from '@kalisio/common-authorization'
 
 const authorization = getGlobalAuthorization()
-const ability = await authorization.getAbility({ _id: 'user-1' })
+const ability = authorization.getAbility({ _id: 'user-1' })
 ```
 
 ::: info

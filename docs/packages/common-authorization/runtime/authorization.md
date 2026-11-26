@@ -28,7 +28,7 @@ Creates an independent authorization instance. Aliases are copied at constructio
 | `options.cache` | `Object` | no | Enables rule caching |
 | `options.cache.key` | `Function` | yes, if cache is enabled | `(actor, context) => string`, returning a non-empty cache key |
 | `options.cache.max` | `number` | no | Maximum number of entries; positive integer or Infinity (default) |
-| `options.cache.ttl` | `number` | no | Entry lifetime in milliseconds; defaults to 0 (no expiration) |
+| `options.cache.ttl` | `number` | no | Entry lifetime in milliseconds; defaults to 60000, 0 disables expiration |
 
 ### Examples
 
@@ -53,7 +53,7 @@ const authorization = new Authorization({
 
 ## Authorization hooks
 
-Hooks contribute rules to a shared builder and can be synchronous or asynchronous. Their signature is:
+Hooks contribute rules to a shared builder and must be synchronous. Their signature is:
 
 ```js
 (actor, { can, cannot, defineRoleAbilities }, context) => {}
@@ -61,9 +61,13 @@ Hooks contribute rules to a shared builder and can be synchronous or asynchronou
 
 `actor` is the identity supplied by the caller (which may be null for anonymous access). `context` is the object supplied to ability computation, defaulting to `{}`. It is not automatically added to rule conditions.
 
-`can` and `cannot` are CASL rule-definition functions. `defineRoleAbilities(roles, definitions, scope)` delegates to [abilities.defineRoleAbilities()](../utilities/abilities.md#defineroleabilities) using the instance's builder and registry. Await or return its promise in the hook. A scope is a condition object or a function of each generated rule, combined with that rule's conditions.
+`can` and `cannot` are CASL rule-definition functions. `defineRoleAbilities(roles, definitions, scope)` delegates to [abilities.defineRoleAbilities()](../utilities/abilities.md#defineroleabilities) using the instance's builder and registry. A scope is a condition object or a function of each generated rule, combined with that rule's conditions.
 
-Hooks run sequentially in registration order. Rules from later hooks take precedence when applicable. Hooks registered during a computation apply only to subsequent computations. A rejected hook rejects the computation; no successful cached ability is produced from that failure.
+Hooks run sequentially in registration order. Rules from later hooks take precedence when applicable. Hooks registered during a computation apply only to subsequent computations. A hook that throws fails the computation; nothing is cached from that failure.
+
+::: warning
+A hook returning a promise, an `async` function included, is rejected with a `TypeError`, in production too: the ability would otherwise be built before the hook completes, silently lacking its rules. Load any data the hooks need, such as an up-to-date actor, before computing the ability.
+:::
 
 ## registerHook
 
@@ -133,7 +137,7 @@ authorization.unregisterHook('public')
 ### Signature
 
 ```js
-await authorization.defineAbility(actor, context)
+authorization.defineAbility(actor, context)
 ```
 
 ### Description
@@ -151,12 +155,12 @@ Runs the registered hooks and builds a new CASL ability. Always computes rules d
 
 | Type | Description |
 |------|-------------|
-| `Promise<Ability>` | New ability |
+| `Ability` | New ability |
 
 ### Examples
 
 ```js
-const ability = await authorization.defineAbility({ _id: 'user-1' })
+const ability = authorization.defineAbility({ _id: 'user-1' })
 ```
 
 ## getAbility
@@ -164,12 +168,12 @@ const ability = await authorization.defineAbility({ _id: 'user-1' })
 ### Signature
 
 ```js
-await authorization.getAbility(actor, context)
+authorization.getAbility(actor, context)
 ```
 
 ### Description
 
-Retrieves rules from the cache or computes them on a miss. When caching is disabled, it delegates to `defineAbility()`. Each call returns an independent ability, even when several calls share one rule computation.
+Retrieves rules from the cache or computes them on a miss. When caching is disabled, it delegates to `defineAbility()`. Each call returns an independent ability, even when several calls share cached rules.
 
 ### Parameters
 
@@ -182,12 +186,12 @@ Retrieves rules from the cache or computes them on a miss. When caching is disab
 
 | Type | Description |
 |------|-------------|
-| `Promise<Ability>` | New ability with the computed or cached rules |
+| `Ability` | New ability with the computed or cached rules |
 
 ### Examples
 
 ```js
-const ability = await authorization.getAbility({ _id: 'user-1' })
+const ability = authorization.getAbility({ _id: 'user-1' })
 ```
 
 ## invalidateAbility
@@ -252,16 +256,16 @@ const authorization = new Authorization()
 authorization.roles.register('member', {})
 authorization.roles.register('manager', { inherits: ['member'] })
 
-authorization.registerHook('projects', async (actor, { defineRoleAbilities }) => {
+authorization.registerHook('projects', (actor, { defineRoleAbilities }) => {
   for (const organization of actor.organizations ?? []) {
-    await defineRoleAbilities(organization.role, {
+    defineRoleAbilities(organization.role, {
       member: ({ can }) => can('read', 'projects'),
       manager: ({ can }) => can('update', 'projects')
     }, { organizationId: organization._id })
   }
 })
 
-const ability = await authorization.getAbility({
+const ability = authorization.getAbility({
   organizations: [{ _id: 'org-1', role: 'manager' }]
 })
 
@@ -272,15 +276,15 @@ permissions.can(ability, 'update', 'projects', { organizationId: 'org-1' })
 ## Cache behavior
 
 - The cache contains private copies of rules, not CASL ability instances. Each caller receives its own copied rules and ability.
-- Concurrent requests for the same key and policy version share the computation. Failed computations are not retained.
-- Entries are evicted in least-recently-used order when the size limit is exceeded. TTL is measured from insertion, not the most recent access.
+- Failed computations are not retained.
+- Entries are evicted in least-recently-used order when the size limit is exceeded. TTL is measured from insertion, not the most recent access. It defaults to one minute: a safety net, not a revocation mechanism.
 - Changes to role definitions or hooks cause stale entries to be recomputed on the next access.
 - Changes to an actor's memberships, permissions or external policy data require explicit invalidation, an appropriate key change, or expiration.
 
 ::: warning
 The cache key must distinguish every actor and context that can produce different rules. Use trusted identifiers and include context values whenever they influence hooks. Do not use a BSON ObjectId directly as a key; convert it to a string. Anonymous access needs a separate key if supported.
 
-Invalidation only affects future lookups. Already returned abilities and computations in progress are not revoked. In multi-process deployments, coordinate invalidation across instances if policy changes must take effect everywhere.
+Invalidation only affects future lookups. Already returned abilities are not revoked. The cache is local to the process: in multi-process deployments, the application is responsible for invalidating the abilities of every instance, for instance on changes to users or their permissions, and for computing them from an up-to-date actor.
 :::
 
 For example, when the organization in the hook context affects rule generation:
