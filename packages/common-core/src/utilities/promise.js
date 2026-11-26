@@ -13,9 +13,9 @@ export const promise = {
 
   checkNotThenable (value, message = 'Unexpected thenable') {
     const thenable = is.thenable(value)
-    // Prevent unhandled rejections from native promises.
-    // Do not assimilate arbitrary thenables as calling their then()
-    // method may trigger their execution.
+    // The value is refused by throwing, so a native promise would never be handled:
+    // silence it to avoid a second, unhandled rejection.
+    // Arbitrary thenables are left alone as calling their then() may start their execution.
     if (is.promise(value)) value.catch(() => {})
     ensure.that(thenable, is.booleanFalse, message)
     return value
