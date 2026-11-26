@@ -37,7 +37,7 @@ describe('setup', () => {
   })
   it('does not configure a default clock', () => {
     setup()
-    expect(() => getGlobalClock()).toThrow('global clock must be configured')
+    expect(getGlobalClock()).toBeUndefined()
   })
   it('does not replace the global clock when called without options', () => {
     const clock = createClock()

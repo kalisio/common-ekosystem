@@ -5,8 +5,7 @@ description: Configure the global application clock.
 
 # setup
 
-Registers the application clock to be shared across modules.
-The clock is created and managed by the application.
+Registers an application-owned clock for use across modules.
 
 ## Signature
 
@@ -20,11 +19,7 @@ setup(options = {})
 |--------|------|----------|-------------|
 | `clock` | `Clock` | no | The clock instance to install globally |
 
-If a clock is supplied, it becomes the global clock.
-If the option is absent or undefined, the existing
-global reference remains unchanged.
-
-No default clock is created.
+Passing a clock installs that instance as the global clock. Development assertions check that `options` is a plain object and that a supplied `clock` is a `Clock` instance. The application manages disposal.
 
 ## Returns
 
@@ -42,14 +37,14 @@ const clock = new Clock({ timezone: 'Europe/Paris' })
 
 setup({ clock })
 
-getGlobalClock().now()
+getGlobalClock()?.now()
 ```
 
 ## Global clock
 
 | Service | Access | Behavior |
 |---------|--------|----------|
-| Clock | `getGlobalClock()` | Retrieves the explicitly configured clock |
+| Clock | `getGlobalClock()` | Returns the configured clock or `undefined` before registration. |
 
 For direct access and registration, see
 [global-clock](./runtime/global-clock.md).

@@ -343,7 +343,7 @@ Formats an instant in the given timezone using Moment tokens. An ISO string with
 
 ### Throws
 
-`TypeError` for an unsupported date input type or a blank or non-string pattern. `RangeError` for an invalid date, unknown timezone, or unloaded locale. Some invalid zone names, such as `constructor`, can produce a `TypeError` from the timezone lookup.
+`TypeError` for an unsupported date input type or a blank or non-string pattern. `RangeError` for an invalid date, unknown timezone, or unloaded locale.
 
 ### Examples
 

@@ -754,7 +754,7 @@ Aligns an instant to a grid of equally spaced instants. `floor` selects the grid
 
 ### Throws
 
-An invalid step, a distance from the origin outside the safe integer range, or a result outside the native Date range throws a `RangeError`. Very large steps or distances can cause rounding errors even when both values are safe integers.
+An invalid step, a distance from the origin outside the safe integer range, or a result outside the native Date range throws a `RangeError`. Unsupported input types raise a `TypeError`, and invalid input dates raise a `RangeError`.
 
 ### Examples
 

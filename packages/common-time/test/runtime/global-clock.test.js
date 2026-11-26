@@ -59,8 +59,8 @@ describe('global clock', () => {
     })
   })
   describe('getGlobalClock', () => {
-    it('rejects access before configuration', () => {
-      expect(() => getGlobalClock()).toThrow('global clock must be configured')
+    it('returns undefined before configuration', () => {
+      expect(getGlobalClock()).toBeUndefined()
     })
     it('returns the same instance on every call', () => {
       const clock = createClock()

@@ -43,12 +43,12 @@ Strings without an explicit offset are interpreted in the selected timezone. Str
 | `options.format` | `string` | no | Custom Moment parsing format for date strings. Locale-sensitive tokens follow the [date.parse](../utilities/date.md#parse) rules. |
 | `options.locale` | `string` | no | Loaded Moment locale used by locale-sensitive format tokens. Defaults to `en`. |
 
-A JSON snapshot has the following structure:
+A JSON snapshot has the following structure.
 
-```js
+```json
 {
-  instant: '2026-11-20T12:00:00.000Z',
-  timezone: 'Europe/Paris'
+  "instant": "2026-11-20T12:00:00.000Z",
+  "timezone": "Europe/Paris"
 }
 ```
 
@@ -57,7 +57,7 @@ A JSON snapshot has the following structure:
 | Type | Description |
 |------|-------------|
 | `TypeError` | Unsupported input type or invalid format option. |
-| `RangeError` | Invalid date or timezone. |
+| `RangeError` | Invalid date, timezone, or unknown or unloaded locale. |
 
 ### Examples
 

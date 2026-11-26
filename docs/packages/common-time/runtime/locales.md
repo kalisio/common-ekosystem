@@ -5,10 +5,10 @@ description: Register and load formatting locales using common-core.
 
 # Time locales
 
-The [common-core locale registry](../../common-core/runtime/locales.md) owns the current locale and fallback. Pass the loaded Moment locale code explicitly to format dates or compute locale-dependent week boundaries. These operations default to English. Importing a Moment locale can affect [custom date parsing](../utilities/date.md#parse).
+The [common-core locale registry](../../common-core/runtime/locales.md) owns the current locale and fallback. Initialize the shared registry before registering or loading time locales. Pass the returned Moment locale code as the `locale` option for [custom date parsing](../utilities/date.md#parse), formatting, or locale-dependent week boundaries. Those operations default to English.
 
 ```js
-import { Locales } from '@kalisio/common-core/runtime'
+import { setup as setupCore } from '@kalisio/common-core/setup'
 import { DateTime, loadTimeLocale, registerTimeLocales } from '@kalisio/common-time'
 ```
 
@@ -17,18 +17,12 @@ import { DateTime, loadTimeLocale, registerTimeLocales } from '@kalisio/common-t
 ### Signature
 
 ```js
-registerTimeLocales(locales)
+registerTimeLocales()
 ```
 
 ### Description
 
-Registers resources for English (`en`) and French (`fr`) under the `common-time` namespace. French is loaded on demand.
-
-### Parameters
-
-| Name | Type | Description |
-|------|------|-------------|
-| `locales` | `Locales` | Application locale registry from common-core. |
+Registers resources for English (`en`) and French (`fr`) under the `common-time` namespace. French is loaded on demand. Register these resources again if the application replaces the shared locale registry.
 
 ### Returns
 
@@ -41,7 +35,7 @@ Registers resources for English (`en`) and French (`fr`) under the `common-time`
 ### Signature
 
 ```js
-loadTimeLocale(locales, code)
+loadTimeLocale(code)
 ```
 
 ### Description
@@ -52,7 +46,6 @@ Loads the first matching resource using the registry’s resolution order. For e
 
 | Name | Type | Description |
 |------|------|-------------|
-| `locales` | `Locales` | Registry with resources in the `common-time` namespace. |
 | `code` | `string` | Optional locale preference. Defaults to the registry’s current locale. |
 
 ### Returns
@@ -63,15 +56,15 @@ Loads the first matching resource using the registry’s resolution order. For e
 
 ### Throws
 
-Rejects if no resource matches, its locale or loader is invalid, or the loader fails to make the Moment locale available.
+Rejects with a `RangeError` if no resource matches or the selected Moment locale is unavailable after loading. An invalid locale descriptor or a non-function loader causes a `TypeError`. Errors from the loader propagate to the caller.
 
 ### Examples
 
 ```js
-const locales = new Locales({ default: 'fr-CA' })
-registerTimeLocales(locales)
+setupCore({ locales: { default: 'fr-CA', fallback: 'en' } })
+registerTimeLocales()
 
-const locale = await loadTimeLocale(locales)
+const locale = await loadTimeLocale()
 new DateTime('2026-11-20').format('MMMM', { locale })
 // 'novembre'
 ```

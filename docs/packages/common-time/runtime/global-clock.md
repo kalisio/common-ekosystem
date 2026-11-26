@@ -5,7 +5,7 @@ description: Access to the shared clock instance.
 
 # global-clock
 
-Functions for sharing a [Clock](./clock.md) instance across application modules. The application is responsible for configuring the global clock before it is accessed. No default clock is created.
+Functions for sharing a [Clock](./clock.md) instance across application modules. The application registers the clock it wants to share.
 
 ## setGlobalClock
 
@@ -25,7 +25,7 @@ of the previous instance.
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `clock` | `Clock` | yes | The clock instance to share |
+| `clock` | `Clock` | yes | The clock instance to share. Development assertions enforce the type. |
 
 ### Returns
 
@@ -52,14 +52,13 @@ getGlobalClock()
 
 ### Description
 
-Retrieves the registered clock instance. The application must
-configure the global clock before calling this function.
+Retrieves the registered clock instance. Callers are responsible for handling the absence of a clock.
 
 ### Returns
 
 | Type | Description |
 |------|-------------|
-| `Clock` | The global clock instance |
+| `Clock \| undefined` | The global clock instance, or `undefined` before registration. |
 
 ### Examples
 
@@ -68,8 +67,10 @@ import { getGlobalClock } from '@kalisio/common-time'
 
 const clock = getGlobalClock()
 
-clock.now()
-clock.range()
+if (clock) {
+  clock.now()
+  clock.range()
+}
 ```
 
 ::: tip

@@ -11,23 +11,15 @@ description: Time utilities for the Kalisio ekosystem
 
 `@kalisio/common-time` provides utilities and models for dates, durations, time ranges, timezones, and application clocks.
 
-::: tip
-Moment.js is in maintenance mode and does not receive major feature updates. Its maintainers recommend considering modern alternatives for new projects. `common-time` encapsulates Moment.js behind a stable API to simplify maintenance and a potential migration.
-:::
-
 It is organized around three modules:
 
 - [utilities](./utilities/date.md) — Stateless helpers for dates, durations, timezones, and time series.
 - [models](./models/date-time.md) — Immutable temporal values and ranges.
 - [runtime](./runtime/clock.md) — Clocks, shared time state, event listeners, and locale integration.
 
-Runtime services and locale resources can be initialized through [setup](./setup.md).
+Use [setup](./setup.md) to install the shared clock. To enable localized parsing or formatting, initialize the common-core locale registry and [register the time locale resources](./runtime/locales.md).
 
-::: info
-
-All public APIs use standard JavaScript values and ISO 8601 representations without exposing **Moment.js** objects.
-
-:::
+The API uses native JavaScript values, ISO 8601 strings, and the temporal models below.
 
 ## Installation
 
@@ -46,6 +38,8 @@ yarn add @kalisio/common-time
 ```
 
 :::
+
+Node.js 24 or later is required when running in Node.js. The package declares `@kalisio/common-core`, `moment`, and `moment-timezone` as peer dependencies.
 
 ```js
 import {
@@ -105,8 +99,10 @@ const unsubscribe = clock.on('tick', ({ time, range }) => {
   console.log(time.toISOString(), range)
 })
 
-unsubscribe()
-clock.dispose()
+function stopClock () {
+  unsubscribe()
+  clock.dispose()
+}
 ```
 
 ### Sharing a clock across modules
@@ -114,8 +110,7 @@ clock.dispose()
 Use [global-clock](./runtime/global-clock.md) to share a clock
 instance across application modules.
 
-The application must configure the global clock before
-other modules access it.
+`getGlobalClock()` returns `undefined` until the application registers a clock. Handle that case before calling clock methods.
 
 ```js
 // Application initialization
@@ -123,8 +118,9 @@ const clock = new Clock({ timezone: 'Europe/Paris' })
 setGlobalClock(clock)
 
 // Other modules
-getGlobalClock().now()
-getGlobalClock().range()
+const sharedClock = getGlobalClock()
+sharedClock?.now()
+sharedClock?.range()
 
 // Application shutdown
 clock.dispose()

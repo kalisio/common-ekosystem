@@ -9,6 +9,5 @@ export function setGlobalClock (clock) {
 }
 
 export function getGlobalClock () {
-  assert.that(globalClock, is.defined, 'global clock must be configured')
   return globalClock
 }
