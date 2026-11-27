@@ -1,6 +1,6 @@
 ---
 title: event-bus
-description: EventBus class with independent subscriptions and shared runtime access.
+description: EventBus class with independent subscriptions and synchronous dispatch.
 ---
 
 # event-bus
@@ -64,39 +64,4 @@ stop()
 bus.destroy()
 ```
 
-## setGlobalEventBus
-
-### Signature
-
-```js
-setGlobalEventBus(bus)
-```
-
-Installs an `EventBus` instance as the shared runtime bus. Development assertions reject values that are incompatible with `EventBus`. This function returns `undefined`.
-
-## getGlobalEventBus
-
-### Signature
-
-```js
-getGlobalEventBus()
-```
-
-Returns the shared `EventBus` instance, or `null` if none has been installed.
-
-### Example
-
-```js
-import { EventBus, getGlobalEventBus, setGlobalEventBus } from '@kalisio/common-core/runtime'
-
-setGlobalEventBus(new EventBus())
-
-const stop = getGlobalEventBus().on('ready', ({ data }) => {
-  console.log(data)
-})
-
-getGlobalEventBus().emit('ready', { initialized: true })
-stop()
-```
-
-Applications can also install the bus through [`setup()`](../setup.md). To subscribe to several events or await the next matching emission, see [event-listeners](./event-listeners.md).
+Applications can pass a bus to the [locale manager](./locales.md#initialization). To subscribe to several events or await the next matching emission, see [event-listeners](./event-listeners.md).

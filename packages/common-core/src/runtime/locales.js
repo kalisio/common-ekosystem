@@ -1,6 +1,6 @@
 import { assert, is } from '../predicates/index.js'
 import { Registry } from '../structures/registry.js'
-import { getGlobalEventBus } from './global-event-bus.js'
+import { EventBus } from './event-bus.js'
 
 class Locales {
   #locales = new Registry('locales')
@@ -8,8 +8,11 @@ class Locales {
   #current
   #default
   #fallback
+  #bus
 
-  constructor ({ default: defaultCode = 'en', fallback = 'en' } = {}) {
+  constructor ({ default: defaultCode = 'en', fallback = 'en', bus } = {}) {
+    assert.that(bus, value => value === undefined || is.instanceOf(value, EventBus), 'bus must be an instance of EventBus')
+    this.#bus = bus
     this.#default = Locales.#normalize(defaultCode)
     this.#fallback = Locales.#normalize(fallback)
     this.#current = this.#default
@@ -70,7 +73,7 @@ class Locales {
     if (locale === this.#current) return
     const previous = this.#current
     this.#current = locale
-    getGlobalEventBus()?.emit('locale:changed', { locale, previous })
+    this.#bus?.emit('locale:changed', { locale, previous })
   }
 
   resolve (...codes) {

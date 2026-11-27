@@ -23,6 +23,7 @@ setLocales(options = {})
 |---|---|---|---|---|
 | `default` | `string` | no | `'en'` | Initially selected locale. |
 | `fallback` | `string` | no | `'en'` | Fallback locale used in resolution and resource lookup. |
+| `bus` | `EventBus` | no | `undefined` | Event bus used to emit `locale:changed`. |
 
 The default and fallback locales are automatically registered when the instance is created. Register additional locale codes through the shared manager.
 
@@ -72,7 +73,7 @@ locales.setCurrent(code)
 
 Selects a previously registered locale. Throws `RangeError` for an unknown locale. Does nothing if the locale is already current.
 
-If the shared event bus has been configured, a successful change emits `locale:changed` with data `{ locale, previous }`. Listeners receive the standard event envelope `{ type, timestamp, data }`.
+When a bus is configured for this manager, a successful change emits `locale:changed` with data `{ locale, previous }`. Listeners receive the standard event envelope `{ type, timestamp, data }`. Without a bus, the locale changes without emitting an event.
 
 ### resolve
 
@@ -153,10 +154,10 @@ bus.on('locale:changed', ({ data }) => {
   console.log(data.locale, data.previous)
 })
 
-setup({ bus, locales: { default: 'en', fallback: 'en' } })
+setup({ locales: { default: 'en', fallback: 'en', bus } })
 const locales = getLocales()
 locales.register('fr', { label: 'Français' })
 locales.setCurrent('fr')
 ```
 
-Locale changes use the shared runtime bus. See [event-bus](./event-bus.md) and [setup](../setup.md).
+The application owns the event bus and can pass it to other components. See [event-bus](./event-bus.md) and [setup](../setup.md).

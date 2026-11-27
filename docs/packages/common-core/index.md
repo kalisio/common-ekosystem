@@ -76,7 +76,7 @@ See [Registry](./structures/registry.md), [Factory](./structures/factory.md), an
 
 ```js
 import {
-  EventBus, getGlobalEventBus,
+  EventBus,
   setLocales, getLocales,
   getLogger,
   listen, waitFor,
@@ -84,7 +84,7 @@ import {
 } from '@kalisio/common-core/runtime'
 ```
 
-Runtime features include a shared event bus, locale management, logging, event subscription helpers, and an HTTP requester.
+Runtime features include an event bus, locale management, logging, event subscription helpers, and an HTTP requester.
 
 See [EventBus](./runtime/event-bus.md), [Locales](./runtime/locales.md), [logger](./runtime/logger.md), [event-listeners](./runtime/event-listeners.md), and [requester](./runtime/requester.md).
 
@@ -95,7 +95,7 @@ import { setup } from '@kalisio/common-core/setup'
 import { EventBus, getLocales } from '@kalisio/common-core/runtime'
 
 const bus = new EventBus()
-setup({ bus, locales: { default: 'en', fallback: 'en' } })
+setup({ locales: { default: 'en', fallback: 'en', bus } })
 getLocales().register('fr', { label: 'Français' })
 ```
 

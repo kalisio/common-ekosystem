@@ -1,7 +1,6 @@
 let setLocales
 let getLocales
 let EventBus
-let setGlobalEventBus
 
 beforeEach(async () => {
   vi.resetModules()
@@ -9,7 +8,6 @@ beforeEach(async () => {
   setLocales = runtime.setLocales
   getLocales = runtime.getLocales
   EventBus = runtime.EventBus
-  setGlobalEventBus = runtime.setGlobalEventBus
 })
 
 function setup (codes = [], options = {}) {
@@ -41,6 +39,9 @@ describe('Locales', () => {
       const locales = setup()
       expect([...locales.list()]).toEqual(['en'])
     })
+    it.each([null, 42, 'bus', {}, [], () => {}])('rejects an invalid event bus (%s)', bus => {
+      expect(() => setLocales({ bus })).toThrow('bus must be an instance of EventBus')
+    })
     it('rejects a malformed default locale', () => {
       expect(() => setLocales({ default: 'en_US' })).toThrow(RangeError)
     })
@@ -57,12 +58,11 @@ describe('Locales', () => {
   })
 
   describe('setCurrent', () => {
-    it('switches to a registered locale and notifies the global event bus', () => {
+    it('switches to a registered locale and notifies the configured event bus', () => {
       const bus = new EventBus()
       const listener = vi.fn()
       bus.on('locale:changed', listener)
-      setGlobalEventBus(bus)
-      const locales = setup(['fr'])
+      const locales = setup(['fr'], { bus })
       locales.setCurrent('fr')
       expect(locales.getCurrent()).toBe('fr')
       expect(listener).toHaveBeenCalledWith({
@@ -71,18 +71,17 @@ describe('Locales', () => {
         data: { locale: 'fr', previous: 'en' }
       })
     })
-    it('uses the currently installed event bus', () => {
+    it('uses the bus configured for each locale manager', () => {
       const first = new EventBus()
       const second = new EventBus()
       const firstListener = vi.fn()
       const secondListener = vi.fn()
       first.on('locale:changed', firstListener)
       second.on('locale:changed', secondListener)
-      const locales = setup(['fr'])
-      setGlobalEventBus(first)
-      locales.setCurrent('fr')
-      setGlobalEventBus(second)
-      locales.setCurrent('en')
+      const firstLocales = setup(['fr'], { bus: first })
+      const secondLocales = setup(['fr'], { default: 'fr', bus: second })
+      firstLocales.setCurrent('fr')
+      secondLocales.setCurrent('en')
       expect(firstListener).toHaveBeenCalledTimes(1)
       expect(secondListener).toHaveBeenCalledTimes(1)
       expect(secondListener).toHaveBeenCalledWith(expect.objectContaining({
@@ -98,8 +97,7 @@ describe('Locales', () => {
       const bus = new EventBus()
       const listener = vi.fn()
       bus.on('locale:changed', listener)
-      setGlobalEventBus(bus)
-      const locales = setup()
+      const locales = setup([], { bus })
       locales.setCurrent('en')
       expect(listener).not.toHaveBeenCalled()
     })
