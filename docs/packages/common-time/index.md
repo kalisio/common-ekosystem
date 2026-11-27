@@ -15,9 +15,9 @@ It is organized around three modules:
 
 - [utilities](./utilities/date.md) — Stateless helpers for dates, durations, timezones, and time series.
 - [models](./models/date-time.md) — Immutable temporal values and ranges.
-- [runtime](./runtime/clock.md) — Clocks, shared time state, event listeners, and locale integration.
+- [runtime](./runtime/clock.md) — Clocks, event listeners, and locale integration.
 
-Use [setup](./setup.md) to install the shared clock. To enable localized parsing or formatting, initialize the common-core locale registry and [register the time locale resources](./runtime/locales.md).
+To enable localized parsing or formatting, initialize the common-core locale registry and [register the time locale resources](./runtime/locales.md).
 
 The API uses native JavaScript values, ISO 8601 strings, and the temporal models below.
 
@@ -45,7 +45,7 @@ Node.js 24 or later is required when running in Node.js. The package declares `@
 import {
   DateTime, Duration, TimeRange,
   date, duration, timezone, timeSeries,
-  Clock, getGlobalClock, setGlobalClock,
+  Clock,
   registerTimeLocales, loadTimeLocale
 } from '@kalisio/common-time'
 ```
@@ -103,25 +103,4 @@ function stopClock () {
   unsubscribe()
   clock.dispose()
 }
-```
-
-### Sharing a clock across modules
-
-Use [global-clock](./runtime/global-clock.md) to share a clock
-instance across application modules.
-
-`getGlobalClock()` returns `undefined` until the application registers a clock. Handle that case before calling clock methods.
-
-```js
-// Application initialization
-const clock = new Clock({ timezone: 'Europe/Paris' })
-setGlobalClock(clock)
-
-// Other modules
-const sharedClock = getGlobalClock()
-sharedClock?.now()
-sharedClock?.range()
-
-// Application shutdown
-clock.dispose()
 ```
