@@ -10,8 +10,7 @@ export default mergeConfig(baseConfig, defineConfig({
   build: {
     lib: {
       entry: {
-        index: 'src/index.js',
-        setup: 'src/setup.js'
+        index: 'src/index.js'
       }
     }
   }

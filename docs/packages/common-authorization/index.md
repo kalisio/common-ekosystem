@@ -18,7 +18,7 @@ description: Permission management for the Kalisio ekosystem
 It is organized around two modules:
 
 - [utilities](./utilities/abilities.md) — Stateless helpers for creating and manipulating [abilities](./utilities/abilities.md), evaluating [permissions](./utilities/permissions.md), and generating MongoDB queries.
-- [runtime](./runtime/authorization.md) — Stateful components for managing [role hierarchies](./runtime/role-registry.md), [authorization](./runtime/authorization.md), ability caching, and [global authorization](./runtime/global-authorization.md).
+- [runtime](./runtime/authorization.md) — Stateful components for managing [role hierarchies](./runtime/role-registry.md), and [authorization](./runtime/authorization.md), including ability caching.
 
 The authorization model relies on the following concepts:
 
@@ -60,8 +60,7 @@ yarn add @kalisio/common-authorization
 ```js
 import {
   abilities, permissions,
-  RoleRegistry, Authorization,
-  getGlobalAuthorization, setGlobalAuthorization
+  RoleRegistry, Authorization
 } from '@kalisio/common-authorization'
 ```
 
@@ -184,39 +183,3 @@ Authorization supports synchronous hooks, scoped permissions, and optional cachi
 and expiration. Changes to roles or hooks make cached rules stale. Applications can explicitly invalidate
 cached rules when an actor's permissions change.
 
-### Sharing authorization across modules
-
-Use [getGlobalAuthorization and setGlobalAuthorization](./runtime/global-authorization.md) to share an
-authorization instance across application modules. The getter returns `undefined` until an instance is registered.
-
-```js
-// Application initialization, using the configured instance above
-setGlobalAuthorization(authorization)
-
-// Other modules
-const sharedAbility = getGlobalAuthorization()?.getAbility(actor)
-```
-
-Multiple independent authorization instances can also be created when required.
-
-### Sharing abilities across applications
-
-Authorization rules can be transferred between applications to reconstruct an ability using
-[abilities.create()](./utilities/abilities.md#create).
-
-```js
-const rules = JSON.stringify(ability.rules)
-const clientAbility = abilities.create(JSON.parse(rules), { aliases })
-```
-
-Applications must use the same action aliases and preserve condition value types when transferring rules. JSON
-serialization is only suitable for JSON-compatible rules; values such as dates, regular expressions and BSON
-ObjectIds require a type-preserving representation.
-
-::: warning
-
-Client-side permission checks are intended to control user interface behavior. Authorization must always be enforced
-on the server side using trusted attributes and complete resource instances or authorization filters. Field-level
-restrictions must also be enforced when applicable.
-
-:::
