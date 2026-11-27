@@ -24,26 +24,6 @@
       "import": "./dist/runtime/index.mjs",
       "require": "./dist/runtime/index.cjs"
     },
-    "./io/json": {
-      "development": "./src/io/json.js",
-      "import": "./dist/io/json.mjs",
-      "require": "./dist/io/json.cjs"
-    },
-    "./io/csv": {
-      "development": "./src/io/csv.js",
-      "import": "./dist/io/csv.mjs",
-      "require": "./dist/io/csv.cjs"
-    },
-    "./io/xml": {
-      "development": "./src/io/xml.js",
-      "import": "./dist/io/xml.mjs",
-      "require": "./dist/io/xml.cjs"
-    },
-    "./io/yaml": {
-      "development": "./src/io/yaml.js",
-      "import": "./dist/io/yaml.mjs",
-      "require": "./dist/io/yaml.cjs"
-    },
     "./operators/compare": {
       "development": "./src/operators/compare.js",
       "import": "./dist/operators/compare.mjs",
@@ -68,6 +48,31 @@
       "development": "./src/operators/transform.js",
       "import": "./dist/operators/transform.mjs",
       "require": "./dist/operators/transform.cjs"
+    },
+    "./operators/validate": {
+      "development": "./src/operators/validate.js",
+      "import": "./dist/operators/validate.mjs",
+      "require": "./dist/operators/validate.cjs"
+    },
+    "./io/json": {
+      "development": "./src/io/json.js",
+      "import": "./dist/io/json.mjs",
+      "require": "./dist/io/json.cjs"
+    },
+    "./io/csv": {
+      "development": "./src/io/csv.js",
+      "import": "./dist/io/csv.mjs",
+      "require": "./dist/io/csv.cjs"
+    },
+    "./io/xml": {
+      "development": "./src/io/xml.js",
+      "import": "./dist/io/xml.mjs",
+      "require": "./dist/io/xml.cjs"
+    },
+    "./io/yaml": {
+      "development": "./src/io/yaml.js",
+      "import": "./dist/io/yaml.mjs",
+      "require": "./dist/io/yaml.cjs"
     },
     "./setup": {
       "development": "./src/setup.js",
@@ -128,6 +133,9 @@
   "peerDependencies": {
     "@xmldom/xmldom": "catalog:",
     "ajv": "catalog:",
+    "ajv-formats": "catalog:",
+    "ajv-i18n": "catalog:",
+    "ajv-keywords": "catalog:",
     "fast-xml-parser": "catalog:",
     "js-yaml": "catalog:",
     "lodash-es": "catalog:",
@@ -142,6 +150,15 @@
       "optional": true
     },
     "ajv": {
+      "optional": true
+    },
+    "ajv-formats": {
+      "optional": true
+    },
+    "ajv-i18n": {
+      "optional": true
+    },
+    "ajv-keywords": {
       "optional": true
     },
     "fast-xml-parser": {
@@ -191,22 +208,6 @@
         "import": "./dist/runtime/index.mjs",
         "require": "./dist/runtime/index.cjs"
       },
-      "./io/json": {
-        "import": "./dist/io/json.mjs",
-        "require": "./dist/io/json.cjs"
-      },
-      "./io/csv": {
-        "import": "./dist/io/csv.mjs",
-        "require": "./dist/io/csv.cjs"
-      },
-      "./io/xml": {
-        "import": "./dist/io/xml.mjs",
-        "require": "./dist/io/xml.cjs"
-      },
-      "./io/yaml": {
-        "import": "./dist/io/yaml.mjs",
-        "require": "./dist/io/yaml.cjs"
-      },
       "./operators/compare": {
         "import": "./dist/operators/compare.mjs",
         "require": "./dist/operators/compare.cjs"
@@ -226,6 +227,26 @@
       "./operators/transform": {
         "import": "./dist/operators/transform.mjs",
         "require": "./dist/operators/transform.cjs"
+      },
+      "./operators/validate": {
+        "import": "./dist/operators/validate.mjs",
+        "require": "./dist/operators/validate.cjs"
+      },
+      "./io/json": {
+        "import": "./dist/io/json.mjs",
+        "require": "./dist/io/json.cjs"
+      },
+      "./io/csv": {
+        "import": "./dist/io/csv.mjs",
+        "require": "./dist/io/csv.cjs"
+      },
+      "./io/xml": {
+        "import": "./dist/io/xml.mjs",
+        "require": "./dist/io/xml.cjs"
+      },
+      "./io/yaml": {
+        "import": "./dist/io/yaml.mjs",
+        "require": "./dist/io/yaml.cjs"
       },
       "./setup": {
         "import": "./dist/setup.mjs",

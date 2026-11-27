@@ -10,8 +10,10 @@ This module provides helpers to parse and read CSV data using [PapaParse](https:
 It extends PapaParse with:
 
 * support for an externally supplied header,
-* optional row validation using JSON Schema and AJV,
+* optional row validation using JSON Schema, with localizable errors,
 * automatic type coercion driven by the row schema.
+
+Install `papaparse`, `ajv`, `ajv-formats`, `ajv-keywords`, and `ajv-i18n` to use this module.
 
 The `csv` namespace also exposes the error codes inherited from the `source` module through `csv.ERROR_CODES`.
 
@@ -37,11 +39,11 @@ The `header` option controls how columns are mapped:
 
 When a custom header is provided, `parseMeta.fields` is populated with the supplied column names.
 
-Additional PapaParse configuration can be supplied through the `parser` option.
+Pass additional PapaParse configuration through `parser`. Use the top-level `header` option to control column mapping.
 
-An optional JSON Schema can be provided through `rowSchema`. When present, every parsed row is validated using AJV with type coercion enabled. Values may therefore be converted in place according to the types declared in the schema.
+Pass a synchronous JSON Schema through `rowSchema` to validate each parsed row with the [`validate` operator](../operators/validate.md). Ajv collects all errors per row and coerces values in place according to the schema. Boolean schemas `true` and `false` accept or reject every row, respectively.
 
-Rows that do not conform to the schema remain in `data`. Validation errors are collected separately in `validationErrors`.
+Invalid rows remain in `data`, including any values already coerced. `validationErrors` groups the errors by row. Set `locale` to localize validation messages. By default, validation uses the current application locale when available. The [operator’s localization rules](../operators/validate.md#error-localization) also apply to CSV.
 
 ### Parameters
 
@@ -51,7 +53,8 @@ Rows that do not conform to the schema remain in `data`. Validation errors are c
 | `options`           | `object`           | no       | Parsing options                                                                          |
 | `options.header`    | `true \| string[]` | no       | If `true`, uses the first CSV row as the header. If an array is provided, uses these values as column names without consuming a row from the CSV |
 | `options.parser`    | `object`           | no       | PapaParse configuration options. `skipEmptyLines` defaults to `true` but can be overridden.                      |
-| `options.rowSchema` | `object`           | no       | JSON Schema applied to every parsed row                                                  |
+| `options.rowSchema` | `object \| boolean` | no | Synchronous JSON Schema applied to every parsed row. |
+| `options.locale` | `string` | no | Locale for JSON Schema validation messages. Defaults to the current application locale when configured. |
 
 Header names supplied as an array must be non-empty strings and must be unique.
 
@@ -113,21 +116,15 @@ const validationError = {
 
 The `row` property is the zero-based index of the parsed row.
 
-Rows that fail JSON Schema validation remain in `data`.
-
-When `rowSchema` is provided, AJV type coercion is enabled and parsed values may be converted in place according to the types declared in the schema.
-
 ### Throws
 
-Throws if `text` is not a string.
+Development assertions check that `text` is a string and validate the options object. Ajv reports schema compilation errors.
 
-Throws if `options` does not match the expected schema.
+The parser throws a `TypeError` in these cases.
 
-Throws if `parser.dynamicTyping` is enabled together with `rowSchema`.
-
-Throws if `rowSchema` cannot be compiled by AJV.
-
-`dynamicTyping` cannot be used with `rowSchema` because type coercion is driven by the JSON Schema when row validation is enabled.
+- `parser.worker`, `parser.download`, `parser.step`, or `parser.chunk` is enabled. Parsing runs synchronously and returns all rows together.
+- `rowSchema` is supplied with `parser.dynamicTyping` set to a value other than `false` or `undefined`. Type coercion comes from the schema.
+- `rowSchema` declares asynchronous validation with `$async: true`.
 
 ### Examples
 

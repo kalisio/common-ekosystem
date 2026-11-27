@@ -14,15 +14,16 @@ export default mergeConfig(baseConfig, defineConfig({
         'utilities/index': 'src/utilities/index.js',
         'structures/index': 'src/structures/index.js',
         'runtime/index': 'src/runtime/index.js',
-        'io/json': 'src/io/json.js',
-        'io/csv': 'src/io/csv.js',
-        'io/xml': 'src/io/xml.js',
-        'io/yaml': 'src/io/yaml.js',
         'operators/compare': 'src/operators/compare.js',
         'operators/quantify': 'src/operators/quantify.js',
         'operators/request': 'src/operators/request.js',
         'operators/sanitize': 'src/operators/sanitize.js',
         'operators/transform': 'src/operators/transform.js',
+        'operators/validate': 'src/operators/validate.js',
+        'io/json': 'src/io/json.js',
+        'io/csv': 'src/io/csv.js',
+        'io/xml': 'src/io/xml.js',
+        'io/yaml': 'src/io/yaml.js',
         setup: 'src/setup.js'
       }
     }

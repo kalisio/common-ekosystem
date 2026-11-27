@@ -1,7 +1,7 @@
-import Ajv from 'ajv'
 import Papa from 'papaparse'
 import { is, assert, conform, optional } from '../predicates/index.js'
 import { source } from './source.js'
+import { validate } from '../operators/validate.js'
 
 const isHeader = (value) =>
   value === true ||
@@ -14,31 +14,20 @@ const isHeader = (value) =>
 const PARSE_OPTIONS_SCHEMA = {
   header: optional(isHeader),
   parser: optional(is.plainObject),
-  rowSchema: optional(is.plainObject)
+  rowSchema: optional(v => is.plainObject(v) || is.boolean(v)),
+  locale: optional(is.nonEmptyString)
 }
 
 const AJV_OPTIONS = {
-  allErrors: true,
   coerceTypes: true
-}
-
-const validators = new WeakMap()
-
-function getValidator (rowSchema) {
-  let validate = validators.get(rowSchema)
-  if (!validate) {
-    validate = new Ajv(AJV_OPTIONS).compile(rowSchema)
-    validators.set(rowSchema, validate)
-  }
-  return validate
 }
 
 function mapRows (rows, header, parseErrors) {
   return rows.map((row, index) => {
-    const mapped = {}
-    header.forEach((name, column) => {
-      mapped[name] = row[column]
-    })
+    // Own properties are defined, so a "__proto__" column is kept as data
+    const mapped = Object.fromEntries(
+      header.map((name, column) => [name, row[column]])
+    )
     if (row.length < header.length) {
       parseErrors.push({
         type: 'FieldMismatch',
@@ -61,19 +50,13 @@ function mapRows (rows, header, parseErrors) {
   })
 }
 
-function validateRows (data, rowSchema) {
-  const validate = getValidator(rowSchema)
+function validateRows (rows, rowSchema, locale) {
+  const validator = validate(rowSchema, { ajvOptions: AJV_OPTIONS })
   const validationErrors = []
-  data.forEach((row, index) => {
-    if (!validate(row)) {
-      validationErrors.push({
-        row: index,
-        errors: validate.errors.map(error => ({
-          ...error,
-          params: { ...error.params }
-        }))
-      })
-    }
+  rows.forEach((row, index) => {
+    // Type coercion mutates the row in place
+    const { valid, errors } = validator(row, { locale })
+    if (!valid) validationErrors.push({ row: index, errors })
   })
   return validationErrors
 }
@@ -93,17 +76,26 @@ export const csv = {
       },
       {
         value: options,
-        validator: (v) => conform.schema(v, PARSE_OPTIONS_SCHEMA),
+        validator: v => conform.schema(v, PARSE_OPTIONS_SCHEMA),
         message: 'options must be a valid options object'
       }
     ])
-    const { header, parser = {}, rowSchema } = options
+    const { header, parser = {}, rowSchema, locale } = options
+    // Parsing must return all results synchronously
+    if (parser.worker || parser.download || parser.step || parser.chunk) {
+      throw new TypeError('Only synchronous non-streaming parsing is supported')
+    }
+    // Type coercion is handled by Ajv when a row schema is provided
     if (
       rowSchema !== undefined &&
       parser.dynamicTyping !== undefined &&
       parser.dynamicTyping !== false
     ) {
       throw new TypeError('dynamicTyping cannot be used with rowSchema')
+    }
+    // Parsing is sync, so an async validator could not be awaited
+    if (rowSchema?.$async) {
+      throw new TypeError('rowSchema cannot be async')
     }
     const customHeader = is.array(header)
     const {
@@ -127,7 +119,7 @@ export const csv = {
     if (rowSchema === undefined) return result
     return {
       ...result,
-      validationErrors: validateRows(rows, rowSchema)
+      validationErrors: validateRows(rows, rowSchema, locale)
     }
   },
 

@@ -116,9 +116,9 @@ Some IO modules use optional peer dependencies:
 
 | Module | Package |
 |---|---|
-| `io/csv` | `papaparse`, `ajv` |
-| `io/xml` | `fast-xml-parser`. Install `@xmldom/xmldom` for DOM output when neither a native nor a custom DOM parser is available. |
-| `io/yaml` | `js-yaml` |
+| [`io/csv`](./io/csv.md) | `papaparse`, `ajv`, `ajv-formats`, `ajv-keywords`, `ajv-i18n` |
+| [`io/xml`](./io/xml.md) | `fast-xml-parser`. Install `@xmldom/xmldom` for DOM output when neither a native nor a custom DOM parser is available. |
+| [`io/yaml`](./io/yaml.md) | `js-yaml` |
 
 Install the dependencies needed by the formats you use.
 
@@ -130,14 +130,16 @@ import { quantify } from '@kalisio/common-core/operators/quantify'
 import { request } from '@kalisio/common-core/operators/request'
 import { sanitize } from '@kalisio/common-core/operators/sanitize'
 import { transform } from '@kalisio/common-core/operators/transform'
+import { validate } from '@kalisio/common-core/operators/validate'
 ```
 
 Some operators use optional peer dependencies:
 
 | Operator | Package |
 |---|---|
-| `compare` | `lodash-es` |
-| `sanitize` | `sanitize-html` |
-| `transform` | `lodash-es`, `mathjs`, `moment`, `sift` |
+| [`compare`](./operators/compare.md) | `lodash-es` |
+| [`sanitize`](./operators/sanitize.md) | `sanitize-html` |
+| [`transform`](./operators/transform.md) | `lodash-es`, `mathjs`, `moment`, `sift` |
+| [`validate`](./operators/validate.md) | `ajv`, `ajv-formats`, `ajv-keywords`, `ajv-i18n` |
 
 See each operator's page for signatures, options, and examples.
