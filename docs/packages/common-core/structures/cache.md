@@ -171,7 +171,7 @@ cache.clear()
 
 ## Expiration and eviction
 
-- When inserting beyond `max`, expired entries are pruned first; if necessary, the least recently used live entries are evicted.
+- Writes prune expired entries, including writes to an unbounded cache. If a write exceeds `max`, the least recently used live entries are evicted.
 - Entries expire `ttl` milliseconds after insertion or replacement. Reading a value does not extend this lifetime.
 - Expiration is **lazy**: entries are removed when checked, when enumerating or counting, or when pruning before eviction. No background timer is started.
 - With `max: Infinity` and `ttl: 0`, the cache has neither an entry limit nor expiration.

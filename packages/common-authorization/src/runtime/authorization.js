@@ -1,6 +1,6 @@
-import { assert, conform, is, optional } from '@kalisio/common-core/predicates'
+import { assert, conform, ensure, is, optional } from '@kalisio/common-core/predicates'
 import { Cache, Registry } from '@kalisio/common-core/structures'
-import { object, promise } from '@kalisio/common-core/utilities'
+import { cast, object } from '@kalisio/common-core/utilities'
 import { abilities } from '../utilities/index.js'
 import { RoleRegistry } from './role-registry.js'
 
@@ -11,8 +11,11 @@ const OPTIONS_SCHEMA = {
   // Validated by abilities
   aliases: optional(is.plainObject),
   // max and ttl are validated by Cache
-  cache: optional(value => is.plainObject(value) && conform.schema(value, { key: is.function }))
+  cache: optional(value => is.plainObject(value) && is.function(value.key) &&
+    Object.keys(value).every(key => ['key', 'ttl', 'max'].includes(key)))
 }
+
+const isKeyPart = value => is.nonEmptyString(value) || is.number(value) || is.function(value?.toHexString)
 
 export class Authorization {
   #roles = new RoleRegistry()
@@ -23,9 +26,10 @@ export class Authorization {
   #key
 
   constructor (options = {}) {
-    assert.that(
+    ensure.that(
       options,
-      value => is.plainObject(value) && conform.schema(value, OPTIONS_SCHEMA),
+      value => is.plainObject(value) && conform.schema(value, OPTIONS_SCHEMA) &&
+        Object.keys(value).every(key => Object.hasOwn(OPTIONS_SCHEMA, key)),
       'invalid authorization options'
     )
     const { aliases, cache } = options
@@ -57,37 +61,63 @@ export class Authorization {
     return removed
   }
 
-  // Always builds a new ability. Each hook receives the actor, the functions to define rules and the context,
-  // and must be synchronous
-  defineAbility (actor, context = {}) {
+  // Always builds a new ability.
+  async defineAbility (actor, context = {}) {
     assert.that(context, is.plainObject, 'context must be an object')
     const builder = abilities.createBuilder(this.#abilityOptions)
-    const definitions = {
-      can: builder.can,
-      cannot: builder.cannot,
-      defineRoleAbilities: (roles, roleDefinitions, scope) =>
-        abilities.defineRoleAbilities(builder, this.#roles, roles, roleDefinitions, scope)
-    }
-    for (const [name, hook] of this.#hooks.entries()) {
-      promise.checkNotThenable(hook(actor, definitions, context), `hook ${name} must be synchronous`)
+    for (const hook of this.#hooks.values()) {
+      const pendingRoles = []
+      let active = true
+      const ensureActive = () => ensure.that(active, is.booleanTrue, 'hook API used after the hook settled')
+      try {
+        const result = hook(actor, {
+          can: (...args) => {
+            ensureActive()
+            return builder.can(...args)
+          },
+          cannot: (...args) => {
+            ensureActive()
+            return builder.cannot(...args)
+          },
+          defineRoleAbilities: (roles, roleDefinitions, scope) => {
+            ensureActive()
+            const pending = abilities.defineRoleAbilities(builder, this.#roles, roles, roleDefinitions, scope)
+            // The hook may leave this promise unawaited or reject before it settles.
+            pending.catch(() => {})
+            pendingRoles.push(pending)
+            return pending
+          }
+        }, context)
+        if (is.thenable(result)) await result
+      } finally {
+        active = false
+      }
+      await Promise.all(pendingRoles)
     }
     return builder.build()
   }
 
-  // The cache holds a private copy of the rules, never an ability
-  getAbility (actor, context = {}) {
+  // Cache the rules promise before running any hooks.
+  async getAbility (actor, context = {}) {
     assert.that(context, is.plainObject, 'context must be an object')
     if (is.nil(this.#cache)) return this.defineAbility(actor, context)
     const key = this.#getKey(actor, context)
     const epoch = this.#getEpoch()
     let entry = this.#cache.get(key)
     if (is.nil(entry) || entry.epoch !== epoch) {
-      // A failure throws before anything is cached
-      entry = { epoch, rules: this.#defineRules(actor, context) }
+      const { promise, resolve, reject } = Promise.withResolvers()
+      entry = { epoch, rules: promise }
       this.#cache.set(key, entry)
+      entry.rules.catch(() => {
+        // Inspect without changing the recency of a replacement entry.
+        if (this.#cache.entries().some(([cachedKey, cached]) => cachedKey === key && cached === entry)) {
+          this.#cache.unregister(key)
+        }
+      })
+      this.#defineRules(actor, context).then(resolve, reject)
     }
     // Every ability gets its own copy, so that it is isolated from the others and behaves as one built by defineAbility
-    return abilities.create(object.clone(entry.rules), this.#abilityOptions)
+    return abilities.create(object.clone(await entry.rules), this.#abilityOptions)
   }
 
   // Only affects the next calls: an ability already returned is not revoked
@@ -101,17 +131,28 @@ export class Authorization {
     this.#cache?.clear()
   }
 
-  #defineRules (actor, context) {
-    const ability = this.defineAbility(actor, context)
+  async #defineRules (actor, context) {
+    const ability = await this.defineAbility(actor, context)
     // A private copy: conditions may hold values shared with the hooks, such as an array of the actor
     return object.clone(ability.rules)
   }
 
   #getKey (actor, context) {
-    const key = this.#key(actor, context)
-    // A key that is not a string, an ObjectId for instance, would never be found again
-    assert.that(key, is.nonEmptyString, 'cache key must be a non-empty string')
-    return key
+    const parts = this.#key(actor, context)
+    // Invalid parts can make distinct actors share one cache entry. Array.from exposes sparse holes.
+    ensure.that(
+      parts,
+      value => is.nonEmptyArray(value) && Array.from(value).every(isKeyPart),
+      'cache key must be a non-empty array of strings, finite numbers or ObjectIds'
+    )
+    return JSON.stringify(parts.map(part => {
+      // A serialized identifier must invalidate the same entry as the original value.
+      const text = cast.string(part)
+      if (is.defined(text)) return text
+      const hex = part.toHexString()
+      ensure.that(hex, value => is.string(value) && /^[a-f\d]{24}$/i.test(value), 'invalid ObjectId cache key part')
+      return hex.toLowerCase()
+    }))
   }
 
   // Changes whenever roles or hooks do, so that entries computed before are stale

@@ -142,7 +142,7 @@ const authorization = new Authorization({
     update: ['patch']
   },
   cache: {
-    key: actor => actor._id,
+    key: actor => [actor._id],
     max: 1000,
     ttl: 60000
   }
@@ -151,9 +151,9 @@ const authorization = new Authorization({
 authorization.roles.register('member', {})
 authorization.roles.register('manager', { inherits: ['member'] })
 
-authorization.registerHook('projects', (actor, { defineRoleAbilities }) => {
+authorization.registerHook('projects', async (actor, { defineRoleAbilities }) => {
   for (const organization of actor.organizations) {
-    defineRoleAbilities(organization.role, {
+    await defineRoleAbilities(organization.role, {
       member: ({ can }) => can('read', 'projects'),
       manager: ({ can }) => can('update', 'projects')
     }, { organizationId: organization._id })
@@ -168,7 +168,7 @@ const actor = {
   ]
 }
 
-const actorAbility = authorization.getAbility(actor)
+const actorAbility = await authorization.getAbility(actor)
 
 permissions.can(actorAbility, 'patch', 'projects', {
   organizationId: 'org-1'
@@ -179,7 +179,7 @@ permissions.can(actorAbility, 'patch', 'projects', {
 }) // false
 ```
 
-Authorization supports synchronous hooks, scoped permissions, and optional caching with LRU eviction
+Authorization supports synchronous and asynchronous hooks, scoped permissions, and optional caching with LRU eviction
 and expiration. Changes to roles or hooks make cached rules stale. Applications can explicitly invalidate
 cached rules when an actor's permissions change.
 

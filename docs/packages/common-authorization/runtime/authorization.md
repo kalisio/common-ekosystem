@@ -26,7 +26,7 @@ Creates an independent authorization instance. Aliases are copied at constructio
 | `options` | `Object` | no | Authorization options |
 | `options.aliases` | `Object` | no | Action aliases as arrays of action names |
 | `options.cache` | `Object` | no | Enables rule caching |
-| `options.cache.key` | `Function` | yes, if cache is enabled | `(actor, context) => string`, returning a non-empty cache key |
+| `options.cache.key` | `Function` | yes, if cache is enabled | `(actor, context) => Array<string \| number \| ObjectId>`, returning a non-empty list of key parts |
 | `options.cache.max` | `number` | no | Maximum number of entries; positive integer or Infinity (default) |
 | `options.cache.ttl` | `number` | no | Entry lifetime in milliseconds; defaults to 60000, 0 disables expiration |
 
@@ -38,7 +38,7 @@ import { Authorization, permissions } from '@kalisio/common-authorization'
 const authorization = new Authorization({
   aliases: { read: ['get', 'find'] },
   cache: {
-    key: actor => actor._id,
+    key: actor => actor == null ? ['anonymous'] : ['actor', actor._id],
     max: 1000,
     ttl: 60000
   }
@@ -53,7 +53,7 @@ const authorization = new Authorization({
 
 ## Authorization hooks
 
-Hooks contribute rules to a shared builder and must be synchronous. Their signature is:
+Hooks contribute rules to a shared builder and can be synchronous or asynchronous. Their signature is:
 
 ```js
 (actor, { can, cannot, defineRoleAbilities }, context) => {}
@@ -63,11 +63,20 @@ Hooks contribute rules to a shared builder and must be synchronous. Their signat
 
 `can` and `cannot` are CASL rule-definition functions. `defineRoleAbilities(roles, definitions, scope)` delegates to [abilities.defineRoleAbilities()](../utilities/abilities.md#defineroleabilities) using the instance's builder and registry. A scope is a condition object or a function of each generated rule, combined with that rule's conditions.
 
-Hooks run sequentially in registration order. Rules from later hooks take precedence when applicable. Hooks registered during a computation apply only to subsequent computations. A hook that throws fails the computation; nothing is cached from that failure.
+Hooks run sequentially in registration order. Rules from later hooks take precedence when applicable. Hooks registered during a computation apply only to subsequent computations. Errors from hooks, role definitions, and scope functions reject the ability computation.
 
-::: warning
-A hook returning a promise, an `async` function included, is rejected with a `TypeError`, in production too: the ability would otherwise be built before the hook completes, silently lacking its rules. Load any data the hooks need, such as an up-to-date actor, before computing the ability.
-:::
+Authorization waits for role calls started by each hook before moving to the next hook, even if the hook omits `await`. Role calls on the same builder run in call order. Await pending role calls before adding direct rules in the same hook. The rule-definition functions `can` and `cannot` throw while role calls are pending. Return or await any other asynchronous work that contributes rules so it completes within the hook. Once the hook returns or its returned promise settles, its rule-definition functions reject further calls by throwing. Use an awaited loop or return the promise for asynchronous membership processing.
+
+`actor.memberships.forEach(async membership => { … })` discards the promises returned by its callbacks. A callback that defines rules after the hook has finished throws into a detached promise. Under Node.js's default unhandled-rejection behavior, that can terminate the process. Use `for...of` and await the work inside the hook:
+
+```js
+authorization.registerHook('memberships', async (actor, { defineRoleAbilities }) => {
+  for (const membership of actor.memberships) {
+    const scope = await loadMembershipScope(membership)
+    await defineRoleAbilities(membership.role, roleDefinitions, scope)
+  }
+})
+```
 
 ## registerHook
 
@@ -137,7 +146,7 @@ authorization.unregisterHook('public')
 ### Signature
 
 ```js
-authorization.defineAbility(actor, context)
+authorization.defineAbility(actor, context) // Promise<Ability>
 ```
 
 ### Description
@@ -155,12 +164,12 @@ Runs the registered hooks and builds a new CASL ability. Always computes rules d
 
 | Type | Description |
 |------|-------------|
-| `Ability` | New ability |
+| `Promise<Ability>` | Resolves to a new ability |
 
 ### Examples
 
 ```js
-const ability = authorization.defineAbility({ _id: 'user-1' })
+const ability = await authorization.defineAbility({ _id: 'user-1' })
 ```
 
 ## getAbility
@@ -168,7 +177,7 @@ const ability = authorization.defineAbility({ _id: 'user-1' })
 ### Signature
 
 ```js
-authorization.getAbility(actor, context)
+authorization.getAbility(actor, context) // Promise<Ability>
 ```
 
 ### Description
@@ -186,12 +195,12 @@ Retrieves rules from the cache or computes them on a miss. When caching is disab
 
 | Type | Description |
 |------|-------------|
-| `Ability` | New ability with the computed or cached rules |
+| `Promise<Ability>` | Resolves to a new ability with the computed or cached rules |
 
 ### Examples
 
 ```js
-const ability = authorization.getAbility({ _id: 'user-1' })
+const ability = await authorization.getAbility({ _id: 'user-1' })
 ```
 
 ## invalidateAbility
@@ -256,16 +265,16 @@ const authorization = new Authorization()
 authorization.roles.register('member', {})
 authorization.roles.register('manager', { inherits: ['member'] })
 
-authorization.registerHook('projects', (actor, { defineRoleAbilities }) => {
+authorization.registerHook('projects', async (actor, { defineRoleAbilities }) => {
   for (const organization of actor.organizations ?? []) {
-    defineRoleAbilities(organization.role, {
+    await defineRoleAbilities(organization.role, {
       member: ({ can }) => can('read', 'projects'),
       manager: ({ can }) => can('update', 'projects')
     }, { organizationId: organization._id })
   }
 })
 
-const ability = authorization.getAbility({
+const ability = await authorization.getAbility({
   organizations: [{ _id: 'org-1', role: 'manager' }]
 })
 
@@ -275,16 +284,16 @@ permissions.can(ability, 'update', 'projects', { organizationId: 'org-1' })
 
 ## Cache behavior
 
-- The cache contains private copies of rules, not CASL ability instances. Each caller receives its own copied rules and ability.
-- Failed computations are not retained.
-- Entries are evicted in least-recently-used order when the size limit is exceeded. TTL is measured from insertion, not the most recent access. It defaults to one minute: a safety net, not a revocation mechanism.
+- The cache stores promises for private copies of the rules. Concurrent lookups for the same live entry share one computation. Each caller receives its own copied rules and ability.
+- A failed computation removes its entry if it is still current. Completion cannot restore an invalidated, expired, or evicted entry.
+- Entries are evicted in least-recently-used order when the size limit is exceeded. TTL is measured from insertion of the pending promise. Access and completion leave the expiration time unchanged. It defaults to one minute: a safety net, not a revocation mechanism.
 - Changes to role definitions or hooks cause stale entries to be recomputed on the next access.
 - Changes to an actor's memberships, permissions or external policy data require explicit invalidation, an appropriate key change, or expiration.
 
 ::: warning
-The cache key must distinguish every actor and context that can produce different rules. Use trusted identifiers and include context values whenever they influence hooks. Do not use a BSON ObjectId directly as a key; convert it to a string. Anonymous access needs a separate key if supported.
+The cache key must include the trusted actor identity and every context field that affects hook results. Return each value as a separate part to let Authorization validate and encode it. Parts can be non-empty strings, finite numbers, or BSON ObjectIds. Missing parts are rejected, including in production. Numbers and their string representations share a key, including `-0`, `0`, and `'0'`. A BSON ObjectId shares a key with its canonical lowercase hexadecimal string. If two identifier namespaces can contain the same text, include the namespace as its own key part. Use a separate key for anonymous access.
 
-Invalidation only affects future lookups. Already returned abilities are not revoked. The cache is local to the process: in multi-process deployments, the application is responsible for invalidating the abilities of every instance, for instance on changes to users or their permissions, and for computing them from an up-to-date actor.
+Invalidation affects future lookups. Callers already awaiting a computation still receive its result or error, and previously returned abilities remain usable. The cache is local to the process: in multi-process deployments, the application is responsible for invalidating the abilities of every instance, for instance on changes to users or their permissions, and for computing them from an up-to-date actor.
 :::
 
 For example, when the organization in the hook context affects rule generation:
@@ -292,10 +301,9 @@ For example, when the organization in the hook context affects rule generation:
 ```js
 const authorization = new Authorization({
   cache: {
-    key: (actor, context) => JSON.stringify([
-      actor == null ? null : String(actor._id),
-      context.organizationId ?? null
-    ]),
+    key: (actor, context) => actor == null
+      ? ['anonymous', context.organizationId]
+      : ['actor', actor._id, context.organizationId],
     max: 1000,
     ttl: 60000
   }

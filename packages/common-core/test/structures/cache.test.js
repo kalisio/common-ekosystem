@@ -21,6 +21,18 @@ describe('Cache', () => {
       expect(() => new Cache('cache', { ttl })).toThrow('ttl must be a non-negative integer')
     }
   })
+  it('rejects unsafe or mistyped limits in production', async () => {
+    vi.stubEnv('NODE_ENV', 'production')
+    vi.resetModules()
+    try {
+      const { Cache } = await import('../../src/structures/cache.js')
+      expect(() => new Cache('cache', { max: -1 })).toThrow('max must be a positive integer or Infinity')
+      expect(() => new Cache('cache', { ttl: '100' })).toThrow('ttl must be a non-negative integer')
+    } finally {
+      vi.unstubAllEnvs()
+      vi.resetModules()
+    }
+  })
   it('sets a new entry and replaces an existing one', () => {
     expect(cache.set('osm', 1)).toBe(1)
     expect(cache.set('osm', 2)).toBe(2)
@@ -183,6 +195,27 @@ describe('Cache', () => {
       expect(cache.keys()).toEqual(['b'])
       expect(cache.values()).toEqual([2])
       expect(cache.entries()).toEqual([['b', 2]])
+    })
+    it('purges unrelated expired entries on writes to an unbounded cache', () => {
+      const unregister = vi.spyOn(cache, 'unregister')
+      cache.set('old', 1)
+      vi.advanceTimersByTime(50)
+      cache.set('live', 2)
+      vi.advanceTimersByTime(50)
+      cache.set('new', 3)
+      expect(unregister.mock.calls).toEqual([['old']])
+      expect(cache.entries()).toEqual([['live', 2], ['new', 3]])
+    })
+    it('purges expired entries behind live entries after a clock rollback', () => {
+      const unregister = vi.spyOn(cache, 'unregister')
+      vi.setSystemTime(1000)
+      cache.set('live', 1)
+      vi.setSystemTime(950)
+      cache.set('old', 2)
+      vi.setSystemTime(1050)
+      cache.set('new', 3)
+      expect(unregister.mock.calls).toEqual([['old']])
+      expect(cache.entries()).toEqual([['live', 1], ['new', 3]])
     })
     it('does not refresh the ttl on get()', () => {
       cache.set('osm', 1)

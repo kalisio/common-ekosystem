@@ -1,15 +1,17 @@
-import { assert, is } from '../predicates/index.js'
+import { assert, ensure, is } from '../predicates/index.js'
 import { Registry } from './registry.js'
 
 export class Cache extends Registry {
   #max
   #ttl
   #expirations = new Map()
+  #latestExpiration = -Infinity
+  #unorderedUntil = -Infinity
 
   // ttl is in milliseconds, 0 disables expiration
   constructor (name = 'cache', { max = Infinity, ttl = 0 } = {}) {
     super(name)
-    assert.all([
+    ensure.all([
       {
         value: max,
         validator: v => is.positiveInteger(v) || is.positiveInfinity(v),
@@ -87,15 +89,21 @@ export class Cache extends Registry {
   clear () {
     super.clear()
     this.#expirations.clear()
+    this.#latestExpiration = this.#unorderedUntil = -Infinity
   }
 
   _set (key, value) {
+    const now = Date.now()
+    this.#pruneExpired(now)
     // Replacing an entry refreshes its recency
     if (super.has(key)) this.unregister(key)
     super._set(key, value)
-    if (this.#ttl > 0) this.#expirations.set(key, Date.now() + this.#ttl)
-    // Expired entries go first so that they never cost a live entry its place
-    if (super.size > this.#max) this.#pruneExpired()
+    if (this.#ttl > 0) {
+      const expiresAt = now + this.#ttl
+      if (expiresAt < this.#latestExpiration) this.#unorderedUntil = this.#latestExpiration
+      else this.#latestExpiration = expiresAt
+      this.#expirations.set(key, expiresAt)
+    }
     // Evict least recently used entries
     while (super.size > this.#max) this.unregister(this._firstKey())
     return value
@@ -106,8 +114,16 @@ export class Cache extends Registry {
     if (is.defined(expiresAt) && expiresAt <= Date.now()) this.unregister(key)
   }
 
-  #pruneExpired () {
+  #pruneExpired (now = Date.now()) {
     if (this.#ttl === 0) return
-    for (const key of this.#expirations.keys()) this.#pruneIfExpired(key)
+    // A clock rollback can place an earlier deadline after a later one.
+    const ordered = now >= this.#unorderedUntil
+    for (const [key, expiresAt] of this.#expirations) {
+      if (expiresAt <= now) this.unregister(key)
+      else if (ordered) break
+    }
+    // Once pruned, a later rollback cannot make this range unordered again.
+    if (ordered) this.#unorderedUntil = -Infinity
+    if (this.#expirations.size === 0) this.#latestExpiration = -Infinity
   }
 }

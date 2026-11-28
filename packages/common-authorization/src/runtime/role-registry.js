@@ -38,7 +38,7 @@ export class RoleRegistry extends Registry {
 
   // Roles in the order their rules must be defined: every ancestor once, before its descendants,
   // parents in the order of inherits so that the last listed one wins, then the role itself.
-  // With several roles, the same goes for the given order
+  // Multiple requested roles are visited in input order, but ancestors always precede descendants
   resolve (names) {
     assert.that(names, value => is.arrayOf(value, is.nonEmptyString), 'roles must be an array of names')
     const resolved = new Set()

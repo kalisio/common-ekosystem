@@ -238,6 +238,14 @@ describe('RoleRegistry', () => {
       expect(createRoles().resolve(['manager']))
         .toEqual(['member', 'editor', 'reviewer', 'manager'])
     })
+    it('orders requested ancestors before descendants regardless of input order', () => {
+      const roles = new RoleRegistry()
+      roles.register('member', {})
+      roles.register('manager', { inherits: ['member'] })
+
+      expect(roles.resolve(['member', 'manager'])).toEqual(['member', 'manager'])
+      expect(roles.resolve(['manager', 'member'])).toEqual(['member', 'manager'])
+    })
     it('keeps the order of several roles, without duplicates', () => {
       const roles = createRoles()
 

@@ -174,7 +174,7 @@ roles.resolve(names)
 
 ### Description
 
-Resolves the requested roles and their ancestors in rule definition order. Parents are traversed in their declared order, then the child. Multiple requested roles are traversed in input order. Each role appears once, even when reached through several inheritance paths. Unknown roles are rejected. Later emitted rules have higher CASL priority when applicable.
+Resolves the requested roles and their ancestors in rule definition order. Parents are traversed in their declared order, then the child. Multiple requested roles are traversed in input order. Each role appears once, even when reached through several inheritance paths. Unknown roles are rejected. Later emitted rules have higher CASL priority when applicable. For unrelated roles with conflicting rules, the order in the supplied list decides precedence. Supply the least authoritative role first when the more authoritative role should override it.
 
 ### Parameters
 
