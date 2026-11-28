@@ -1,5 +1,5 @@
-import { Registry } from '@kalisio/common-core/structures'
 import { assert, conform, ensure, is, optional } from '@kalisio/common-core/predicates'
+import { Registry } from '@kalisio/common-core/structures'
 
 const DEFINITION_SCHEMA = {
   inherits: optional(value => is.arrayOf(value, is.nonEmptyString))
