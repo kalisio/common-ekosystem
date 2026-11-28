@@ -92,6 +92,15 @@ describe('Cache', () => {
     expect(await first).toBe(42)
     expect(compute).toHaveBeenCalledOnce()
   })
+  it('retains a rejected computation until its entry is removed', async () => {
+    const error = new Error('boom')
+    const compute = vi.fn().mockRejectedValueOnce(error).mockResolvedValueOnce(42)
+    const pending = cache.getOrSet('a', compute)
+    await expect(pending).rejects.toBe(error)
+    expect(cache.getOrSet('a', compute)).toBe(pending)
+    cache.unregister('a')
+    await expect(cache.getOrSet('a', compute)).resolves.toBe(42)
+  })
   it('stores nothing when compute throws', () => {
     expect(() => cache.getOrSet('osm', () => { throw new Error('boom') })).toThrow('boom')
     expect(cache.has('osm')).toBe(false)
@@ -168,6 +177,19 @@ describe('Cache', () => {
       cache.entries()
       cache.set('c', 3)
       expect(cache.keys()).toEqual(['b', 'c'])
+    })
+    it('keeps snapshots stable when reads change the iteration order', () => {
+      cache.set('a', 1)
+      cache.set('b', 2)
+      const keys = cache.keys()
+      const values = cache.values()
+      const entries = cache.entries()
+      expect(keys).toEqual(['a', 'b'])
+      expect(cache.get('a')).toBe(1)
+      expect(cache.keys()).toEqual(['b', 'a'])
+      expect(Array.from(keys, key => cache.get(key))).toEqual([1, 2])
+      expect(values).toEqual([1, 2])
+      expect(entries).toEqual([['a', 1], ['b', 2]])
     })
   })
   describe('with ttl', () => {
@@ -253,6 +275,20 @@ describe('Cache', () => {
       vi.advanceTimersByTime(100)
       cache.getOrSet('osm', compute)
       expect(compute).toHaveBeenCalledTimes(2)
+    })
+    it('checks expiration only once on a getOrSet() hit', () => {
+      vi.setSystemTime(1000)
+      cache.set('a', 1)
+      const now = vi.spyOn(Date, 'now').mockReturnValueOnce(1099).mockReturnValue(1100)
+      const compute = vi.fn(() => 2)
+      try {
+        expect(cache.getOrSet('a', compute)).toBe(1)
+        expect(now).toHaveBeenCalledTimes(1)
+        expect(compute).not.toHaveBeenCalled()
+        expect(cache.getOrSet('a', compute)).toBe(2)
+      } finally {
+        now.mockRestore()
+      }
     })
     it('accepts register() on an expired key', () => {
       cache.register('osm', 1)

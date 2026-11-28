@@ -46,12 +46,7 @@ export class Cache extends Registry {
   }
 
   get (key) {
-    if (!this.has(key)) return undefined
-    const value = super.get(key)
-    // Move to the end (most recently used) without refreshing the ttl
-    super.unregister(key)
-    super._set(key, value)
-    return value
+    return this.has(key) ? this.#touch(key) : undefined
   }
 
   has (key) {
@@ -61,7 +56,7 @@ export class Cache extends Registry {
 
   getOrSet (key, compute) {
     assert.that(compute, is.function, 'compute must be a function')
-    if (this.has(key)) return this.get(key)
+    if (this.has(key)) return this.#touch(key)
     return this.set(key, compute(key))
   }
 
@@ -106,6 +101,14 @@ export class Cache extends Registry {
     }
     // Evict least recently used entries
     while (super.size > this.#max) this.unregister(this._firstKey())
+    return value
+  }
+
+  #touch (key) {
+    const value = super.get(key)
+    // Update registry order directly, leaving the expiration untouched.
+    super.unregister(key)
+    super._set(key, value)
     return value
   }
 

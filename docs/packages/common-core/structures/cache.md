@@ -152,7 +152,7 @@ cache.values()
 cache.entries()
 ```
 
-Return arrays of non-expired entries, ordered from **least recently used to most recently used**. Expired entries are pruned first. These methods do not refresh LRU recency.
+Return snapshots as arrays of non-expired entries, ordered from **least recently used to most recently used**. Expired entries are pruned first. These methods do not refresh LRU recency. You can call `get()` while iterating a snapshot. It reorders the cache without changing the snapshot.
 
 ```js
 cache.keys() // ['least-recent', 'most-recent']
@@ -172,7 +172,7 @@ cache.clear()
 ## Expiration and eviction
 
 - Writes prune expired entries, including writes to an unbounded cache. If a write exceeds `max`, the least recently used live entries are evicted.
-- Entries expire `ttl` milliseconds after insertion or replacement. Reading a value does not extend this lifetime.
+- Entries expire `ttl` milliseconds after insertion or replacement, measured against the system wall clock. Reading a value does not extend this lifetime.
 - Expiration is **lazy**: entries are removed when checked, when enumerating or counting, or when pruning before eviction. No background timer is started.
 - With `max: Infinity` and `ttl: 0`, the cache has neither an entry limit nor expiration.
 
